@@ -1,0 +1,65 @@
+{{extend 'layout.html'}}
+
+<div class="container">
+    <h1>{{=title}}</h1>
+    <h3>{{=subtitle}}</h3>
+</div>
+
+<div style="background-color:{{=SKIN['bg-clr-mnu']}};color:{{=SKIN['clr-mnu']}}">
+    <div class="container" style="padding:10px 10%;">
+        <h2 class="center">Задайте значения для поиска</h2>
+        <div class="row" style="padding-bottom:10px;">
+            <div class="col-sm-12">
+                <form action="javascript: void(0);" enctype="multipart/form-data" method="post">
+                Выберите вид услуги или дела:<br>
+                <select class="blue-c" name="cat"
+                       style="padding:5px; margin-right:25px;">
+                    <option value=''>ВСЕ</option>
+                    {{for r in db(db.deals_cat).select(groupby=db.deals_cat.name):}}
+                    <option value={{=r.id}}>{{=r.name}}</option>
+                    {{pass}}
+                </select><br>
+                Введите более 2-х символов из имени услуги или дела (например "warg").<br>
+                <input type="text" name="search" autofocus
+                       style="padding:5px; margin-right:25px;"
+                       size=7 placeholder="war"
+                       value="{{=request.vars.search or ''}}"
+                       class='blue-c' />
+                {{=A(TAG.i(_class='fa fa-search', _style='width:100px;'),
+                    _id = 'go',
+                    _onclick='ajax("'+URL('deal','list')+'", ["cat", "search"], "tag");$(this).addClass("disabled").children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");',
+                    _class='button ll-blue-bgc center',
+                    )}}
+                <button 
+                    onclick='ajax("{{=URL('deal', 'list')}}", ["cat", "search"], "tag");$("#go").addClass("disabled").children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");'
+                    class='hidden'
+                    type='submit'
+                        />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="tag" class="container" style="padding:10px 10%;">
+    {{if len(request.args) or len(request.vars):}}
+    {{=LOAD('deal','list', request.args, request.vars)}}
+    {{pass}}
+</div>
+<p>
+    
+</p>
+<div class="container">
+    Вы можете напрямую оплатить биткоинами разные услуги и дела, самые популярные из них:
+    {{=LOAD('deal','most')}}
+</div>
+<p>
+    
+</p>
+<div class="container" style="padding:10px 10%;">
+    <div class="row" style="padding-bottom:10px;">
+        <div class="col-sm-12">
+            Если Вы хотите добавить еще услугу для оплаты криптовалютами,
+            просьба сообщить об этом в тех.поддержку Support@7Pay.in
+        </div>
+    </div>
+</div>

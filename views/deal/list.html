@@ -1,0 +1,29 @@
+<div class='row header'>
+        <div class='col-sm-1'>
+            Раз
+        </div>
+        <div class='col-sm-5'>
+            Имя
+        </div>
+        <div class='col-sm-5'>
+            Описание
+        </div>
+        <div class='col-sm-1'>
+        </div>
+    </div>
+
+    {{odd=None}}
+    {{for r in rs:}}
+    {{ odd = not odd}}
+    <div class='row' style='padding-top:5px;padding-bottom:5px;
+                            {{=odd and 'background-color:lavender;' or ''}}' >
+        <div class='col-sm-1'>
+            {{=r.get('count','0')}}
+        </div>
+        <div class='col-sm-11'>
+            {{=r.get('icon','')}}
+            {{=r.get('url','')}}
+            {{=r.get('text','.')}}
+        </div>
+    </div>
+    {{pass}}

@@ -1,0 +1,12 @@
+*.pyc
+*.bak
+*.log
+
+/databases
+/errors
+/sessions
+/uploads
+
+/static/files
+##/static/images
+/static/temp--

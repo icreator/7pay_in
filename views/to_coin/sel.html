@@ -1,0 +1,55 @@
+{{vol=session.vol or 200}}
+{{# заданные по АПИ знначения в vars}}
+
+<div style="background-color:{{=SKIN['bg-clr-mnu']}};color:{{=SKIN['clr-mnu']}}">
+    <div class="container" style="padding:10px 10%;">
+        <h2 class="center">1. {{=T('Задайте значения обмена на')}} <img src={{=img_url}} width=50></img></h2>
+        {{ if vars.mess:}}
+        <h3 class="center">{{=vars.mess}}</h3>
+        {{pass}}
+        <div class="row" style="padding-bottom:10px;">
+            <div class="col-sm-10">
+                <input name="curr_out" type="hidden" value="{{=curr_out_id}}"
+                       />
+                {{=T('Адрес %s кошелька, на который Вы хотите получить монеты?') % curr_out_name}}<br />
+                <input class="blue-c wallet" id="addr" name="addr"  placeholder="{{=T('Введите Ваш адрес криптовалюты')}}"
+                         type="text" value="{{=vars.addr or addr or ''}}"
+                       {{=vars.addr and 'readonly' or ''}} />
+            </div>
+        </div>
+        <div class="row" style="padding-bottom:10px;">
+            <div class="col-sm-12">
+                {{=T('Сколько монет Вы хотите получить?')}}<br />
+                <input class="blue-c" id="pay_val" name="vol"
+                       onkeyup="recalc(this.value, -1);"
+                       size="8" type="text" value="{{=vars.sum or vol}}"
+                       {{=vars.sum and 'readonly' or ''}} />
+            </div>
+        </div>
+        {{if False:}}
+        <div class="row" style="padding-bottom:10px;">
+            <div class="col-sm-12 small">
+                <span>*{{=T('Вы можете использовать ссылку %s для организации обмена. Просто задайте свои значения кошелька получателя и суммы платежа, например так') % (URL(scheme=True, host=True) + '?curr=BTCx&sum=[Сумма]&addr=[Адрес Кошелька]')}}:<br>
+                {{_ = URL(scheme=True, host=True) + '?curr=BTC&sum=0.01&addr=1we34..'}}
+                <a href={{=_}} class="lite">{{=_}}</a><br>
+                {{=T('Более подробно в описании')}} <a href={{=URL('api','index')}} class="lite"><b>API</b></a>
+                </span>
+            </div>
+        </div>
+        {{pass}}
+    </div>
+</div>
+<h2 class="center">2. {{=T('Выберите криптовалюту обмена')}},<br />
+    <small>{{=T('которой Вы будете платить')}}</small>
+</h2>
+<h4 class="center">*{{=T('курс будет уточнён в зависисмости от объема и других условий')}}</h4>
+
+    {{=xcurrs_h}}
+
+{{#=reclams}}
+{{import recl2
+=XML(recl2.get1())}}
+
+<script><!--
+        onload = function() {recalc({{=vars.sum or vol}}, -1) };
+//--></script>

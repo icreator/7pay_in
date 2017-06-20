@@ -1,0 +1,282 @@
+{{
+def aaa(a, r=2):
+    a = round(float(a or 0), r)
+    return a == 0 and '<small>+0</small>' or a>0 and '+%s' % a or '%s' % a
+}}
+
+{{if adds_mess:
+    curr_out_abbrev = '[' + curr_out.abbrev + ']'
+    #if len(addr)>29 or len(pays)>0:
+}}
+<div class='gold-bgc'>
+    <div class='container' style='padding:10px;'>
+        <p class='small'>
+            {{=T('Если данные о Вашем платеже не появились тут в течении 1-й минуты, сообщите об этом в поддержку')}}
+        </p>
+        {{if price and price > 0 and payed:}}
+            {{amo_rest = price - payed}}
+            {{ss=T('По заказу [%s] стоимостью %s, оплачено ') % (order_id, price)}} {{=curr_out_abbrev}}
+            {{if amo_rest > 0:}}
+                {{=ss + '%s' % (T(' %s, остаток %s') % (payed, amo_rest))}}<br>
+                {{=amo_rest_url or ''}}
+            {{else:}}
+                {{=ss + '%s' % T('полностью.')}}<br>
+            {{pass}}
+        {{pass}}
+        {{if payed_month:}}
+            {{=T('Ваша месячная выплата')}} по делу <b>{{=deal.name}}</b> составила
+        {{=payed_month}} {{=curr_out_abbrev}}.
+            {{if MAX:
+                =T('При ограничении единичного платежа в') + ' %s ' % MAX + curr_out_abbrev
+        pass}}
+            <BR />
+        {{if not 'to COIN' in deal.name:}}
+        <span class='small'>{{=T('Превышение ограничения добавляет небольшую комиссию за использование сервиса:')}}
+            {{=T(' в 2 раза - 0,25%, в 3 раза - 0,5%, в 4 - 1%, в 5 и более раз - 2%.')}}
+        </span>
+        {{pass}}
+        {{pass}}
+    </div>
+</div>
+<div class="gift-bgc pb-10">
+    <div class="container">
+        {{=adds_mess}}
+    </div>
+</div>
+{{pass}}
+
+
+{{if len(pays_unconf) > 0:}}
+<div style='background-color:powderblue;'>
+    <div class='container'>
+        <H3 class='center'>
+            В ожидании
+        </H3>
+        {{odd = None}}
+        {{##print pays_unconf}}
+        {{for r in pays_unconf:}}
+        <div class='row' style='padding-top:5px;padding-bottom:5px;
+                            {{=odd and 'background-color:lavender;' or ''}}' >
+                <span class='small'>
+                    {{if type(r) != type([]):}}
+                    {{#print r}}
+                    {{=r}}
+                    {{else:}}
+                {{='{:%Y-%m-%d %H:%M:%S}'.format(r[6])}}
+                </span>
+                {{=r[1]}}
+            
+        {{=IMG(_src=URL('static','images/currs/' + r[0].abbrev + '.png'), _width=30)}}
+            {{if addr:}}
+        -> {{=IMG(_src=URL('static','images/currs/' + curr_out.abbrev + '.png'), _width=30)}}
+            {{=deal.name}} {{=deal_acc.acc}}
+            {{pass}}
+                <span class='small'>
+            Подтверждений: {{=r[4]}}, ожидаем еще {{=r[5]}}
+                </span>
+            <br />
+                    <a target="_blank" href={{=URL('blockchain','tx',args=[r[0].abbrev,r[2]])}}><i class='fa fa-info-circle'></i>TX:{{=r[3]}}</a>
+            {{if not privat:}}
+                <span class='small'>
+                {{=r[7]}}
+                </span>
+            {{pass}}
+            {{pass}}
+        </div>
+        {{odd = not odd}}
+        {{pass}}
+    </div>
+</div>
+{{pass}}
+
+{{if len(pays_process) > 0:}}
+<div class='gold-bgc' style='-background-color:powderblue;'>
+    <div class='container'>
+        <H3 class='center'>
+            В обработке
+        </H3>
+        {{odd = None}}
+        {{for r in pays_process:}}
+        <div class='row' style='padding-top:5px;padding-bottom:5px;
+                            {{=odd and 'background-color:lightgoldenrodyellow;' or ''}}' >
+        {{pay_in = r['pay_in']
+            pay_in_stack = r['pay_in_stack']
+            curr_out = r['curr_out']
+            }}
+            
+                <span class='small'>
+                {{='{:%Y-%m-%d %H:%M:%S}'.format(pay_in.created_on)}}
+                </span>
+                {{=pay_in.amount}}
+            {{if addr:}}
+        {{=IMG(_src=URL('static','images/currs/' + curr_in.abbrev + '.png'), _width=30)}}
+        -> {{=IMG(_src=URL('static','images/currs/' + curr_out.abbrev + '.png'), _width=30)}}
+            {{else:}}
+            {{curr_in = r['curr_in']}}
+        {{=IMG(_src=URL('static','images/currs/' + curr_in.abbrev + '.png'), _width=30)}}
+        -> {{=IMG(_src=URL('static','images/currs/' + curr_out.abbrev + '.png'), _width=30)}}
+            {{pass}}
+
+                {{deal = r['deal']
+                deal_acc = r['deal_acc']}}
+                {{if deal.name == 'phone +7':}}
+                    {{url = URL('to_phone','index')}}
+                {{elif deal.name == 'WALLET':}}
+                    {{url = URL('to_wallet','index')}}
+                {{else:}}
+                    {{url = URL('to_deal','index', args=[deal.id])}}
+                {{pass}}
+            {{if not privat:}}
+                {{=A(deal.name, ' ', deal_acc.acc, _href=url)}}
+            {{else:}}
+                {{=A(deal.name, _href=url)}}
+            {{pass}}
+            {{if not privat:}}
+                    <a target="_blank" href={{=URL('blockchain','tx',args=[curr_in.abbrev,pay_in.txid])}}><i class='fa fa-info-circle'></i>TX</a>
+            {{pass}}
+            {{=pay_in.status or '??'}}:{{=pay_in_stack.tries or '0'}} - {{=pay_in.status_mess or ''}}
+        </div>
+        {{odd = not odd}}
+        {{pass}}
+    </div>
+</div>
+{{pass}}
+
+<div class='container'>
+        <H3 class='center'>
+            Обработанные
+        </H3>
+    {{if len(pays) == 0:}}
+    Входов не найдено...
+    {{else:}}
+    <div class="row small">
+        *Числа в строке "выплачено" означают: [Взято[:Доля]]:Остаток+Подарок+Партнерские
+    </div>
+    {{odd = None}}
+    {{for r in pays:}}
+    {{odd = not odd}}
+    <div class='row' style='padding-top:5px;padding-bottom:5px;
+                            {{=odd and 'background-color:lavender;' or ''}}' >
+        <div class='col-sm-12'>
+    {{
+            to_COIN = False
+            deal = r['deal']
+            deal_acc = r['deal_acc']
+            if deal.name == 'phone +7':
+                url = URL('to_phone','index')
+            elif deal.name == 'WALLET':
+                url = URL('to_wallet','index')
+            elif 'to COIN' in deal.name:
+                url = URL('to_coin','index')
+                to_COIN = True
+            else:
+                url = URL('to_deal','index', args=[deal.id])
+            pass
+
+            pay_in = r['pay_in']
+            pay_out = r.get('pay_out')
+            if pay_out:
+                out_rate = round(pay_out.amount/pay_out.amo_in, 8)
+                if pay_in.amount == pay_out.amo_in:
+                    rnd_to = to_COIN and 8 or 2
+                    out_amo = round(float(pay_out.amount), rnd_to)
+                    amo_out_mess = '[%s]' % round(float(pay_out.amo_taken or 0), rnd_to)
+                    amo_out_mess += ':%s' % aaa(pay_out.amo_to_pay, rnd_to)
+                    amo_out_mess += '%s' % aaa(pay_out.amo_gift, rnd_to)
+                    amo_out_mess += '%s' % aaa(pay_out.amo_partner, rnd_to)
+                else:
+                    rnd_to = to_COIN and 8 or 3
+                    out_pick = pay_in.amount/pay_out.amo_in
+                    out_amo = round(float(pay_out.amount * out_pick), rnd_to)
+                    amo_out_mess = '[%s:%s]' % (round(float(pay_out.amo_taken),rnd_to), round(float(pay_out.amo_taken * out_pick), rnd_to))
+                    amo_out_mess += ':%s' % aaa((pay_out.amo_to_pay or 0) * out_pick, rnd_to)
+                    amo_out_mess += '%s' % aaa((pay_out.amo_gift or 0) * out_pick, rnd_to)
+                    amo_out_mess += '%s' % aaa((pay_out.amo_partner or 0) * out_pick, rnd_to)
+                pass
+            else:
+                amo_out_mess =''
+                out_amo = out_rate =  '???'
+                pass
+            out_dt = pay_out and '{:%Y-%m-%d %H:%M:%S}'.format(pay_out.created_on) or ''
+            curr_out =  r['curr_out']
+            out_txid = not pay_out and ' ' or to_COIN and A('TX', XML('<i class="fa fa-info-circle"></i>'), _href=URL('blockchain', 'tx', args=[curr_out.abbrev, pay_out.txid]), _target='_blank') or SPAN(pay_out.txid, _class='small')
+            curr_in = addr and curr_in or r['curr_in']
+            txid_in=URL('blockchain', 'tx',args=[curr_in.abbrev,pay_in.txid])
+
+            st = pay_in.status
+            if pay_out:
+                out_info = ''
+            elif st == 'returned':
+                out_info = T('Возвращен обратно')
+            elif st == 'refuse':
+                out_info = T('Не принят, ждёт возвращения')
+            elif st == 'wait':
+                out_info = T('Ожидание')
+            elif st == 'try':
+                out_info = T('Попытка')
+            elif st == 'added':
+                out_info = T('Добавлено к переплате')
+                out_amo = float(pay_in.status_mess or 0)
+                out_rate = out_amo and round(out_amo / float(pay_in.amount),8) or '??'
+                
+            else:
+                out_info = T('В обработке')
+            pass
+            status_mess = pay_in.status_mess
+            status_mess = status_mess and ' - ' + status_mess or ''
+            }}
+    {{if addr:}}
+            <span class='small'>
+    {{='{:%Y-%m-%d %H:%M:%S}'.format(pay_in.created_on)}}
+                </span>
+            + {{=pay_in.amount}}
+        {{#=curr_in.abbrev}}
+        {{=IMG(_src=URL('static','images/currs/' + curr_in.abbrev + '.png'), _width=30)}}
+    x {{=out_rate}}
+    -> 
+    {{=out_amo}} {{=XML(amo_out_mess)}}
+        {{=IMG(_src=URL('static','images/currs/' + curr_out.abbrev + '.png'), _width=30)}}
+            <span class='small'>
+        {{=out_dt}}
+            </span>
+            <a target="_blank" href={{=txid_in}}><i class="fa fa-info-circle">TX</i></a>
+            -> {{=out_txid}}
+            <br />{{=out_info}}
+            {{=status_mess}}
+    {{else:}}
+            <span class='small'>
+    {{='{:%Y-%m-%d %H:%M:%S}'.format(pay_in.created_on)}}
+            </span>
+                + {{=pay_in.amount}}
+        {{=IMG(_src=URL('static','images/currs/' + curr_in.abbrev + '.png'), _width=30)}}
+    x {{=out_rate}}
+    -> 
+    {{=out_amo}} {{=XML(amo_out_mess)}}
+        {{=IMG(_src=URL('static','images/currs/' + curr_out.abbrev + '.png'), _width=30)}}
+            <span class='small'>
+        {{=out_dt}}
+            </span>
+                {{if not privat:}}
+            <a target="_blank" href={{=txid_in}}><i class="fa fa-info-circle">TX</i></a>
+                ->
+            {{=out_txid}} <br />
+
+                {{=A(deal.name, ' ', deal_acc.acc, _href=url)}}
+            {{else:}}
+                {{=A(deal.name, 'phone +' in deal.name and '(%s)' % deal_acc.acc[1:5] or '', _href=url)}}
+            {{pass}}
+             {{=out_info}}
+            {{if not privat:}}
+            {{=status_mess}}
+            {{pass}}
+    {{pass}}
+        </div>
+    </div>
+    {{pass}}
+    {{pass}}
+</div>
+    {{
+    #import recl
+    #_, reclams = recl.get(db,3)
+    #=reclams
+    }}

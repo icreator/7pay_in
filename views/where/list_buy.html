@@ -1,0 +1,73 @@
+<div class='gold-bgc'>
+    
+    <div class='container' style='padding:10px 10%;'>
+        <div class='row' style='padding-top:5px;padding-bottom:5px;'>
+            <p>
+                {{=T('Если Ваш платеж не определён, попробуйте его найти вручную, для этого задайте номер счета куда Вы платили и номер платежа и нажмите кнопку поиска выше')}}:
+            </p>
+            <label>{{=T('Счет')}}</label> <input name='acc' form="inp_f" /> &nbsp;&nbsp;&nbsp;
+            <label>{{=T('Номер')}}</label> <input name='op_id' form="inp_f" />
+            <p>
+                {{=ed_op_res or ''}}
+            </p>
+        </div>
+    </div>
+    <div class='container'>
+        <H3 class='center'>
+            Куплено
+        </H3>
+        <small>*Статус "wait - so_small" - означает что выплата будет очень маленькая и комиссия среды почти всю её съест, просто добавьте ещё платеж на тот же самый адрес</small>
+        {{odd = None}}
+        {{for r in pays:}}
+        
+        <div class='row' style='padding-top:5px;padding-bottom:5px;
+                            {{=odd and 'background-color:lavender;' or ''}}' >
+                    {{
+        stack = db(r.id == db.buys_stack.ref_).select().first()
+        if stack:
+            if stack.in_proc:
+            mess_stack = B('***')
+            else:
+            mess_stack = B('?')
+            pass
+            = mess_stack
+            pass
+        }}
+
+            <span class='small'>{{=r.created_on}}</span>
+        {{=r.amount}} <i class='fa fa-rub blue-c'></i>
+            {{if no_addr:}}
+            {{ed_acc = db.dealers_accs[ r.dealer_acc_id]
+            =ed_acc.acc}}
+            {{else:}}
+            {{=r.operation_id}}
+            {{pass}}
+        {{if r.xcurr_id:
+            xcurr = db.xcurrs[r.xcurr_id]
+            curr = xcurr and db.currs[xcurr.curr_id]
+            abbrev = curr and curr.abbrev
+        else:
+            ## это пополнения из банков у которых еще не определен адрес выхода
+            abbrev = None
+            pass
+        st = r.status
+        st = st=='progress' and T('In progrress...') \
+            or st=='addr waiting' and T('Awaiting the wallet assign') or st
+            }}
+        -> 
+            {{if no_addr:}} {{=r.addr}} {{pass}}
+            {{=abbrev and IMG(_src=URL('static','images/currs/' + abbrev + '.png'), _width=30) or ''}}
+            {{if r.amo_out:}}
+            {{=r.amo_out }} 
+             x {{=round(r.amount/r.amo_out,8) or ''}}
+            <a target="_blank" href={{=URL('blockchain','tx',args=[abbrev,r.txid])}}><i class='fa fa-info-circle'></i>TX</a>
+            {{pass}}
+            {{=st}}
+            {{if r.status_mess:
+            =' - ' + r.status_mess
+            pass}}
+        </div>
+        {{odd = not odd}}
+        {{pass}}
+    </div>
+</div>

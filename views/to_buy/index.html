@@ -1,0 +1,74 @@
+{{extend 'layout.html'}}
+{{vol=session.buyVol or 200}}
+
+<div class="container">
+    <a class="block button blue-bgc right" style="margin-top:10px;padding-bottom:10px;"
+       href="{{=URL('default','index', scheme=True, host=True)}}?short"><h3>Почему мы?</h3></a>
+    <h1>{{=title}}</h1>
+    <h3>{{=subtitle}}</h3>
+    <h3>Способы покупки биткоинов, лайткоинов и другой криптовалюты на нашем сервисе</h3>
+    <div class="row" style="padding:10px;">
+        <p>
+            <img src={{=URL('static','images/m-cash.png')}} style="float:left;margin:10px;" />
+            Вы можете купить биткоины за Яндекс.Деньги и за безналичные рубли (см. ниже). При переводе с кошелька Яндекс.Деньги платежная система яндекса возьмёт с Вас 0,5%.
+        </p>
+    </div>
+    <div class="row" style="padding:10px;">
+        <p>
+            <img src={{=URL('static','images/m-banks.png')}} style="float:left;margin:10px;" />Вы можете купить биткоины за безналичные рубли, переводом со своего банковского счёта - достаточно с Вашего банковского счёта пополнить предоставленный ниже кошелек Яндекс.Денег и затем <a href={{=URL('to_buy', 'bank')}}>подтвердить платеж</a> введя биткоин-адрес, сумму и референс платежа (номер транзакции). При этом комиссия за пополнение у Альфа-Банка, Сбербанка и многих других нулевая - это самый выгодный способ купить биткоины и другую криптовалюту за рубли. Если при пополнении возможно задать сообщение, то укажите в нем аббревиатуру криптовалюты и адрес вашего кошелька, как будет показано ниже.
+        ВНИМАНИЕ!!! Сбербанк пока не предоставляет референс платежа, поэтому пополнение через Сбербанк совершается нами вручную - после оплаты свяжитесь с нами.
+        </p>
+    </div>
+    <div class="row" style="padding:10px;">
+        <p>
+            <img src={{=URL('static','images/m-cards.png')}} style="float:left;margin:10px;" /> Вы можете купить биткоины переводом со своей банковской карты, пополнив предоставленный ниже кошелек Яндекс.Деньги и указав в сообщении получателю аббревиатуру криптовалюты и адрес вашего кошелька, как будет показано ниже.
+        </p>
+    </div>
+</div>
+<div style="background-color:{{=SKIN['bg-clr-mnu']}};color:{{=SKIN['clr-mnu']}}">
+    <div class="container" style="padding:10px 10%;">
+        <h2 class="center">1. Задайте значения платежа</h2>
+        <div class="row" style="padding-bottom:10px;">
+            <div class="col-sm-12">
+                Чем Вы платите?<br />
+                <select class="blue-c" name="dealer">
+                    {{for r in inp_dealers:}}
+                    <option value={{=r[0]}}>{{=r[1]}}</option>
+                    {{pass}}
+                </select>
+            </div>
+        </div>
+        <div class="row" style="padding-bottom:10px;">
+            <div class="col-lg-6 col-md-8 col-sm-10">Куда перевести криптомонеты?<br />
+                <input class="blue-c wallet" name="wallet" placeholder="Введите адрес кошелька криптовалют"
+                       type="text" value="{{=session.buyAddr or ''}}" />
+            </div>
+        </div>
+        <div class="row" style="padding-bottom:10px;">
+            <div class="col-lg-5 col-md-8 col-sm-10">Сколько рублей Вы хотите заплатить? Мин: {{=MIN}}<br />
+                <input class="blue-c" id="pay_val" name="vol" onkeyup="recalc(this.value, {{=MAX}});" placeholder=">{{=MIN}}" size="8" type="text" value="{{=vol}}" />
+            </div>
+        </div>
+    </div>
+</div>
+<h2 class="center">2. Выберите криптовалюту, которую хотите получить</h2>
+    {{=xcurrs_h}}
+<p>
+    *If payment not founded use manual check by url:
+    {{=URL()}}/operation_check/ACCOUNT/OPERATION_ID
+</p>
+<div class="container">
+    Вы можете напрямую оплатить биткоинами разные услуги и дела, самые популярные из них:
+    {{=LOAD('deal','most' )}}
+        
+    </div>
+</div>
+<p>
+    
+</p>
+{{import recl2
+=XML(recl2.get1())}}
+
+<script><!--
+        onload = function() {recalc({{=vol}}, {{=MAX}}) };
+//--></script>

@@ -1,0 +1,91 @@
+{{extend 'layout.html'}}
+{{vol=request.sum or session.vol or 200}}
+
+<div class="container">
+    <a class="block button blue-bgc right" style="margin-top:10px;padding-bottom:10px;"
+       href="{{=URL('default','index', scheme=True, host=True)}}?short"><h3>Почему мы?</h3></a>
+    <h1>{{=title}}</h1>
+        {{if deal_info:}}
+        <p>
+            {{=deal_info}}
+        </p>
+        {{pass}}
+    <h3>{{=subtitle}}</h3>
+</div>
+
+{{vars = response.vars}}
+<div style="background-color:{{=SKIN['bg-clr-mnu']}};color:{{=SKIN['clr-mnu']}}">
+    <div class="container" style="padding:10px 10%;">
+        <h2 class="center">1. Задайте значения для оплаты услуги {{=deal_name}}
+            <sup><a href="{{=vars['shops_url']}}" target="_blank" class="lite"><i class="fa fa-external-link-square white-c"></i></a></sup>
+        </h2>
+        <div id='acc' class="row" style="padding-bottom:10px;">
+            {{if 'grab_form' in vars:}}
+            {{scid, name, img, form_pars =vars['grab_form']}}
+            <img src="https://money.yandex.ru{{=img}}">
+            {{for par in form_pars:}}
+            {{=XML(par, sanitize=True)}}
+            {{pass}}
+            {{else:}}
+            {{for par in pars:}}
+            {{=par['l']}} {{=par['i']}}<br />
+            {{if 'm' in par:}}
+                <p>
+                *{{=par['m']}}
+                </p>
+            {{pass}}
+            {{pass}}
+            {{pass}}
+            <br>
+            {{if GIFT_CODE:}}
+            {{=T('Ваш Подарочный код')}}:
+            <input type="text" name="gift_cod" class='gift_cod blue-c'
+                value={{=GIFT_CODE}}
+                readonly=true
+                >
+            {{else:}}
+            {{if not vars.get('not_gifted'):}}
+            {{=T('Введите Ваш Подарочный код (необязательно)')}}:
+            <input type="text" name="gift_cod" class='gift_cod blue-c'
+                >
+            {{pass}}
+            {{pass}}
+            <br>
+        </div>
+        <div class="row" style="padding-bottom:10px;">
+            <div class="col-sm-12">Доступно в службе: {{=vars['e_bal']}} рублей<br />
+                {{="vol_readonly" in vars and "Сумма к оплате" or "Сколько рублей Вы хотите уплатить"}}? Минимум: {{=MIN}}<br />
+                <input class="blue-c" id="pay_val" name="vol"
+                       onkeyup="recalc(this.value, {{=MAX}});" placeholder="> {{=MIN}}" size="8" type="text" value="{{=vol}}" />
+            </div>
+        </div>
+    </div>
+</div>
+<h2 class="center">2. Выберите криптовалюту, которой Вы хотите платить</h2>
+<h4 class="center">*курс будет уточнён в зависисмости от объема и других условий</h4>
+
+{{=xcurrs_h}}
+
+<div class="container" style="padding:10px 10%;">
+    <div class="row" style="padding-bottom:10px;">
+        <div class="col-sm-12">
+            Если Вы хотите добавить еще услугу для оплаты криптовалютами,
+            просьба сообщить об этом в тех.поддержку Support@7Pay.in
+        </div>
+    </div>
+</div>
+<div class="container">
+    Еще популярные услуги и дела:
+    {{=LOAD('deal','most')}}
+</div>
+
+{{#import recl
+#_, reclams = recl.get(db,2)
+#=reclams}}
+
+{{import recl2
+=XML(recl2.get1())}}
+
+<script><!--
+        onload = function() {recalc({{=vol}}, {{=MAX}}) };
+//--></script>

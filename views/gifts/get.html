@@ -1,0 +1,51 @@
+{{extend 'layout.html'}}
+
+<div>
+    <div class="container" style="padding:10px 10%;">
+        {{if GIFT_CODE:}}
+        <p>Ваш подарочный код {{=GIFT_CODE}}. Это значит что если наша служба будет дарить подарки за оплаты по некоторым делам или услугам, то Вы получите подарок оплатив это дело или услугу.
+        </p>
+        <p>
+        </p>
+        {{else:}}
+        <h2 class="center">Внесение подарочного кода</h2>
+        <div class="row" style="padding-bottom:10px;">
+            <div class="col-sm-10">
+                <h3>
+                Вы можете ввести подарочный код непосредственно при оплате услуг или дел или сделать это тут
+                </h3>
+<form action="javascript: void(0);" enctype="multipart/form-data" method="post">
+    {{=T('Укажите адрес криптовалюты, на который Вы платите за некоторую услугу или дело')}}:<br>
+    {{
+    ii = 49
+    dd = db.deals[ii]
+    aa = dd and A(B(dd.name), _href=URL('to_deal','index', args=[ii]), _target='_blank')
+    }}
+    {{=T('Например, адрес на который Вы платите биткоины за игру')}}
+    {{=aa}}:<br>
+    <input type="text" name="wallet"
+        class='wallet'
+    >
+    <br>{{=T("Введите подарочный код, который Вы получили от нашего партнёра")}}
+    <br>{{=T("(или пусто для получения информации о ранее введенном коде)")}}:<br>
+    <input type="text" name="cod" size=4 class="gift_cod" >
+    <br>
+    <br>
+                {{=A(TAG.i(_class='fa fa-search', _style='width:100px;'),
+                    _id = 'go',
+                    _onclick='ajax("'+URL('gifts', 'add')+'", ["wallet", "cod"], "tag");$(".go-btn").addClass("disabled");$(this).children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");',
+                    _class='go-btn button ll-blue-bgc center',
+                    )}}
+                <button class="go-btn hidden"
+                    onclick='ajax("{{=URL('gifts', 'add')}}", ["wallet", "cod"], "tag");
+                       $(".go-btn").addClass("disabled");$("#go").children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");'
+                    type='submit'
+                        />
+</form>
+            </div>
+        </div>
+        <div class='row' id='tag'>
+        </div>
+        {{pass}}
+    </div>
+</div>
