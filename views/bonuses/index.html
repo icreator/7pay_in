@@ -1,0 +1,94 @@
+{{extend 'layout.html'}}
+
+<div class="container" style="padding:10px 10%;">
+    <h2 class="center">Ваши награды и бонусы за платежи биткоинами и криптовалютами</h2>
+    <div class="row" style="padding-bottom:10px;">
+        <div class="col-sm-10">
+            {{ph = session.toPhone}}
+            {{if not ph or not bonus:}}
+            <h3>
+                Вам начислены бонусы: <b>{{=session.bonus_taken or session.bonus_to_pay}}</b> satoshi.
+            </h3>
+            <form action="javascript: void(0);" enctype="multipart/form-data" method="post">
+                <input type="hidden" name="gift" value="{{=GIFT_CODE}}" >
+                Чтобы получить их задайте номер своего сотового телефона с кодом страны (7910 9135477):<br />
+                + <input type="text" name="phone" value="{{=ph or ''}}"
+                         >
+                {{=A(TAG.i(_class='fa fa-forward', _style='width:100px;'),
+                _id = 'go',
+                _onclick='ajax("'+URL('bonuses', 'phone_add')+'", ["phone", "gift"], "tag");$(".go-btn").addClass("disabled");$(this).children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");',
+                _class='go-btn button ll-blue-bgc center',
+                )}}
+                <button class="go-btn hidden"
+                        onclick='ajax("{{=URL('bonuses', 'phone_add')}}", ["phone", "gift"], "tag");
+                                                            $(".go-btn").addClass("disabled");$("#go").children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");'
+                        type='submit'
+                        />
+            </form>
+            {{else:}}
+            <h3>
+                Ваш номер телефона {{=ph[:3]}}...{{=ph[-3:]}}
+            </h3>
+            {{if bonus:}}
+            <p>
+            Всего начислено:{{=bonus.taken}} satoshi. Всего Вы использовали: {{=bonus.payed}} satoshi.
+            </p>
+            {{=LOAD('bonuses','use')}}
+            <h3>
+                Награды за действия:
+            </h3>
+            <p>
+                Следующий бонус за посещение нашего сайта {{=BONUSES['visit']}},
+                {{if wait:}}
+                для этого нужно зайти на наш сайт через {{=wait}} дней.
+                {{else:}}
+                если Вы зайдете к нам через {{=BONUSES['wait']}}.
+                {{pass}}
+            </p>
+            <p>
+                Показать {{=A('Топ наград', callback=URL('bonuses','top'), target="top", _class='button ll-blue-bgc center')}}
+            </p>
+        </div>
+    </div>
+</div>
+<div id="top">
+</div>
+<div class="container" style="padding:10px 10%;">
+    <h2 class="center">Ваши награды и бонусы за платежи биткоинами и криптовалютами</h2>
+    <div class="row" style="padding-bottom:10px;">
+        <div class="col-sm-10">
+            <p>
+                Список ранее полученных бонусов:
+            </p>
+            {{odd=None}}
+            {{for r in trans:}}
+            {{
+            odd = not odd
+            memo = r.memo
+            memo = memo == 'new' and 'Как новому пользователю' or memo == 'visit' and 'За посещение сайта' or memo == 'gc' and 'За использование подарочного кода' or memo
+            cls = r.vol <0 and 'color:chocolate;'
+            _style = (cls or odd) and 'style='
+            _style = cls and _style + cls or _style
+            _style = odd and _style + 'background-color:lavender;' or _style
+                           }}
+            <div class="row" {{=_style or ''}}>
+                <div class='col-sm-3'>
+                    {{=r.on_day}} {{=r.vol}}
+                </div>
+                <div class='col-sm-9'>
+                    {{=memo}}
+                </div>
+            </div>
+            {{pass}}
+            {{else:}}
+            У Вас пока нет бонусов
+            {{pass}}
+            {{pass}}
+        </div>
+    </div>
+    <div class='row' id='tag'>
+    </div>
+</div>
+{{if not ph or not bonus:
+=LOAD('bonuses','top')
+pass}}

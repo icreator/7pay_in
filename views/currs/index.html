@@ -1,0 +1,157 @@
+{{extend 'layout.html'}}
+{{
+import rates_lib, db_client
+def frmt_fee(fee, perc=''):
+    fee = fee or 0
+    if fee != None:
+        if fee < 0:
+            r = '<b style="color:#B300AB">+%s' + perc + '</b>'
+        elif fee == 0:
+            return '0' + (perc and '%' or '')
+        else:
+            r = '-%s' + perc
+            pass
+        return XML(r % abs(float(fee)))
+    else:
+        return '--'
+    pass
+}}
+
+<div class="container">
+    <a class="block button blue-bgc right" style="margin-top:10px;padding-bottom:10px;margin-left:20px;"
+       href="{{=URL('default','index', scheme=True, host=True)}}?short"><h3>Почему мы?</h3></a>
+    <h1>{{=title}}</h1>
+    <h3>{{=subtitle}}</h3>
+    <p>
+        Знак плюс - означает начисление Вам, а не удержание.
+    </p>
+    <div class='row'>
+        <div class='row center'>
+            <div class='col-sm-4'>
+                <b>Имя</b>
+            </div>
+            <div class='col-sm-4'>
+                <b>Покупка</b>
+            </div>
+            <div class='col-sm-4'>
+                <b>Продажа</b>
+            </div>
+        </div>
+        <div class='row center'>
+            <div class='col-sm-4'>
+                <b>Есть >> Предел</b>
+            </div>
+            <div class='col-sm-4'>
+            </div>
+            <div class='col-sm-4'>
+            </div>
+        </div>
+    </div>
+    {{odd = None
+    for curr in currs:
+        #print 'RUB ->', curr.abbrev
+        odd = not odd
+        # сначала курс покупки за рубли
+        pr_b, pr_s, pr_avg = rates_lib.get_average_rate_bsa(db, curr.id, curr_rub.id, None)
+        if pr_avg:
+            vol_in = vol_out / pr_avg
+            _ , _, best_rate_in = rates_lib.get_rate(db, curr, curr_rub, vol_in)
+            _ , _, best_rate_out = rates_lib.get_rate(db, curr_rub, curr, vol_out)
+            best_rate_out = best_rate_out and 1/ best_rate_out
+        else:
+            best_rate_in = best_rate_out = None
+            pass
+        free_bal = db_client.curr_free_bal(curr)
+        max_bal = curr.max_bal or 0
+        bal_dep = (curr.deposit or 0)
+        max_bal = max_bal > 0 and max_bal + bal_dep
+
+    }}
+    
+    <div class="row" style="padding:5px;{{=odd and 'background-color:#DAF2F5;' or ''}}">
+        <div class='col-sm-4'>
+            <img src={{=URL('static','images/currs/' + curr.abbrev + '.png')}} width=30 class="lst_icon" />
+            <b>{{=curr.name}}</b>
+            [{{=curr.abbrev}}]
+            {{if IS_LOCAL and pr_avg:
+            =BR()
+            ='%s x %s / %s x %s' % (vol_in, round(pr_b, 8), round(pr_s, 8), vol_out)
+            pass}}
+            <br />
+            {{=free_bal}} >> {{=max_bal or '-'}}
+        </div>
+        <div class="col-sm-4">
+            <div class="row">
+                {{if best_rate_in:
+                    =round(best_rate_in, 8)
+                    if IS_LOCAL:
+                        =' [%s' %round((pr_b-best_rate_in)/pr_b*100,3)
+                        ='%]'
+                        pass
+                else:
+                    ='-?-'
+                    pass
+                }}
+            </div>
+            <div class="row">
+            {{ =frmt_fee(curr.fee_in)}},  &nbsp 
+            {{ =frmt_fee(curr.tax_in,'%%')}}
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="row">
+                {{if best_rate_out:
+                    =round(best_rate_out, 8)
+                    if IS_LOCAL:
+                        =' [%s' %round((best_rate_out - pr_s)/pr_s*100,3)
+                        ='%]'
+                        pass
+                else:
+                    ='---'
+                    pass
+                }}
+            </div>
+            <div class="row">
+            {{ =frmt_fee(curr.tax_out,'%%')}},  &nbsp 
+            {{ =frmt_fee(curr.fee_out)}}
+            </div>
+        </div>
+    </div>
+    {{pass}}
+    <div class='row'>
+        <h3>
+        Способ взятия комиссий (проценты) и такс (абсолютные значения)
+        </h3>
+        <ul>
+            <li>
+                с количества входящей валюты сначала снимается такса (абсолютное значение), затем с остатка снимается комиссия (процент)
+            </li>
+            <li>
+                затем прозводится конвертация получившегося объёма входящей валюты в выходящую по текущему курсу
+            </li>
+            <li>
+                с получившегося после конвертации объёма выходящей валюты сначала снимается комиссия (процент), а затем такса (абсолютное значение)
+            </li>
+            <li>
+                и наконец снимается комиссия (процент), а затем такса (абсолютное значение) для данного вида дела или оплаты услуги. Например за пополнение мобильно телефона один процент, а за обмен валют другой
+            </li>
+        </ul>
+        <p>
+            Эти проценты Вы можете так же увидеть после получения реквизитов при оплате услуг и дел после выбора валюты оплаты.
+        </p>
+    </div>
+</div>
+<p>
+    
+</p>
+<div class="container">
+    Вы можете напрямую оплатить биткоинами разные услуги и дела, самые популярные из них:
+    {{=LOAD('deal','most' )}}
+        
+    </div>
+</div>
+<p>
+    
+</p>
+{{import recl2
+=XML(recl2.get1())}}

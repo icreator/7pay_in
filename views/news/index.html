@@ -1,0 +1,38 @@
+{{extend 'layout.html'}}
+
+<div>
+    <div class="container" style="padding:10px 10%;">
+        <h2 class="center">Новости и обновления</h2>
+        <div class="row" style="padding-bottom:10px;">
+            <div class="col-sm-10">
+                <h3>
+        Статистика по использованию криптовалют на этом сервисе:<br>
+    {{=', '.join(stats)}}
+                </h3>
+
+{{=T('Советуем Вам')}}
+{{=A(T('подписаться'),_href=URL('default', 'subscribe', ), _target='_blank')}}
+{{=T('на важные уведомления от нашего сервиса')}}
+            </div>
+        </div>
+                {{odd = None}}
+{{for r in rs:}}
+                {{odd = not odd}}
+        <div class="row" style="padding-top:20px;">
+            <div class="col-sm-12">
+                <p>
+                {{=r.on_create}} <b>{{=XML(r.head)}}</b>
+                </p>
+            </div>
+        </div>
+        <div class="row" style='background-color:lavender;' >
+
+            <div class="col-sm-12">
+                <p>
+{{=XML(r.body)}}
+                </p>
+            </div>
+        </div>
+{{pass}}
+    </div>
+</div>

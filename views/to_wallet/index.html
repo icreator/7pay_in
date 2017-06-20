@@ -1,0 +1,79 @@
+{{extend 'layout.html'}}
+{{vol=session.vol or 200}}
+{{# заданные по АПИ знначения в vars}}
+
+<div class="container">
+    <a class="block button blue-bgc right" style="margin-top:10px;padding-bottom:10px;"
+       href="{{=URL('default','index', scheme=True, host=True)}}?short"><h3>Почему мы?</h3></a>
+    <h1>{{=title}}</h1>
+    <h3>{{=subtitle}}</h3>
+</div>
+
+<div style="background-color:{{=SKIN['bg-clr-mnu']}};color:{{=SKIN['clr-mnu']}}">
+    <div class="container" style="padding:10px 10%;">
+        <h2 class="center">1. Задайте значения платежа</h2>
+
+        {{ if vars.mess:}}
+        <h3 class="center">{{=vars.mess}}</h3>
+        {{pass}}
+        <div class="row" style="padding-bottom:10px;">
+            <div class="col-sm-8">
+                Платежная служба?<br>
+                <select class="blue-c" name="dealer">
+                    {{for r in inp_dealers:}}
+                    <option value={{=r[0]}}>{{=r[1]}}</option>
+                    {{pass}}
+                </select>
+            </div>
+        </div>
+        <div class="row" style="padding-bottom:10px;">
+            <div class="col-sm-10">
+                Номер кошелька (цифры) или емайл или сотовый телефон "+7 (921) 123 4567"?<br />
+                <input class="blue-c" id="acc" name="acc" placeholder="+7 (921) 123 4567 my@email.ru"
+                         style="max-width:250px;" type="text" value="{{=vars.acc or acc or ''}}"
+                       {{=vars.acc and 'readonly' or ''}} />
+            </div>
+        </div>
+        <div class="row" style="padding-bottom:10px;">
+            <div class="col-sm-12">
+                Доступно в службе: {{=limit_bal}} рублей<br />
+                На сколько рублей Вы хотите пополнить?<br />
+                <input class="blue-c" id="pay_val" name="vol"
+                       onkeyup="recalc(this.value, {{=MAX}});" placeholder="> {{=MIN}}"
+                       size="8" type="text" value="{{=vars.sum or vol}}"
+                       {{=vars.sum and 'readonly' or ''}} />
+            </div>
+        </div>
+        <div class="row" style="padding-bottom:10px;">
+            <div class="col-sm-12 small">
+                <span>*Вы можете использовать ссылку {{=URL(scheme=True, host=True)}}?ed=yandex&sum=[Сумма]&acc=[Яндекс.Кошелёк] для организации оплат биткоинами на своем сайте. Просто задайте свои значения кошелька получателя и суммы платежа, например так:<br>
+                {{_ = URL(scheme=True, host=True) + '?ed=yandex&sum=1500&acc=423456780345'}}
+                <a href={{=_}} class="lite">{{=_}}</a><br>
+                Более подробно в описании <a href={{=URL('api','index')}} class="lite"><b>API</b></a>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+<h2 class="center">2. Выберите криптовалюту, которой Вы хотите платить</h2>
+<h4 class="center">*курс будет уточнён в зависисмости от объема и других условий</h4>
+
+    {{=xcurrs_h}}
+<p>
+    
+</p>
+<div class="container">
+    Вы можете напрямую оплатить биткоинами разные услуги и дела, самые популярные из них:
+    {{=LOAD('deal','most' )}}
+        
+    </div>
+</div>
+<p>
+    
+</p>
+{{import recl2
+=XML(recl2.get1())}}
+
+<script><!--
+        onload = function() {recalc({{=vars.sum or vol}}, {{=MAX}}) };
+//--></script>

@@ -1,0 +1,46 @@
+{{extend 'layout.html'}}
+{{addr = request.vars.addr or request.args(0) or session.seeAddr or ''}}
+
+<div class="container">
+    <h1>Просмотр платежей и оплат биткоинами и другой криптовалютой</h1>
+    <h3>Здесь Вы можете посмотреть свои оплаты биткоинами услуг или последние платежи криптовалютами других пользователей в обезличенном виде</h3>
+</div>
+
+
+<div style="background-color:{{=SKIN['bg-clr-mnu']}};color:{{=SKIN['clr-mnu']}}">
+    <div class="container" style="padding:10px 10%;">
+        <div class="row" style="padding-bottom:10px;">
+            <div class="col-lg-9 col-md-11 col-sm-12">Вставьте адрес вашего платежа для поиска своих оплат или оставьте пусто для просмотра последних платежей нашей службы<br />
+                <form action="javascript: void(0);" enctype="multipart/form-data" method="post" id="inp_f">
+                    <input class="blue-c" name="addr" placeholder="Введите адрес кошелька криптовалют"
+                       autofocus="1" id="addr"
+                       style="  width: 100%; padding:5px; margin-bottom:25px;"
+                       type="text" value="{{=addr}}" /> <br>
+                {{=A(TAG.i(_class='fa fa-search', _style='width:100px;'),
+                    _id = 'go',
+                    _onclick='ajax("'+URL('where', 'list')+'", ["addr", "acc", "op_id"], "tag");$(".go-btn").addClass("disabled");$(this).children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");',
+                    _class='go-btn button ll-blue-bgc center',
+                    )}}
+                <button class="go-btn hidden"
+                    onclick='ajax("{{=URL('where', 'list')}}", ["addr", "acc", "op_id"], "tag");$(".go-btn").addClass("disabled");$("#go").children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");'
+                    type='submit'
+                        />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{=LOAD('where','list', args=[addr], vars=request.vars, target='tag', _style='padding-bottom: 19px;')}}
+
+<div style="background-color:{{=SKIN['bg-clr-ftr']}};color:{{=SKIN['clr-mnu']}}">
+    <div class="container" style="padding:10px 10%;">
+        <div class="row" style="padding-bottom:10px;">
+            {{=h}}
+        </div>
+    </div>
+{{import recl2
+=XML(recl2.get1())}}
+</div>
+
+{{#=reclams}}

@@ -1,0 +1,94 @@
+{{vars = request.vars }}
+
+<div class="bg-warning pb-10">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12" style="color:chocolate;">
+                {{=addr_ret}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12" style="color:chocolate;">
+                <h3>ВНИМАНИЕ</h3>
+                <p>При оплате необходимо соблюдать следующие правила:</p>
+                <ul>
+                    <li>Желательно задать обратный адрес для возврата монет на случай если наша служба по каким-либо причинам не сможет совершить оплату по делу [{{=deal_name}}]</li>
+                    <li>Если Вы не задали обратный адрес для возврата монет, то необходимо платить биткоины и другую криптовалюту только со своего кошелька, задав адреса входов, которыми Вы действительно обладаете, а не с кошельков бирж, пулов или разных онлайн-кошельков. Так как монеты, в случае если платеж будет отвергнут нашим партнёром, могут автоматически вернуться только на адрес отправителя.</li>
+                    <li>Если Вы оплатите другую сумму, то курс обмена может немножко измениться</li>
+                    <li>Если Вы платите регулярно, то можете платить на тот же адрес кошелька криптовалюты, что получили ранее. Хотя желательно заходить на нашу службу для получения новостей хотябы раз в пол года или подписаться на важные новости и сообщения оставив свой емайл.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{if adds_mess:}}
+<div class="gift-bgc pb-10">
+    <div class="container">
+{{=adds_mess}}
+    </div>
+</div>
+{{pass}}
+
+<div class="bg-info pb-10">
+    <div class="container">
+        <div class="row">
+            <h2 class='center'>
+                3. Оплатите по данным реквизитам услугу {{=deal_img}}
+            </h2>
+            Создан заказ № {{=order_rate_id}} на заморозку курса {{=rate_out}}
+            <h5>*Данный курс будет заморожен для Вас на 20 минут для объёма криптовалюты не больше указанного. Проверить можно по номеру заказа в списке платежей.</h5>
+        </div>
+        <div>
+            <p>Оплата <b>{{=deal_url}}</b> за <b>{{=acc}}</b> на сумму <b>{{=volume_out}} {{=curr_out_name}}</b> из доступных в службе {{=e_bal}}</p>
+            
+            {{=lim_bal_mess}}
+            
+            <p><a class="button blue-bgc" href="{{=uri_url}}">Оплатить {{=volume_in}}</a>
+                <img src="{{=URL('static','images/currs/' + curr_in_name + '.png')}}" width=36 /></p>
+            <br>
+            
+            <div id="tag0">
+            {{=A(T('Показать QR-код'),  _class='btn btn-info',
+               ##_onclick="jQuery(this).parent().html('%s')" % IMG(_src=URL('static','images/loading.gif'), _width=64),
+               _onclick="jQuery(this).parent().html('<i class=\"fa fa-spin fa-refresh\" />')",
+               callback=URL('plugins','qr', vars={'mess': uri_url}),
+               target='tag0')}}
+            </div>
+            или<br>
+            Оплатите вручную: 
+            <form action="{{=URL('where','index')}}" enctype="multipart/form-data" method="post">
+                <input class="pay_val" name="v" readonly="" type="text" value="{{=volume_in}}">{{=curr_in_name}}<br>
+                Для этого скопируйте сумму и адрес (двойной клик по полю для выделения) и вставьте их в платеж на вашем кошельке: 
+                <input class="wallet" name="addr" readonly="" type="text" value="{{=addr}}"><br>
+                Резервы службы <b>{{=e_bal}}</b> рублей<br>
+                <input class="button blue-bgc" size="6" type="submit" value="Подробный просмотр платежей">
+            </form>
+        </div>
+    </div>
+</div>
+
+{{#=response.vars['addr_ret']}}
+
+
+<div class="pb-10">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <h3>Почему получился такой курс?</h3>
+                {{=tax_rep}} <br>
+                При этом Вы получаете следующие преимущества при оплате биткоинами услуг и дел у нас
+                <ul>
+                    <li>не нужно нигде регистрироваться</li>
+                    <li>не нужно делать подтверждения по СМС или по емайл</li>
+                    <li>не нужно копить много денег - платежи возможны от {{=MIN}} [{{=curr_out_name}}]</li>
+                    <li>не нужно ждать сутки вывода</li>
+                </ul>
+                Время - деньги!
+            </div>
+        </div>
+    </div>
+</div>
+<script><!--
+    $('html, body').animate( { scrollTop: $('#cvr{{=curr_id}}').offset().top - $('#aside1').height() }, 500 );
+//--></script>
