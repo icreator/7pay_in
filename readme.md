@@ -14,12 +14,12 @@
 ### INSTALL HELP (RUS)
 https://docs.google.com/document/d/1zmR4CA_e-Z0k3Z9IDlnBc87JthoEtmY2vslIvhqphRE/edit?usp=sharing
 
-### DATABSE init
+### DATABASE init
 Use initial SQL statement:  
 **ipay-db-empty-for-install.zip**
 
-### for configure routes in web2py use:
-+ Edit **routes.py** in folder of application (/web2py/applications/7pay)
+### For configure routes in web2py use:
++ Edit **routes.py** in application folder (/web2py/applications/7pay_in)
 + Edit **routes_main.py** and copy to web2py folder (/web2py)
 
 ### For switch to DEVELOP mode
@@ -35,6 +35,12 @@ develop =
 ### HELP
 Skype i-creator
 Mail icreator@mail.ru
+
+### For APACHE
+see /_apache folder
+
+### For MS IIS
+see [web2py on IIS](http://web2py.com/books/default/chapter/29/13/deployment-recipes#IIS)
 
 
 > Written with [StackEdit](https://stackedit.io/).
