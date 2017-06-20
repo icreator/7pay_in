@@ -11,6 +11,19 @@
 + auto gathering rating from bitcoin exchanges (btc-e.com poloniex.com etc.)
 + etc.
 
+### List of cryptocurrencies
++ bitcoin
++ litecoin
++ dash
++ dogecoin
++ peercoin
++ novacoin
++ sibcoin
++ etc.
+
+### List of FIAT money
++ Yandex.Money
+
 ### INSTALL HELP (RUS)
 https://docs.google.com/document/d/1zmR4CA_e-Z0k3Z9IDlnBc87JthoEtmY2vslIvhqphRE/edit?usp=sharing
 
