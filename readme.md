@@ -22,19 +22,16 @@ Use initial SQL statement:
 + Edit **routes.py** in application folder (/web2py/applications/7pay_in)
 + Edit **routes_main.py** and copy to web2py folder (/web2py)
 
-### For switch to DEVELOP mode
+### For switch ON DEVELOP mode
 Edit **/privare/appconfig.ini**:  
 [app]  
 develop = 1  
+It will use developer database and local (127.0.0.1:8000) URLs
 
-### For switch to DEVELOP mode
+### For switch OFF DEVELOP mode
 Edit **/privare/appconfig.ini**:  
 [app]  
 develop =  
-
-### HELP
-Skype i-creator
-Mail icreator@mail.ru
 
 ### For APACHE
 see /_apache folder
@@ -42,5 +39,9 @@ see /_apache folder
 ### For MS IIS
 see [web2py on IIS](http://web2py.com/books/default/chapter/29/13/deployment-recipes#IIS)
 
+
+### AUTHOR & HELP
+Skype i-creator
+Mail icreator@mail.ru
 
 > Written with [StackEdit](https://stackedit.io/).
