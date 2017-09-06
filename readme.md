@@ -2,6 +2,8 @@
 ## Bitcoin & Fiat payment service
 #### python +  [web2py framework](http://web2py.com/books/default/chapter/29/14/other-recipes?search=eclipse#Developing-with-IDEs--WingIDE--Rad2Py--Eclipse-and-PyCharm)
 
+https://bitcointalk.org/index.php?topic=1927911
+
 ### Included SERVICES:
 + EXCHANGE bitcoin and crypto currencies to fiat currencies
 + payment in bitcoin and crypto currencies for mobile phone, games etc.
