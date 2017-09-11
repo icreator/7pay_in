@@ -1,5 +1,9 @@
 
 ## Bitcoin & Fiat payment service
+
+> DEMO
+http://datachains.world/7pay_in
+
 #### python +  [web2py framework](http://web2py.com/books/default/chapter/29/14/other-recipes?search=eclipse#Developing-with-IDEs--WingIDE--Rad2Py--Eclipse-and-PyCharm)
 
 https://bitcointalk.org/index.php?topic=1927911
