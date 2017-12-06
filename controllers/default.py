@@ -102,7 +102,7 @@ def crypto_trans():
         TAG.center(T("Как перевести деньги в СНГ и другие страны без посредников?")),
         _id="top_line")
     h = CAT()
-    h += DIV(
+    h += DIV(H1(T('ПРИВЕТ')),
             ua(T('Купить'),URL('to_buy', 'index')),
             ua(T('Оплатить'),URL('deal', 'index')),
             ua(T('Обменять'),URL('to_wallet', 'index')),
