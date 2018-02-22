@@ -116,26 +116,6 @@ else:
             _class='row'
             ),
         P(),
-        DIV(
-            DIV(A(IMG(_src=URL('static','images/logos/logo_bets2mm.png'), _style='width: 90%;'), _href="http://wagers.world", _target="_blank"),
-                _class='col-sm-4', _style='padding-right: 5px; padding-left: 0px;'),
-            DIV(T('Выиграть биткоины или создать свой спор, пари, тотализатор - на онлайн игру или любое событие за биткоины'), _class='col-sm-8'),
-            _class='row'
-            ),
-        DIV(
-            DIV(A(IMG(_src=URL('polza2','static','images/logo/LOGO-3bit.png'), _style='width: 80%;'),
-                  _href="http://ipo-polza.ru", _target="_blank"),
-                _class='col-sm-4', _style='padding-right: 5px; padding-left: 0px;'),
-            DIV(T('Поддержать сообщество криптовалют в России'), _class='col-sm-8'),
-            _class='row'
-            ),
-        DIV(
-            DIV(A(IMG(_src=URL('static','images/logos/blockchain-msk.jpg'), _style='width: 100%;'),
-                  _href="https://www.facebook.com/groups/blockchain.moscow/", _target="_blank"),
-                _class='col-sm-4', _style='padding-right: 5px; padding-left: 0px;'),
-            DIV(T('Блокчейн Клуб Москвы'), _class='col-sm-8'),
-            _class='row'
-            ),
         )
         ]
     import random

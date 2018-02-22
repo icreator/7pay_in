@@ -220,7 +220,7 @@ def select_ed_acc(db, deal, ecurr, vol=33, unlim=None):
              & (db.dealers_accs.reserve_MAX < db.dealers_accs.balance)
              & (db.dealers_accs.balance > vol)
              ).select():
-        #print 'get as max_reserve > balance', ed_acc.dealers_accs.acc
+        print 'get as max_reserve > balance', ed_acc.dealers_accs.acc
         return ed_acc.dealers, ed_acc.dealers_accs, ed_acc.dealer_deals
 
     l = []
@@ -232,14 +232,14 @@ def select_ed_acc(db, deal, ecurr, vol=33, unlim=None):
         acc = sel_acc_max(db, dealer, ecurr, vol, unlim)
         if acc:
             # счет нашелся
-            #print 'added for search:', acc.acc
+            print 'added for search:', acc.acc
             l.append([dealer, acc, dealer_deal])
 
-    #print l
+    print l
     # теперь из найденных счетов выберем с наименьшей комиссией
     tax = 100
     for t in l:
-        #print '  t[2].tax:', t[2].tax
+        print '  t[2].tax:', t[2].tax
         if tax > t[2].tax:
             tax = t[2].tax
             result = t[0], t[1], t[2]
