@@ -21,7 +21,6 @@ db = DAL("sqlite://storage.sqlite",
 
 from decimal import Decimal
 
-
 db.define_table('currs',
    Field('abbrev', length=5, unique=True),
    Field('used', 'boolean', default=False, comment='used by site'),
@@ -704,46 +703,173 @@ if db(db.currs).isempty():
     db.currs.truncate()
     xpass = 'login:password'
     for r in [
-            ['BTC', 'Bitcoin', 'bitcoin', True,
-                ['13', 'http://%s@127.0.0.1:8332' % xpass, 600, 0.00010000, 1, 101, 0],
+            ['USD', 'US dollar', 'usd', True], #1
+            ['RUB', 'Ruble', 'ruble', True], #2
+            ['BTC', 'Bitcoin', 'bitcoin', True, #3
+                ['13', 'http://%s@127.0.0.1:8332' % xpass, 600, 0.0007000, 1, 101, -1],
                  None,
             ],
-            ['LTC', 'Litecoin', 'litecoin', True,
-                ['D9A', 'http://%s@127.0.0.1:9432' % xpass, 30, 0.1, 3, 101, 0],
+            ['LTC', 'Litecoin', 'litecoin', True, #4
+                ['L', 'http://%s@127.0.0.1:9332' % xpass, 150, 0.005, 3, 120, -1],
                  None,
             ],
-            ['DOGE', 'DOGE', 'doge', True],
-            ['RUB', 'Rubble', 'ruble', True],
-            ['USD', 'USDollad', 'usd', True],
+            ['DOGE', 'DOGE', 'doge', True, #5
+                ['D9A', 'http://%s@127.0.0.1:9432' % xpass, 30, 0.1, 5, 101, -1],
+                 None,
+            ],
+            ['DASH', 'DASH', 'dash', True, #6
+                ['', 'http://%s@127.0.0.1:13332' % xpass, 333, 0.005, 3, 101, -1],
+                 None,
+            ],
+            ['EMC', 'Emercoin', 'emercoin', True, #7
+                ['EM', 'http://%s@127.0.0.1:14332' % xpass, 550, 0.1, 3, 101, -1],
+                 None,
+            ],
+            ['NVC', 'Novacoin', 'novacoin', True, #8
+                ['4', 'http://%s@127.0.0.1:11332' % xpass, 450, 0.1, 3, 120, -1],
+                 None,
+            ],
             ]:
         curr_id = db.currs.insert( abbrev = r[0], name = r[1], name2 = r[2], used=r[3])
+        if len(r)>4:
+            db.xcurrs.insert(curr_id = curr_id, first_char = r[4][0], connect_url = r[4][1],
+                             block_time=r[4][2], txfee = r[4][3], conf = r[4][4], conf_gen = r[4][5])
+        else:
+            db.ecurrs.insert(curr_id = curr_id)
 
-rub_id = db(db.currs.abbrev == 'RUB').select().first().id
+if db(db.exchg_taxs).isempty():
+    db.exchg_taxs.truncate()
+    db.exchg_taxs.insert( curr1_id = 3, curr2_id = 2, tax = 0)
+    db.exchg_taxs.insert( curr1_id = 3, curr2_id = 1, tax = 0.5)
+    db.exchg_taxs.insert( curr1_id = 4, curr2_id = 3, tax = 1)
+    db.exchg_taxs.insert( curr1_id = 8, curr2_id = 3, tax = 1)
+    
+if db(db.exchg_pair_bases).isempty():
+    db.exchg_pair_bases.truncate()
+    for r in [
+        [1, 2, 0, 100, 0.1],
+        [1, 3, 0, 100, 0.1],
+        [1, 4, 0, 100, 0.1],
+        [1, 5, 0, 100, 0.1],
+        [1, 6, 0, 100, 0.1],
+        [1, 7, 0, 100, 0.1],
+        [1, 8, 0, 100, 0.1],
+        [2, 1, 0, 10000, 0.1],
+        [2, 3, 0, 10000, 0.1],
+        [2, 4, 0, 10000, 0.1],
+        [2, 5, 0, 10000, 0.1],
+        [2, 6, 0, 10000, 0.1],
+        [2, 7, 0, 10000, 0.1],
+        [2, 8, 0, 10000, 0.1],
+        [3, 1, 0, 1, 0.1],
+        [3, 2, 0, 1, 0.1],
+        [3, 4, 0, 1, 0.1],
+        [3, 5, 0, 1, 0.1],
+        [3, 6, 0, 1, 0.1],
+        [3, 7, 0, 1, 0.1],
+        [3, 8, 0, 1, 0.1],
+        [4, 3, 0, 333, 0.1],
+        [5, 3, 0, 3333, 0.1],
+        [6, 3, 0, 3333, 0.1],
+        [7, 3, 0, 33, 0.1],
+        [8, 3, 0, 333, 0.1],
+        ]:
+        db.exchg_pair_bases.insert(curr1_id = r[0], curr2_id = r[1], hard_price = r[2], base_vol = r[3], base_perc = r[4])
 
-current.CURR_RUB = CURR_RUB = db.currs[ rub_id ]
+
+
+#current.CURR_RUB = CURR_RUB = db.currs[ 2 ]
+##current.CURR_RUB = CURR_RUB = db(db.currs.abbrev == 'RUB').select().first()
+
+if not CURR_RUB_ID:
+    raise HTTP(500, 'currency RUB not found in db1.py')
 
 if db(db.deals_cat).isempty():
     db.deals_cat.truncate()
-    db.deals_cat.insert(name='Прочие')
-if db(db.deals).isempty() and rub_id:
+    db.deals_cat.insert(name='Other')
+    db.deals_cat.insert(name='Internet')
+    db.deals_cat.insert(name='Games')
+    db.deals_cat.insert(name='Social')
+    db.deals_cat.insert(name='Municipal services')
+    
+if db(db.deals).isempty():
     db.deals.truncate()
+    db.deal_errs.truncate()
+    db.dealer_deals.truncate()
     db.deals.insert(
-            fee_curr_id= rub_id, name = 'BUY', name2 = 'to BUY',
-        used=True,  not_gifted=True,
+        fee_curr_id= CURR_RUB_ID, name = 'BUY', name2 = 'to BUY',
+        used=False,  not_gifted=True,
         MIN_pay=10,  MAX_pay=2777,
         fee=3,  tax=0.2,  fee_min=0,  fee_max=0)
     db.deals.insert(
-        fee_curr_id= rub_id, name = 'to COIN', name2 = 'to COIN',
-        used=True,  not_gifted=True,
+        fee_curr_id= CURR_RUB_ID, name = 'to COIN', name2 = 'to COIN',
+        used=False,  not_gifted=True,
         MIN_pay=10,  MAX_pay=2777,
         fee=3,  tax=0.2,  fee_min=0,  fee_max=0)
     db.deals.insert(
-        fee_curr_id= rub_id, name = 'WALLET', name2 = 'to WALLET',
-        used=True,  not_gifted=True,
+        fee_curr_id= CURR_RUB_ID, name = 'WALLET', name2 = 'to WALLET',
+        used=False,  not_gifted=True,
         MIN_pay=10,  MAX_pay=2777,
         fee=3,  tax=0.2,  fee_min=0,  fee_max=0)
-    db.deals.insert(
-        fee_curr_id= rub_id, name = 'phone +7', name2 = 'to PHONE +7',
-        used=True,  not_gifted=True,
+    db.deals.insert( cat_id = 2,
+        fee_curr_id= CURR_RUB_ID, name = 'phone +7', name2 = 'to PHONE +7',
+        used=False,  not_gifted=True,
         MIN_pay=10,  MAX_pay=2777,
         fee=3,  tax=0.2,  fee_min=0,  fee_max=0)
+
+if db(db.dealers).isempty():
+    db.dealers.truncate()
+    db.dealers_accs.truncate()
+    db.clients_ewallets.truncate()
+    db.dealers_accs_trans.truncate()
+    db.dealer_deals.truncate()
+    db.pay_outs.truncate()
+    db.fees.truncate()
+    dealer_id = db.dealers.insert(
+        name = 'Yandex',
+        used=True,  not_gifted=True,
+        API = '{ "URI_YM_API": "https://money.yandex.ru/api", "URI_YM_AUTH": "https://sp-money.yandex.ru/oauth/authorize", "URI_YM_TOKEN": "https://sp-money.yandex.ru/oauth/token", "acc_names": ["user", "PROPERTY1", "rapida_param1", "customerNumber", "CustomerNumber"] }',
+        info = '{ "shops_url": "https://money.yandex.ru/shop.xml?scid=", "search_url": "https://money.yandex.ru/", "img_url": "https://money.yandex.ru" }',
+        pay_out_min = 10)
+    db.dealers_accs.insert(dealer_id = dealer_id, ecurr_id = 2, acc = '4100134701234567', balance = 9999999,
+           pkey = '{"YM_REDIRECT_URI": "https://7pay.in/ed_YD/yandex_response", "secret_response": "**secret response**", "CLIENT_ID": "**TOKEN**", "SCOPE": "account-info operation-history operation-details payment-shop.limit(1,37777) payment-p2p.limit(1,37777)"}',
+           used = True, expired = '2216-02-10')
+    db.fees.insert(exchg_id = 1, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
+    db.fees.insert(exchg_id = 2, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
+    db.fees.insert(exchg_id = 3, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
+    db.fees.insert(exchg_id = 4, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
+    
+    db.dealer_deals.insert(dealer_id = dealer_id, deal_id = TO_PHONE7_ID, used = False, scid = 'phone-topup', tax = 0.0)
+    db.dealer_deals.insert(dealer_id = dealer_id, deal_id = TO_WALLET_ID, used = False, scid = 'p2p',
+                           p2p = True, tax = 0.5,
+                          template = '["not_mod", { "n": "p2p"}]')
+
+
+if db(db.exchgs).isempty():
+    db.exchgs.truncate()
+    db.exchg_limits.truncate()
+    db.exchg_pairs.truncate()
+    db.fees.truncate()
+    xpass = 'login:password'
+    for r in [
+            ['WEX', 'wex.nz', 'btc-e_3', '', True, 0.5, 0.0, [[1,""], [2, "rur"], [3,""], [4,""], [5,""], [6,""]],
+                [[3, 1, True,''], [3, 2, True,''], [4, 1, True,''], [4, 2, True,''], [4, 3, True,''],
+                 [5, 3, True,''], [6, 3, True,''], [7, 3, True,''], [8, 3, True,'']]
+            ],
+            ['Livecoin', 'api.livecoin.net', 'livecoin', 'exchange/ticker', True, 0.2, 0.0, [[1,""], [2, ""], [3,""], [4,""], [5,""], [6,""]]],
+            ['Cryptsy', 'cryptsy.com', 'cryptsy', '', False, 1, 0.0, [[5,"DOGE"]]],
+            ['Poloniex.com', 'poloniex.com', 'poloniex', '', True, 0.2, 0, [],
+                  [[3, 5, True,'BTC_DOGE'], [3, 6, True,'BTC_DASH']]
+                ]
+	            ]:
+
+        exchg_id = db.exchgs.insert(name = r[0], url = r[1],
+                                    API_type = r[2], API = r[3], used = r[4], tax = r[5],
+                                    fee = r[6]
+                                   )
+        if len(r)>7:
+            for ticker in r[7]:
+                db.exchg_limits.insert(exchg_id = exchg_id, curr_id = ticker[0], ticker = ticker[1])
+        if len(r)>8:
+            for pair in r[8]:
+                db.exchg_pairs.insert(exchg_id = exchg_id, curr1_id = pair[0], curr2_id = pair[1], used = pair[2], ticker = pair[3])

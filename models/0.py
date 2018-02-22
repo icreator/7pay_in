@@ -22,7 +22,12 @@ TO_WALLET_ID = myconf.take('deals.wallet')
 TO_COIN_ID = myconf.take('deals.coin')
 TO_PHONE7_ID = myconf.take('deals.phone_7')
 
+CURR_USD_ID = myconf.take('currs.usd_id')
+CURR_RUB_ID = myconf.take('currs.rub_id')
+CURR_BTC_ID = myconf.take('currs.btc_id')
+
 TRUST_IP = myconf.take('app.trust_ip')
+
 
 if DEVELOP: print '0.py - app.DEVELOP'
 
@@ -35,19 +40,6 @@ ADMIN = request.controller == 'appadmin'
 ##print ADMIN
 SKIN = myconf['skin']
 
-def _get_bon():
-    # тут они все строковые так что надо там их преобразовывать
-    return {
-        'new': myconf.take('bonuses.new', cast=int),
-        'gc': myconf.take('bonuses.gc', cast=int),
-        'visit': myconf.take('bonuses.visit', cast=int),
-        'wait': myconf.take('bonuses.wait', cast=int),
-        }
-
-if request.controller == 'bonuses' and request.function == 'phone_add':
-    # передадим описатель бонусов
-    BONUSES = _get_bon()
-
 if request.ajax:
     pass
 else:
@@ -57,5 +49,3 @@ else:
         'de': ['Deutsche ', 'de.png'],
         'tr': ['Türkçe', 'tr.png'],
     }
-
-    BONUSES = _get_bon()
