@@ -185,12 +185,12 @@ def index():
             _class='row m-0'
             ) if 'short' in request.vars else DIV(
             DIV(
-                H1(T('Биткоины купить и потратить'), _class='wb-headline wb-white wb-mt-0 '),
-                H1(T('Oплатить биткоинами услуги'), _class='wb-headline wb-white wb-mt-0 '),
-                H1(T('Обменять битоины на рубли'), _class='wb-headline wb-white wb-mt-0 '),
-                H1(T('Это сервис оплат криптовалютами'), _class='wb-headline- wb-white wb-mt-0 '),
-                A(H1('- bitcoin, litecoin, dogecoin...',_class='wb-headline- wb-white wb-mt-0 '),
-                  _href=URL('seo','index'), _class='lite'),
+                #H1(T('Биткоины купить и потратить'), _class='wb-headline wb-white wb-mt-0 '),
+                #H1(T('Oплатить биткоинами услуги'), _class='wb-headline wb-white wb-mt-0 '),
+                #H1(T('Обменять битоины на рубли'), _class='wb-headline wb-white wb-mt-0 '),
+                #H1(T('Это сервис оплат криптовалютами'), _class='wb-headline- wb-white wb-mt-0 '),
+                #A(H1('- bitcoin, litecoin, dogecoin...',_class='wb-headline- wb-white wb-mt-0 '),
+                #  _href=URL('seo','index'), _class='lite'),
                 _style='bottom:10px;right:10px;',
                 _class=IS_MOBILE and 'right col-sm-12' or 'absolute right col-md-10 col-lg-8'), # wb-join- wb-grid-'),
             _style='min-height:350px;background-color:blue;',
@@ -308,32 +308,32 @@ def index():
             _class='row m-0 wb-img-2bbg'),
         DIV(
         DIV(
-            TAG.center(
-                P('Так же Вы можете купить биткоины лайткоины догикоины на нашем сайте', _class='blue-c'),
-                A(H1(T('Купить биткоины')), _href=URL('to_buy','index'),
-                 _class='block button blue-bgc'),
-                _style='padding:10px;',
-                _class='col-sm-6'),
-            TAG.center(
-                P('Быстро оплатить биткоинами услуги ЖКХ, за свет, интернет, игры, телефон', _class='blue-c'),
-                A(H1(T('Оплатить биткоинами')), _href=URL('deal','index'),
-                 _class='block button blue-bgc'),
-                _style='padding:10px;',
-                _class='col-sm-6'),
+            #TAG.center(
+            #    P('Так же Вы можете купить биткоины лайткоины догикоины на нашем сайте', _class='blue-c'),
+            #    A(H1(T('Купить биткоины')), _href=URL('to_buy','index'),
+            #     _class='block button blue-bgc'),
+            #    _style='padding:10px;',
+            #    _class='col-sm-6'),
+            #TAG.center(
+            #    P('Быстро оплатить биткоинами услуги ЖКХ, за свет, интернет, игры, телефон', _class='blue-c'),
+            #    A(H1(T('Оплатить биткоинами')), _href=URL('deal','index'),
+            #     _class='block button blue-bgc'),
+            #    _style='padding:10px;',
+            #    _class='col-sm-6'),
             _class='container'),
-            #_style='background-color:currentColor;color:#ddd;',
+            _style='background-color:currentColor;color:#ddd;',
             _class='row m-0 bg-info'),
         DIV(
         DIV(
-            TAG.center(
-                P('Или Вы можете оплатить сотовый телефон и мобильный интернет', _class='blue-c'),
-                A(H1(T('Пополнить сотовый телефон биткоинами')), _href=URL('to_phone','index'),
-                 _class='block button blue-bgc'),
-                P('Так же Вы можете получить от нас консультацию об использовании биткоинов в бизнесе', _class='blue-c'),
-                A(H1(T('Консультация для бизнеса и инвесторов о биткоинах')), _href=URL('default','consult'),
-                 _class='block button blue-bgc'),
-                _style='padding:10px;',
-                _class='col-sm-12'),
+            #TAG.center(
+            #    P('Или Вы можете оплатить сотовый телефон и мобильный интернет', _class='blue-c'),
+            #    A(H1(T('Пополнить сотовый телефон биткоинами')), _href=URL('to_phone','index'),
+            #     _class='block button blue-bgc'),
+            #    P('Так же Вы можете получить от нас консультацию об использовании биткоинов в бизнесе', _class='blue-c'),
+            #    A(H1(T('Консультация для бизнеса и инвесторов о биткоинах')), _href=URL('default','consult'),
+            #     _class='block button blue-bgc'),
+            #    _style='padding:10px;',
+            #    _class='col-sm-12'),
             _class='container'),
             #_style='background-color:currentColor;color:#ddd;',
             _class='row m-0 bg-info'),
