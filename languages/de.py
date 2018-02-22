@@ -246,6 +246,7 @@
 'state': 'Status',
 'Statistics': 'Statistik',
 'Stylesheet': 'Stylesheet',
+'Submit': 'Submit',
 'submit': 'Submit',
 'Support': 'Support',
 'Table': 'Tabelle',

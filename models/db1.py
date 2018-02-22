@@ -826,10 +826,10 @@ if db(db.dealers).isempty():
     db.pay_outs.truncate()
     dealer_id = db.dealers.insert(
         name = 'Yandex',
-        used=True,  not_gifted=True,
+        used=True,
         API = '{ "URI_YM_API": "https://money.yandex.ru/api", "URI_YM_AUTH": "https://sp-money.yandex.ru/oauth/authorize", "URI_YM_TOKEN": "https://sp-money.yandex.ru/oauth/token", "acc_names": ["user", "PROPERTY1", "rapida_param1", "customerNumber", "CustomerNumber"] }',
         info = '{ "shops_url": "https://money.yandex.ru/shop.xml?scid=", "search_url": "https://money.yandex.ru/", "img_url": "https://money.yandex.ru" }',
-        pay_out_min = 10)
+        pay_out_MIN = 10)
     db.dealers_accs.insert(dealer_id = dealer_id, ecurr_id = 2, acc = '4100134701234567', balance = 9999999,
            pkey = '{"YM_REDIRECT_URI": "https://7pay.in/ed_YD/yandex_response", "secret_response": "**secret response**", "CLIENT_ID": "**TOKEN**", "SCOPE": "account-info operation-history operation-details payment-shop.limit(1,37777) payment-p2p.limit(1,37777)"}',
            used = True, expired = '2216-02-10')
@@ -837,7 +837,7 @@ if db(db.dealers).isempty():
     db.dealer_deals.insert(dealer_id = dealer_id, deal_id = TO_PHONE7_ID, used = False, scid = 'phone-topup', tax = 0.0)
     db.dealer_deals.insert(dealer_id = dealer_id, deal_id = TO_WALLET_ID, used = False, scid = 'p2p',
                            p2p = True, tax = 0.5,
-                          template = '["not_mod", { "n": "p2p"}]')
+                          template_ = '["not_mod", { "n": "p2p"}]')
 
 
 if db(db.exchgs).isempty():
