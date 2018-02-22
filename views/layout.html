@@ -107,16 +107,6 @@ HTML5 elements & feature detects -->
     {{end}}
     <!-- Main ========================================= -->
       {{ # menu1 show bonus window}}
-      {{show_bonus_form, bonus_taken, bonus_to_pay=show_bonus()}}
-      {{=show_bonus_form or ''}}
-      {{if bonus_taken:}}
-      {{# show munu blink}}
-      {{=SCRIPT("$('#li_gift').addClass('blink7');")}}
-      {{pass}}
-      {{if bonus_to_pay:}}
-      {{# show munu blink}}
-      {{#=SCRIPT("$('#li_phone').addClass('blink7');")}}
-      {{pass}}
     <!-- Begin page content -->
     <section>
         {{block center}}
@@ -136,16 +126,9 @@ HTML5 elements & feature detects -->
                 {{=A(T('Где?'), _href = URL('where','index'))}}<br>
                 {{=A(T('Когда?'), _href = URL('news','index'))}}<br>
                 {{=A(T('Криптовалюта?'), _href = URL('default','crypto'))}}<br>
-                {{=A(T('Халява'), _href = URL('default','halava2'))}}<br>
-                {{=A(T('Цифровое Золото'), _href = URL('default','e_gold'))}}<br>
-                {{=A(T('Зарплатные выплаты'), _href = URL('default','to_many'))}}<br>
                 {{=A(T('Подписаться'), _href = URL('default','subscribe'))}}<br>
-                {{=A(T('Консультируем бизнес по биткоин и блокчейн'), _href = URL('default','consult'))}}<br>
-                {{=A('Бесплатные переводы в СНГ', _href=URL('default','crypto_trans'))}}<br>
-                {{=A('Биткоин стартапы для инвесторов', _href=URL('default','up'))}}<br>
                 {{=A('Оплата биткоинами на сайте', _href=URL('api','index'))}}<br>
                 {{=A('API разработчикам сайтов', _href=URL('api','index'))}}<br>
-                {{=A('Старая версия сайта', _href=URL('ipay2','default','index'))}}<br>
                 {{=A('Контакты', _href=URL('default','contacts'))}}<br>
             </div>
             <div class="col-sm-8">
@@ -160,9 +143,6 @@ HTML5 elements & feature detects -->
         </div>
         <div id="poweredBy" class="pull-right" style="margin-right:50px;">
             <!-- Yandex.Metrika informer -->
-            <a href="http://metrika.yandex.ru/stat/?id=22957099&amp;from=informer"
-            target="_blank" rel="nofollow"><img src="//bs.yandex.ru/informer/22957099/1_0_EAFADAFF_CADABAFF_0_pageviews"
-            style="width:80px; height:15px; border:0;" alt="Яндекс.Метрика" title="Яндекс.Метрика: данные за сегодня (просмотры)" onclick="try{Ya.Metrika.informer({i:this,id:22957099,lang:'ru'});return false}catch(e){}"/></a>
             <!-- /Yandex.Metrika informer -->
             <a href="http://www.web2py.com/" target="_blank"><img src="{{=URL('static', 'images/logos/web2py-2.png')}}"></img></a>
         </div>
@@ -186,30 +166,6 @@ HTML5 elements & feature detects -->
     <script src="{{=URL('static','js/share.js',vars=dict(static=URL('static','images')))}}"></script>
 
 <!-- Yandex.Metrika counter -->
-<script type="text/javascript">
-(function (d, w, c) {
-    (w[c] = w[c] || []).push(function() {
-        try {
-            w.yaCounter22957099 = new Ya.Metrika({id:22957099,
-                    clickmap:true,
-                    trackLinks:true,
-                    accurateTrackBounce:true});
-        } catch(e) { }
-    });
-
-    var n = d.getElementsByTagName("script")[0],
-        s = d.createElement("script"),
-        f = function () { n.parentNode.insertBefore(s, n); };
-    s.type = "text/javascript";
-    s.async = true;
-    s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
-
-    if (w.opera == "[object Opera]") {
-        d.addEventListener("DOMContentLoaded", f, false);
-    } else { f(); }
-})(document, window, "yandex_metrika_callbacks");
-</script>
-<noscript><div><img src="//mc.yandex.ru/watch/22957099" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
 
     <!-- My ============================y============ -->

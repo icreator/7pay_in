@@ -17,7 +17,9 @@ import rates_lib
 response.logo2 = IMG(_src=URL('static','images/7P-30.png'), _width=200)
 
 # берем только рубль
-curr_out, x, ecurr_out = db_common.get_currs_by_abbrev(db,"RUB")#ecurr_out = db.ecurrs[ecurr_out_id]
+##curr_out, x, ecurr_out = db_common.get_currs_by_abbrev(db,"RUB") #ecurr_out = db.ecurrs[ecurr_out_id]
+curr_out = db.currs[CURR_RUB_ID]
+ecurr_out = db(db.ecurrs.curr_id == curr_out.id).select().first()
 ecurr_out_id = ecurr_out.id
 
 if TO_PHONE7_ID:
