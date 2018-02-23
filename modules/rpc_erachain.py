@@ -65,20 +65,17 @@ def get_balances(rpc_url, addr):
 def get_transactions(rpc_url, addr, from_block=2):
     result = []
 
-    print from_block
     height = rpc_request(rpc_url + "/blocks/height")
     i = from_block
     while i < height:
         if i - from_block > 300:
             break
 
-        ++i
+        i += 1
         try:
-            #except Exception as e:
-            recs = rpc_request(rpc_url + '/transactions/incoming/' + i + '/' + addr)
-            print i
-            print recs
+            recs = rpc_request(rpc_url + '/transactions/incoming/' + ("%d" % i) + '/' + addr)
         except Exception as e:
+            print e
             return result
         
         result += recs

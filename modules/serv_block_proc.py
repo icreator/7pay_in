@@ -41,6 +41,8 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
         addr = rec['addr']
         txid=rec['txid']
         vout=rec['vout']
+        time = rec['time']
+        confs = rec['confs']
         #if len(acc)==0:
         #    # пропустим пустые а то они все будут подходить
         #    continue
@@ -51,8 +53,18 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
             print 'b_p_db_update:',curr.abbrev, addr, ' unspent:',amo, 'txid:', txid, 'vout:',vout
         #print datetime.datetime.fromtimestamp(rec['time'])
         #print rec, '\n'
-        deal_acc_addr = db((db.deal_acc_addrs.addr==addr)
-            & (db.deal_acc_addrs.xcurr_id==xcurr.id)).select().first()
+        if xcurr.tokenized:
+            acc_addr = acc+':'+addr
+            deal_acc_addr = db((db.deal_acc_addrs.addr==acc_addr)
+                & (db.deal_acc_addrs.xcurr_id==xcurr.id)).select().first()
+        
+            if not deal_acc_addr:
+                deal_acc_id = db.deal_accs.insert(acc=acc_addr, curr_id=curr.id)
+                deal_acc_addrs_id = db.deal_acc_addrs.insert(deal_acc_id = deal_acc_id, addr=acc_addr, xcurr_id=xcurr.id)
+                deal_acc_addr = db.deal_acc_addrs[ deal_acc_addrs_id ]
+        else:
+            deal_acc_addr = db((db.deal_acc_addrs.addr==addr)
+                & (db.deal_acc_addrs.xcurr_id==xcurr.id)).select().first()
 
         # TODO
         if not deal_acc_addr:
@@ -67,6 +79,9 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
                 send_back(conn, curr, xcurr, txid,  amo)
                 print 'to return -> txid', txid
                 continue
+            else:
+                print 'UNKNOWN deal:', rec
+                continue
         
 
         # теперь в таблице от unspent без повторов - так как там блок каждый раз новый
@@ -76,19 +91,20 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
             print 'txid+vout exist:', txid, vout
             continue
 
-        addr_ret =  deal_acc_addr.addr_return
-        if deal_acc_addr.unused and conn:
-            # переводы на этоот адрес запрещены - тоже вернем его
-            print 'UNUSED [%s] address %s for account:"%s"' % (curr.abbrev, addr, acc)
-            # если не найдено в делах то запомним в неизвестных
-            send_back(conn, curr, xcurr, txid,  amo, addr_ret)
-            print 'to return -> txid', txid
-            continue
+        if deal_acc_addr:
+            addr_ret =  deal_acc_addr.addr_return
+            if deal_acc_addr.unused and conn:
+                # переводы на этоот адрес запрещены - тоже вернем его
+                print 'UNUSED [%s] address %s for account:"%s"' % (curr.abbrev, addr, acc)
+                # если не найдено в делах то запомним в неизвестных
+                send_back(conn, curr, xcurr, txid,  amo, addr_ret)
+                print 'to return -> txid', txid
+                continue
 
-        created_on = datetime.datetime.fromtimestamp(rec['time'])
+        created_on = datetime.datetime.fromtimestamp(time)
 
         pay_id = db.pay_ins.insert( ref_ = deal_acc_addr.id,
-            amount = amo, confs=rec['confs'],
+            amount = amo, confs=confs,
             txid=txid, vout=vout,
             created_on = created_on
             )
@@ -123,12 +139,10 @@ def get_incomed(db, erachain_url, erachain_addr, curr, xcurr, addr_in=None, from
 
     if from_block:
         if not curr_block > from_block:
-            #print 'not curr_block > from_block', curr_block, from_block
+            print 'not curr_block > from_block', curr_block, from_block
             return tab, from_block # если переиндексация то возможно что и меньше
-        #print curr_block, from_block
-        confLast = curr_block - from_block - 1
-        confMax = xcurr.conf + confLast
-        #print curr.abbrev, 'confMax:', confMax
+        print curr_block, from_block
+        print curr.abbrev, from_block, erachain_addr
         tab = rpc_erachain.get_transactions(erachain_url, erachain_addr, from_block)
         if type(tab) == type({}):
             # ошибка
@@ -147,7 +161,38 @@ def get_incomed(db, erachain_url, erachain_addr, curr, xcurr, addr_in=None, from
             log(db, 'listunspent %s' % Unsp)
             return tab, None
     
-    return tab, curr_block
+    #print tab
+    transactions = []
+    for rec in tab:
+        if rec['amount'] <= 0 or rec['action_key'] != 1:
+            continue
+
+        head = rec.get('head')
+        if not head:
+            addr = rec['creator']
+            acc = 'refuse'
+        else:
+            head = head.split(':')
+            #print head
+            if len(head) == 1:
+                addr = head[0]
+                acc = ''
+            else:
+                addr = head[1]
+                acc = head[0]
+                
+        transactions.append(dict(
+            amo = rec['amount'],
+            txid=rec['signature'],
+            vout=rec['sequence'],
+            time = rec['timestamp'] * 0.001,
+            confs = rec['confirmations'],
+            addr = addr,
+            acc = acc
+                )
+            )
+
+    return transactions, curr_block
 
 # найдем все входы одиночные
 # на выходе массив по входам
@@ -365,10 +410,10 @@ def run_once(db, abbrev):
         erachain_rpc = myconf.take('currs.erachain_rpc')
 
         addr_in= None #'4V6CeFxAHGVTM5wYKhAbXwbXsjUW5Bazdh'
-        from_block_in = None #65111
+        from_block_in = 68600
         tab, curr_block = get_incomed(db, erachain_rpc, erachain_addr, curr, xcurr, addr_in, from_block_in)
         #print 'tab:   ',tab
-        #return
+        ##return
         b_p_db_update(db, None, curr, xcurr, tab, curr_block)
         # баланс берем по обработанным только блокам
         ###balance = crypto_client.get_reserve(curr, xcurr, conn) #conn.getbalance()
