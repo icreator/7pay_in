@@ -354,7 +354,7 @@ def run_once(db, abbrev):
         ss = ss + '%s<br>' % mess
         print mess
         return ss
-    tab = e = None
+    tab = e = conn = None
     
     connect_url = xcurr.connect_url.split(' ')
     if len(connect_url) >1 and connect_url[0] == 'erachain':
@@ -373,9 +373,9 @@ def run_once(db, abbrev):
         # баланс берем по обработанным только блокам
         ###balance = crypto_client.get_reserve(curr, xcurr, conn) #conn.getbalance()
         balances = rpc_erachain.get_balances(erachain_rpc, erachain_addr)
-        print balances
-        print int(connect_url[1]), balances[int(connect_url[1])]
-        curr.balance = balances[int(connect_url[1])]
+        
+        curr.balance = balances[connect_url[1]][0][1]
+        print curr.balance
         curr.update_record()
         # после обработки блока сразу входы крипты обработаем
         # так как вых платеж может произойти тут надо сохранить

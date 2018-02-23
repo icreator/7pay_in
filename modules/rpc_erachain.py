@@ -33,7 +33,9 @@ def rpc_request(pars, vars=None, password=None, test=None):
         # платеж в процессе - ожидаем и потом еще раз запросим
     try:
         f = urllib2.urlopen(rq)
-        r = f.read()
+        #r = f.read()
+        r = json.load(f)
+
         #print 'response - res:', r
     except Exception as e:
         from gluon import current
@@ -57,7 +59,7 @@ def get_balances(rpc_url, addr):
     
     res = rpc_request(rpc_url + "/addresses/assets/" + addr)
     #res = rpc_request(rpc_url + "/addresses/balance/" + addr)
-
+    
     return res
 
 def get_transactions(rpc_url, addr, from_block=2):
