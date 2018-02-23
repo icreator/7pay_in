@@ -10,6 +10,7 @@ T = current.T
 
 import db_common
 import crypto_client
+import rpc_erachain
 
 #        if r.pay_ins.status in {'technical_error', 'payment_refused', 'currency_unused'}:
 
@@ -60,7 +61,7 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
                 # если это приход на  главный адрес - например пополнения с обмена\
                 # то такую проводку пропустим
                 continue
-            else:
+            elif conn:
                 print 'unknown [%s] address %s for account:"%s"' % (curr.abbrev, addr, acc)
                 # если не найдено в делах то запомним в неизвестных
                 send_back(conn, curr, xcurr, txid,  amo)
@@ -76,7 +77,7 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
             continue
 
         addr_ret =  deal_acc_addr.addr_return
-        if deal_acc_addr.unused:
+        if deal_acc_addr.unused and conn:
             # переводы на этоот адрес запрещены - тоже вернем его
             print 'UNUSED [%s] address %s for account:"%s"' % (curr.abbrev, addr, acc)
             # если не найдено в делах то запомним в неизвестных
@@ -108,6 +109,45 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
     # сохраним теперь инфо что эти блоки обработали
     xcurr.from_block = curr_block
     xcurr.update_record()
+
+def get_incomed(db, erachain_url, erachain_addr, curr, xcurr, addr_in=None, from_block_in=None):
+    
+    tab = []
+    curr_block = rpc_erachain.get_info(erachain_url)
+    from_block = from_block_in or xcurr.from_block
+    print curr_block
+    if type(curr_block) != type(1):
+        # кошелек еще не запустился
+        print 'not started else'
+        return tab, from_block # если переиндексация то возможно что и меньше
+
+    if from_block:
+        if not curr_block > from_block:
+            #print 'not curr_block > from_block', curr_block, from_block
+            return tab, from_block # если переиндексация то возможно что и меньше
+        #print curr_block, from_block
+        confLast = curr_block - from_block - 1
+        confMax = xcurr.conf + confLast
+        #print curr.abbrev, 'confMax:', confMax
+        tab = rpc_erachain.get_transactions(erachain_url, erachain_addr, from_block)
+        if type(tab) == type({}):
+            # ошибка
+            log(db, 'listunspent %s' % l_Unsp)
+            return tab, None
+
+    else:
+        # если нет еще номера обработанного блока
+        # то и делать нечего - мол служба только запущена
+        # на нее нет еще переводоов, хотя можно наоборот взять все входы
+        xcurr.from_block = from_block = 1 # все входы со всеми подтверждениями берем
+        xcurr.update_record()
+        tab = rpc_erachain.get_transactions(erachain_url, erachain_addr)
+        if type(tab) == type({}):
+            # ошибка
+            log(db, 'listunspent %s' % Unsp)
+            return tab, None
+    
+    return tab, curr_block
 
 # найдем все входы одиночные
 # на выходе массив по входам
@@ -315,33 +355,60 @@ def run_once(db, abbrev):
         print mess
         return ss
     tab = e = None
-    conn = crypto_client.conn(curr, xcurr)
-    if conn:
-        #try:
-        if True:
-            addr_in= None #'4V6CeFxAHGVTM5wYKhAbXwbXsjUW5Bazdh'
-            from_block_in = None #65111
-            tab, curr_block = b_p_proc_unspent(db, conn, curr, xcurr, addr_in, from_block_in)
-            #print 'tab:   ',tab
-            #return
-            b_p_db_update(db, conn, curr, xcurr, tab, curr_block)
-            # баланс берем по обработанным только блокам
-            balance = crypto_client.get_reserve(curr, xcurr, conn) #conn.getbalance()
-            curr.balance = balance
-            curr.update_record()
-            # после обработки блока сразу входы крипты обработаем
-            # так как вых платеж может произойти тут надо сохранить
-            db.commit()
-        else:
-        #except Exception as e:
-            db.rollback()
-            mess = 'b_p_proc_unspent ERROR: %s' % e
-            ss = ss + '%s<br>' % mess
-            log_commit(db, mess)
+    
+    connect_url = xcurr.connect_url.split(' ')
+    if len(connect_url) >1 and connect_url[0] == 'erachain':
+        from gluon.contrib.appconfig import AppConfig
+        ## once in production, remove reload=True to gain full speed
+        myconf = AppConfig(reload=True)
+        erachain_addr = myconf.take('currs.erachain_address')
+        erachain_rpc = myconf.take('currs.erachain_rpc')
+
+        addr_in= None #'4V6CeFxAHGVTM5wYKhAbXwbXsjUW5Bazdh'
+        from_block_in = None #65111
+        tab, curr_block = get_incomed(db, erachain_rpc, erachain_addr, curr, xcurr, addr_in, from_block_in)
+        #print 'tab:   ',tab
+        #return
+        b_p_db_update(db, None, curr, xcurr, tab, curr_block)
+        # баланс берем по обработанным только блокам
+        ###balance = crypto_client.get_reserve(curr, xcurr, conn) #conn.getbalance()
+        balances = rpc_erachain.get_balances(erachain_rpc, erachain_addr)
+        print balances
+        print int(connect_url[1]), balances[int(connect_url[1])]
+        curr.balance = balances[int(connect_url[1])]
+        curr.update_record()
+        # после обработки блока сразу входы крипты обработаем
+        # так как вых платеж может произойти тут надо сохранить
+        db.commit()
+        pass
     else:
-        mess = curr.name + " no connection to wallet"
-        ss = ss + '%s<br>' % mess
-        print mess
+        conn = crypto_client.conn(curr, xcurr)
+        if conn:
+            #try:
+            if True:
+                addr_in= None #'4V6CeFxAHGVTM5wYKhAbXwbXsjUW5Bazdh'
+                from_block_in = None #65111
+                tab, curr_block = b_p_proc_unspent(db, conn, curr, xcurr, addr_in, from_block_in)
+                #print 'tab:   ',tab
+                #return
+                b_p_db_update(db, conn, curr, xcurr, tab, curr_block)
+                # баланс берем по обработанным только блокам
+                balance = crypto_client.get_reserve(curr, xcurr, conn) #conn.getbalance()
+                curr.balance = balance
+                curr.update_record()
+                # после обработки блока сразу входы крипты обработаем
+                # так как вых платеж может произойти тут надо сохранить
+                db.commit()
+            else:
+            #except Exception as e:
+                db.rollback()
+                mess = 'b_p_proc_unspent ERROR: %s' % e
+                ss = ss + '%s<br>' % mess
+                log_commit(db, mess)
+        else:
+            mess = curr.name + " no connection to wallet"
+            ss = ss + '%s<br>' % mess
+            print mess
 
     #return
 

@@ -1,2 +1,7 @@
 eclipse.preferences.version=1
+encoding//controllers/api.py=utf8
 encoding//controllers/appadmin.py=utf-8
+encoding//modules/crypto_client.py=utf8
+encoding//modules/ed_YD.py=utf8
+encoding//modules/partners_lib.py=utf-8
+encoding//modules/rpc_erachain.py=utf8

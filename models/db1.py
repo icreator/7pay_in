@@ -45,6 +45,7 @@ db.define_table('currs',
 db.define_table('xcurrs',
    Field('curr_id', db.currs),
    Field('first_char', length=5, readable=False, comment='insert in db.common.get_currs_by_addr !!!'), # для быстрого поиска крипты по адресу
+   Field('tokenized', 'boolean', default=False, comment='If tokenized'),
    Field('balance', 'decimal(16,8)', default = Decimal('0.0')),
    Field('deposit', 'decimal(16,8)', default = Decimal('0.0')), # то что нельзя выводить или продавать - запас для меня
    Field('clients_deposit', 'decimal(16,8)', default = Decimal('0.0')), # то что нельзя выводить или продавать так как это баланс клиеннтов-магазинов
@@ -58,6 +59,19 @@ db.define_table('xcurrs',
    #migrate=False,
    format='%(curr_id)s',
    )
+
+db.define_table('tokens',
+   Field('xcurr_id', db.xcurrs),
+   Field('num', 'integer', comment='token number'),
+   Field('name', length=250, unique=False),
+   Field('balance', 'decimal(16,8)', default = Decimal('0.0')),
+   Field('deposit', 'decimal(16,8)', default = Decimal('0.0')), # то что нельзя выводить или продавать - запас для меня
+   Field('clients_deposit', 'decimal(16,8)', default = Decimal('0.0')), # то что нельзя выводить или продавать так как это баланс клиеннтов-магазинов
+   Field('reserve', 'decimal(4,2)', default = Decimal('0.0')), # 1=100% reserve from RUBles
+   #migrate=False,
+   format='%(num)s %(name)s',
+   )
+
 
 # eFIAT
 db.define_table('ecurrs',

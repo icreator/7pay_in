@@ -49,6 +49,7 @@ def get_deal_acc_id(db, deal, acc, curr_out, price=None):
     return deal_acc_id
 
 def get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr, xcurr, x_acc_label):
+
     # найдем адрес крипты для данногоо аккаунта дела или создадим
     deal_acc_addr = db((db.deal_acc_addrs.deal_acc_id==deal_acc_id)
         & (db.deal_acc_addrs.xcurr_id==xcurr.id)
@@ -56,24 +57,31 @@ def get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr, xcurr, x_acc_label):
     if deal_acc_addr:
         return deal_acc_addr
 
-    conn = crypto_client.conn(curr, xcurr)
-    if not conn: return
-    # http://docs.python.org/2/library/codecs.html?highlight=decoding
-    x_acc_label = x_acc_label.decode('utf8')
-    #x_acc_label = x_acc_label.encode('koi8_r') # 'iso8859_5') # 'cp866') # 'cp1251') #'cp855')
-    #x_acc_label = x_acc_label.decode('cp855')
-    #print 'GET new addr for',x_acc_label
-    try:
-        addr = crypto_client.get_xaddress_by_label(conn, x_acc_label)
-    except:
-        return
-    if not addr: return
+    # Erachain tokens?
+    connect_url = xcurr.connect_url.split(' ')
+    if len(connect_url)>1 and connect_url[0] == 'erachain':
+        from gluon.contrib.appconfig import AppConfig
+        myconf = AppConfig(reload=True)
+        addr = myconf.take('currs.erachain_address')
     else:
-        id = db.deal_acc_addrs.insert(
+        conn = crypto_client.conn(curr, xcurr)
+        if not conn: return
+        # http://docs.python.org/2/library/codecs.html?highlight=decoding
+        x_acc_label = x_acc_label.decode('utf8')
+        #x_acc_label = x_acc_label.encode('koi8_r') # 'iso8859_5') # 'cp866') # 'cp1251') #'cp855')
+        #x_acc_label = x_acc_label.decode('cp855')
+        #print 'GET new addr for',x_acc_label
+        try:
+            addr = crypto_client.get_xaddress_by_label(conn, x_acc_label)
+        except:
+            return
+        if not addr: return
+
+    id = db.deal_acc_addrs.insert(
               deal_acc_id = deal_acc_id,
               xcurr_id=xcurr.id,
               addr = addr)
-        deal_acc_addr = db.deal_acc_addrs[id]
+    deal_acc_addr = db.deal_acc_addrs[id]
     return deal_acc_addr
 
 ######################################################

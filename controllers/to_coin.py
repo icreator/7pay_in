@@ -83,15 +83,19 @@ def get():
     xcurr_out = db(db.xcurrs.curr_id == curr_out.id).select().first()
     curr_out_abbrev = curr_out.abbrev
     curr_out_name = curr_out.name
+    connect_url = xcurr_out.connect_url.split(' ')
     #print request.application[-5:]
     if request.application[:-3] != '_dvlp':
         # чето конфликт если из ipay3_dvlp вызывать то кошелек на ipay3 не коннектится
-        import crypto_client
-        cc = crypto_client.conn(curr_out, xcurr_out)
-        if not cc:
-            return mess(T('Connection to [%s] id lost, try lates ') % curr_out_name)
-        if crypto_client.is_not_valid_addr(cc, addr_out):
-            return mess(T('address not valid for ') + curr_out_name)
+        if len(connect_url) >1 and connect_url[0] == 'erachain':
+            pass
+        else:
+            import crypto_client
+            cc = crypto_client.conn(curr_out, xcurr_out)
+            if not cc:
+                return mess(T('Connection to [%s] id lost, try lates ') % curr_out_name)
+            if crypto_client.is_not_valid_addr(cc, addr_out):
+                return mess(T('address not valid for ') + curr_out_name)
 
     try:
         session.toCoin = curr_out_abbrev
@@ -224,6 +228,9 @@ def get():
         lim_bal_mess = ''
 
     free_bal = db_client.curr_free_bal(curr_out)
+    if connect_url > 1 and connect_url[0] == 'erachain':
+        addr_out = connect_url[1] + ':' + addr_out
+
     hh += DIV(
         P(
         T('Оплата обмена на'), ' ',curr_out_abbrev, ' ', T('с выплатой монет на адрес'),  ': ',
@@ -245,7 +252,7 @@ def get():
             _href=url_uri),
                     ),
             _class='row'
-            ),
+            ) if not (len(connect_url) > 1 and connect_url[0] == 'erachain') else '',
         BR(),
         DIV(
             A(T('Показать QR-код'),  _class='btn btn-info',
@@ -256,13 +263,13 @@ def get():
                #delete='div#tag0'
                ),
             _id='tag0'),
-        T('или'), BR(),
-        T('Оплатите вручную'), ': ',
-        FORM( ## ВНИМАНИЕ !!! тут имена полей надр друние указывать или
+        H3(T('или')),
+        T('Оплатите вручную'), '. ', T("Для этого скопируйте значения полей (двойной клик по полю для выделения) и вставьте их в платеж на вашем кошельке"), ': ',
+        FORM( ## ВНИМАНИЕ !!! тут имена полей надо другие указывать или
             # FORM в основной делать тоже иначе они складываются
-            INPUT(_name='v', value=volume_in, _class="pay_val", _readonly=''), curr_in_abbrev, BR(),
-            T("Для этого скопируйте сумму и адрес (двойной клик по полю для выделения) и вставьте их в платеж на вашем кошельке"), ': ',
-            INPUT(_name='addr_in', _value=addr, _class='wallet', _readonly=''), BR(),
+            LABEL(T("Volume")), " ", INPUT(_name='v', value=volume_in, _class="pay_val", _readonly=''), curr_in_abbrev, BR(),
+            LABEL(T("Получатель")), " ", INPUT(_name='addr_in', _value=addr, _class='wallet', _readonly=''), BR(),
+            CAT(LABEL(T("Назначение (вставьте в заголовок платежа)")), " ", INPUT(_name='addr_out', _value=addr_out, _class='wallet', _readonly=''), BR()) if len(connect_url) > 1 and connect_url[0] == 'erachain' else '',
             #T('Резервы службы'), ' ', B(free_bal), ' ', T('рублей'), BR(),
             #LOAD('where', 'for_addr', vars={'addr': addr}, ajax=True, times=100, timeout=20000,
             #    content=IMG(_src=URL('static','images/loading.gif'), _width=48)),
@@ -319,7 +326,7 @@ def sel():
         return h+'error curr_id'
 
     deal_name = 'to COIN'
-    deal = db(db.deals.name == deal_name).select().first()
+    deal = db.deals[TO_COIN_ID]
     if deal:
         deal_id = deal.id
     else:

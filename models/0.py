@@ -25,6 +25,8 @@ TO_PHONE7_ID = myconf.take('deals.phone_7')
 CURR_USD_ID = myconf.take('currs.usd_id')
 CURR_RUB_ID = myconf.take('currs.rub_id')
 CURR_BTC_ID = myconf.take('currs.btc_id')
+ERACHAIN_ADDR = myconf.take('currs.erachain_address')
+ERACHAIN_RPC = myconf.take('currs.erachain_rpc')
 
 TRUST_IP = myconf.take('app.trust_ip')
 
