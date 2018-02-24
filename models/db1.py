@@ -42,10 +42,32 @@ db.define_table('currs',
    )
 
 # CRYPTO
+db.define_table('systems',
+   Field('name', length=25, readable=False, comment='name of tokenized system'),
+   Field('first_char', length=5, readable=False, comment='insert in db.common.get_currs_by_addr !!!'), # для быстрого поиска крипты по адресу
+   Field('connect_url', default='http://user:pass@localhost:3333', unique=True),
+   Field('account', default='7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7', comment='address for incoming payments'),
+   Field('block_time', 'integer', comment='in sec. BTC = 600sec'),
+   Field('txfee', 'decimal(10,8)', default = Decimal('0.0001'), comment='For one pay_out transaction. Payed to web'),
+   Field('conf', 'integer', default = 3, comment='confirmations for accept'),
+   Field('conf_gen', 'integer', default = 6, comment='confirmations for accept generated coins'),
+   Field('from_block', 'integer', comment='block was tested'),
+   #migrate=False,
+   format='%(name)s',
+   )
+db.define_table('tokens',
+   Field('system_id', db.systems),
+   Field('token_key', 'integer', default=1, comment='ID of token (coin or asset) in that system'),
+   Field('name', length=125, readable=False, comment='name of token'),
+   #migrate=False,
+   format='%(system_id)s:%(token_key)s %(name)s',
+   )
+
+# CRYPTO
 db.define_table('xcurrs',
    Field('curr_id', db.currs),
    Field('first_char', length=5, readable=False, comment='insert in db.common.get_currs_by_addr !!!'), # для быстрого поиска крипты по адресу
-   Field('tokenized', 'boolean', default=False, comment='If tokenized'),
+   Field('as_token', 'integer', default=0, comment='ID in db.tokens (if its token, coin or asset)'),
    Field('balance', 'decimal(16,8)', default = Decimal('0.0')),
    Field('deposit', 'decimal(16,8)', default = Decimal('0.0')), # то что нельзя выводить или продавать - запас для меня
    Field('clients_deposit', 'decimal(16,8)', default = Decimal('0.0')), # то что нельзя выводить или продавать так как это баланс клиеннтов-магазинов
@@ -57,21 +79,8 @@ db.define_table('xcurrs',
    Field('conf_gen', 'integer', default = 6, comment='confirmations for accept generated coins'),
    Field('from_block', 'integer', comment='block was tested'),
    #migrate=False,
-   format='%(curr_id)s',
+   #format='%(curr_id)s',
    )
-
-db.define_table('tokens',
-   Field('xcurr_id', db.xcurrs),
-   Field('num', 'integer', comment='token number'),
-   Field('name', length=250, unique=False),
-   Field('balance', 'decimal(16,8)', default = Decimal('0.0')),
-   Field('deposit', 'decimal(16,8)', default = Decimal('0.0')), # то что нельзя выводить или продавать - запас для меня
-   Field('clients_deposit', 'decimal(16,8)', default = Decimal('0.0')), # то что нельзя выводить или продавать так как это баланс клиеннтов-магазинов
-   Field('reserve', 'decimal(4,2)', default = Decimal('0.0')), # 1=100% reserve from RUBles
-   #migrate=False,
-   format='%(num)s %(name)s',
-   )
-
 
 # eFIAT
 db.define_table('ecurrs',
@@ -751,6 +760,22 @@ if db(db.currs).isempty():
         else:
             db.ecurrs.insert(curr_id = curr_id)
 
+#### TOKENS ####
+if db(db.systems).isempty():
+    db.systems.truncate()
+    db.tokens.truncate()
+    system_id = db.systems.insert(name = 'Erachain', name2 = 'erachain', first_char = '7',
+                connect_url = 'http://127.0.0.1:9068', account = '7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7',
+                block_time = 288, conf = 2, conf_gen = 0, from_block = 30000)
+    for asset in [
+        [1, 'ERA'], [2, 'COMPU'],
+            ]:
+        token_id = db.tokens.insert(system_id = system_id, token_key = asset[0], name = asset[1])
+        curr_id = db.currs.insert( abbrev = asset[1], name = asset[1], name2 = asset[1], used=True)
+        db.xcurrs.insert(curr_id = curr_id, connect_url = 'erachain ' + asset[1],
+                 as_token = token_id,
+                 block_time=0, txfee = 0, conf = 0, conf_gen = 0)
+    
 if db(db.exchg_taxs).isempty():
     db.exchg_taxs.truncate()
     db.exchg_taxs.insert( curr1_id = 3, curr2_id = 2, tax = 0)

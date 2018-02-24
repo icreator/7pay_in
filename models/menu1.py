@@ -62,36 +62,50 @@ else:
     MENU_1 = [
         #(response.logo or '',None, None),
         LI(A(IMG(_src=URL('static','images/7P-30-2.png'), _style="height:70px"),
-            _style="padding:0", _href=URL('default','index'))),
-        #(SPAN(MNU_ICONS and TAG.i(_class='fa fa-btc bbig') or '', ' ', T('Купить'), _title=T('Купить Биткоины')),
-        # False, URL('to_buy','index')),
-        # money
-        #(SPAN(MNU_ICONS and TAG.i(_class='fa fa-usd bbig') or '', ' ', T('Продать'), _title=T('Продать Биткоины')),
-        # False, URL('to_wallet','index')),
-        (SPAN(MNU_ICONS and TAG.i(_class='fa fa-retweet bbig') or '', ' ', T('Обменять'), _title=T('Обменять Монеты')),
-         False, URL('to_coin','index')),
-        ## тут id= задаем для мигания
-        #(SPAN(MNU_ICONS and TAG.i(_class='fa fa-mobile bbig') or '',  ' ', T('на Сотовый'),
-        #     CAT(BR(),TAG.sup('+', session.bonus_to_pay, _class='sub', _style='color:chartreuse;')) if session.bonus_to_pay else '',
-        #     _title=T('Оплатить Сотовый'), _id='li_phone'),
-        # False, URL('to_phone','index')),
-        (SPAN(MNU_ICONS and TAG.i(_class='fa fa-eye bbig') or '',  ' ', T('Платежи'), _title=T('Проверить платежи')),
-         False, URL('where','index')),
-        ## тут id= задаем для мигания
-        #(SPAN(MNU_ICONS and TAG.i(_class='fa fa-gift bbig') or '',  ' ', T('Подарки '),
-        #     CAT(BR(),TAG.sup(GIFT_CODE, _class='sub', _style='color:chartreuse;')) if GIFT_CODE else '',
-        #     _title=T('Подарки для Вас'),
-        #     _id='li_gift'),
-        # False, URL('gifts','index')),
+            _style="padding:0", _href=URL('default','index')))
     ]
+    MENU_1.append(
+        (SPAN(MNU_ICONS and TAG.i(_class='fa fa-retweet bbig') or '', ' ', T('Обменять'), _title=T('Обменять Монеты')),
+         False, URL('to_coin','index'))
+        )
+    if USE_BUY_SELL:
+        MENU_1 += [
+        # money
+        (SPAN(MNU_ICONS and TAG.i(_class='fa fa-btc bbig') or '', ' ', T('Купить'), _title=T('Купить Биткоины')),
+         False, URL('to_buy','index')) if USE_BUY_SELL else None,
+        (SPAN(MNU_ICONS and TAG.i(_class='fa fa-usd bbig') or '', ' ', T('Продать'), _title=T('Продать Биткоины')),
+         False, URL('to_wallet','index')) if USE_BUY_SELL else None,
+            ]
+    if USE_TO_PHONE:
+        ## тут id= задаем для мигания
+        MENU_1.append(
+        (SPAN(MNU_ICONS and TAG.i(_class='fa fa-mobile bbig') or '',  ' ', T('на Сотовый'),
+             CAT(BR(),TAG.sup('+', session.bonus_to_pay, _class='sub', _style='color:chartreuse;')) if session.bonus_to_pay else '',
+             _title=T('Оплатить Сотовый'), _id='li_phone'),
+         False, URL('to_phone','index'))
+            )
+
+    MENU_1.append(
+        (SPAN(MNU_ICONS and TAG.i(_class='fa fa-eye bbig') or '',  ' ', T('Платежи'), _title=T('Проверить платежи')),
+         False, URL('where','index'))
+            )
+
+            
+    ## тут id= задаем для мигания
+    #(SPAN(MNU_ICONS and TAG.i(_class='fa fa-gift bbig') or '',  ' ', T('Подарки '),
+    #     CAT(BR(),TAG.sup(GIFT_CODE, _class='sub', _style='color:chartreuse;')) if GIFT_CODE else '',
+    #     _title=T('Подарки для Вас'),
+    #     _id='li_gift'),
+    # False, URL('gifts','index')),
+
 
     MENU_2 = None
-    if False and request.controller=='gifts' or request.controller=='bonuses':
+    if USE_TO_DEALS and request.controller=='gifts' or request.controller=='bonuses':
         MENU_2 = [
             (SPAN(T('Награды')), False, URL('bonuses','index')),
             (SPAN(T('Подарки')), False, URL('gifts', 'list')),
             ]
-    elif False:
+    elif USE_TO_DEALS:
         MENU_2 = [
             LI('Оплатить', BR(), 'биткоинами:', _style='font-size:smaller;'),
             (SPAN(TAG.i(_class='fa fa-home'),' ', T('ЖКУ'), _title=T('Оплата ЖКУ')), False, URL('deal', 'index', args=[6])),

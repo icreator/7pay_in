@@ -58,11 +58,13 @@ def get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr, xcurr, x_acc_label):
         return deal_acc_addr
 
     # Erachain tokens?
-    connect_url = xcurr.connect_url.split(' ')
-    if len(connect_url)>1 and connect_url[0] == 'erachain':
-        from gluon.contrib.appconfig import AppConfig
-        myconf = AppConfig(reload=True)
-        addr = myconf.take('currs.erachain_address')
+    token_system = None
+    token_key = xcurr.as_token
+    if token_key:
+        token = db.tokens[token_key]
+        token_system = db.systems[token.system_id]
+
+        addr = token_system.account
     else:
         conn = crypto_client.conn(curr, xcurr)
         if not conn: return

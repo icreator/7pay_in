@@ -17,6 +17,12 @@ from gluon.contrib.appconfig import AppConfig
 myconf = AppConfig(reload=True)
 
 DEVELOP = myconf.take('app.develop', cast=bool)
+
+USE_TO_PHONE =  myconf.take('mode.use_to_phone')
+USE_EXCHANGE =  myconf.take('mode.use_exchange')
+USE_BUY_SELL =  myconf.take('mode.use_buy_sell')
+USE_TO_DEALS =  myconf.take('mode.use_to_deals')
+
 TO_BUY_ID = myconf.take('deals.buy')
 TO_WALLET_ID = myconf.take('deals.wallet')
 TO_COIN_ID = myconf.take('deals.coin')
@@ -25,8 +31,6 @@ TO_PHONE7_ID = myconf.take('deals.phone_7')
 CURR_USD_ID = myconf.take('currs.usd_id')
 CURR_RUB_ID = myconf.take('currs.rub_id')
 CURR_BTC_ID = myconf.take('currs.btc_id')
-ERACHAIN_ADDR = myconf.take('currs.erachain_address')
-ERACHAIN_RPC = myconf.take('currs.erachain_rpc')
 
 TRUST_IP = myconf.take('app.trust_ip')
 
