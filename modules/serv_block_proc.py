@@ -98,19 +98,10 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
             if not curr_out:
                 log(db, 'AS TOKEN not found curr_out ' + acc)
                 continue
-                        
-            deal_acc = db((db.deal_accs.deal_id == TO_COIN_ID)
-                          & (db.deal_accs.curr_id == curr_out.id)
-                          & (db.deal_accs.acc == out_tab[1])).select().first()
-            if not deal_acc:
-                deal_acc_id = db.deal_accs.insert(deal_id = TO_COIN_ID, curr_id = curr_out.id, acc = out_tab[1])
-                
-            deal_acc_addr = db((db.deal_acc_addrs.addr==addr)
-                & (db.deal_acc_addrs.xcurr_id==xcurr_in.id)).select().first()
-                        
-            if not deal_acc_addr:
-                deal_acc_addrs_id = db.deal_acc_addrs.insert(deal_acc_id = deal_acc_id, addr=addr, xcurr_id=xcurr_in.id)
-                deal_acc_addr = db.deal_acc_addrs[ deal_acc_addrs_id ]
+            
+            deal_acc_id, deal_acc_addr = rpc_erachain.get_deal_acc_addr(db, deal_id, curr_out, out_tab[1], addr, xcurr_in)
+            
+            
         else:
             deal_acc_addr = db((db.deal_acc_addrs.addr==addr)
                 & (db.deal_acc_addrs.xcurr_id==xcurr.id)).select().first()
@@ -232,7 +223,7 @@ def get_incomed(db, erachain_url, erachain_addr, curr, xcurr, addr_in=None, from
             vout=rec['sequence'],
             time = rec['timestamp'] * 0.001,
             confs = rec['confirmations'],
-            addr = acc,
+            addr = erachain_addr,
             acc = acc
                 )
             )
@@ -464,11 +455,11 @@ def run_once(db, abbrev):
         # баланс берем по обработанным только блокам
         ###balance = crypto_client.get_reserve(curr, xcurr, conn) #conn.getbalance()
         balances = rpc_erachain.get_balances(erachain_rpc, erachain_addr)
-        if type(balances) == type([]):
+        if type(balances) == type({}):
             for token_rec in db(db.tokens.system_id == token_system.id).select():
                 print token_rec.token_key
-                balance = balances[token_rec.token_key][0][1]
-                token_xcurr = db(db.xcurrs.as_token == token_rec.id).seletc().first()
+                balance = balances['%d' % token_rec.token_key][0][1]
+                token_xcurr = db(db.xcurrs.as_token == token_rec.id).select().first()
                 token_curr = db.currs[token_xcurr.curr_id]
                 token_curr.balance = balance
                 print token_curr.balance
@@ -520,9 +511,16 @@ def run_once(db, abbrev):
     ### надо TRY врубать чтобы ошибка от коннекта к кошелькам не сыпалась и не обрубала проход по всем валютам
     #try:
     if True:
-        # оплатить входы крипты фиатом
-        serv_to_pay.proc_xcurr(db, curr, xcurr)
-        db.commit()
+        # запускаем обработку выплат
+        if token_system:
+            for token_rec in db(db.tokens.system_id == token_system.id).select():
+                token_xcurr = db(db.xcurrs.as_token == token_rec.id).select().first()
+                token_curr = db.currs[token_xcurr.curr_id]
+                serv_to_pay.proc_xcurr(db, token_curr, token_xcurr)
+                db.commit()
+        else:
+            serv_to_pay.proc_xcurr(db, curr, xcurr)
+            db.commit()
     #except Exception as e:
     else:
         db.rollback()

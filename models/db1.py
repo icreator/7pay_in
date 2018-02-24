@@ -776,6 +776,8 @@ if db(db.systems).isempty():
                  as_token = token_id,
                  block_time=0, txfee = 0, conf = 0, conf_gen = 0)
     
+    
+    
 if db(db.exchg_taxs).isempty():
     db.exchg_taxs.truncate()
     db.exchg_taxs.insert( curr1_id = 3, curr2_id = 2, tax = 0)
@@ -812,6 +814,7 @@ if db(db.exchg_pair_bases).isempty():
         [6, 3, 0, 3333, 0.1],
         [7, 3, 0, 33, 0.1],
         [8, 3, 0, 333, 0.1],
+        [9, 10, 0.001, 1, 0.1],
         ]:
         db.exchg_pair_bases.insert(curr1_id = r[0], curr2_id = r[1], hard_price = r[2], base_vol = r[3], base_perc = r[4])
 
