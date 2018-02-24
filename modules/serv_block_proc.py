@@ -99,7 +99,7 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
                 log(db, 'AS TOKEN not found curr_out ' + acc)
                 continue
             
-            deal_acc_id, deal_acc_addr = rpc_erachain.get_deal_acc_addr(db, deal_id, curr_out, out_tab[1], addr, xcurr_in)
+            deal_acc_id, deal_acc_addr = rpc_erachain.get_deal_acc_addr(db, TO_COIN_ID, curr_out, out_tab[1], addr, xcurr_in)
             
             
         else:

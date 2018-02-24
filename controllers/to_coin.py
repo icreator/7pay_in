@@ -125,7 +125,7 @@ def get():
     
     if token_system:
         deal_acc_id, deal_acc_addr = rpc_erachain.get_deal_acc_addr(db, deal_id, curr_out, addr_out, token_system.account, xcurr_in)
-        addr =  token_system.account
+        addr_in =  token_system.account
         pass
     else:
         x_acc_label = db_client.make_x_acc(deal, addr_out, curr_out_abbrev)
@@ -137,7 +137,7 @@ def get():
         if not deal_acc_addr:
             return mess((T('Связь с сервером %s прервана') % curr_in_name) + '. ' + T('Невозможно получить адрес для платежа') + '. ' + T('Пожалуйста попробуйте позже'), 'warning')
 
-        addr = deal_acc_addr.addr
+        addr_in = deal_acc_addr.addr
         
     h = CAT()
 
@@ -228,7 +228,7 @@ def get():
         volume_in = rate_out = tax_rep = None
         hh += mess('[' + curr_in_name + '] -> [' + curr_out_name + ']' + T(' - лучшая цена не доступна.') + T('Но Вы можете оплатить вперед'), 'warning pb-10')
 
-    _, url_uri = common.uri_make( curr_in.name2, addr, {'amount':volume_in, 'label': db_client.make_x_acc_label(deal, addr_out, curr_out_abbrev)})
+    _, url_uri = common.uri_make( curr_in.name2, addr_in, {'amount':volume_in, 'label': db_client.make_x_acc_label(deal, addr_out, curr_out_abbrev)})
 
     curr_in_abbrev = curr_in.abbrev
     lim_bal, may_pay = db_client.is_limited_ball(curr_in)
@@ -289,10 +289,10 @@ def get():
         FORM( ## ВНИМАНИЕ !!! тут имена полей надо другие указывать или
             # FORM в основной делать тоже иначе они складываются
             LABEL(T("Volume")), " ", INPUT(_name='v', value=volume_in, _class="pay_val", _readonly=''), curr_in_abbrev, BR(),
-            LABEL(T("Получатель")), " ", INPUT(_name='addr_in', _value=addr, _class='wallet', _readonly=''), BR(),
+            LABEL(T("Получатель")), " ", INPUT(_name='addr_in', _value=addr_in, _class='wallet', _readonly=''), BR(),
             CAT(LABEL(T("Назначение (вставьте в заголовок платежа)")), " ", INPUT(_name='addr_out', _value=addr_out_full, _class='wallet', _readonly=''), BR()) if token_system else '',
             #T('Резервы службы'), ' ', B(free_bal), ' ', T('рублей'), BR(),
-            #LOAD('where', 'for_addr', vars={'addr': addr}, ajax=True, times=100, timeout=20000,
+            #LOAD('where', 'for_addr', vars={'addr': addr_in}, ajax=True, times=100, timeout=20000,
             #    content=IMG(_src=URL('static','images/loading.gif'), _width=48)),
             INPUT( _type='submit',
                 _class='button blue-bgc',
