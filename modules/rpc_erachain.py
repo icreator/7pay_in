@@ -79,12 +79,15 @@ def is_not_valid_addr(rpc_url, addr):
 
     
 def get_balances(rpc_url, addr):
-
     
     res = rpc_request(rpc_url + "/addresses/assets/" + addr)
     #res = rpc_request(rpc_url + "/addresses/balance/" + addr)
     
     return res
+
+def get_reserve(token_system, token):
+    bals = get_balances(token_system.connect_url, token_system.account)
+    return bals['%d' % token.token_key][0][1]
 
 def get_transactions(rpc_url, addr, from_block=2):
     result = []
@@ -108,3 +111,61 @@ def get_transactions(rpc_url, addr, from_block=2):
         result += recs
     
     return result
+
+def send(db, curr, xcurr, addr, amo, token_system = None, token = None):
+    
+    if token == None:
+        token = db.tokens[xcurr.as_token]
+    if token_system == None:
+        token_system = db.systems[token.system_id]
+        
+    amo = round(float(amo),8)
+    
+    if token.token_key == 2:
+        # if it is COMPU
+        txfee = round(float(xcurr.txfee or 0.000102), 8)
+    else:
+        txfee = 0
+    
+    try:
+        reserve = get_reserve(token_system, token)
+    except Exception as e:
+        return {'error': 'connection lost - [%s]' % curr.abbrev }, None
+        
+    if amo + txfee > reserve:
+        return {'error':'out off reserve:[%s]' % reserve }, None
+    
+    # проверим готовность базы - is lock - и запишем за одно данные
+    log_commit(db, 'try send: %s[%s] %s' % (amo, curr.abbrev, addr))
+    if amo > txfee*2:
+        #if True:
+        try:
+            print 'res = erachain.send(addr, amo - txfee)', amo - txfee
+            vars = { 'assetKey': token.token_key, 'feePow': 0,
+                'amount': amo - txfee, 'sender': token_system.account, 'recipient': addr,
+                'password': '1'}
+            data = {'password': '1'}
+            pars = '/rec_payment/%d/%s/%d/%d/%s?password=1' % (0, token_system.account, token.token_key, amo - txfee, addr )
+            print pars, data
+            res = rpc_request(token_system.connect_url + pars)
+            print "SENDed? ", type(res), res
+            if type(res) == type({}):
+                error = res.get('error')
+            else:
+                return {'error': ("%s" % res) + ' [%s]' % curr.abbrev }, None
+
+            if error:
+                return {'error': str(res['message'] + (' %d' % error)).decode('cp1251','replace') + ' [%s]' % curr.abbrev }, None
+            
+            res = res['signature']
+
+        #else:
+        except Exception as e:
+            return {'error': str(e).decode('cp1251','replace') + ' [%s]' % curr.abbrev }, None
+    else:
+        # тут mess для того чтобы обнулить выход и зачесть его как 0
+        res = { 'mess':'< txfee', 'error':'so_small', 'error_description': '%s < txfee %s' % (amo, txfee) }
+
+    bal = get_reserve(token_system, token)
+
+    return res, bal

@@ -177,7 +177,7 @@ def get_incomed(db, erachain_url, erachain_addr, curr, xcurr, addr_in=None, from
     if type(curr_block) != type(1):
         # кошелек еще не запустился
         print 'not started else'
-        return tab, from_block # если переиндексация то возможно что и меньше
+        return tab, from_block_in # если переиндексация то возможно что и меньше
 
     from_block = from_block_in or xcurr.from_block
     if from_block:
@@ -199,6 +199,7 @@ def get_incomed(db, erachain_url, erachain_addr, curr, xcurr, addr_in=None, from
         xcurr.from_block = from_block = 1 # все входы со всеми подтверждениями берем
         xcurr.update_record()
         tab = rpc_erachain.get_transactions(erachain_url, erachain_addr)
+        print type(tab), tab
         if type(tab) == type({}):
             # ошибка
             log(db, 'listunspent %s' % Unsp)
@@ -211,6 +212,10 @@ def get_incomed(db, erachain_url, erachain_addr, curr, xcurr, addr_in=None, from
             continue
 
         head = rec.get('head')
+        if not head:
+            head = rec.get('data')
+            encrypted = rec.get('encrypted')
+            
         if not head:
             acc = 'refuse:' + rec['creator']
         else:
@@ -447,7 +452,7 @@ def run_once(db, abbrev):
         erachain_rpc = token_system.connect_url
 
         addr_in= None #'4V6CeFxAHGVTM5wYKhAbXwbXsjUW5Bazdh'
-        from_block_in = 68600
+        from_block_in = None # 68600
         tab, curr_block = get_incomed(db, erachain_rpc, erachain_addr, curr, xcurr, addr_in, from_block_in)
         print 'tab:   ',tab
         ##return
@@ -457,12 +462,12 @@ def run_once(db, abbrev):
         balances = rpc_erachain.get_balances(erachain_rpc, erachain_addr)
         if type(balances) == type({}):
             for token_rec in db(db.tokens.system_id == token_system.id).select():
-                print token_rec.token_key
+                #print token_rec.token_key
                 balance = balances['%d' % token_rec.token_key][0][1]
                 token_xcurr = db(db.xcurrs.as_token == token_rec.id).select().first()
                 token_curr = db.currs[token_xcurr.curr_id]
                 token_curr.balance = balance
-                print token_curr.balance
+                #print token_curr.balance
                 token_curr.update_record()
         else:
             print balances
