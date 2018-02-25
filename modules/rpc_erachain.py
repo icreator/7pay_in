@@ -145,7 +145,7 @@ def send(db, curr, xcurr, addr, amo, token_system = None, token = None):
                 'amount': amo - txfee, 'sender': token_system.account, 'recipient': addr,
                 'password': '1'}
             data = {'password': '1'}
-            pars = '/rec_payment/%d/%s/%d/%d/%s?password=1' % (0, token_system.account, token.token_key, amo - txfee, addr )
+            pars = '/rec_payment/%d/%s/%d/%d/%s?password=3' % (0, token_system.account, token.token_key, amo - txfee, addr )
             print pars, data
             res = rpc_request(token_system.connect_url + pars)
             print "SENDed? ", type(res), res

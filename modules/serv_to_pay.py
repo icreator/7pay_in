@@ -312,7 +312,7 @@ def make_edealer_payment(db, geted_pays,  curr_in, xcurr, curr_out, ecurr, vol_i
                 log_on = None # None - log some, False - notg, True - log all
                 res = ed_common.pay(db, deal, dealer, dealer_acc, dealer_deal, deal_acc.acc,
                             volume_out_full, log_on )
-                log( db, 'PAYed - res: %s' % res)
+                log( db, 'PAYed ecurr - res: %s' % res)
         else:
             # сюда пришло значит баланса хватает и это на выходе криптовалюта
             dealer_acc = None
@@ -324,7 +324,7 @@ def make_edealer_payment(db, geted_pays,  curr_in, xcurr, curr_out, ecurr, vol_i
             if type(res) == type(u' '):
                 # прошла транзакция, создадим массив инфо
                 res = { 'payment_id': res, 'status': 'success' }
-            log( db, 'PAYed - res: %s' % res)
+            log( db, 'PAYed xcurr - res: %s' % res)
 
         ####################
         if not res or 'error' in res or res.get('status') != 'success':

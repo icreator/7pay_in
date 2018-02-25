@@ -143,6 +143,12 @@ def is_not_valid_addr(cc, addr):
 ### нет - комсу теперь не включаем?
 def send(db, curr, xcurr, addr, amo, conn_in=None, token_system = None, token = None):
     
+    if xcurr.as_token:
+        if token == None:
+            token = db.tokens[xcurr.as_token]
+        if token_system == None:
+            token_system = db.systems[token.system_id]
+
     if token_system:
         import rpc_erachain
         return rpc_erachain.send(db, curr, xcurr, addr, amo, token_system, token)
