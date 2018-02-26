@@ -1,2 +1,16 @@
 eclipse.preferences.version=1
+encoding//controllers/api.py=utf8
 encoding//controllers/appadmin.py=utf-8
+encoding//controllers/buy.py=utf8
+encoding//controllers/to_coin.py=utf8
+encoding//models/0.py=utf-8
+encoding//models/db1.py=utf8
+encoding//modules/clients_lib.py=utf8
+encoding//modules/crypto_client.py=utf8
+encoding//modules/db_client.py=utf8
+encoding//modules/ed_YD.py=utf8
+encoding//modules/partners_lib.py=utf-8
+encoding//modules/rpc_erachain.py=utf8
+encoding//modules/serv_block_proc.py=utf8
+encoding//modules/serv_to_buy.py=utf8
+encoding//modules/serv_to_pay.py=utf8

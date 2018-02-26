@@ -22,21 +22,34 @@ def get_currs_by_abbrev(db, abbrev):
     xcurr = curr and db(db.xcurrs.curr_id==curr.id).select().first()
     ecurr = curr and db(db.ecurrs.curr_id==curr.id).select().first()
     return curr, xcurr, ecurr
+
 def get_currs_by_addr(db, addr, abbrev_only=None):
     if not addr or len(addr)<30 or len(addr)>36: return None, None, None
     abbrev = None
     ch = addr[0:1]
     if ch == '1' or ch == '3': abbrev = 'BTC'
     elif ch == 'C': abbrev = 'CLR'
-    elif ch in 'D9A': abbrev = 'DGE'
+    elif ch in 'D9A': abbrev = 'DOGE'
     elif ch == 'L': abbrev = 'LTC'
     elif ch == '4': abbrev = 'NVC'
     elif ch == 'P': abbrev = 'PPC'
     else:
         # у догов 34 буквы и первая буква вообще разная
-        abbrev = 'DGE'
+        abbrev = 'DOGE'
     if abbrev_only: return abbrev
     return get_currs_by_abbrev(db, abbrev)
+
+#
+def get_xcurr_by_system_token(db, token_system, token_key):
+    
+    token = db((db.tokens.system_id==token_system.id)
+               & (db.tokens.token_key==token_key)).select().first()
+    if not token:
+        return
+
+    xcurr = db(db.xcurrs.as_token==token.id).select().first()
+    
+    return xcurr
 
 ###################################
 # дело в том что баланс самого счета будет намного меньше баланса у дилера и меньше баланса на валюте

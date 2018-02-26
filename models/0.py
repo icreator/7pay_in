@@ -17,6 +17,12 @@ from gluon.contrib.appconfig import AppConfig
 myconf = AppConfig(reload=True)
 
 DEVELOP = myconf.take('app.develop', cast=bool)
+
+USE_TO_PHONE =  myconf.take('mode.use_to_phone')
+USE_EXCHANGE =  myconf.take('mode.use_exchange')
+USE_BUY_SELL =  myconf.take('mode.use_buy_sell')
+USE_TO_DEALS =  myconf.take('mode.use_to_deals')
+
 TO_BUY_ID = myconf.take('deals.buy')
 TO_WALLET_ID = myconf.take('deals.wallet')
 TO_COIN_ID = myconf.take('deals.coin')

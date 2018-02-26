@@ -83,15 +83,32 @@ def get():
     xcurr_out = db(db.xcurrs.curr_id == curr_out.id).select().first()
     curr_out_abbrev = curr_out.abbrev
     curr_out_name = curr_out.name
+
+    token_system = None
+    token_key = xcurr_in.as_token
+    if token_key:
+        token = db.tokens[token_key]
+        token_system = db.systems[token.system_id]
+        
     #print request.application[-5:]
     if request.application[:-3] != '_dvlp':
         # чето конфликт если из ipay3_dvlp вызывать то кошелек на ipay3 не коннектится
-        import crypto_client
-        cc = crypto_client.conn(curr_out, xcurr_out)
-        if not cc:
-            return mess(T('Connection to [%s] id lost, try lates ') % curr_out_name)
-        if crypto_client.is_not_valid_addr(cc, addr_out):
-            return mess(T('address not valid for ') + curr_out_name)
+        if token_system:
+            import rpc_erachain
+            curr_block = rpc_erachain.get_info(token_system.connect_url)
+            if type(curr_block) != type(1):
+                return mess(T('Connection to [%s] id lost, try lates ') % curr_out_name)
+            if rpc_erachain.is_not_valid_addr(token_system.connect_url, addr_out):
+                return mess(T('address not valid for ') + curr_out_name)
+            
+            pass
+        else:
+            import crypto_client
+            cc = crypto_client.conn(curr_out, xcurr_out)
+            if not cc:
+                return mess(T('Connection to [%s] id lost, try lates ') % curr_out_name)
+            if crypto_client.is_not_valid_addr(cc, addr_out):
+                return mess(T('address not valid for ') + curr_out_name)
 
     try:
         session.toCoin = curr_out_abbrev
@@ -105,16 +122,22 @@ def get():
         print 'to_coin session error .vol:', type(vol), vol
 
     curr_in_name = curr_in.name
-    x_acc_label = db_client.make_x_acc(deal, addr_out, curr_out_abbrev)
-    # найдем ранее созданный адресс для этого телефона, этой крипты и этого фиата
-    # сначала найтем аккаунт у дела
-    deal_acc_id = db_client.get_deal_acc_id(db, deal, addr_out, curr_out)
-    # теперь найдем кошелек для данной крипты
-    deal_acc_addr = db_client.get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr_in, xcurr_in, x_acc_label)
-    if not deal_acc_addr:
-        return mess((T('Связь с сервером %s прервана') % curr_in_name) + '. ' + T('Невозможно получить адрес для платежа') + '. ' + T('Пожалуйста попробуйте позже'), 'warning')
+    
+    if token_system:
+        deal_acc_id, deal_acc_addr = rpc_erachain.get_deal_acc_addr(db, deal_id, curr_out, addr_out, token_system.account, xcurr_in)
+        addr_in =  token_system.account
+        pass
+    else:
+        x_acc_label = db_client.make_x_acc(deal, addr_out, curr_out_abbrev)
+        # найдем ранее созданный адресс для этого телефона, этой крипты и этого фиата
+        # сначала найтем аккаунт у дела
+        deal_acc_id = db_client.get_deal_acc_id(db, deal, addr_out, curr_out)
+        # теперь найдем кошелек для данной крипты
+        deal_acc_addr = db_client.get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr_in, xcurr_in, x_acc_label)
+        if not deal_acc_addr:
+            return mess((T('Связь с сервером %s прервана') % curr_in_name) + '. ' + T('Невозможно получить адрес для платежа') + '. ' + T('Пожалуйста попробуйте позже'), 'warning')
 
-    addr = deal_acc_addr.addr
+        addr_in = deal_acc_addr.addr
         
     h = CAT()
 
@@ -205,7 +228,7 @@ def get():
         volume_in = rate_out = tax_rep = None
         hh += mess('[' + curr_in_name + '] -> [' + curr_out_name + ']' + T(' - лучшая цена не доступна.') + T('Но Вы можете оплатить вперед'), 'warning pb-10')
 
-    _, url_uri = common.uri_make( curr_in.name2, addr, {'amount':volume_in, 'label': db_client.make_x_acc_label(deal, addr_out, curr_out_abbrev)})
+    _, url_uri = common.uri_make( curr_in.name2, addr_in, {'amount':volume_in, 'label': db_client.make_x_acc_label(deal, addr_out, curr_out_abbrev)})
 
     curr_in_abbrev = curr_in.abbrev
     lim_bal, may_pay = db_client.is_limited_ball(curr_in)
@@ -224,6 +247,11 @@ def get():
         lim_bal_mess = ''
 
     free_bal = db_client.curr_free_bal(curr_out)
+    if token_system:
+        addr_out_full = ('%d' % token.token_key) + ':' + addr_out
+    else:
+        addr_out_full = addr_out
+
     hh += DIV(
         P(
         T('Оплата обмена на'), ' ',curr_out_abbrev, ' ', T('с выплатой монет на адрес'),  ': ',
@@ -245,7 +273,7 @@ def get():
             _href=url_uri),
                     ),
             _class='row'
-            ),
+            ) if not token_system else '',
         BR(),
         DIV(
             A(T('Показать QR-код'),  _class='btn btn-info',
@@ -256,15 +284,15 @@ def get():
                #delete='div#tag0'
                ),
             _id='tag0'),
-        T('или'), BR(),
-        T('Оплатите вручную'), ': ',
-        FORM( ## ВНИМАНИЕ !!! тут имена полей надр друние указывать или
+        H3(T('или')),
+        T('Оплатите вручную'), '. ', T("Для этого скопируйте значения полей (двойной клик по полю для выделения) и вставьте их в платеж на вашем кошельке"), ': ',
+        FORM( ## ВНИМАНИЕ !!! тут имена полей надо другие указывать или
             # FORM в основной делать тоже иначе они складываются
-            INPUT(_name='v', value=volume_in, _class="pay_val", _readonly=''), curr_in_abbrev, BR(),
-            T("Для этого скопируйте сумму и адрес (двойной клик по полю для выделения) и вставьте их в платеж на вашем кошельке"), ': ',
-            INPUT(_name='addr_in', _value=addr, _class='wallet', _readonly=''), BR(),
+            LABEL(T("Volume")), " ", INPUT(_name='v', value=volume_in, _class="pay_val", _readonly=''), curr_in_abbrev, BR(),
+            LABEL(T("Получатель")), " ", INPUT(_name='addr_in', _value=addr_in, _class='wallet', _readonly=''), BR(),
+            CAT(LABEL(T("Назначение (вставьте в заголовок платежа)")), " ", INPUT(_name='addr_out', _value=addr_out_full, _class='wallet', _readonly=''), BR()) if token_system else '',
             #T('Резервы службы'), ' ', B(free_bal), ' ', T('рублей'), BR(),
-            #LOAD('where', 'for_addr', vars={'addr': addr}, ajax=True, times=100, timeout=20000,
+            #LOAD('where', 'for_addr', vars={'addr': addr_in}, ajax=True, times=100, timeout=20000,
             #    content=IMG(_src=URL('static','images/loading.gif'), _width=48)),
             INPUT( _type='submit',
                 _class='button blue-bgc',
@@ -319,7 +347,7 @@ def sel():
         return h+'error curr_id'
 
     deal_name = 'to COIN'
-    deal = db(db.deals.name == deal_name).select().first()
+    deal = db.deals[TO_COIN_ID]
     if deal:
         deal_id = deal.id
     else:

@@ -6,6 +6,7 @@
 /errors
 /sessions
 /uploads
+/cache
 
 /static/files
 ##/static/images

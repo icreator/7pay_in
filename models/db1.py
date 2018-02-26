@@ -42,9 +42,32 @@ db.define_table('currs',
    )
 
 # CRYPTO
+db.define_table('systems',
+   Field('name', length=25, readable=False, comment='name of tokenized system'),
+   Field('first_char', length=5, readable=False, comment='insert in db.common.get_currs_by_addr !!!'), # для быстрого поиска крипты по адресу
+   Field('connect_url', default='http://user:pass@localhost:3333', unique=True),
+   Field('account', default='7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7', comment='address for incoming payments'),
+   Field('block_time', 'integer', comment='in sec. BTC = 600sec'),
+   Field('txfee', 'decimal(10,8)', default = Decimal('0.0001'), comment='For one pay_out transaction. Payed to web'),
+   Field('conf', 'integer', default = 3, comment='confirmations for accept'),
+   Field('conf_gen', 'integer', default = 6, comment='confirmations for accept generated coins'),
+   Field('from_block', 'integer', comment='block was tested'),
+   #migrate=False,
+   format='%(name)s',
+   )
+db.define_table('tokens',
+   Field('system_id', db.systems),
+   Field('token_key', 'integer', default=1, comment='ID of token (coin or asset) in that system'),
+   Field('name', length=125, readable=False, comment='name of token'),
+   #migrate=False,
+   format='%(system_id)s:%(token_key)s %(name)s',
+   )
+
+# CRYPTO
 db.define_table('xcurrs',
    Field('curr_id', db.currs),
    Field('first_char', length=5, readable=False, comment='insert in db.common.get_currs_by_addr !!!'), # для быстрого поиска крипты по адресу
+   Field('as_token', 'integer', default=0, comment='ID in db.tokens (if its token, coin or asset)'),
    Field('balance', 'decimal(16,8)', default = Decimal('0.0')),
    Field('deposit', 'decimal(16,8)', default = Decimal('0.0')), # то что нельзя выводить или продавать - запас для меня
    Field('clients_deposit', 'decimal(16,8)', default = Decimal('0.0')), # то что нельзя выводить или продавать так как это баланс клиеннтов-магазинов
@@ -56,7 +79,7 @@ db.define_table('xcurrs',
    Field('conf_gen', 'integer', default = 6, comment='confirmations for accept generated coins'),
    Field('from_block', 'integer', comment='block was tested'),
    #migrate=False,
-   format='%(curr_id)s',
+   #format='%(curr_id)s',
    )
 
 # eFIAT
@@ -737,6 +760,24 @@ if db(db.currs).isempty():
         else:
             db.ecurrs.insert(curr_id = curr_id)
 
+#### TOKENS ####
+if db(db.systems).isempty():
+    db.systems.truncate()
+    db.tokens.truncate()
+    system_id = db.systems.insert(name = 'Erachain', name2 = 'erachain', first_char = '7',
+                connect_url = 'http://127.0.0.1:9068', account = '7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7',
+                block_time = 288, conf = 2, conf_gen = 0, from_block = 30000)
+    for asset in [
+        [1, 'ERA'], [2, 'COMPU'],
+            ]:
+        token_id = db.tokens.insert(system_id = system_id, token_key = asset[0], name = asset[1])
+        curr_id = db.currs.insert( abbrev = asset[1], name = asset[1], name2 = asset[1], used=True)
+        db.xcurrs.insert(curr_id = curr_id, connect_url = 'erachain ' + asset[1],
+                 as_token = token_id,
+                 block_time=0, txfee = 0, conf = 0, conf_gen = 0)
+    
+    
+    
 if db(db.exchg_taxs).isempty():
     db.exchg_taxs.truncate()
     db.exchg_taxs.insert( curr1_id = 3, curr2_id = 2, tax = 0)
@@ -773,6 +814,7 @@ if db(db.exchg_pair_bases).isempty():
         [6, 3, 0, 3333, 0.1],
         [7, 3, 0, 33, 0.1],
         [8, 3, 0, 333, 0.1],
+        [9, 10, 0.001, 1, 0.1],
         ]:
         db.exchg_pair_bases.insert(curr1_id = r[0], curr2_id = r[1], hard_price = r[2], base_vol = r[3], base_perc = r[4])
 
@@ -824,25 +866,20 @@ if db(db.dealers).isempty():
     db.dealers_accs_trans.truncate()
     db.dealer_deals.truncate()
     db.pay_outs.truncate()
-    db.fees.truncate()
     dealer_id = db.dealers.insert(
         name = 'Yandex',
-        used=True,  not_gifted=True,
+        used=True,
         API = '{ "URI_YM_API": "https://money.yandex.ru/api", "URI_YM_AUTH": "https://sp-money.yandex.ru/oauth/authorize", "URI_YM_TOKEN": "https://sp-money.yandex.ru/oauth/token", "acc_names": ["user", "PROPERTY1", "rapida_param1", "customerNumber", "CustomerNumber"] }',
         info = '{ "shops_url": "https://money.yandex.ru/shop.xml?scid=", "search_url": "https://money.yandex.ru/", "img_url": "https://money.yandex.ru" }',
-        pay_out_min = 10)
+        pay_out_MIN = 10)
     db.dealers_accs.insert(dealer_id = dealer_id, ecurr_id = 2, acc = '4100134701234567', balance = 9999999,
            pkey = '{"YM_REDIRECT_URI": "https://7pay.in/ed_YD/yandex_response", "secret_response": "**secret response**", "CLIENT_ID": "**TOKEN**", "SCOPE": "account-info operation-history operation-details payment-shop.limit(1,37777) payment-p2p.limit(1,37777)"}',
            used = True, expired = '2216-02-10')
-    db.fees.insert(exchg_id = 1, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
-    db.fees.insert(exchg_id = 2, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
-    db.fees.insert(exchg_id = 3, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
-    db.fees.insert(exchg_id = 4, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
     
     db.dealer_deals.insert(dealer_id = dealer_id, deal_id = TO_PHONE7_ID, used = False, scid = 'phone-topup', tax = 0.0)
     db.dealer_deals.insert(dealer_id = dealer_id, deal_id = TO_WALLET_ID, used = False, scid = 'p2p',
                            p2p = True, tax = 0.5,
-                          template = '["not_mod", { "n": "p2p"}]')
+                          template_ = '["not_mod", { "n": "p2p"}]')
 
 
 if db(db.exchgs).isempty():
@@ -873,3 +910,8 @@ if db(db.exchgs).isempty():
         if len(r)>8:
             for pair in r[8]:
                 db.exchg_pairs.insert(exchg_id = exchg_id, curr1_id = pair[0], curr2_id = pair[1], used = pair[2], ticker = pair[3])
+
+    db.fees.insert(exchg_id = 1, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
+    db.fees.insert(exchg_id = 2, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
+    db.fees.insert(exchg_id = 3, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
+    db.fees.insert(exchg_id = 4, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)

@@ -221,7 +221,7 @@ def rates():
         h=DIV(BEAUTIFY({'rates': res}), _class='container')) or {'rates': res}
 
 
-@cache.action(time_expire=time_exp, cache_model=cache.disk, vars=True, public=True, lang=True)
+#@cache.action(time_expire=time_exp, cache_model=cache.disk, vars=True, public=True, lang=True)
 def curr_get_info():
     import time
     time.sleep(1)
@@ -234,19 +234,27 @@ def curr_get_info():
     curr,xcurr,e = get_currs_by_abbrev(db, curr_abbrev)
     if not xcurr:
         return {"error": "invalid curr: " + curr_abbrev }
-    from crypto_client import conn
-    try:
-        conn = conn(curr, xcurr)
-    except:
-        conn = None
-    if not conn:
-        return {'error': 'Connection to ' + curr_abbrev + ' wallet is lost. Try later'}
-    print conn
-    try:
-        res = conn.getinfo()
-    #except Exception as e:
-    except Exception, e:
-        return {'error': 'Connection to ' + curr_abbrev + ' wallet raise error [%s]. Try later' % e}
+    
+    connect_url = xcurr.connect_url.split(' ')
+    print connect_url
+    if len(connect_url) > 1 and connect_url[0] == 'erachain':
+        import rpc_erachain
+        res = rpc_erachain.get_info(ERACHAIN_RPC)
+        res = {'height': res, 'balances': rpc_erachain.get_balances(ERACHAIN_RPC, ERACHAIN_ADDR) }
+    else:
+        from crypto_client import conn
+        try:
+            conn = conn(curr, xcurr)
+        except:
+            conn = None
+        if not conn:
+            return {'error': 'Connection to ' + curr_abbrev + ' wallet is lost. Try later'}
+        print conn
+        try:
+            res = conn.getinfo()
+        #except Exception as e:
+        except Exception, e:
+            return {'error': 'Connection to ' + curr_abbrev + ' wallet raise error [%s]. Try later' % e}
     
     return res
 
