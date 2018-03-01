@@ -38,12 +38,14 @@ db.define_table('currs',
    Field('tax_out', 'decimal(4,2)', default = Decimal(0.01), comment='% tax for buy my coins'),
    Field('uses', 'integer', default = 0, comment='number of uses'),
    #migrate=False,
+   #fake_migrate = False,
    format='%(abbrev)s',
    )
 
 # CRYPTO
 db.define_table('systems',
    Field('name', length=25, readable=False, comment='name of tokenized system'),
+   Field('name2', length=25, readable=False, comment='name for URI'),
    Field('first_char', length=5, readable=False, comment='insert in db.common.get_currs_by_addr !!!'), # для быстрого поиска крипты по адресу
    Field('connect_url', default='http://user:pass@localhost:3333', unique=True),
    Field('account', default='7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7', comment='address for incoming payments'),
@@ -52,14 +54,12 @@ db.define_table('systems',
    Field('conf', 'integer', default = 3, comment='confirmations for accept'),
    Field('conf_gen', 'integer', default = 6, comment='confirmations for accept generated coins'),
    Field('from_block', 'integer', comment='block was tested'),
-   #migrate=False,
    format='%(name)s',
    )
 db.define_table('tokens',
    Field('system_id', db.systems),
    Field('token_key', 'integer', default=1, comment='ID of token (coin or asset) in that system'),
    Field('name', length=125, readable=False, comment='name of token'),
-   #migrate=False,
    format='%(system_id)s:%(token_key)s %(name)s',
    )
 
@@ -78,8 +78,7 @@ db.define_table('xcurrs',
    Field('conf', 'integer', default = 3, comment='confirmations for accept'),
    Field('conf_gen', 'integer', default = 6, comment='confirmations for accept generated coins'),
    Field('from_block', 'integer', comment='block was tested'),
-   #migrate=False,
-   #format='%(curr_id)s',
+   format='%(curr_id)s %(first_char)s',
    )
 
 # eFIAT
@@ -721,9 +720,12 @@ db.define_table('logs',
 
 #########################################
 if db(db.currs).isempty():
-    db.ecurrs.truncate()
-    db.xcurrs.truncate()
-    db.currs.truncate()
+    try:
+        db.ecurrs.truncate()
+        db.xcurrs.truncate()
+        db.currs.truncate()
+    except:
+        pass
     xpass = 'login:password'
     for r in [
             ['USD', 'US dollar', 'usd', True], #1
@@ -762,8 +764,12 @@ if db(db.currs).isempty():
 
 #### TOKENS ####
 if db(db.systems).isempty():
-    db.systems.truncate()
-    db.tokens.truncate()
+    try:
+        db.systems.truncate()
+        db.tokens.truncate()
+    except:
+        pass
+
     system_id = db.systems.insert(name = 'Erachain', name2 = 'erachain', first_char = '7',
                 connect_url = 'http://127.0.0.1:9068', account = '7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7',
                 block_time = 288, conf = 2, conf_gen = 0, from_block = 30000)
@@ -779,14 +785,22 @@ if db(db.systems).isempty():
     
     
 if db(db.exchg_taxs).isempty():
-    db.exchg_taxs.truncate()
+    try:
+        db.exchg_taxs.truncate()
+    except:
+        pass
+
     db.exchg_taxs.insert( curr1_id = 3, curr2_id = 2, tax = 0)
     db.exchg_taxs.insert( curr1_id = 3, curr2_id = 1, tax = 0.5)
     db.exchg_taxs.insert( curr1_id = 4, curr2_id = 3, tax = 1)
     db.exchg_taxs.insert( curr1_id = 8, curr2_id = 3, tax = 1)
     
 if db(db.exchg_pair_bases).isempty():
-    db.exchg_pair_bases.truncate()
+    try:
+        db.exchg_pair_bases.truncate()
+    except:
+        pass
+
     for r in [
         [1, 2, 0, 100, 0.1],
         [1, 3, 0, 100, 0.1],
@@ -820,6 +834,7 @@ if db(db.exchg_pair_bases).isempty():
 
 
 
+
 #current.CURR_RUB = CURR_RUB = db.currs[ 2 ]
 ##current.CURR_RUB = CURR_RUB = db(db.currs.abbrev == 'RUB').select().first()
 
@@ -827,7 +842,11 @@ if not CURR_RUB_ID:
     raise HTTP(500, 'currency RUB not found in db1.py')
 
 if db(db.deals_cat).isempty():
-    db.deals_cat.truncate()
+    try:
+        db.deals_cat.truncate()
+    except:
+        pass
+
     db.deals_cat.insert(name='Other')
     db.deals_cat.insert(name='Internet')
     db.deals_cat.insert(name='Games')
@@ -835,9 +854,13 @@ if db(db.deals_cat).isempty():
     db.deals_cat.insert(name='Municipal services')
     
 if db(db.deals).isempty():
-    db.deals.truncate()
-    db.deal_errs.truncate()
-    db.dealer_deals.truncate()
+    try:
+        db.deals.truncate()
+        db.deal_errs.truncate()
+        db.dealer_deals.truncate()
+    except:
+        pass
+
     db.deals.insert(
         fee_curr_id= CURR_RUB_ID, name = 'BUY', name2 = 'to BUY',
         used=False,  not_gifted=True,
@@ -860,12 +883,16 @@ if db(db.deals).isempty():
         fee=3,  tax=0.2,  fee_min=0,  fee_max=0)
 
 if db(db.dealers).isempty():
-    db.dealers.truncate()
-    db.dealers_accs.truncate()
-    db.clients_ewallets.truncate()
-    db.dealers_accs_trans.truncate()
-    db.dealer_deals.truncate()
-    db.pay_outs.truncate()
+    try:
+        db.dealers.truncate()
+        db.dealers_accs.truncate()
+        db.clients_ewallets.truncate()
+        db.dealers_accs_trans.truncate()
+        db.dealer_deals.truncate()
+        db.pay_outs.truncate()
+    except:
+        pass
+    
     dealer_id = db.dealers.insert(
         name = 'Yandex',
         used=True,
@@ -883,10 +910,14 @@ if db(db.dealers).isempty():
 
 
 if db(db.exchgs).isempty():
-    db.exchgs.truncate()
-    db.exchg_limits.truncate()
-    db.exchg_pairs.truncate()
-    db.fees.truncate()
+    try:
+        db.exchgs.truncate()
+        db.exchg_limits.truncate()
+        db.exchg_pairs.truncate()
+        db.fees.truncate()
+    except:
+        pass
+    
     xpass = 'login:password'
     for r in [
             ['WEX', 'wex.nz', 'btc-e_3', '', True, 0.5, 0.0, [[1,""], [2, "rur"], [3,""], [4,""], [5,""], [6,""]],
@@ -898,7 +929,7 @@ if db(db.exchgs).isempty():
             ['Poloniex.com', 'poloniex.com', 'poloniex', '', True, 0.2, 0, [],
                   [[3, 5, True,'BTC_DOGE'], [3, 6, True,'BTC_DASH']]
                 ]
-	            ]:
+                ]:
 
         exchg_id = db.exchgs.insert(name = r[0], url = r[1],
                                     API_type = r[2], API = r[3], used = r[4], tax = r[5],

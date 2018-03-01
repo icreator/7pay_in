@@ -27,8 +27,8 @@ if not request.env.web2py_runtime_gae:
     if DEVELOP:
         db = DAL(myconf.take('db.uri_dvp'), migrate = 1, check_reserved = ['all'])
     else:
-        #print 'MIGRATE: ', migrate
-        #print 'fake: ', fake_migrate
+        print 'MIGRATE: ', migrate
+        print 'fake: ', fake_migrate
         db = DAL(myconf.take('db.uri'), pool_size=myconf.take('db.pool_size', cast=int), check_reserved=['all'],
                 #migrate = Not (Not (myconf.take('db.migrate'))),
                 migrate = migrate,
