@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # fake_migrate - только если таблица уже создана - а если поля добавлям от не нужно
 # и если в другом проекте поля уже добавлены и их не надо добавлять
-migrate = 0
 if DEVELOP: print 'db.py - app.DEVELOP'
 
 #########################################################################
@@ -12,15 +11,28 @@ if DEVELOP: print 'db.py - app.DEVELOP'
 ## if SSL/HTTPS is properly configured and you want all HTTP requests to
 ## be redirected to HTTPS, uncomment the line below:
 # request.requires_https()
+if myconf.take('db.migrate'):
+    migrate = True ## ONLY BOOLEAN!
+else:
+    migrate = False ## ONLY BOOLEAN!
+
+if myconf.take('db.fake_migrate'):
+    fake_migrate = True ## ONLY BOOLEAN!
+else:
+    fake_migrate = False ## ONLY BOOLEAN!
+
 
 if not request.env.web2py_runtime_gae:
     ## if NOT running on Google App Engine use SQLite or other DB
     if DEVELOP:
         db = DAL(myconf.take('db.uri_dvp'), migrate = 1, check_reserved = ['all'])
     else:
+        #print 'MIGRATE: ', migrate
+        #print 'fake: ', fake_migrate
         db = DAL(myconf.take('db.uri'), pool_size=myconf.take('db.pool_size', cast=int), check_reserved=['all'],
-                fake_migrate = myconf.take('db.fake_migrate') or migrate,
-                migrate = myconf.take('db.migrate') or migrate
+                #migrate = Not (Not (myconf.take('db.migrate'))),
+                migrate = migrate,
+                fake_migrate = fake_migrate,
                 )
     ## в кукиях у пользователей хранить сессии - а не у нас на диске
     session.connect(request,response,cookie_key='kjykGFDRETfxf65',compression_level=None)
