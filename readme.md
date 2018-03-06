@@ -1,5 +1,9 @@
 
 ## Bitcoin & Fiat payment service
+
+> DEMO
+http://datachains.world/7pay_in
+
 #### python +  [web2py framework](http://web2py.com/books/default/chapter/29/14/other-recipes?search=eclipse#Developing-with-IDEs--WingIDE--Rad2Py--Eclipse-and-PyCharm)
 
 https://bitcointalk.org/index.php?topic=1927911
@@ -31,7 +35,7 @@ https://docs.google.com/document/d/1zmR4CA_e-Z0k3Z9IDlnBc87JthoEtmY2vslIvhqphRE/
 
 ### DATABASE init
 Use initial SQL statement:  
-**ipay-db-empty-for-install.zip**
+**7pay-Dump20171123.zip**
 
 ### For configure routes in web2py use:
 + Edit **routes.py** in application folder (/web2py/applications/7pay_in)
