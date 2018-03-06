@@ -235,12 +235,15 @@ def curr_get_info():
     if not xcurr:
         return {"error": "invalid curr: " + curr_abbrev }
     
-    connect_url = xcurr.connect_url.split(' ')
-    print connect_url
-    if len(connect_url) > 1 and connect_url[0] == 'erachain':
+    token_system = None
+    token_key = xcurr.as_token
+    if token_key:
+        token = db.tokens[token_key]
+        token_system = db.systems[token.system_id]
+    if token_system and token_system.name == 'Erachain':
         import rpc_erachain
-        res = rpc_erachain.get_info(ERACHAIN_RPC)
-        res = {'height': res, 'balances': rpc_erachain.get_balances(ERACHAIN_RPC, ERACHAIN_ADDR) }
+        res = rpc_erachain.get_info(token_system.connect_url)
+        res = {'height': res, 'balances': rpc_erachain.get_balances(token_system.connect_url, token_system.account) }
     else:
         from crypto_client import conn
         try:

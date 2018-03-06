@@ -7,6 +7,8 @@ import urllib2
 from gluon.contrib import simplejson as json
 import time
 
+PASSWORD = '1'
+
 def log(db, mess):
     print 'rpc_erachain - ', mess
     db.logs.insert(mess='YD: %s' % mess)
@@ -41,7 +43,7 @@ def rpc_request(pars, vars=None, password=None, test=None):
         from gluon import current
         # или любая ошибка - повтор запроса - там должно выдать ОК
         #print 'YmToConfirm while EXEPTION:', e
-        log(current.db, 'rpc' + pars + ' EXEPTION: %s' % e)
+        log(current.db, 'rpc ' + pars + ' EXEPTION: %s' % e)
         return e
 
     #time.sleep(1)
@@ -89,6 +91,11 @@ def get_reserve(token_system, token):
     bals = get_balances(token_system.connect_url, token_system.account)
     return bals['%d' % token.token_key][0][1]
 
+## get transactions/unconfirmedincomes/7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7
+def get_unconf_incomes(rpc_url, addr):
+    recs = rpc_request(rpc_url + '/transactions/unconfirmedincomes/' + addr)
+    return recs
+
 def get_transactions(rpc_url, addr, from_block=2):
     result = []
 
@@ -100,7 +107,8 @@ def get_transactions(rpc_url, addr, from_block=2):
 
         i += 1
         try:
-            recs = rpc_request(rpc_url + '/transactions/incoming/' + ("%d" % i) + '/' + addr)
+            recs = rpc_request(rpc_url + '/transactions/incoming/' + ("%d" % i) + '/' + addr
+                              + '/decrypt/%s' % PASSWORD)
         except Exception as e:
             print e
             return result
@@ -143,9 +151,9 @@ def send(db, curr, xcurr, addr, amo, token_system = None, token = None):
             print 'res = erachain.send(addr, amo - txfee)', amo - txfee
             vars = { 'assetKey': token.token_key, 'feePow': 0,
                 'amount': amo - txfee, 'sender': token_system.account, 'recipient': addr,
-                'password': '1'}
-            data = {'password': '1'}
-            pars = '/rec_payment/%d/%s/%d/%d/%s?password=1' % (0, token_system.account, token.token_key, amo - txfee, addr )
+                'password': PASSWORD}
+            data = {'password': PASSWORD}
+            pars = '/rec_payment/%d/%s/%d/%d/%s?password=%s' % (0, token_system.account, token.token_key, amo - txfee, addr, PASSWORD )
             print pars, data
             res = rpc_request(token_system.connect_url + pars)
             print "SENDed? ", type(res), res

@@ -31,7 +31,7 @@ def err_dict(m):
 def for_addr():
     session.forget(response)
     addr = request.vars and request.vars.get('addr')
-    #print addr
+    #print 'for_addr:', addr
     if not addr or len(addr) < 24: return dict(pays=T('ошибочный адрес [%s]') % addr)
 
     pays = where.found_buys(db, addr)
@@ -81,15 +81,38 @@ def list():
         else:
             ed_op_res = 'acc error'
     
-        
-
-    response.js = "$('.go-btn').removeClass('disabled');$('#go').children('i').removeClass('fa-refresh fa-spin').addClass('fa-search');"
     addr = request.args(0) or request.vars.addr
-    if addr and len(addr) > 40: addr = None
+    if addr and len(addr) > 60: addr = None
     try:
         session.seeAddr = addr
     except:
         print 'list session error .seeAddr:', type(addr), addr
+
+    response.js = "$('.go-btn').removeClass('disabled');$('#go').children('i').removeClass('fa-refresh fa-spin').addClass('fa-search');"
+    
+    token_system = deal_acc = curr_in = curr_out = None
+    
+    addr_split = addr and addr.split('>')
+    if addr_split and len(addr_split) > 1:
+        curr_in, xcurr_in, ecurr_in = db_common.get_currs_by_abbrev(db, addr_split[0])
+        if not curr_in:
+            return mess(addr_split[0] + ' curr_OUT not found')
+
+        addr_split = addr_split[1].split(':')
+        curr_out, xcurr_out, ecurr_out = db_common.get_currs_by_abbrev(db, addr_split[0])
+        if not curr_out:
+            return mess(addr_split[0] + ' curr_IN not found')
+
+        addr = addr_split[1]
+        deal_acc = db((db.deal_accs.acc == addr)
+                     & (db.deal_accs.curr_id == curr_out.id)).select().first()
+
+        #print curr_in.abbrev
+        token_system = None
+        token_key = xcurr_in.as_token
+        if token_key:
+            token = db.tokens[token_key]
+            token_system = db.systems[token.system_id]
 
     import where3
     pays = []
@@ -98,17 +121,28 @@ def list():
         response.view = 'where/list_buy.html'
         return dict(pays=pays, no_addr=no_addr, ed_op_res=ed_op_res)
 
+    if token_system:
+        import rpc_erachain
+        curr_block = rpc_erachain.get_info(token_system.connect_url)
+
     no_addr = addr == "????"
     if addr and not no_addr:
-        # если адрес известен то вытащим все данные сразу
-        deal_acc_addr = db(db.deal_acc_addrs.addr == addr).select().first()
-        if not deal_acc_addr:
-            return mess('Deals not found')
-        xcurr_in = db.xcurrs[deal_acc_addr.xcurr_id ]
-        curr_in = db.currs[ xcurr_in.curr_id ]
-        deal_acc = db.deal_accs[ deal_acc_addr.deal_acc_id]
-        curr_out = db.currs[ deal_acc.curr_id ]
+
+        if deal_acc:
+            pass
+        else:
+            # если адрес известен то вытащим все данные сразу
+            deal_acc_addr = db(db.deal_acc_addrs.addr == addr).select().first()
+            if not deal_acc_addr:
+                return mess('Deals not found')
+            xcurr_in = db.xcurrs[deal_acc_addr.xcurr_id ]
+            curr_in = db.currs[ xcurr_in.curr_id ]
+            deal_acc = db.deal_accs[ deal_acc_addr.deal_acc_id]
+            curr_out = db.currs[ deal_acc.curr_id ]
+
         deal = db.deals[ deal_acc.deal_id ]
+            
+        #print deal
         payed_month = not deal.is_shop and deal_acc.payed_month or Decimal(0)
         MAX = deal.MAX_pay
         payed = deal_acc.payed or Decimal(0)
