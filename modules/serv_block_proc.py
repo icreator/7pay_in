@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # coding: utf8
+
+#from __future__ import print_function
+
 import datetime
 from decimal import Decimal
 
@@ -164,7 +167,8 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
 
     # сохраним теперь инфо что эти блоки обработали
     if token_system:
-        pass
+        xcurr.from_block = curr_block
+        xcurr.update_record()
     else:
         xcurr.from_block = curr_block
         xcurr.update_record()
@@ -176,8 +180,8 @@ def get_incomed(db, erachain_url, erachain_addr, curr, xcurr, addr_in=None, from
     print curr_block
     if type(curr_block) != type(1):
         # кошелек еще не запустился
-        print 'not started else'
-        return tab, from_block_in # если переиндексация то возможно что и меньше
+        #print 'not started else'
+        return 'not started else %s' % curr_block, from_block_in # если переиндексация то возможно что и меньше
 
     from_block = from_block_in or xcurr.from_block
     if from_block:
@@ -186,11 +190,12 @@ def get_incomed(db, erachain_url, erachain_addr, curr, xcurr, addr_in=None, from
             return tab, from_block # если переиндексация то возможно что и меньше
         print curr_block, from_block
         print curr.abbrev, from_block, erachain_addr
-        tab = rpc_erachain.get_transactions(erachain_url, erachain_addr, from_block)
+        ##tab = rpc_erachain.get_transactions(erachain_url, erachain_addr, from_block)
+        tab = []
         if type(tab) == type({}):
             # ошибка
             log(db, 'listunspent %s' % l_Unsp)
-            return tab, None
+            return 'error: %s ' % tab, None
 
     else:
         # если нет еще номера обработанного блока
@@ -203,18 +208,17 @@ def get_incomed(db, erachain_url, erachain_addr, curr, xcurr, addr_in=None, from
         if type(tab) == type({}):
             # ошибка
             log(db, 'listunspent %s' % Unsp)
-            return tab, None
+            return 'error: %s' % tab, None
     
     #print tab
     transactions = []
     for rec in tab:
-        if rec['amount'] <= 0 or rec['action_key'] != 1:
+        amount = rec.get('amount')
+        action_key = rec.get('action_key')
+        if not amount or amount < 0 or not action_key or action_key != 1:
             continue
 
-        head = rec.get('head')
-        if not head:
-            head = rec.get('data')
-            encrypted = rec.get('encrypted')
+        head = rec.get('head', rec.get('data'))
             
         if not head:
             acc = 'refuse:' + rec['creator']
@@ -223,7 +227,7 @@ def get_incomed(db, erachain_url, erachain_addr, curr, xcurr, addr_in=None, from
                 
         #print rec
         transactions.append(dict(
-            amo = rec['amount'],
+            amo = amount,
             txid=rec['signature'],
             vout=rec['sequence'],
             time = rec['timestamp'] * 0.001,
@@ -454,23 +458,36 @@ def run_once(db, abbrev):
         addr_in= None #'4V6CeFxAHGVTM5wYKhAbXwbXsjUW5Bazdh'
         from_block_in = None # 68600
         tab, curr_block = get_incomed(db, erachain_rpc, erachain_addr, curr, xcurr, addr_in, from_block_in)
+        if type(tab) != type([]):
+            return "!!! %s" % tab
         print 'tab:   ',tab
         ##return
         b_p_db_update(db, None, curr, xcurr, tab, curr_block)
         # баланс берем по обработанным только блокам
         ###balance = crypto_client.get_reserve(curr, xcurr, conn) #conn.getbalance()
         balances = rpc_erachain.get_balances(erachain_rpc, erachain_addr)
+        ##return '%s' % balances
+    
         if type(balances) == type({}):
             for token_rec in db(db.tokens.system_id == token_system.id).select():
-                #print token_rec.token_key
-                balance = balances['%d' % token_rec.token_key][0][1]
+                print token_rec
+                token_key = '%d' % token_rec.token_key
+                if token_key in balances:
+                    balance = balances.get(token_key)
+                    if balance:
+                        balance = Decimal(balance[0][1])
+                else:
+                    balance = Decimal(0)
                 token_xcurr = db(db.xcurrs.as_token == token_rec.id).select().first()
+                token_xcurr.from_block = curr_block
+                token_xcurr.update_record()
                 token_curr = db.currs[token_xcurr.curr_id]
                 token_curr.balance = balance
                 #print token_curr.balance
                 token_curr.update_record()
         else:
             print balances
+            ss += '%s' % balances
         # после обработки блока сразу входы крипты обработаем
         # так как вых платеж может произойти тут надо сохранить
         db.commit()

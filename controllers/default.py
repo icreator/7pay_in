@@ -176,7 +176,15 @@ def index():
     recs = db(
            db.currs.id == db.currs_stats.curr_id).select(sum_, db.currs.ALL, groupby=db.currs_stats.curr_id, orderby=~sum_)
     for r in recs:
-        uses = r._extra['SUM(currs_stats.count_)']
+        #print r._extra
+        #print r._extra['SUM("currs_stats"."count_")']
+        try:
+            uses = r._extra['SUM(currs_stats.count_)']
+        except:
+            try:
+                uses = r._extra['SUM("currs_stats"."count_")']
+            except:
+                uses = r._extra['SUM(`currs_stats`.`count_`)']
         r.currs.update_record(uses = uses)
         stats.append('%s: %s' % (r.currs.name, uses))
 

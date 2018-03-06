@@ -4,6 +4,7 @@ encoding//controllers/appadmin.py=utf-8
 encoding//controllers/buy.py=utf8
 encoding//controllers/to_coin.py=utf8
 encoding//models/0.py=utf-8
+encoding//models/db.py=utf-8
 encoding//models/db1.py=utf8
 encoding//modules/clients_lib.py=utf8
 encoding//modules/crypto_client.py=utf8
