@@ -58,6 +58,7 @@ def _get_bon():
         'wait': myconf.take('bonuses.wait', cast=int),
         }
 BONUSES = None
+GIFT_CODE = None
 
 if request.ajax:
     pass
