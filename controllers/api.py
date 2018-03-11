@@ -241,6 +241,7 @@ def curr_get_info():
         token = db.tokens[token_key]
         token_system = db.systems[token.system_id]
     if token_system and token_system.name == 'Erachain':
+        # UESE tokenSystem
         import rpc_erachain
         res = rpc_erachain.get_info(token_system.connect_url)
         res = {'height': res, 'balances': rpc_erachain.get_balances(token_system.connect_url, token_system.account) }
@@ -248,11 +249,12 @@ def curr_get_info():
         from crypto_client import conn
         try:
             conn = conn(curr, xcurr)
+            return {'error': '%s' % conn}
         except:
             conn = None
         if not conn:
             return {'error': 'Connection to ' + curr_abbrev + ' wallet is lost. Try later'}
-        print conn
+        #print conn
         try:
             res = conn.getinfo()
         #except Exception as e:
@@ -273,13 +275,22 @@ def validate_addr():
     if not xcurr:
         return {"error": "invalid curr"}
     from crypto_client import conn
-    conn = conn(curr, xcurr)
+    try:
+        conn = conn(curr, xcurr)
+    except:
+        conn = None
     if not conn:
         return {"error": "not connected to wallet [%s]" % curr.abbrev}
+    
     valid = conn.validateaddress(addr)
+    
+    #import crypto_client
+    #if crypto_client.is_not_valid_addr(conn, addr):
+    #    return { 'error': 'address not valid for - ' + curr.abbrev}
+
     if not valid.get('isvalid'):
-        return {"error": "invalid for [%s]" % curr.abbrev}
-    return { 'curr': curr.abbrev, 'ismine': valid.get('ismine') }
+        return {"error": "invalid for [%s]" % curr.abbrev, 'mess': '%s' % valid}
+    return { 'curr': curr.abbrev, 'ismine': valid.get('ismine'), 'mess': '%s' % valid }
 
 @cache.action(time_expire=time_exp*10, cache_model=cache.disk)
 def get_rates():

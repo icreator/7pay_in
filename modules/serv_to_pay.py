@@ -55,9 +55,8 @@ def get_pay_ins_recs(db, geted_pays):
 def mark_pay_ins(db, geted_pays, status, status_mess='', to_refuse=None):
     for id in geted_pays:
         st = db.pay_ins_stack[id]
-        st.update_record( in_proc = 0, to_refuse = to_refuse)
+        st.update_record( in_proc = 0, to_refuse = to_refuse, tries = (st.tries or 0) + 1)
         pay_in = db.pay_ins[st.ref_]
-        st.update_record( tries = (st.tries or 0) + 1)
         pay_in.update_record(status = status, status_mess = status_mess)
 
 def check_order(db, order_stack_id):
@@ -121,12 +120,15 @@ def make_edealer_payment(db, geted_pays,  curr_in, xcurr, curr_out, ecurr, vol_i
             return
 
     print '\ntry payout:', vol_in, curr_in.abbrev, '-->', volume_out, curr_out.abbrev, deal_acc_addr.addr, '\n', 'geted_pays:', geted_pays
+    #log(db, '%s %s %s %s %s %s %s %s %s' % ('try payout:', vol_in, curr_in.abbrev, '-->', volume_out, curr_out.abbrev, deal_acc_addr.addr,  ' - geted_pays:', geted_pays))
 
     if ecurr:
         MIN = deal.MIN_pay
     else:
         xcurr_out = db(db.xcurrs.curr_id == curr_out.id).select().first()
-        MIN = xcurr_out.txfee * 10
+        MIN = (xcurr_out.txfee or curr_out.fee_in or curr_out.fee_out) * 10
+
+    #log(db, 'volume_out %s, MIN %s' % (volume_out, MIN))
 
     if volume_out <= 0 or MIN > 0 and volume_out < MIN:
         print volume_out, ' <<< ', MIN
@@ -244,7 +246,7 @@ def make_edealer_payment(db, geted_pays,  curr_in, xcurr, curr_out, ecurr, vol_i
             balance = dealer_acc.balance
             if not balance:
                 balance = ed_common.get_balance(dealer, dealer_acc )
-                if not balance:
+                if not balance or balance < 0:
                     mark_pay_ins(db, geted_pays, 'wait', dealer.name + ': balance=None')
                     db.commit()
                     print 'ERROR: make_edealer_payment - not balance', dealer_acc
@@ -279,7 +281,7 @@ def make_edealer_payment(db, geted_pays,  curr_in, xcurr, curr_out, ecurr, vol_i
             balance = db_client.curr_free_bal(curr_out)
 
         ######################################################
-        #print 'volume_out_full > balance', volume_out_full,balance
+        print 'volume_out_full > balance', volume_out_full, balance
         if volume_out_full > balance:
             if len(geted_pays)==1:
                 pay_error = 'out of balance'

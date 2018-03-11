@@ -131,7 +131,7 @@ def send(db, curr, xcurr, addr, amo, token_system = None, token = None):
     
     if token.token_key == 2:
         # if it is COMPU
-        txfee = round(float(xcurr.txfee or 0.000102), 8)
+        txfee = round(float(token_system.txfee or 0.0001), 8)
     else:
         txfee = 0
     
@@ -144,16 +144,17 @@ def send(db, curr, xcurr, addr, amo, token_system = None, token = None):
         return {'error':'out off reserve:[%s]' % reserve }, None
     
     # проверим готовность базы - is lock - и запишем за одно данные
-    log_commit(db, 'try send: %s[%s] %s' % (amo, curr.abbrev, addr))
+    log_commit(db, 'try send: %s[%s] %s, fee: %s' % (amo, curr.abbrev, addr, txfee))
     if amo > txfee*2:
         #if True:
         try:
-            print 'res = erachain.send(addr, amo - txfee)', amo - txfee
+            amo_to_pay = amo - txfee
+            print 'res = erachain.send(addr, amo - txfee)', amo_to_pay
             vars = { 'assetKey': token.token_key, 'feePow': 0,
-                'amount': amo - txfee, 'sender': token_system.account, 'recipient': addr,
+                'amount': amo_to_pay, 'sender': token_system.account, 'recipient': addr,
                 'password': PASSWORD}
             data = {'password': PASSWORD}
-            pars = '/rec_payment/%d/%s/%d/%d/%s?password=%s' % (0, token_system.account, token.token_key, amo - txfee, addr, PASSWORD )
+            pars = '/rec_payment/%d/%s/%d/%f/%s?password=%s' % (0, token_system.account, token.token_key, amo_to_pay, addr, PASSWORD )
             print pars, data
             res = rpc_request(token_system.connect_url + pars)
             print "SENDed? ", type(res), res
@@ -163,13 +164,15 @@ def send(db, curr, xcurr, addr, amo, token_system = None, token = None):
                 return {'error': ("%s" % res) + ' [%s]' % curr.abbrev }, None
 
             if error:
-                return {'error': str(res['message'] + (' %d' % error)).decode('cp1251','replace') + ' [%s]' % curr.abbrev }, None
+                error_message = current.CODE_UTF and str(res['message'] + ('%s' % error)).decode(current.CODE_UTF,'replace') or str(res['message'] + ('%s' % error))
+                return {'error': error_message  + ' [%s]' % curr.abbrev }, None
             
             res = res['signature']
 
         #else:
         except Exception as e:
-            return {'error': str(e).decode('cp1251','replace') + ' [%s]' % curr.abbrev }, None
+            error_message = current.CODE_UTF and str(e).decode(current.CODE_UTF,'replace') or str(e)
+            return {'error': error_message + ' [%s]' % curr.abbrev }, None
     else:
         # тут mess для того чтобы обнулить выход и зачесть его как 0
         res = { 'mess':'< txfee', 'error':'so_small', 'error_description': '%s < txfee %s' % (amo, txfee) }

@@ -38,7 +38,7 @@ def conn_0(curr, xcurr, timeout=40):
     try:
         cn = cache.ram(curr.abbrev, lambda: conn_1(curr, xcurr, timeout), time_expire = 36000)
     except Exception as e:
-        print curr.abbrev + ' conn except: %s' % str(e).decode('cp1251','replace')
+        print curr.abbrev + ' conn except: %s' % current.CODE_UTF and str(e).decode(current.CODE_UTF,'replace') or str(e)
         cn = None
     if not cn:
         cache.ram.clear(curr.abbrev)
@@ -46,8 +46,13 @@ def conn_0(curr, xcurr, timeout=40):
 
 # for bitcoin ver 12.0
 def conn(curr, xcurr, cn=None):
-    cn = cn or ServiceProxy(xcurr.connect_url, None, 60)
-    return cn
+    try:
+        cn = cn or ServiceProxy(xcurr.connect_url, None, 60)
+        cn.getblockcount()
+        return cn
+    except:
+        return None
+
 # если нет связи то тоже запомним на небольшое время
 def conn_v11(curr, xcurr, cn=None):
     # пока не подключимся - пробуем
@@ -67,7 +72,7 @@ def conn_old(curr, xcurr, inttime=30):
         #if cn:
         cn = cache.ram(curr.abbrev, lambda: ServiceProxy(xcurr.connect_url), time_expire = 3600)
     except Exception as e:
-        print 'conn except: %s %s' % ( str(e).decode('cp1251','replace'), curr.abbrev)
+        print 'conn except: %s %s' % ( current.CODE_UTF and str(e).decode(current.CODE_UTF,'replace') or str(e), curr.abbrev)
         ##return
     #print datetime.datetime.now() - t1
     
@@ -75,7 +80,7 @@ def conn_old(curr, xcurr, inttime=30):
     try:
         cn = cn or ServiceProxy(xcurr.connect_url)
     except Exception as e:
-        print 'conn except (ServiceProxy): %s %s' % ( str(e).decode('cp1251','replace'), curr.abbrev)
+        print 'conn except (ServiceProxy): %s %s' % ( current.CODE_UTF and str(e).decode(current.CODE_UTF,'replace') or str(e), curr.abbrev)
         return
     #print cnj
     #print cn.getblockcount(), cn
@@ -86,7 +91,7 @@ def conn_old(curr, xcurr, inttime=30):
         #else: cn.settxfee(0.001)
         pass
     except Exception as e:
-        print 'conn except (getblockcount): %s %s' % ( str(e).decode('cp1251','replace'), curr.abbrev)
+        print 'conn except (getblockcount): %s %s' % (current.CODE_UTF and str(e).decode(current.CODE_UTF,'replace') or str(e), curr.abbrev)
         return
     return cn
 
@@ -135,7 +140,8 @@ def is_not_valid_addr(cc, addr):
         valid = cc.validateaddress(addr)
     except:
         return
-    if not valid or 'isvalid' in valid and not valid['isvalid'] or 'ismine' in valid and valid['ismine']:
+    
+    if not valid.get('isvalid') or valid.get('ismine'):
         return True
 
 # bal = reserve(conf)
@@ -181,7 +187,8 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system = None, token = 
             print "SENDed? ", res
         #else:
         except Exception as e:
-            return {'error': str(e).decode('cp1251','replace') + ' [%s]' % curr.abbrev }, None
+            ##return {'error': (current.CODE_UTF and str(e).decode(current.CODE_UTF,'replace') or str(e)) + ' [%s]' % curr.abbrev }, None
+            return {'error': ('%s' % e) + ' [%s]' % curr.abbrev }, None
     else:
         # тут mess для того чтобы обнулить выход и зачесть его как 0
         res = { 'mess':'< txfee', 'error':'so_small', 'error_description': '%s < txfee %s' % (amo, txfee) }
