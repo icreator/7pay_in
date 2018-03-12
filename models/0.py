@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from gluon.custom_import import track_changes; track_changes(True)
+
 ### тут еще сессия не задана!!! что конектимся к кукиясам - она в ДВ открывается
 ### поэтому все операции с сессией в файле ниже ДБ
 
@@ -7,6 +9,7 @@
 ##    redirect(URL(args=request.args, vars=request.vars, scheme='http', host=True))
 
 from gluon import current
+current.CODE_UTF = 'utf8' #'cp1251'
 current.PARTNER_MIN = PARTNER_MIN = 10
 PARTNER_GO = 77
 CACHE_EXP_TIME = request.is_local and 5 or 360
@@ -46,6 +49,17 @@ ADMIN = request.controller == 'appadmin'
 ##print ADMIN
 SKIN = myconf['skin']
 
+def _get_bon():
+    # тут они все строковые так что надо там их преобразовывать
+    return {
+        'new': myconf.take('bonuses.new', cast=int),
+        'gc': myconf.take('bonuses.gc', cast=int),
+        'visit': myconf.take('bonuses.visit', cast=int),
+        'wait': myconf.take('bonuses.wait', cast=int),
+        }
+BONUSES = None
+GIFT_CODE = None
+
 if request.ajax:
     pass
 else:
@@ -55,3 +69,7 @@ else:
         'de': ['Deutsche ', 'de.png'],
         'tr': ['Türkçe', 'tr.png'],
     }
+
+if request.controller == 'bonuses':
+    # передадим описатель бонусов
+    BONUSES = _get_bon()

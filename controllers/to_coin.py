@@ -84,22 +84,29 @@ def get():
     curr_out_abbrev = curr_out.abbrev
     curr_out_name = curr_out.name
 
-    token_system = None
-    token_key = xcurr_in.as_token
-    if token_key:
-        token = db.tokens[token_key]
-        token_system = db.systems[token.system_id]
+    token_system_in = None
+    token_key_in = xcurr_in.as_token
+    if token_key_in:
+        token_in = db.tokens[token_key_in]
+        token_system_in = db.systems[token_in.system_id]
+        import rpc_erachain
+
+    token_system_out = None
+    token_key_out = xcurr_out.as_token
+    if token_key_out:
+        token_out = db.tokens[token_key_out]
+        token_system_out = db.systems[token_out.system_id]
+        import rpc_erachain
         
     #print request.application[-5:]
     if request.application[:-3] != '_dvlp':
         # чето конфликт если из ipay3_dvlp вызывать то кошелек на ipay3 не коннектится
-        if token_system:
-            import rpc_erachain
-            curr_block = rpc_erachain.get_info(token_system.connect_url)
+        if token_system_out:
+            curr_block = rpc_erachain.get_info(token_system_out.connect_url)
             if type(curr_block) != type(1):
                 return mess(T('Connection to [%s] id lost, try lates ') % curr_out_name)
-            if rpc_erachain.is_not_valid_addr(token_system.connect_url, addr_out):
-                return mess(T('address not valid for ') + curr_out_name)
+            if rpc_erachain.is_not_valid_addr(token_system_out.connect_url, addr_out):
+                return mess(T('address not valid for ') + curr_out_name + ' - ' + addr_out)
             
             pass
         else:
@@ -108,7 +115,7 @@ def get():
             if not cc:
                 return mess(T('Connection to [%s] id lost, try lates ') % curr_out_name)
             if crypto_client.is_not_valid_addr(cc, addr_out):
-                return mess(T('address not valid for ') + curr_out_name)
+                return mess(T('address not valid for - ') + curr_out_name + ' - ' + addr_out)
 
     try:
         session.toCoin = curr_out_abbrev
@@ -123,9 +130,9 @@ def get():
 
     curr_in_name = curr_in.name
     
-    if token_system:
-        deal_acc_id, deal_acc_addr = rpc_erachain.get_deal_acc_addr(db, deal_id, curr_out, addr_out, token_system.account, xcurr_in)
-        addr_in =  token_system.account
+    if token_system_in:
+        deal_acc_id, deal_acc_addr = rpc_erachain.get_deal_acc_addr(db, deal_id, curr_out, addr_out, token_system_in.account, xcurr_in)
+        addr_in =  token_system_in.account
         pass
     else:
         x_acc_label = db_client.make_x_acc(deal, addr_out, curr_out_abbrev)
@@ -247,8 +254,8 @@ def get():
         lim_bal_mess = ''
 
     free_bal = db_client.curr_free_bal(curr_out)
-    if token_system:
-        addr_out_full = ('%d' % token.token_key) + ':' + addr_out
+    if token_system_in:
+        addr_out_full = (token_system_out and ('%d' % token_out.token_key) or curr_out.abbrev) + ':' + addr_out
     else:
         addr_out_full = addr_out
 
@@ -273,7 +280,7 @@ def get():
             _href=url_uri),
                     ),
             _class='row'
-            ) if not token_system else '',
+            ) if not token_system_in else '',
         BR(),
         DIV(
             A(T('Показать QR-код'),  _class='btn btn-info',
@@ -285,12 +292,13 @@ def get():
                ),
             _id='tag0'),
         H3(T('или')),
-        T('Оплатите вручную'), '. ', T("Для этого скопируйте значения полей (двойной клик по полю для выделения) и вставьте их в платеж на вашем кошельке"), ': ',
+        T('Оплатите вручную'), '. ',# 'URI:', url_uri,'. ',
+        T("Для этого скопируйте значения полей (двойной клик по полю для выделения) и вставьте их в платеж на вашем кошельке"), ': ',
         FORM( ## ВНИМАНИЕ !!! тут имена полей надо другие указывать или
             # FORM в основной делать тоже иначе они складываются
             LABEL(T("Volume")), " ", INPUT(_name='v', value=volume_in, _class="pay_val", _readonly=''), curr_in_abbrev, BR(),
             LABEL(T("Получатель")), " ", INPUT(_name='addr_in', _value=addr_in, _class='wallet', _readonly=''), BR(),
-            CAT(LABEL(T("Назначение (вставьте в заголовок платежа)")), " ", INPUT(_name='addr_out', _value=addr_out_full, _class='wallet', _readonly=''), BR()) if token_system else '',
+            CAT(LABEL(T("Назначение (вставьте в заголовок платежа)")), " ", INPUT(_name='addr_out', _value=addr_out_full, _class='wallet', _readonly=''), BR()) if token_system_in else '',
             #T('Резервы службы'), ' ', B(free_bal), ' ', T('рублей'), BR(),
             #LOAD('where', 'for_addr', vars={'addr': addr_in}, ajax=True, times=100, timeout=20000,
             #    content=IMG(_src=URL('static','images/loading.gif'), _width=48)),
