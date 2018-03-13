@@ -920,7 +920,7 @@ if db(db.exchgs).isempty():
     
     xpass = 'login:password'
     for r in [
-            ['WEX', 'wex.nz', 'btc-e_3', '', True, 0.5, 0.0, [[1,""], [2, "rur"], [3,""], [4,""], [5,""], [6,""]],
+            ['WEX', 'wex.nz', 'btc-e_3', '', True, 0.5, 0.0, [[1,""], [2, "rur"], [3,""], [4,""], [5,""], [6,"dsh"]],
                 [[3, 1, True,''], [3, 2, True,''], [4, 1, True,''], [4, 2, True,''], [4, 3, True,''],
                  [5, 3, True,''], [6, 3, True,''], [7, 3, True,''], [8, 3, True,'']]
             ],
