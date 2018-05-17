@@ -111,7 +111,10 @@ def get():
             pass
         else:
             import crypto_client
-            cc = crypto_client.conn(curr_out, xcurr_out)
+            try:
+                cc = crypto_client.conn(curr_out, xcurr_out)
+            except:
+                cc = None
             if not cc:
                 return mess(T('Connection to [%s] id lost, try lates ') % curr_out_name)
             if crypto_client.is_not_valid_addr(cc, addr_out):
@@ -187,7 +190,7 @@ def get():
         h += sect(XML(adds_mess), 'gift-bgc pb-10 pb-10')
     
     volume_out = vol
-    hh = CAT(H2('3. ' + T('Оплатите по данным реквизитам'), _class='center'))
+    hh = CAT(H2('4. ' + T('Оплатите по данным реквизитам'), _class='center'))
 
     # используем быстрый поиск курса по формуле со степенью на количество входа
     # только надо найти кол-во входа от выхода
@@ -437,7 +440,7 @@ def index():
     #common.page_stats(db, response['view'])
     #print request.args
 
-    response.title=T("Обмен биткоинов, догикоинов и других криптовалют между собой")
+    response.title=T("Обмен биткоинов и других цифровых активов между собой включая токены Erachain")
     response.subtitle = T('Bitcoin Dogecoin Litecoin NEXT')
 
     abbrev = request.args(0)

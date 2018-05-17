@@ -5,7 +5,7 @@ if request.ajax:
     pass
 else:
 
-    response.title = 'bitcoin payments купить биткоин оплаты'
+    response.title = 'bitcoin era payments exchange'
     ## read more at http://dev.w3.org/html5/markup/meta.name.html
     response.meta = dict(
         author = 'iCreator <icreator@mail.ru>',
@@ -23,10 +23,9 @@ else:
 
     if request.controller != 'appadmin':
         response.logo = A(
-            #IMG(_src=URL('static','images/7P-30-2.png'), _height=50, _style='margin-left:-15px;height:70px;pading-right:20px'),
-            IMG(_src=URL('static','images/currs/BTC.png'), _height=40, _style='margin-left:-1px;height:60px'),
-            IMG(_src=URL('static','images/currs/ERA.png'), _height=40, _style='margin-left:-15px;height:60px'),
-            IMG(_src=URL('static','images/currs/COMPU.png'), _height=40, _style='margin-left:-15px;height:60px'),
-            IMG(_src=URL('static','images/currs/LTC.png'), _height=40, _style='margin-left:-15px;height:60px'),
+            IMG(_src=URL('static','images/currs/BTC.png'), _height=50, _style='margin-left:-1px;height:60px'),
+            IMG(_src=URL('static','images/currs/ERA.png'), _height=50, _style='margin-left:-15px;height:60px'),
+            IMG(_src=URL('static','images/currs/LTC.png'), _height=50, _style='margin-left:-15px;height:60px'),
+            IMG(_src=URL('static','images/currs/COMPU.png'), _height=50, _style='margin-left:-15px;height:60px'),
                       _href=URL('default','index'))
         #response.top_line = DIV(_id="top_line")

@@ -4,22 +4,54 @@
 @cache.action(time_expire=IS_LOCAL and 5 or 300, cache_model=cache.ram, public=False, lang=False)
 def rates():
     session.forget(response)
-    curr_out = db(db.currs.abbrev == 'RUB').select().first()
-    if not curr_out: return 'curr_out [RUB] not found'
+    curr_out = db(db.currs.abbrev == 'BTC').select().first()
+    if not curr_out: return 'curr_out [BTC] not found'
 
+    currs_list = ['BTC', 'LTC', 'ERA', 'COMPU']
     import rates_lib
     tl = CAT()
-    for r in rates_lib.top_line(db, curr_out):
+    for r in rates_lib.top_line(db, curr_out, currs_list):
         tl += SPAN(
                   #r[0],
                   IMG(_src=URL('static','images/currs/' +  r[1] + '.png'),
                            _width=24),#':',
                   r[0],
-                  TAG.i(_class='fa fa-rub', _style='color:chartreuse;'),
+                  TAG.i(_class='fa fa-btc', _style='color:#ffb761;'), # chartreuse
                   ' ',
                   #_class='small'
             )
     #return DIV(TAG.center(tl))
+
+    curr_out = db(db.currs.abbrev == 'USD').select().first()
+    if not curr_out: return 'curr_out [USD] not found'
+
+    for r in rates_lib.top_line(db, curr_out, currs_list):
+        tl += SPAN(
+                  #r[0],
+                  IMG(_src=URL('static','images/currs/' +  r[1] + '.png'),
+                           _width=24),#':',
+                  r[0],
+                  TAG.i(_class='fa fa-usd', _style='color:chartreuse;'), # chartreuse
+                  ' ',
+                  #_class='small'
+            )
+
+    curr_out = db(db.currs.abbrev == 'RUB').select().first()
+    if not curr_out: return 'curr_out [RUB] not found'
+
+    for r in rates_lib.top_line(db, curr_out, currs_list):
+        tl += SPAN(
+                  #r[0],
+                  IMG(_src=URL('static','images/currs/' +  r[1] + '.png'),
+                           _width=24),#':',
+                  r[0],
+                  TAG.i(_class='fa fa-rub', _style='color:#ffacac;'), # chartreuse
+                  ' ',
+                  #_class='small'
+            )
+
+    #return DIV(TAG.center(tl))
+    
     return tl
 
 #@cache.action(time_expire=IS_LOCAL and 5 or 30, cache_model=cache.ram, public=False, lang=False)
@@ -50,7 +82,7 @@ def informer():
                 A(
                     tl,BR(),
                     request.vars.m or 'Призы на сотовый',
-                    _href='https://face2face.cash/to_phone?gc=%s' % gc, _target='_blank',
+                    _href='https://' + DOMEN + '/to_phone?gc=%s' % gc, _target='_blank',
                     _style='color:#333;display:block;line-height: 30px; font-size:20px; text-decoration: none; padding:8; background-color:#ADD8FF',
                     _onMouseOver="this.style.color='#000'; this.style.backgroundColor='#CDE8FF'",
                     _onMouseOut="this.style.color='#333'; this.style.backgroundColor='ADD8FF'",

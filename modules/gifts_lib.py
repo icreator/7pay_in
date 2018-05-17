@@ -223,16 +223,15 @@ def gift_proc(db, T, deal, deal_acc, request, session, GIFT_CODE):
 
     gift_amount = deal_acc.gift_amount
     if not gift_amount:
-        return GIFT_CODE, '<div class="row">Сейчас подарков для этого дела [%s] нет, но они могут появиться позже и будут автоматичеески начислены на этот подарочный код.' % deal.name + \
-                    m_end
+        return GIFT_CODE, '<div class="row">' + (T('Сейчас подарков для этого дела [%s] нет, но они могут появиться позже и будут автоматичеески начислены на этот подарочный код.') % deal.name) + m_end
 
     gift = deal_acc_gift_mess(deal_acc)
     if gift_amount_old:
         m1 =T('Вы имеете подарок')
     else:
         m1 = T('Поздравляем! Вы получили подарок')
-    return GIFT_CODE, '<div class="row"><h3>' + m1 + ' <b>%s</b> руб за подарочный код ' % gift[0] + gift[1] + '</h3>' \
-      +T('Вероятность снять <b>%s</b> из них в следующем платеже составляет: <b>%s</b>.') % (gift[2], gift[3]) + m_end
+    return GIFT_CODE, '<div class="row"><h3>' + m1 + (' <b>%s</b> ' % gift[0]) + T('за подарочный код') + ' ' + gift[1] + '</h3>' \
+      +T('Вероятность снять <b>%s</b> из них в следующем платеже составляет: <b>%s</b>') % (gift[2], gift[3]) + '. ' + m_end
 
 ## тут все РУБЛИ только
 def adds_mess(deal_acc, PARTNER_MIN, T, rnd=2):
@@ -240,26 +239,30 @@ def adds_mess(deal_acc, PARTNER_MIN, T, rnd=2):
     to_pay = deal_acc.to_pay
     to_pay = to_pay and round(float(to_pay), rnd+1)
     if to_pay:
-        to_pay_mess = '<h4>' + (to_pay > 0 and 'Ваша переплата <b>%s <i class="fa fa-rub""></i></b> <small style="color:white">Она будет добавлена к следующему платежу</small>' % to_pay or '<i style="color:navajowhite;">Ваша задолженность <b>%s <i class="fa fa-rub"></i></b></i>' % -to_pay) + '</h4>'
+        to_pay_mess = '<h4>' + (to_pay > 0 and T('Ваша переплата') + ' <b>%s' % to_pay + ' <i class="fa fa-rub""></i></b> <small style="color:white">' \
+                    + T('Она будет добавлена к следующему платежу') + '</small>' \
+                or '<i style="color:navajowhite;">' + T('Ваша задолженность') + ' <b>%s <i class="fa fa-rub"></i></b></i>' % -to_pay) + '</h4>'
     if deal_acc.partner:
         amo_partner = deal_acc.partner_sum
         if amo_partner:
-            partner_mess = '<h3>Начислено партнерских <b>%s <i class="fa fa-rub"></i></b></h3>Они добавятся к Вашему следующему платежу, если Вы накопите больше чем %s' % (round(float(amo_partner),2), PARTNER_MIN)
+            partner_mess = '<h3>' + T('Начислено партнерских') + ' <b>%s' % round(float(amo_partner),2) \
+                + '<i class="fa fa-rub"></i></b></h3>' + T('Они добавятся к Вашему следующему платежу, если Вы накопите больше чем') + ' %s' % PARTNER_MIN
         partner_payed = deal_acc.partner_payed
         if partner_payed:
             partner_mess = partner_mess \
-                + '<h3>Всего получено партнерских <b>%s <i class="fa fa-rub"></i></b>' \
-                % round(float(partner_payed),2) + (not amo_partner and '. К получению пока 0' or '' ) \
+                + '<h3>' + T('Всего получено партнерских') + ' <b>%s <i class="fa fa-rub"></i></b>' \
+                % round(float(partner_payed),2) + (not amo_partner and '. ' + T('К получению пока') + ' 0' or '' ) \
                 + '</h3>' ##+ 'Вы являетесь партнером, поэтому обычные подарки Вам не достаются.'
     else:
         if deal_acc.gift_amount:
             gift = deal_acc_gift_mess(deal_acc)
-            gift_mess = '<h3>Поздравляем! У Вас есть подарок <b>%s</b> <i class="fa fa-rub" style="color:chartreuse;"></i></h3>' % gift[0]
+            gift_mess = '<h3>' + T('Поздравляем! У Вас есть подарок') + ' <b>%s</b> <i class="fa fa-rub" style="color:chartreuse;"></i></h3>' % gift[0]
             if gift[1]:
-                gift_mess += 'за подарочный код %s<br />' % gift[1]
+                gift_mess += T('за подарочный код') + ' %s<br />' % gift[1]
             else:
-                gift_mess += 'Используйте подарочный код чтобы получать подарки еще. Подарочный код можно взять у наших партнёров.<br />'
-            gift_mess += 'Вероятность снять <b>%s</b> из них в следующем платеже составляет: <b>%s</b>. ' % (gift[2], gift[3]) + T('Вы сняли уже %s') % gift[4]
+                gift_mess += T('Используйте подарочный код чтобы получать подарки еще. Подарочный код можно взять у наших партнёров') + '.<br />'
+            gift_mess += T('Вероятность снять <b>%s</b> из них в следующем платеже составляет: <b>%s</b>') % (gift[2], gift[3]) \
+                + '. ' + T('Вы сняли уже') + ' %s' % gift[4]
         elif deal_acc.gift_payed:
             gift_mess = T('Вам выдавались подарки') + ': ' + T('всего Вы сняли %s') % deal_acc.gift_payed
 
@@ -281,28 +284,33 @@ def add_mess_curr(deal_acc, curr_out, T):
     curr_abbrev = curr_out.abbrev
     to_pay = deal_acc.to_pay
     if to_pay:
-        to_pay_mess = '<h4>' + (to_pay > 0 and 'Ваша переплата <b>%s [%s]</b> <small style="color:white">Она будет добавлена к следующему платежу</small>' % (to_pay, curr_abbrev)) or '<i style="color:navajowhite;">Ваша задолженность <b>%s [%s]</b></i>' % (-to_pay, curr_abbrev) + '</h4>'
+        to_pay_mess = '<h4>' + (to_pay > 0 and (T('Ваша переплата') + (' <b>%s [%s]</b>' % (to_pay, curr_abbrev)) + \
+            + ' <small style="color:white">' + T('Она будет добавлена к следующему платежу') + '</small>') \
+                or '<i style="color:navajowhite;">' + T('Ваша задолженность') + ' <b>%s [%s]</b></i>' % (-to_pay, curr_abbrev)) + '</h4>'
     if deal_acc.partner:
         amo_partner = deal_acc.partner_sum
         if amo_partner:
-            partner_mess = '<h3>Начислено партнерских <b>%s [%s]</b></h3>Они добавятся к Вашему следующему платежу' % (amo_partner, curr_abbrev)
+            partner_mess = '<h3>' + T('Начислено партнерских') + (' <b>%s [%s]</b></h3>' % (amo_partner, curr_abbrev)) \
+                                + T('Они добавятся к Вашему следующему платежу')
         partner_payed = deal_acc.partner_payed
         if partner_payed:
             partner_mess = partner_mess \
-                + '<h3>Всего получено партнерских <b>%s [%s]</b>' \
-                % (partner_payed, curr_abbrev) + (not amo_partner and '. К получению пока 0' or '' ) \
+                + '<h3>' + T('Всего получено партнерских') \
+                + (' <b>%s [%s]</b>' % (partner_payed, curr_abbrev)) \
+                + (not amo_partner and '. ' + T('К получению пока 0') or '' ) \
                 + '</h3>' ##+ 'Вы являетесь партнером, поэтому обычные подарки Вам не достаются.'
     else:
         if deal_acc.gift_amount:
             gift = deal_acc_gift_mess(deal_acc)
-            gift_mess = '<h3>Поздравляем! У Вас есть подарок <b>%s</b> [%s]</h3>' % (gift[0], curr_abbrev)
+            gift_mess = '<h3>' + T('Поздравляем! У Вас есть подарок') + (' <b>%s</b> [%s]</h3>' % (gift[0], curr_abbrev))
             if gift[1]:
-                gift_mess += 'за подарочный код %s<br />' % gift[1]
+                gift_mess += T('за подарочный код') + (' %s<br />' % gift[1])
             else:
-                gift_mess += 'Используйте подарочный код чтобы получать подарки еще. Подарочный код можно взять у наших партнёров.<br />'
-            gift_mess += 'Вероятность снять <b>%s</b> из них в следующем платеже составляет: <b>%s</b>. ' % (gift[2], gift[3]) + T('Вы сняли уже %s [%s]') % (gift[4], curr_abbrev)
+                gift_mess += T('Используйте подарочный код чтобы получать подарки еще. Подарочный код можно взять у наших партнёров') + '.<br />'
+            gift_mess += (T('Вероятность снять <b>%s</b> из них в следующем платеже составляет: <b>%s</b>') % (gift[2], gift[3])) \
+            + '. ' + T('Вы сняли уже') + (' %s [%s]' % (gift[4], curr_abbrev))
         elif deal_acc.gift_payed:
-            gift_mess = T('Вам выдавались подарки') + ': ' + T('всего Вы сняли %s [%s]') % (deal_acc.gift_payed, curr_abbrev)
+            gift_mess = T('Вам выдавались подарки') + ': ' + (T('всего Вы сняли %s [%s]') % (deal_acc.gift_payed, curr_abbrev))
 
     if gift_mess:
         mess += '<div class="row"><div class="col-sm-12" style="">' + gift_mess \

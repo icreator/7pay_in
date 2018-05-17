@@ -92,13 +92,13 @@ def get_yandex_token():
         mess = CAT('len(request.args)==0',BR(),
             H4('Настройка аккаунта на Яндекс.Деньги'),
             UL('в настройках Yandex денег в Мои Приложения создать приложение БЕЗ 2-й аутинификации!!!'
-               'задать там 7Pay.in https://7Pay.in support@7pay.in',
-               'задать redirect URL - https://7pay.in/ed_YD/yandex_response/410011949054154 - тонсть номер кашелька добавим',
+               'задать там '+DOMEN+'+ https://'+DOMEN+' support@'+DOMEN,
+               'задать redirect URL - https://'+DOMEN+'/ed_YD/yandex_response/410011949054154 - тонсть номер кашелька добавим',
                'получить ИД приложения - APP_ID',
                 ),
             H4('Настройка записи в базе даннных'),
             UL(
-                'set YM_REDIRECT_URI = "https://7pay.in/ed_YD/yandex_response" (acc_pars["YM_REDIRECT_URI"] = acc_pars["YM_REDIRECT_URI"] + "/%s" % edlr_acc.id)',
+                'set YM_REDIRECT_URI = "https://'+DOMEN+'/ed_YD/yandex_response" (acc_pars["YM_REDIRECT_URI"] = acc_pars["YM_REDIRECT_URI"] + "/%s" % edlr_acc.id)',
                 'set CLIENT_ID = APP_ID',
                ),
           )

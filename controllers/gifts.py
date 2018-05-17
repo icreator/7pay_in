@@ -75,7 +75,7 @@ def list():
     h = CAT(tt,
         BR(),
         DIV(
-            ua(CAT(TAG.i(_class='fa fa-gift'),' ',T('Как получить подарок от 7Pay.in')), URL('gifts', 'index'),'col-sm-6'),
+            ua(CAT(TAG.i(_class='fa fa-gift'),' ',T('Как получить подарок от '+ DOMEN)), URL('gifts', 'index'),'col-sm-6'),
             ua(CAT(TAG.i(_class='fa fa-gift'),' ',T('Ввести подарочный код и получить подарок')), URL('gifts', 'get'),'col-sm-6'),
             _class='row')
     )

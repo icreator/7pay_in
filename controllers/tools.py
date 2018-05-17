@@ -1,4 +1,7 @@
 # coding: utf8
+
+##from __future__ import print_function
+
 import socket
 session.forget(response)
 
@@ -273,6 +276,7 @@ def block_proc():
     abbrev = request.args[0]
     #bhash = len(request.args) > 1 and request.args[1] or None
     print 'block_proc', abbrev
+    #return abbrev
     return serv_block_proc.run_once(db, abbrev)
 
 def block_proc_test():

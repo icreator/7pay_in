@@ -34,8 +34,8 @@ pass
       <link rel="stylesheet" href="{{=URL('static','css/my_styles.css')}}"/>
       <link rel="stylesheet" href="{{=URL('static','assets/font-awesome/css/font-awesome.min.css')}}"/>
 
-  <link rel="shortcut icon" href="{{=URL('static','images/7pay.ico')}}" type="image/x-icon">
-  <link rel="apple-touch-icon" href="{{=URL('static','images/7pay.png')}}">
+  <link rel="shortcut icon" href="{{=URL('static','images/icon.ico')}}" type="image/x-icon">
+  <link rel="apple-touch-icon" href="{{=URL('static','images/icon.png')}}">
 
       <!-- All JavaScript at the bottom, except for Modernizr which enables
 HTML5 elements & feature detects -->
@@ -69,7 +69,7 @@ HTML5 elements & feature detects -->
             <div class="collapse navbar-collapse navbar-ex1-collapse" style="padding:0">
                 <ul class="nav navbar-nav navbar-right">
                     {{='auth' in globals() and auth.navbar('Welcome',mode='dropdown') or ''}}
-                    {{##=not ADMIN and LOAD('aj','rates', _class='nav- navbar-nav- navbar-right- col-sm-3-', _style='color:white;')}}
+                    {{#=not ADMIN and LOAD('aj','rates', _class='nav- navbar-nav- navbar-right- col-sm-3-', _style='color:white;')}}
                 </ul>
                 {{=not ADMIN and MENU(MENU_RIGHT, _class='nav navbar-nav navbar-nav right',li_class='dropdown',ul_class='dropdown-menu',
                 active_url = request.env.path_info) or ''}}
@@ -91,12 +91,12 @@ HTML5 elements & feature detects -->
         {{#if not ADMIN and not IS_MOBILE or IS_TABLET:
         if not ADMIN:
         }}
-        <div class="container-fluid" style="background-color:#00188F;padding:5px;">
-            <div class="col-lg-2 col-md-1 sm-hidden pull-right"></div>
-            <div class="right col-lg-10 col-md-11 col-sm-12 pull-right">
+        <div class="container-fluid" style="background-color:#00188F;padding:0px;font-size:0.9em;">
+            {{#<div class="col-lg-2 col-md-1 sm-hidden pull-right"></div>}}
+            <div class="right- col-lg-12- col-md-12- col-sm-12- -pull-right">
     {{#=DIV('Нравится проект? Поддержи нас на ', A('BOOMSTARTER.ru', _href='http://boomstarter.ru/projects/1116/14493', _target='_blank', _class='lite'), _class='row- left', _style='color:springgreen;')}}
     {{#=DIV('Инвестируй в будущее',' - ', A('в блокчейн-стартап!', _href=URL('up','index'), _class='lite'), _class='row- left', _style='color:springgreen;')}}
-    {{=LOAD('aj','rates', ajax=True, timeout=300000, times="infinity", _class='right', _style='color:white;cursor:pointer',
+    {{=LOAD('aj','rates', ajax=True, timeout=300000, times="infinity", _class='center', _style='color:white;cursor:pointer',
                 _onclick='location.href=\'' + URL('currs','index') + '\';this.style.display=\'none\';')}}
             </div>
         </div>
@@ -129,9 +129,9 @@ HTML5 elements & feature detects -->
                 {{=A(T('Когда?'), _href = URL('news','index'))}}<br>
                 {{#=A(T('Криптовалюта?'), _href = URL('default','crypto'))}}<br>
                 {{=A(T('Подписаться'), _href = URL('default','subscribe'))}}<br>
-                {{=A('Оплата биткоинами на сайте', _href=URL('api','index'))}}<br>
-                {{=A('API разработчикам сайтов', _href=URL('api','index'))}}<br>
-                {{=A('Контакты', _href=URL('default','contacts'))}}<br>
+                {{=A(T('Оплата биткоинами на сайте'), _href=URL('api','index'))}}<br>
+                {{=A(T('API разработчикам сайтов'), _href=URL('api','index'))}}<br>
+                {{=A(T('Контакты'), _href=URL('default','contacts'))}}<br>
             </div>
             <div class="col-sm-8">
                 {{=response.reclama or reclama[0]}}

@@ -6,7 +6,7 @@ if IS_MOBILE:
     response.top_line = None
 else:
     response.top_line = DIV(
-        TAG.center('Здесь Вы можете купить биткоины и оплатить биткоинами разные услуги'),
+        TAG.center(T('Здесь Вы можете купить биткоины и оплатить биткоинами разные услуги')),
         _id="top_line")
 
 def ua(h, url, cls='col-sm-4',
@@ -52,7 +52,7 @@ def up():
             H1('Биткоин-бизнес, стартапы в биткоин экономике:'),
             P('Ищем инвестиции или предпринимателей для развития биткоин стартапов в международный бизнес'),
             UL(
-                LI(B('7Pay.in'), ' - оплата услуг биткоинами, обмен и продажа криптовалют'),
+                LI(B(DOMEN), ' - оплата услуг биткоинами, обмен и продажа криптовалют'),
                 LI(B('LITE.cash'), ' - платежный шлюз для приёма криптовалют на сайтах'),
                 LI(B('WAGERS.win'), ' - служба по созданию своих споров и пари со ставками в биткоинах'),
                 ),
@@ -81,7 +81,7 @@ def to_many():
     response.subtitle = ' '
     h = CAT(DIV(
         H2(T('Зарплатные счета и автовыплаты на них')),
-        P('Если Вам надо делать выплаты на много различных счетов по заранее заданным множителям или долям, то лучше всего это сделать с помощью “разделяющего счёта” - все поступившие на него платежи будут автоматически разделены на заданные доли и выплачены на соответствующие счета. Такой разделяющий или зарплатный счёт создаётся один раз на сервисе LITE.cash и потом все поступления на него автоматически распределяются между получателям на ихние кошельки криптовалют'),
+        P(T('Если Вам надо делать выплаты на много различных счетов по заранее заданным множителям или долям, то лучше всего это сделать с помощью “разделяющего счёта” - все поступившие на него платежи будут автоматически разделены на заданные доли и выплачены на соответствующие счета. Такой разделяющий или зарплатный счёт создаётся один раз на сервисе LITE.cash и потом все поступления на него автоматически распределяются между получателям на ихние кошельки криптовалют')),
         P(
             A('LITE.cash divided payouts', _href='http://lite.cash/bs3b/more/divided_payments', _target='_blabk')
          ),
@@ -158,8 +158,8 @@ def contacts():
           _href='https://bitcointalk.org/index.php?topic=307648.0', _target='_blank'),'. ',
         T('Там же можно сообщить об ошибке'),'.',
         H3('Обратная связь'),
-        T('телефон'),': ', '+7 916 917 2019',BR(),
-        T('Почтовый ящик'),': ', 'support@7Pay.in',BR(),
+        T('телефон'),': ', '+7 916 917 2019', BR(),
+        T('Почтовый ящик'),': ', 'support@'+DOMEN, BR(),
         T('Skype'),': ', 'i-creator'
     )
     return dict(h =h)
@@ -189,34 +189,34 @@ def index():
         stats.append('%s: %s' % (r.currs.name, uses))
 
     h = CAT(
-        DIV(H1('Отличия нашего сервиса', _class='center'), _style='color:steelblue;background-color:gainsboro;',
+        CAT(DIV(H1('Отличия нашего сервиса', _class='center'), _style='color:steelblue;background-color:gainsboro;',
             _class='row m-0'
             ) if 'short' in request.vars else DIV(
             DIV(
-                #H1(T('Биткоины купить и потратить'), _class='wb-headline wb-white wb-mt-0 '),
-                #H1(T('Oплатить биткоинами услуги'), _class='wb-headline wb-white wb-mt-0 '),
-                #H1(T('Обменять битоины на рубли'), _class='wb-headline wb-white wb-mt-0 '),
-                #H1(T('Это сервис оплат криптовалютами'), _class='wb-headline- wb-white wb-mt-0 '),
-                #A(H1('- bitcoin, litecoin, dogecoin...',_class='wb-headline- wb-white wb-mt-0 '),
-                #  _href=URL('seo','index'), _class='lite'),
-                _style='bottom:10px;right:10px;',
+                H1(T('Биткоины купить и потратить'), _class='wb-headline wb-white wb-mt-0 '),
+                H1(T('Oплатить биткоинами услуги'), _class='wb-headline wb-white wb-mt-0 '),
+                H1(T('Обменять битоины на рубли'), _class='wb-headline wb-white wb-mt-0 '),
+                H1(T('Это сервис оплат криптовалютами'), _class='wb-headline- wb-white wb-mt-0 '),
+                A(H1('- bitcoin, litecoin, dogecoin...',_class='wb-headline- wb-white wb-mt-0 '),
+                  _href=URL('seo','index'), _class='lite'),
+                _style='bottom:100px;right:10px;',
                 _class=IS_MOBILE and 'right col-sm-12' or 'absolute right col-md-10 col-lg-8'), # wb-join- wb-grid-'),
             _style='min-height:350px;background-color:blue;',
             _class='row m-0 relative' +  (not IS_LOCAL and ' wb-img' or '')
-        ),
+        )), # if False else '',
 
         DIV(
-        DIV(
+        DIV(CENTER(H1(T('Наши преимущества'))),
         DIV(
             TAG.center(
-                H2('Надежность'),
+                H2(T('Надежность')),
                 P(T('Наш сервис работает с 2013 года и зарекомендовал себя с хорошей стороны. Отзывы можно посмотреть на независимом форуме о криптовалютах')),
                 A(T('Посмотреть отзывы и обсуждения'), _href='https://bitcointalk.org/index.php?topic=307648.0', _target='_blank',
                    _class='button blue-bgc'), # lightblue-bgc
                 _style='padding: 30px;',
                 _class='col-sm-6'),
             TAG.center(
-                H2('Открытость'),
+                H2(T('Открытость')),
                 P(T('Вы можете посмотреть свои платежи по адресу криптовалюты, а так же недавние платежи других пользователей нашего сервиса в обезличенном виде')),
                   A(T('Посмотреть платежи'), _class='button blue-bgc', _href=URL('where','index'),
                    ),
@@ -224,8 +224,8 @@ def index():
                 _class='col-sm-6'),
             _class='row m-0'),
             DIV(
-                P('Количество обработанных транзакций за время работы нашей службы: ', ', '.join(stats)),
-                H2('Нам доверяют уже %s человек из стран СНГ' % users, _class='center'),
+                P(T('Количество обработанных транзакций за время работы нашей службы') + ': ', ', '.join(stats)),
+                H2(T('Нам доверяют уже %s+ человек со всего мира') % (users + 500), _class='center'),
             _class='row m-0'),
             _class='container'),
             _style='background-color:#00188F; color:#ddd;padding-bottom:30px;',
@@ -242,7 +242,7 @@ def index():
         DIV(
         DIV(
                 H1(
-                    'Пресса о нас',
+                    T('Пресса о нас'),
                     _class="center"),
                 DIV(
                     DIV(
@@ -279,7 +279,7 @@ def index():
                             _href='https://slon.ru/economics/moskovskiy_bit_kto_zarabatyvaet_na_bitkoinakh_v_rossii-1077043.xhtml' ,
                             _target='_blank',
                             _class='lite'),
-                          ' ','Здесь сайт еще со старым интерфейсом, но его можно узнать по логотипу 7Pay.in',
+                          ' ','Здесь сайт еще со старым интерфейсом, но его можно узнать по логотипу "7Pay.in"',
                           ),
                         _class='col-sm-6'),
                     DIV(
@@ -295,13 +295,6 @@ def index():
                     DIV(
                         _class='col-sm-6'),
                     DIV(
-                        IMG(_src=URL('static','images/logos/boomstarter.png'), _width=300),' ',
-                        H3(A('Проект о развитии биткоин-индустии',
-                            _href='https://boomstarter.ru/projects/1116/7payin',
-                            _target='_blank',
-                            _class='lite'),
-                          ' ','Поддержите развитие своими вознаграждениями!',
-                          ),
                         _class='col-sm-6'),
                     _class='row', _style='margin-top:20px;'),
             _class='container'),

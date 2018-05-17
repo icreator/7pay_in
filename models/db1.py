@@ -1,6 +1,6 @@
 # coding: utf8
 
-TXID_LEN = 80
+TXID_LEN = 100
 
 # если ошибка то задаем migrate=False,
 # fake_migrate = True
@@ -900,7 +900,7 @@ if db(db.dealers).isempty():
         info = '{ "shops_url": "https://money.yandex.ru/shop.xml?scid=", "search_url": "https://money.yandex.ru/", "img_url": "https://money.yandex.ru" }',
         pay_out_MIN = 10)
     db.dealers_accs.insert(dealer_id = dealer_id, ecurr_id = 2, acc = '4100134701234567', balance = 9999999,
-           pkey = '{"YM_REDIRECT_URI": "https://'+DOMEN+'/ed_YD/yandex_response", "secret_response": "**secret response**", "CLIENT_ID": "**TOKEN**", "SCOPE": "account-info operation-history operation-details payment-shop.limit(1,37777) payment-p2p.limit(1,37777)"}',
+           pkey = '{"YM_REDIRECT_URI": "https://7pay.in/ed_YD/yandex_response", "secret_response": "**secret response**", "CLIENT_ID": "**TOKEN**", "SCOPE": "account-info operation-history operation-details payment-shop.limit(1,37777) payment-p2p.limit(1,37777)"}',
            used = True, expired = '2216-02-10')
     
     db.dealer_deals.insert(dealer_id = dealer_id, deal_id = TO_PHONE7_ID, used = False, scid = 'phone-topup', tax = 0.0)
@@ -921,7 +921,7 @@ if db(db.exchgs).isempty():
     xpass = 'login:password'
     for r in [
             ['WEX', 'wex.nz', 'btc-e_3', '', True, 0.5, 0.0, [[1,""], [2, "rur"], [3,""], [4,""], [5,""], [6,"dsh"]],
-                [[3, 1, True,''], [3, 2, True,''], [4, 1, True,''], [4, 2, True,''], [4, 3, True,''],
+                [[1, 2, True,''], [3, 1, True,''], [3, 2, True,''], [4, 1, True,''], [4, 2, True,''], [4, 3, True,''],
                  [5, 3, True,''], [6, 3, True,''], [7, 3, True,''], [8, 3, True,'']]
             ],
             ['Livecoin', 'api.livecoin.net', 'livecoin', 'exchange/ticker', True, 0.2, 0.0, [[1,""], [2, ""], [3,""], [4,""], [5,""], [6,""]]],

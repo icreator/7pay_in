@@ -249,14 +249,18 @@ def curr_get_info():
         from crypto_client import conn
         try:
             conn = conn(curr, xcurr)
-            return {'error': '%s' % conn}
+            #return {'error': '%s' % conn}
         except:
             conn = None
         if not conn:
             return {'error': 'Connection to ' + curr_abbrev + ' wallet is lost. Try later'}
         #print conn
         try:
-            res = conn.getinfo()
+            #getblockchaininfo, getnetworkinfo, and getwalletinfo
+            #res = conn.getinfo()
+            res = conn.getnetworkinfo()
+            #res = conn.getblockchaininfo()
+            #res = conn.getwalletinfo() (!!!!) - дает ключи?
         #except Exception as e:
         except Exception, e:
             return {'error': 'Connection to ' + curr_abbrev + ' wallet raise error [%s]. Try later' % e}
