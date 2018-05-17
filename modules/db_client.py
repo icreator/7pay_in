@@ -2,6 +2,8 @@
 from gluon import current
 T = current.T
 
+DOMEN = 'face2face'
+
 from datetime import datetime, timedelta
 from decimal import Decimal
 
@@ -22,7 +24,7 @@ def make_x_acc(deal, acc, curr_out_abbrev):
     return '[%s] [%s] [%s]' % (deal.name2, acc, curr_out_abbrev)
 def make_x_acc_label(deal, acc, curr_out_abbrev):
     # это имя аккаунта в кошельке клиента - чтобы ему было понятней
-    return '7Pay.in -> [%s] [%s] [%s]' % (deal.name2, acc, curr_out_abbrev)
+    return DOMEN+' -> [%s] [%s] [%s]' % (deal.name2, acc, curr_out_abbrev)
 
 # old def get_deal_acc_id_for_deal_and_acc(db, deal, acc, acurr):
 # создаем заказ длля данного дела с заданной суммой заказа
@@ -66,7 +68,10 @@ def get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr, xcurr, x_acc_label):
 
         addr = token_system.account
     else:
-        conn = crypto_client.conn(curr, xcurr)
+        try:
+            conn = crypto_client.conn(curr, xcurr)
+        except:
+            conn = None
         if not conn: return
         # http://docs.python.org/2/library/codecs.html?highlight=decoding
         x_acc_label = x_acc_label.decode('utf8')

@@ -253,7 +253,7 @@ def get():
             A(SPAN(T('Оплатить'),' ', amo_in, ' ',
             IMG(_src=URL('static','images/currs/' + curr_in.abbrev + '.png'), _width=50)),
             _class='block button blue-bgc', _style='font-size:x-large; max-width:500px; margin:0px 7px;',
-            _href='https://money.yandex.ru/direct-payment.xml?scid=767&receiver=%s&sum=%s&destination=%s&FormComment=buy %s on 7Pay.in'
+            _href='https://money.yandex.ru/direct-payment.xml?scid=767&receiver=%s&sum=%s&destination=%s&FormComment=buy %s on ' + DOMEN
                   % (dealer_acc.acc, amo_in, destination, curr_out.abbrev)),
                     ),
             _class='row'

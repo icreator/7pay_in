@@ -19,6 +19,7 @@ from gluon.contrib.appconfig import AppConfig
 ## once in production, remove reload=True to gain full speed
 myconf = AppConfig(reload=True)
 
+DOMEN = myconf.take('app.domen')
 DEVELOP = myconf.take('app.develop', cast=bool)
 
 USE_TO_PHONE =  myconf.take('mode.use_to_phone')

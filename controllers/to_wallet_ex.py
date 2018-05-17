@@ -52,7 +52,7 @@ def get_e_bal(deal, dealer, dealer_acc):
 def download():
     return response.download(request,db)
 
-response.title = '7Pay.in'
+response.title = DOMEN
 
 ERRS={
     'err01':T('ОШИБКА: Проверьте номер телефона'),

@@ -97,10 +97,12 @@ def get_unconf_incomes(rpc_url, addr):
     return recs
 
 def get_transactions(rpc_url, addr, from_block=2):
+    
     result = []
 
     height = rpc_request(rpc_url + "/blocks/height")
     i = from_block
+    
     while i < height:
         if i - from_block > 3000:
             break
@@ -111,14 +113,14 @@ def get_transactions(rpc_url, addr, from_block=2):
                               + '/decrypt/%s' % PASSWORD)
         except Exception as e:
             print e
-            return result
+            return result, i - 1
         
         if len(recs) > 0:
             print 'height: ', i
             
         result += recs
     
-    return result
+    return result, i
 
 def send(db, curr, xcurr, addr, amo, token_system = None, token = None):
     

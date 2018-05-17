@@ -40,7 +40,7 @@ def set_pars_YD(dealer):
         if secret_response:
             from gluon.contrib import simplejson as js
             pars = js.dumps({"CLIENT_ID": request.vars.CLIENT_ID,
-                "YM_REDIRECT_URI": "https://7pay.in/ed_YD/yandex_response",
+                "YM_REDIRECT_URI": "https://"+DOMEN+"/ed_YD/yandex_response",
                 "SCOPE": "account-info operation-history operation-details payment-shop.limit(1,37777) payment-p2p.limit(1,37777)",
                 "secret_response": secret_response})
             if ed_acc:

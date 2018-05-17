@@ -3,6 +3,9 @@
 from gluon import current as C
 
 def get1():
+    
+    return ''
+
     if C.IS_LOCAL: return ''
     
     if C.IS_MOBILE:

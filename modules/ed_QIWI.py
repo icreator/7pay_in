@@ -8,6 +8,8 @@ import time
 
 from gluon import current
 
+DOMEN = 'face2face'
+
 # получить инфо о параметрах тут
 # https://money.yandex.ru/internal/mobile-api/get-showcase.xml?scid=4895
 
@@ -689,8 +691,8 @@ def YmTo(db, deal, edlr_deal, api_pars, token, acc, amount, acc_name, test=None,
 #            'PROPERTY1': ph[0:3],
 #            'PROPERTY2': ph[3:],
             'amount': amount,
-            'comment': u'7Pay to phone: %s' % acc,
-            'message': u'from 7Pay.in',
+            'comment': DOMEN + u' to phone: %s' % acc,
+            'message': u'from ' + DOMEN,
             #'test_result': 'phone_unknown',
             }
     elif edlr_deal.scid == 'p2p':
@@ -698,13 +700,13 @@ def YmTo(db, deal, edlr_deal, api_pars, token, acc, amount, acc_name, test=None,
         pars = { 'pattern_id': edlr_deal.scid,
             'to': acc,
             'amount': amount,
-            'comment': u'7Pay to wallet: %s' % acc,
-            'message': u'from 7Pay.in',
+            'comment': DOMEN+ u' to wallet: %s' % acc,
+            'message': u'from ' + DOMEN,
             }
     elif edlr_deal.p2p:
         # это подключенный к нам магазин через яндекс кошелек
         # тут закодируем счет пользователя
-        id_name = u'7Pay: %s' % acc
+        id_name = DOMEN + u': %s' % acc
         pars = { 'pattern_id': 'p2p',
             'to': edlr_deal.scid,
             'amount': amount,
@@ -720,8 +722,8 @@ def YmTo(db, deal, edlr_deal, api_pars, token, acc, amount, acc_name, test=None,
         else: name = deal.name #.decode('utf8') #'cp1251')
         #print name
         pars = {'pattern_id': edlr_deal.scid,
-            'comment': '7Pay to %s for [%s]' % (name, acc),
-            'message': u'from 7Pay.in', #current.T('from 7Pay.in'),
+            'comment': DOMEN + ' to %s for [%s]' % (name, acc),
+            'message': u'from ' + DOMEN, #current.T('from '+DOMEN),
             #'test_result': 'shop_unknown',
             }
         # добавим параметры из шаблона магазина

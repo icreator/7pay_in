@@ -11,7 +11,7 @@ def frmt_fee(fee, perc=''):
         else:
             r = '-%s' + perc
             pass
-        return XML(r % abs(float(fee)))
+        return XML(r % abs(Decimal(fee)))
     else:
         return '--'
     pass
@@ -19,27 +19,27 @@ def frmt_fee(fee, perc=''):
 
 <div class="container">
     <a class="block button blue-bgc right" style="margin-top:10px;padding-bottom:10px;margin-left:20px;"
-       href="{{=URL('default','index', scheme=True, host=True)}}?short"><h3>Почему мы?</h3></a>
+       href="{{=URL('default','index', scheme=True, host=True)}}?short"><h3>{{=T('Почему мы')}}?</h3></a>
     <h1>{{=title}}</h1>
     <h3>{{=subtitle}}</h3>
     <p>
-        Знак плюс - означает начисление Вам, а не удержание.
+        *{{=T('Знак плюс - означает начисление Вам, а не удержание')}}.
     </p>
     <div class='row'>
         <div class='row center'>
             <div class='col-sm-4'>
-                <b>Имя</b>
+                <b>{{=T('Имя')}}</b>
             </div>
             <div class='col-sm-4'>
-                <b>Покупка</b>
+                <b>{{=T('Вы платите')}}</b>
             </div>
             <div class='col-sm-4'>
-                <b>Продажа</b>
+                <b>{{=T('Вы купите')}}</b>
             </div>
         </div>
         <div class='row center'>
             <div class='col-sm-4'>
-                <b>Есть >> Предел</b>
+                <b>{{=T('Есть <=> Предел')}}</b>
             </div>
             <div class='col-sm-4'>
             </div>
@@ -49,14 +49,14 @@ def frmt_fee(fee, perc=''):
     </div>
     {{odd = None
     for curr in currs:
-        #print 'RUB ->', curr.abbrev
+        #print 'BASE: ->', curr.abbrev
         odd = not odd
         # сначала курс покупки за рубли
-        pr_b, pr_s, pr_avg = rates_lib.get_average_rate_bsa(db, curr.id, curr_rub.id, None)
+        pr_b, pr_s, pr_avg = rates_lib.get_average_rate_bsa(db, curr.id, curr_base.id, None)
         if pr_avg:
             vol_in = vol_out / pr_avg
-            _ , _, best_rate_in = rates_lib.get_rate(db, curr, curr_rub, vol_in)
-            _ , _, best_rate_out = rates_lib.get_rate(db, curr_rub, curr, vol_out)
+            _ , _, best_rate_in = rates_lib.get_rate(db, curr, curr_base, vol_in)
+            _ , _, best_rate_out = rates_lib.get_rate(db, curr_base, curr, vol_out)
             best_rate_out = best_rate_out and 1/ best_rate_out
         else:
             best_rate_in = best_rate_out = None
@@ -74,11 +74,23 @@ def frmt_fee(fee, perc=''):
             <b>{{=curr.name}}</b>
             [{{=curr.abbrev}}]
             {{if IS_LOCAL and pr_avg:
-            =BR()
-            ='%s x %s / %s x %s' % (vol_in, round(pr_b, 8), round(pr_s, 8), vol_out)
-            pass}}
+                =BR()}}
+                <span style="font-size: 0.8em;">
+                {{='%s x %s / %s x %s' % (vol_in, round(pr_b, 8), round(pr_s, 8), vol_out)}}
+                </span>
+                {{pass}}
             <br />
-            {{=free_bal}} >> {{=max_bal or '-'}}
+            {{if max_bal:
+                if free_bal > max_bal:}}
+                    <span style="color:red;"><b>{{=free_bal}} ></b></span>
+                {{else:}}
+                    <span style="color:green;">{{=free_bal}}</b></span> <
+                    {{pass}}
+            
+            {{=max_bal}}
+            {{else:
+                =free_bal
+                pass}}
         </div>
         <div class="col-sm-4">
             <div class="row">
@@ -120,24 +132,24 @@ def frmt_fee(fee, perc=''):
     {{pass}}
     <div class='row'>
         <h3>
-        Способ взятия комиссий (проценты) и такс (абсолютные значения)
+        {{=T('Способ взятия комиссий (проценты) и такс (абсолютные значения)')}}
         </h3>
         <ul>
             <li>
-                с количества входящей валюты сначала снимается такса (абсолютное значение), затем с остатка снимается комиссия (процент)
+                {{=T('с количества входящей валюты сначала снимается такса (абсолютное значение), затем с остатка снимается комиссия (процент)')}}
             </li>
             <li>
-                затем прозводится конвертация получившегося объёма входящей валюты в выходящую по текущему курсу
+                {{=T('затем прозводится конвертация получившегося объёма входящей валюты в выходящую по текущему курсу')}}
             </li>
             <li>
-                с получившегося после конвертации объёма выходящей валюты сначала снимается комиссия (процент), а затем такса (абсолютное значение)
+                {{=T('с получившегося после конвертации объёма выходящей валюты сначала снимается комиссия (процент), а затем такса (абсолютное значение)')}}
             </li>
             <li>
-                и наконец снимается комиссия (процент), а затем такса (абсолютное значение) для данного вида дела или оплаты услуги. Например за пополнение мобильно телефона один процент, а за обмен валют другой
+                {{=T('и наконец снимается комиссия (процент), а затем такса (абсолютное значение) для данного вида дела или оплаты услуги. Например за пополнение мобильно телефона один процент, а за обмен валют другой')}}
             </li>
         </ul>
         <p>
-            Эти проценты Вы можете так же увидеть после получения реквизитов при оплате услуг и дел после выбора валюты оплаты.
+            {{=T('Эти проценты Вы можете так же увидеть после получения реквизитов при оплате услуг и дел после выбора валюты оплаты')}}.
         </p>
     </div>
 </div>
@@ -145,7 +157,7 @@ def frmt_fee(fee, perc=''):
     
 </p>
 <div class="container">
-    Вы можете напрямую оплатить биткоинами разные услуги и дела, самые популярные из них:
+    {{=T('Вы можете напрямую оплатить биткоинами разные услуги и дела, самые популярные из них')}}:
     {{=LOAD('deal','most' )}}
         
     </div>

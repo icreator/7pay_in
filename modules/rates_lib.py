@@ -121,6 +121,17 @@ def get_average_rate_bsa(db, in_id, out_id, expired=None):
         s = s1 * s2
         ##b, s = add_tax(db, in_id, out_id, b, s)
         return b, s, avg1*avg2
+
+    btc, x, e = db_common.get_currs_by_abbrev(db,'USD')
+    b1,s1,avg1 = get_average_rate_bsa_2(db, in_id, btc.id, expired)
+    b2,s2,avg2 = get_average_rate_bsa_2(db, btc.id, out_id, expired)
+    if b1 and s1 and b2 and s2:
+        #print in_id,'->USD->',out_id, b1, s1, 'and', b2, s2
+        # нашли кросскурс
+        b = b1 * b2
+        s = s1 * s2
+        ##b, s = add_tax(db, in_id, out_id, b, s)
+        return b, s, avg1*avg2
     return None, None, None
 
 def get_avr_rate_or_null(db, curr_in_id, curr_out_id):
@@ -160,8 +171,20 @@ def get_pow_rate_par(db, curr_in, curr_out, rate_rev, expired):
     if rate_par:
         return rate_par
 
-    # попробуем крос курсBTC
+    # попробуем крос курс BTC
     btc, x, e = db_common.get_currs_by_abbrev(db,'BTC')
+    pr_b1, pr_s, pr_avg = get_average_rate_bsa(db, curr_in.id, btc.id, expired)
+    rate_par1 = get_pow_rate_par_1(db, curr_in, btc, pr_b1) # курс для ->БТС берем
+    #print 'rate_par1:',rate_par1, pr_b1
+    pr_b2, pr_s, pr_avg = get_average_rate_bsa(db, btc.id, curr_out.id, expired)
+    rate_par2 = get_pow_rate_par_1(db, btc, curr_out, pr_b2) # курс для <-БТС берем
+    #print 'rate_par2:',rate_par2, pr_b2
+    if rate_par1 and rate_par2:
+        # нашли кросскурс
+        return [(rate_par1[0]*rate_par2[0]/pr_b1)**0.5, rate_par1[1]+rate_par2[1]]
+
+    # попробуем крос курс USD
+    btc, x, e = db_common.get_currs_by_abbrev(db,'USD')
     pr_b1, pr_s, pr_avg = get_average_rate_bsa(db, curr_in.id, btc.id, expired)
     rate_par1 = get_pow_rate_par_1(db, curr_in, btc, pr_b1) # курс для ->БТС берем
     #print 'rate_par1:',rate_par1, pr_b1
@@ -274,6 +297,8 @@ def top_line(db, curr, filter=[]):
                 & (db.currs.id==db.xcurrs.curr_id)).select():
         if len(filter)>0 and r.currs.abbrev not in filter: continue
         curr_out_id = r.currs.id
+        if curr_out_id == curr_in_id: continue
+            
         b, s, avg = get_average_rate_bsa(db, curr_in_id, curr_out_id)
         if avg > 0:
             rate = 1/avg

@@ -45,7 +45,7 @@ def income_YD():
         # принудительно свой акк введем - иначе чего то ошибка на яндексе есди делать
         # https://7pay.in/ipay/buy/income_YD/41001555269641
         #args = [ '41001555269641' ]
-        mess = 'len request.args==0 - ex: https://7pay.in/ipay/buy/income_YD/410012107376992?operation_id=489576667705029008&amount=100'
+        mess = 'len request.args==0 - ex: https://'+DOMEN+'/ipay/buy/income_YD/410012107376992?operation_id=489576667705029008&amount=100'
         log(mess)
         return mess
 

@@ -8,6 +8,7 @@ import time
 
 from gluon import current
 
+DOMEN = 'face2face'
 
 def get_pars(edlr, edlr_acc):
     api_pars = json.loads( edlr.API )
@@ -113,8 +114,8 @@ def YmToPhone(api_pars, token, phone, amount, acc_name, test=None):
     pars = {'pattern_id':u'phone-topup',
         'phone-number': phone,
         'amount': amount,
-        'comment': '7Pay to phone: %s' % phone,
-        'message': current.T('оплата через портал 7Pay.in'),
+        'comment': '7pay to phone: %s' % phone,
+        'message': current.T('оплата через портал '+DOMEN),
         #'test_payment': True,
         #'test_result': 'phone_unknown',
         }

@@ -1,6 +1,6 @@
 # coding: utf8
 
-TXID_LEN = 80
+TXID_LEN = 100
 
 # если ошибка то задаем migrate=False,
 # fake_migrate = True
@@ -920,8 +920,8 @@ if db(db.exchgs).isempty():
     
     xpass = 'login:password'
     for r in [
-            ['WEX', 'wex.nz', 'btc-e_3', '', True, 0.5, 0.0, [[1,""], [2, "rur"], [3,""], [4,""], [5,""], [6,""]],
-                [[3, 1, True,''], [3, 2, True,''], [4, 1, True,''], [4, 2, True,''], [4, 3, True,''],
+            ['WEX', 'wex.nz', 'btc-e_3', '', True, 0.5, 0.0, [[1,""], [2, "rur"], [3,""], [4,""], [5,""], [6,"dsh"]],
+                [[1, 2, True,''], [3, 1, True,''], [3, 2, True,''], [4, 1, True,''], [4, 2, True,''], [4, 3, True,''],
                  [5, 3, True,''], [6, 3, True,''], [7, 3, True,''], [8, 3, True,'']]
             ],
             ['Livecoin', 'api.livecoin.net', 'livecoin', 'exchange/ticker', True, 0.2, 0.0, [[1,""], [2, ""], [3,""], [4,""], [5,""], [6,""]]],

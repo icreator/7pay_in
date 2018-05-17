@@ -2,17 +2,17 @@
 {{addr = request.vars.addr or request.args(0) or session.seeAddr or ''}}
 
 <div class="container">
-    <h1>Просмотр платежей и оплат биткоинами и другой криптовалютой</h1>
-    <h3>Здесь Вы можете посмотреть свои оплаты биткоинами услуг или последние платежи криптовалютами других пользователей в обезличенном виде</h3>
+    <h1>{{=T('Просмотр платежей биткоинами и другими токенами')}}</h1>
+    <h3>{{=T('Здесь Вы можете посмотреть свои оплаты (биткоинами, активами или токенами Erachain) услуг или последние платежи других пользователей в обезличенном виде')}}</h3>
 </div>
 
 
 <div style="background-color:{{=SKIN['bg-clr-mnu']}};color:{{=SKIN['clr-mnu']}}">
     <div class="container" style="padding:10px 10%;">
         <div class="row" style="padding-bottom:10px;">
-            <div class="col-lg-9 col-md-11 col-sm-12">Вставьте адрес вашего платежа для поиска своих оплат или оставьте пусто для просмотра последних платежей нашей службы<br />
+            <div class="col-lg-9 col-md-11 col-sm-12">{{=T('Вставьте адрес вашего платежа для поиска своих оплат или оставьте пусто для просмотра последних платежей нашей службы')}}<br />
                 <form action="javascript: void(0);" enctype="multipart/form-data" method="post" id="inp_f">
-                    <input class="blue-c" name="addr" placeholder="Введите адрес кошелька криптовалют"
+                    <input class="blue-c" name="addr" placeholder="{{=T('Введите адрес кошелька криптовалют')}}"
                        autofocus="1" id="addr"
                        style="  width: 100%; padding:5px; margin-bottom:25px;"
                        type="text" value="{{=addr}}" /> <br>

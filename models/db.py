@@ -1,8 +1,12 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
+    
+#from gluon.custom_import import track_changes; track_changes(True)
+
 # fake_migrate - только если таблица уже создана - а если поля добавлям от не нужно
 # и если в другом проекте поля уже добавлены и их не надо добавлять
 if DEVELOP: print 'db.py - app.DEVELOP'
 
+    
 #########################################################################
 ## This scaffolding model makes your app work on Google App Engine too
 ## File is released under public domain and you can use without limitations
@@ -11,15 +15,24 @@ if DEVELOP: print 'db.py - app.DEVELOP'
 ## if SSL/HTTPS is properly configured and you want all HTTP requests to
 ## be redirected to HTTPS, uncomment the line below:
 # request.requires_https()
+if myconf.take('db.migrate'):
+    migrate = True ## ONLY BOOLEAN!
+else:
+    migrate = False ## ONLY BOOLEAN!
+
+if myconf.take('db.fake_migrate'):
+    fake_migrate = True ## ONLY BOOLEAN!
+else:
+    fake_migrate = False ## ONLY BOOLEAN!
 
 
 if not request.env.web2py_runtime_gae:
-    migrate = myconf.take('db.migrate') and True or False ## ONLY BOOLEAN !
-    fake_migrate = myconf.take('db.fake_migrate') and True or False ## ONLY BOOLEAN !
     ## if NOT running on Google App Engine use SQLite or other DB
     if DEVELOP:
         db = DAL(myconf.take('db.uri_dvp'), migrate = 1, check_reserved = ['all'])
     else:
+        #print 'MIGRATE: ', migrate
+        #print 'fake: ', fake_migrate
         db = DAL(myconf.take('db.uri'), pool_size=myconf.take('db.pool_size', cast=int), check_reserved=['all'],
                 #migrate = Not (Not (myconf.take('db.migrate'))),
                 migrate = migrate,

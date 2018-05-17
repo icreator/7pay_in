@@ -13,7 +13,7 @@ else:
 
 
     if not IS_MOBILE:
-        LOGO='ddddd'
+        LOGO=''
         '''
         from os import listdir
         images = listdir(request.folder + '/static/images/logos')
@@ -61,8 +61,10 @@ else:
 
     MENU_1 = [
         #(response.logo or '',None, None),
-        LI(A(IMG(_src=URL('static','images/7P-30-2.png'), _style="height:70px"),
-            _style="padding:0", _href=URL('default','index')))
+        LI(
+            #A(IMG(_src=URL('static','images/7P-30-2.png'), _style="height:70px"),_style="padding:0", _href=URL('default','index'))
+            response.logo
+        )
     ]
     MENU_1.append(
         (SPAN(MNU_ICONS and TAG.i(_class='fa fa-retweet bbig') or '', ' ', T('Обменять'), _title=T('Обменять Монеты')),
@@ -124,13 +126,20 @@ else:
     reclama = [
         DIV(H4(T('Partners')),
         DIV(
+            DIV(A(IMG(_src=URL('static','images/logos/erachain.png'), _style='width: 100%;'),
+                  _href="https://www.erachain.org", _target="_blank"),
+                _class='col-sm-4', _style='padding-right: 5px; padding-left: 0px;'),
+            DIV(T('Blockchain platform 3.0 generation Erachain'), _class='col-sm-8'),
+            _class='row'
+            ),
+        P(),
+        DIV(
             DIV(A(IMG(_src=URL('static','images/logos/e-coin.png'), _style='width: 100%;'),
                   _href="https://www.e-coin.io/?ref=4b3a38cb437f4317a1e9ee5782fea22d", _target="_blank"),
                 _class='col-sm-4', _style='padding-right: 5px; padding-left: 0px;'),
             DIV(T('Банковская карта в биткоинах - храни биткоины, пополняй биткоинами, а плати долларами и рублями!'), _class='col-sm-8'),
             _class='row'
-            ),
-        P(),
+            ) if False else '',
         )
         ]
     import random

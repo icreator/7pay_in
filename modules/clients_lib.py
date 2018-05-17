@@ -3,6 +3,8 @@
 from time import sleep
 Test = None
 
+DOMEN = 'face2face'
+
 from decimal import Decimal
 import datetime
 #from gluon import *
@@ -151,7 +153,7 @@ def try_note_url(client, deal_acc):
     if not note_url or len(note_url)<2:
          deal = db.deals[deal_acc.deal_id]
          note_url = deal.url or 'http://%s' % (deal.name2 or deal.name)
-         note_url = note_url + '/to_shop_response/from_7pay_in'
+         note_url = note_url + '/to_shop_response/from_'+DOMEN
     url_rersp = note_url + '?order=%s' % deal_acc.acc
     log(db, '%s' % url_rersp)
     try:
