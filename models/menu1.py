@@ -13,7 +13,7 @@ else:
 
 
     if not IS_MOBILE:
-        LOGO='ddddd'
+        LOGO=''
         '''
         from os import listdir
         images = listdir(request.folder + '/static/images/logos')
@@ -61,8 +61,10 @@ else:
 
     MENU_1 = [
         #(response.logo or '',None, None),
-        LI(A(IMG(_src=URL('static','images/7P-30-2.png'), _style="height:70px"),
-            _style="padding:0", _href=URL('default','index')))
+        LI(
+            #A(IMG(_src=URL('static','images/7P-30-2.png'), _style="height:70px"), _style="padding:0", _href=URL('default','index'))
+            response.logo
+        )
     ]
     MENU_1.append(
         (SPAN(MNU_ICONS and TAG.i(_class='fa fa-retweet bbig') or '', ' ', T('Обменять'), _title=T('Обменять Монеты')),

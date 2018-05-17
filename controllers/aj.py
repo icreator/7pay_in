@@ -50,7 +50,7 @@ def informer():
                 A(
                     tl,BR(),
                     request.vars.m or 'Призы на сотовый',
-                    _href='https://7pay.in/to_phone?gc=%s' % gc, _target='_blank',
+                    _href='https://face2face.cash/to_phone?gc=%s' % gc, _target='_blank',
                     _style='color:#333;display:block;line-height: 30px; font-size:20px; text-decoration: none; padding:8; background-color:#ADD8FF',
                     _onMouseOver="this.style.color='#000'; this.style.backgroundColor='#CDE8FF'",
                     _onMouseOut="this.style.color='#333'; this.style.backgroundColor='ADD8FF'",
