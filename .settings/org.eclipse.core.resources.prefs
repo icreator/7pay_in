@@ -1,6 +1,7 @@
 eclipse.preferences.version=1
 encoding//controllers/aj.py=utf8
 encoding//controllers/api.py=utf8
+encoding//controllers/apipay.py=utf8
 encoding//controllers/appadmin.py=utf-8
 encoding//controllers/buy.py=utf8
 encoding//controllers/deal.py=utf8
