@@ -185,6 +185,9 @@ def rates():
             curr_in = r_in.currs
             in_abbrev = curr_in.abbrev
             vol_in = vol_rub * rates_lib.get_avr_rate_or_null(db, rub_curr.id, curr_in.id)
+            vol_out = vol_rub # в рублях
+            to_max = 0
+
             in_max = currs_in_max.get( in_abbrev )
             if in_max == None:
                 in_max = curr_in.max_bal or 0
