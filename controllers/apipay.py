@@ -19,6 +19,18 @@ def mess(error):
 
 # get URI for income exchanges
 # https://127.0.0.1/apipay/get_uri/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_out]
+# http://face2face.cash/apipay/get_uri/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - html
+# http://face2face.cash/apipay/get_uri.json/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - JSON
+
+''' out parameters:
+    free_bal - free balance for CURR_OUT inside exchange
+    lim_bal (False/True) - is limited on accept CURR_IN?
+    may_pay	(0 or [amount]) - how namy echange may accept CURR_IN?
+    url_uri - URI for cryptocurrency wallet
+    volume_in - need to pay by client
+    volume_out - will be taken by client
+'''
+
 def get_uri():
     import rates_lib, common
     # /deal_id/curr_in_id/curr_out_id/addr/vol
