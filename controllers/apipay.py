@@ -17,6 +17,81 @@ def index():
 def mess(error):
     return '{"error": "%s"}' % error
 
+
+# get_rate/curr_in_id/curr_out_id/vol?get_limits=1
+def get_rate():
+    import rates_lib, common
+
+    args = request.args
+    ##print args, '\n', request.vars
+    if len(args) < 2: return mess('err...')
+    curr_id = args(0)
+    curr_out_id = args(1)
+
+    vol = args(2)
+    if not vol or len(vol) > 20:
+        return mess('error amount')
+    
+    try:
+        vol = float(vol)
+        curr_id = int(curr_id)
+    except:
+        return mess('digs...')
+    
+    curr_in = db.currs[ curr_id ]
+    if not curr_in: return mess('curr...')
+    xcurr_in = db(db.xcurrs.curr_id == curr_id).select().first()
+    if not xcurr_in: return mess('xcurr...')
+
+    if not curr_out_id: return mess('curr out id...')
+    curr_out = db.currs[ curr_out_id ]
+    if not curr_out: return mess('curr out...')
+    xcurr_out = db(db.xcurrs.curr_id == curr_out.id).select().first()
+    if not xcurr_out: return mess('xcurr out...')
+    curr_out_abbrev = curr_out.abbrev
+
+        
+    volume_out = vol
+
+    # используем быстрый поиск курса по формуле со степенью на количество входа
+    # только надо найти кол-во входа от выхода
+    pr_b, pr_s, pr_avg = rates_lib.get_average_rate_bsa(db, curr_in.id, curr_out.id, None)
+    if pr_avg:
+        vol_in = volume_out / pr_b
+        amo_out, _, best_rate = rates_lib.get_rate(db, curr_in, curr_out, vol_in)
+    else:
+        best_rate = None
+
+    if best_rate:
+
+        volume_in = common.rnd_8(volume_in)
+        rate_out = volume_out / volume_in
+
+    else:
+        volume_in = rate_out = tax_rep = None
+
+    curr_in_abbrev = curr_in.abbrev
+    
+    #
+    out_res = dict(volume_out = volume_out,
+                   volume_in = volume_in,
+                   curr_in = curr_in_abbrev,
+                   curr_out = curr_out.abbrev,
+                  )
+
+    if request.vars.get('get_limits'):
+        lim_bal, may_pay = db_client.is_limited_ball(curr_in)
+        free_bal = db_client.curr_free_bal(curr_out)
+
+        out_res['lim_bal'] = lim_bal
+        out_res['may_pay'] = may_pay
+        out_res['free_bal'] = float(free_bal),
+
+
+    return request.extension == 'html' and dict(
+        h=DIV(BEAUTIFY(out_res), _class='container')) or out_res
+
+
 # get URI for income exchanges
 # https://127.0.0.1/apipay/get_uri/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_out]
 # http://face2face.cash/apipay/get_uri/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - html
@@ -30,6 +105,7 @@ def mess(error):
     volume_in - need to pay by client
     volume_out - will be taken by client
 '''
+
 
 def get_uri():
     import rates_lib, common
