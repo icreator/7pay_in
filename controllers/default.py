@@ -149,18 +149,11 @@ def crypto_go():
 #@cache.action(time_expire=CACHE_EXP_TIME, cache_model=cache.disk, vars=False, public=False, lang=True)
 def contacts():
     session.forget(response)
-    response.title=T('Контакты')
+    response.title=T('CONTACTS')
     response.not_show_func = True
     h = CAT(
-        H3(T('Отзывы, Обсуждение, Жалобы, Благодарности')),
-        T('Можно найти в ветке на'),' ',
-        A(T('международном форуме о криптовалютах'),
-          _href='https://bitcointalk.org/index.php?topic=307648.0', _target='_blank'),'. ',
-        T('Там же можно сообщить об ошибке'),'.',
-        H3('Обратная связь'),
-        T('телефон'),': ', '+7 916 917 2019', BR(),
-        T('Почтовый ящик'),': ', 'support@'+DOMEN, BR(),
-        T('Skype'),': ', 'i-creator'
+        H3('HI-TECH SERVICES LIMITED'),
+        T('email'),': ', 'fsinfo@cytanet.com.cy', BR(),
     )
     return dict(h =h)
 
