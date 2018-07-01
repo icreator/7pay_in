@@ -53,7 +53,7 @@ def get_rate():
     import rates_lib, common
 
     args = request.args
-    vars = request.args
+    vars = request.vars
     ##print args, '\n', request.vars
     if len(args) < 2:
         if len(vars) < 2:
@@ -66,7 +66,8 @@ def get_rate():
     if not vol_in or len(vol_in) > 20:
         return mess('error amount')
     
-    out_res = rates_lib.get_rate_for_api(db, curr_id, curr_out_id, vol_in)
+    out_res = rates_lib.get_rate_for_api(db, curr_id, curr_out_id, vol_in,
+                                         deal = db.deals[current.TO_COIN_ID], get_limits = vars.get('get_limits'))
 
     return request.extension == 'html' and dict(
         h=DIV(BEAUTIFY(out_res), _class='container')) or out_res
