@@ -27,14 +27,14 @@ USE_EXCHANGE =  myconf.take('mode.use_exchange')
 USE_BUY_SELL =  myconf.take('mode.use_buy_sell')
 USE_TO_DEALS =  myconf.take('mode.use_to_deals')
 
-TO_BUY_ID = myconf.take('deals.buy')
-TO_WALLET_ID = myconf.take('deals.wallet')
-TO_COIN_ID = myconf.take('deals.coin')
-TO_PHONE7_ID = myconf.take('deals.phone_7')
+current.TO_BUY_ID = TO_BUY_ID = myconf.take('deals.buy')
+current.TO_WALLET_ID = TO_WALLET_ID = myconf.take('deals.wallet')
+current.TO_COIN_ID = TO_COIN_ID = myconf.take('deals.coin')
+current.TO_PHONE7_ID = TO_PHONE7_ID = myconf.take('deals.phone_7')
 
-CURR_USD_ID = myconf.take('currs.usd_id')
-CURR_RUB_ID = myconf.take('currs.rub_id')
-CURR_BTC_ID = myconf.take('currs.btc_id')
+current.CURR_USD_ID = CURR_USD_ID = myconf.take('currs.usd_id')
+current.CURR_USD_ID = CURR_RUB_ID = myconf.take('currs.rub_id')
+current.CURR_USD_ID = CURR_BTC_ID = myconf.take('currs.btc_id')
 
 TRUST_IP = myconf.take('app.trust_ip')
 

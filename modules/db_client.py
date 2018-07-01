@@ -7,6 +7,7 @@ DOMEN = 'face2face'
 from datetime import datetime, timedelta
 from decimal import Decimal
 
+import common
 from db_common import *
 import crypto_client
 import rates_lib
@@ -283,6 +284,10 @@ def get_xcurrs_for_deal(db, amo_out, curr_out, deal, dealer=None, s_b_in=None, n
     expired = datetime.now() - timedelta(0,360)
     pairs = []
 
+    is_order = False
+    dealer_deal = None
+    deal = db.deals[current.TO_COIN_ID]
+
     s_b = s_b_in == None and True or s_b_in ############################
     d_e = None
     # теперь по всем криптам пройдемся и если нет в парах то
@@ -296,6 +301,7 @@ def get_xcurrs_for_deal(db, amo_out, curr_out, deal, dealer=None, s_b_in=None, n
         if curr_in.id == curr_out.id:
             rate = 1.0
         else:
+
             # берем в расчет только недавние цены
             if amo_out:
                 # количество уже жестко задано от магазина
@@ -305,11 +311,24 @@ def get_xcurrs_for_deal(db, amo_out, curr_out, deal, dealer=None, s_b_in=None, n
                     amo_in = amo_out / pr_b
             else:
                 amo_in = 0
-           
+            
             rate = None
-            if not amo_out or pr_b:
-                #print 'amo_in:', amo_in
-                amo_out, rate_order, rate = rates_lib.get_rate(db, curr_in, curr_out, amo_in)
+            if False:
+                # OLD style - without taxes
+                               
+                if not amo_out or pr_b:
+                    #print 'amo_in:', amo_in
+                    amo_out, rate_order, rate = rates_lib.get_rate(db, curr_in, curr_out, amo_in)
+            else:
+                # new STYLE - full price
+                
+                _, _, best_rate = rates_lib.get_rate(db, curr_in, curr_out, amo_in)
+                if best_rate:
+                    amo_out, mess_out = calc_fees(db, deal, dealer_deal, curr_in, curr_out, amo_in,
+                                                   best_rate, is_order=0, note=0, only_tax=1)
+                ## vol_out - is Decimal
+                    amo_out = common.rnd_8(amo_out)
+                    rate = amo_out / amo_in
 
             if not rate:
                 rate = -1

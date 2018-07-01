@@ -202,7 +202,7 @@ def get_best_rates(db, curr_in, curr_out=None):
     for curr_out in db((db.currs.used==True)
             & (not curr_out or db.currs.id==curr_out.id)).select():
         if curr_out.id == curr_in.id:
-            rates[curr_out.id] = [100000,0,1]
+            rates[curr_out.id] = [100000, 0, 1]
         else:
             pr_b, pr_s, pr_avg = get_average_rate_bsa(db, curr_in.id, curr_out.id, expired)
             #print curr_in.abbrev,'->',curr_out.abbrev, pr_b, pr_s, pr_avg
@@ -231,7 +231,7 @@ def get_best_rate(best_rates, curr_out, amo):
         #print vol, amo
         if vol > amo:
             break
-    power_perc = power_perc + 1
+    # power_perc = power_perc + 1
     perc = power_perc*base_perc
     #print 'POWER:', power_perc, ' ->:', perc,'%'
     best_rate = base_rate * (1 - perc*0.01)
@@ -288,6 +288,12 @@ def get_rate(db, curr_in, curr_out, amo_in=None, created_on=None, shop_order_add
     if not amo_in: amo_in = 0.0
     #print '%s[%s] -> [%s]' % (amo_in, curr_in.abbrev, curr_out.abbrev)
     rates = get_best_rates(db, curr_in, curr_out)
+    if not amo_in:
+        if rates:
+            amo_in = rates[curr_out.id][0] # get VOLUME IN as BASE
+        else:
+            amo_in = 1
+        
     return get_amo_out(db, rates, shop_order_addr, curr_out, amo_in, created_on)
 
 def top_line(db, curr, filter=[]):
