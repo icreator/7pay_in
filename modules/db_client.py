@@ -299,39 +299,41 @@ def get_xcurrs_for_deal(db, amo_out, curr_out, deal, dealer=None, s_b_in=None, n
         disabled = None
 
         if curr_in.id == curr_out.id:
-            rate = 1.0
+            continue
+
+        # берем в расчет только недавние цены
+        if amo_out:
+            # количество уже жестко задано от магазина
+            pr_b, pr_s, pr_avg = rates_lib.get_average_rate_bsa(db, curr_in.id, curr_out.id, expired)
+            #print pr_b, pr_s, pr_avg
+            if pr_b:
+                amo_in = amo_out / pr_b
         else:
-
-            # берем в расчет только недавние цены
-            if amo_out:
-                # количество уже жестко задано от магазина
-                pr_b, pr_s, pr_avg = rates_lib.get_average_rate_bsa(db, curr_in.id, curr_out.id, expired)
-                #print pr_b, pr_s, pr_avg
-                if pr_b:
-                    amo_in = amo_out / pr_b
-            else:
-                amo_in = 0
+            amo_in = 0
+        
+        rate = None
+        if False:
+            # OLD style - without taxes
+                           
+            if not amo_out or pr_b:
+                #print 'amo_in:', amo_in
+                amo_out, rate_order, rate = rates_lib.get_rate(db, curr_in, curr_out, amo_in)
+        else:
+            # new STYLE - full price
             
-            rate = None
-            if False:
-                # OLD style - without taxes
-                               
-                if not amo_out or pr_b:
-                    #print 'amo_in:', amo_in
-                    amo_out, rate_order, rate = rates_lib.get_rate(db, curr_in, curr_out, amo_in)
-            else:
-                # new STYLE - full price
-                amo_in = 1
-                _, _, best_rate = rates_lib.get_rate(db, curr_in, curr_out, amo_in)
-                if best_rate:
-                    amo_out, mess_out = calc_fees(db, deal, dealer_deal, curr_in, curr_out, amo_in,
-                                                   best_rate, is_order=0, note=0, only_tax=1)
+            # amo_in = 1
+            _, _, best_rate = rates_lib.get_rate(db, curr_in, curr_out, amo_in)
+            if best_rate:
+                amo_out, mess_out = calc_fees(db, deal, dealer_deal, curr_in, curr_out, amo_in,
+                                               best_rate, is_order=0, note=0, only_tax=1)
                 ## vol_out - is Decimal
-                    amo_out = common.rnd_8(amo_out)
+                amo_out = common.rnd_8(amo_out)
+                if amo_in:
+                    rate = amo_out / amo_in
 
-            if not rate:
-                rate = -1
-                disabled = True
+        if not rate:
+            rate = -1
+            disabled = True
 
         currs_stats = db((db.currs_stats.curr_id==curr_in.id)
                 & (db.currs_stats.deal_id==deal.id)).select().first()
