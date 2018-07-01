@@ -2,13 +2,22 @@
 # coding: utf8
 #from gluon import *
 import datetime
+from gluon import current
+T = current.T
+
 # тут все в float -- from decimal import Decimal
+
 
 ORDER_TIME = 600 # в сек жизни заказ на обмен
 TRANS_TIME = 300 # в сек жизни заказ на обмен задержка создания транзакции
 RATES_TIME = 3600 # в сек жизни курса с биржи
 
+
 import db_common
+import db_client
+
+def mess(error):
+    return '{"error": "%s"}' % error
 
 # удалим из стека просроченные чтобы не мешались
 def check_orders(db):
@@ -315,3 +324,67 @@ def top_line(db, curr, filter=[]):
             h.append([rate,r.currs.abbrev])
 
     return h
+
+
+# get_rate/curr_in_id/curr_out_id/vol_in?get_limits=1
+def get_rate_for_api(db, curr_id, curr_out_id, vol_in):
+    import common
+        
+    try:
+        curr_id = int(curr_id)
+        vol_in = float(vol_in)
+        curr_out_id = int(curr_out_id)
+    except:
+        return mess('digs...')
+    
+    curr_in = db.currs[ curr_id ]
+    if not curr_in: return mess('curr...')
+    #xcurr_in = db(db.xcurrs.curr_id == curr_id).select().first()
+    #if not xcurr_in: return mess('xcurr...')
+
+    if not curr_out_id: return mess('curr out id...')
+    curr_out = db.currs[ curr_out_id ]
+    if not curr_out: return mess('curr out...')
+    #xcurr_out = db(db.xcurrs.curr_id == curr_out.id).select().first()
+    #if not xcurr_out: return mess('xcurr out...')
+    curr_out_abbrev = curr_out.abbrev
+    
+    out_res = dict(
+           volume_in = vol_in,
+           curr_in = curr_in.abbrev,
+           curr_out = curr_out.abbrev,
+          )
+
+
+    pr_b, pr_s, pr_avg = get_average_rate_bsa(db, curr_in.id, curr_out.id, None)
+    if pr_avg:
+        _, _, best_rate = get_rate(db, curr_in, curr_out, vol_in)
+    else:
+        best_rate = None
+
+    if best_rate:
+
+        is_order = False
+        dealer_deal = None
+        deal = db.deals[current.TO_COIN_ID]
+        vol_out, mess_out = db_client.calc_fees(db, deal, dealer_deal, curr_in, curr_out, vol_in,
+                                           best_rate, is_order=0, note=0, only_tax=0)
+        ## vol_out - is Decimal
+        vol_out = common.rnd_8(vol_out)
+        rate_out = vol_out / vol_in
+        
+        out_res['volume_out'] = vol_out
+        out_res['rate_out'] = rate_out
+        
+        if request.vars.get('get_limits'):
+            lim_bal, may_pay = db_client.is_limited_ball(curr_in)
+            free_bal = db_client.curr_free_bal(curr_out)
+
+            out_res['lim_bal'] = lim_bal
+            out_res['may_pay'] = may_pay
+            out_res['free_bal'] = float(free_bal),
+
+    else:
+       out_res["wrong"] = "rate not found"
+
+    return out_res
