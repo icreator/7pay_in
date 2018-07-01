@@ -321,14 +321,13 @@ def get_xcurrs_for_deal(db, amo_out, curr_out, deal, dealer=None, s_b_in=None, n
                     amo_out, rate_order, rate = rates_lib.get_rate(db, curr_in, curr_out, amo_in)
             else:
                 # new STYLE - full price
-                
+                amo_in = 1
                 _, _, best_rate = rates_lib.get_rate(db, curr_in, curr_out, amo_in)
                 if best_rate:
                     amo_out, mess_out = calc_fees(db, deal, dealer_deal, curr_in, curr_out, amo_in,
                                                    best_rate, is_order=0, note=0, only_tax=1)
                 ## vol_out - is Decimal
                     amo_out = common.rnd_8(amo_out)
-                    rate = amo_out / amo_in
 
             if not rate:
                 rate = -1
