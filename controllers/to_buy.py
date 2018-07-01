@@ -187,7 +187,7 @@ def get():
                 return mess(T('ОШИБКА') + ': ' + T('Адрес кошелька не подходит для выбранной криптовалюты %s') % curr_out_name)
         else:
             # ЕСЛИ НЕТ СВЯЗИ - пусть пллатит - потом связь появится
-            #return mess(T('Connection to [%s] id lost, try lates ') % curr_out_name)
+            #return mess(T('Connection to [%s] is lost, try later ') % curr_out_name)
             ##return mess(T('Связь с кошельком ') + curr_out_name + T(' прервана.') + ' ' + T('Пожалуйста попробуйте позже'), 'warning')
             pass
 
