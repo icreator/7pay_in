@@ -36,16 +36,18 @@
                 li_class='dropdown',ul_class='dropdown-menu')}}
         </div>
         <div class="col-sm-2">
-            
-            {{=A(TAG.i(_class='fa fa-search', _style='width:100px;'),
+            <div class="col-sm-12">
+                
+            {{=A(TAG.i(_class='fa fa-search', _style='width:100px; font-size: 30px;padding: 5px;'),
                     _id = 'go',
                     _onclick='ajax("'+URL('to_coin2', 'get_rate')+'", ["curr_in", "vol_in", "curr_out"], "tag");$(".go-btn").addClass("disabled");$(this).children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");',
-                    _class='go-btn button ll-blue-bgc center',
+                    _class='go-btn button ll-blue-bgc center navbar-nav',
                     )}}
                 <button class="go-btn hidden"
                     onclick='ajax("{{=URL('to_coin2', 'get_rate')}}", ["curr_in", "amo_in", "curr_out"], "tag");$(".go-btn").addClass("disabled");$("#go").children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");'
                     type='submit'
                         />
+            </div>
         </div>
     </div>
     </form>

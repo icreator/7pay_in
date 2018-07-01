@@ -39,9 +39,13 @@ def err_dict(m, not_add_err=False):
 def get_rate():
     print request.vars
     import rates_lib
-    result = rates_lib.get_rate_for_api(db, request.vars.get('curr_in'), request.vars.get('curr_out'), request.vars.get('vol_in'))
+    result = rates_lib.get_rate_for_api(db, request.vars.get('curr_in'), request.vars.get('curr_out'), request.vars.get('vol_in'), get_limits = True)
     print result
-    return "%s" % request.vars
+
+    response.js = "$('.go-btn').removeClass('disabled');$('#go').children('i').removeClass('fa-refresh fa-spin').addClass('fa-search');"
+
+    import gluon.contrib.simplejson
+    return CAT(gluon.contrib.simplejson.dumps(result))
     
 
 ###############################################################
