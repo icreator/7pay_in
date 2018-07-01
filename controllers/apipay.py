@@ -106,7 +106,7 @@ def get_rate():
         vol_out = common.rnd_8(vol_out)
         rate_out = vol_out / vol_in
         
-        out_res['vol_out'] = vol_out
+        out_res['volume_out'] = vol_out
         out_res['rate_out'] = rate_out
         
         if request.vars.get('get_limits'):
@@ -116,6 +116,9 @@ def get_rate():
             out_res['lim_bal'] = lim_bal
             out_res['may_pay'] = may_pay
             out_res['free_bal'] = float(free_bal),
+
+    else:
+       out_res["wrong"] = "rate not found"
 
 
     return request.extension == 'html' and dict(

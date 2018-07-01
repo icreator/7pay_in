@@ -301,15 +301,20 @@ def get_xcurrs_for_deal(db, amo_out, curr_out, deal, dealer=None, s_b_in=None, n
         if curr_in.id == curr_out.id:
             continue
 
+        if not amo_out:
+            rates = rates_lib.get_best_rates(db, curr_in, curr_out)
+            if rates:
+                amo_in = rates[curr_out.id][0]
+            else:
+                amo_in = 0
+
         # берем в расчет только недавние цены
-        if amo_out:
+        if not amo_in:
             # количество уже жестко задано от магазина
             pr_b, pr_s, pr_avg = rates_lib.get_average_rate_bsa(db, curr_in.id, curr_out.id, expired)
             #print pr_b, pr_s, pr_avg
             if pr_b:
                 amo_in = amo_out / pr_b
-        else:
-            amo_in = 0
         
         rate = None
         if False:
