@@ -132,7 +132,7 @@ def ok_to():
     except:
         print 'aj.to_ok session error [v]:', type(v), v
 
-# TODO тут надооблокировать внесение адреса возврата если дата разошлась с датой создания записи на пол дня
+# TODO тут надо блокировать внесение адреса возврата если дата разошлась с датой создания записи на пол дня
 def addr_ret1():
     session.forget(response)
     addr = request.vars['addr_ret_addr']

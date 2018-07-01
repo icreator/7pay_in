@@ -13,7 +13,38 @@ import serv_to_buy
 
 @cache.action(time_expire=time_exp, cache_model=cache.disk) #, vars=False, public=True, lang=True)
 def index():
-    return dict()
+    return dict(get_rate = dict(url = "get_rate/[curr_in_id]/[curr_out_id]/[vol_in]?get_limits=1",
+                                pars = "get_limits - limits in result",
+                                result = "j"),
+                get_uri_out = dict(url = "get_uri_out/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_out]",
+                                pars = dict(deal_id = " - for coins exchange use 2",
+                                            curr_in_id = " 3 - BTC, 10 - ERA",
+                                            curr_out_id = " 3 - BTC, 10 - ERA",
+                                            ),
+                                result = dict(free_bal = "free balance for CURR_OUT inside exchange",
+                                      addr_in = "cryptocurrency address for income",
+                                      url_uri = "URI for auto open wallet or generate QR-code",
+                                      lim_bal = "(False/True) - is limited on accept CURR_IN?",
+                                      may_pay = "(0 or [amount]) - how namy echange may accept CURR_IN?",
+                                      url_uri = " - URI for cryptocurrency wallet",
+                                      volume_in = "- need to pay by client",
+                                      volume_out = " - will be taken by client")
+                                   ),
+                get_uri = dict(url = "get_uri/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_out]",
+                                pars = dict(deal_id = " - for coins exchange use 2",
+                                            curr_in_id = " 3 - BTC, 10 - ERA",
+                                            curr_out_id = " 3 - BTC, 10 - ERA",
+                                            ),
+                                result = dict(free_bal = "free balance for CURR_OUT inside exchange",
+                                      addr_in = "cryptocurrency address for income",
+                                      url_uri = "URI for auto open wallet or generate QR-code",
+                                      lim_bal = "(False/True) - is limited on accept CURR_IN?",
+                                      may_pay = "(0 or [amount]) - how namy echange may accept CURR_IN?",
+                                      url_uri = " - URI for cryptocurrency wallet",
+                                      volume_in = "- need to pay by client",
+                                      volume_out = " - will be taken by client")
+                                   )
+                )
 
 def mess(error):
     return '{"error": "%s"}' % error

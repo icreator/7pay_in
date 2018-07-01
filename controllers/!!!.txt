@@ -1,6 +1,6 @@
 buy.py - for callback Yandex Money
 
 
-all files wuth 3 on end - for developer - without views
+all files with 3 on end - for developer - without views
 
 then get html from its URLs and make views for controllers
