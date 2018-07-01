@@ -53,77 +53,23 @@ def get_rate():
     import rates_lib, common
 
     args = request.args
+    vars = request.args
     ##print args, '\n', request.vars
-    if len(args) < 2: return mess('err...')
-    curr_id = args(0)
-    curr_out_id = args(1)
+    if len(args) < 2:
+        if len(vars) < 2:
+            return mess('err...')
+    
+    curr_id = args(0) or vars.get('curr_in')
+    curr_out_id = args(1) or vars.get('curr_out')
 
-    vol = args(2)
-    if not vol or len(vol) > 20:
+    vol_in = args(2) or vars.get('vol_in')
+    if not vol_in or len(vol_in) > 20:
         return mess('error amount')
     
-    try:
-        vol = float(vol)
-        curr_id = int(curr_id)
-    except:
-        return mess('digs...')
-    
-    curr_in = db.currs[ curr_id ]
-    if not curr_in: return mess('curr...')
-    xcurr_in = db(db.xcurrs.curr_id == curr_id).select().first()
-    if not xcurr_in: return mess('xcurr...')
-
-    if not curr_out_id: return mess('curr out id...')
-    curr_out = db.currs[ curr_out_id ]
-    if not curr_out: return mess('curr out...')
-    xcurr_out = db(db.xcurrs.curr_id == curr_out.id).select().first()
-    if not xcurr_out: return mess('xcurr out...')
-    curr_out_abbrev = curr_out.abbrev
-
-    vol_in = vol
-    
-    out_res = dict(
-           volume_in = vol_in,
-           curr_in = curr_in.abbrev,
-           curr_out = curr_out.abbrev,
-          )
-
-
-    pr_b, pr_s, pr_avg = rates_lib.get_average_rate_bsa(db, curr_in.id, curr_out.id, None)
-    if pr_avg:
-        _, _, best_rate = rates_lib.get_rate(db, curr_in, curr_out, vol_in)
-    else:
-        best_rate = None
-
-    if best_rate:
-
-        is_order = False
-        dealer_deal = None
-        deal = db.deals[TO_COIN_ID]
-        vol_out, mess_out = db_client.calc_fees(db, deal, dealer_deal, curr_in, curr_out, vol_in,
-                                           best_rate, is_order=0, note=0, only_tax=0)
-        ## vol_out - is Decimal
-        vol_out = common.rnd_8(vol_out)
-        rate_out = vol_out / vol_in
-        
-        out_res['volume_out'] = vol_out
-        out_res['rate_out'] = rate_out
-        
-        if request.vars.get('get_limits'):
-            lim_bal, may_pay = db_client.is_limited_ball(curr_in)
-            free_bal = db_client.curr_free_bal(curr_out)
-
-            out_res['lim_bal'] = lim_bal
-            out_res['may_pay'] = may_pay
-            out_res['free_bal'] = float(free_bal),
-
-    else:
-       out_res["wrong"] = "rate not found"
-
+    out_res = rates_lib.get_rate_for_api(db, curr_id, curr_out_id, vol_in)
 
     return request.extension == 'html' and dict(
         h=DIV(BEAUTIFY(out_res), _class='container')) or out_res
-
 
 
 # get URI for income exchanges
