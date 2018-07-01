@@ -26,7 +26,6 @@ def index():
                                       url_uri = "URI for auto open wallet or generate QR-code",
                                       lim_bal = "(False/True) - is limited on accept CURR_IN?",
                                       may_pay = "(0 or [amount]) - how namy echange may accept CURR_IN?",
-                                      url_uri = " - URI for cryptocurrency wallet",
                                       volume_in = "- need to pay by client",
                                       volume_out = " - will be taken by client")
                                    ),
@@ -40,7 +39,6 @@ def index():
                                       url_uri = "URI for auto open wallet or generate QR-code",
                                       lim_bal = "(False/True) - is limited on accept CURR_IN?",
                                       may_pay = "(0 or [amount]) - how namy echange may accept CURR_IN?",
-                                      url_uri = " - URI for cryptocurrency wallet",
                                       volume_in = "- need to pay by client",
                                       volume_out = " - will be taken by client")
                                    )
@@ -126,9 +124,11 @@ def get_rate():
 
 
 # get URI for income exchanges
-# https://127.0.0.1/apipay/get_uri/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_out]
+# http://127.0.0.1:8000/apipay/get_uri/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_out]
 # http://face2face.cash/apipay/get_uri/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - html
 # http://face2face.cash/apipay/get_uri.json/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - JSON
+# http://127.0.0.1:8000/ipay3_free/apipay/get_uri/2/9/3/39b83inCcbcpTKZWQXEwTaSe5d8kVEh4vC/0.1 - not my!
+ 
 
 ''' out parameters:
     free_bal - free balance for CURR_OUT inside exchange
@@ -208,7 +208,7 @@ def get_uri_out():
         if token_system_out:
             curr_block = rpc_erachain.get_info(token_system_out.connect_url)
             if type(curr_block) != type(1):
-                return mess('Connection to [%s] id lost, try lates ' % curr_out_name)
+                return mess('Connection to [%s] is lost, try later ' % curr_out_name)
             if rpc_erachain.is_not_valid_addr(token_system_out.connect_url, addr_out):
                 return mess('address not valid for ' + curr_out_name + ' - ' + addr_out)
             
@@ -220,7 +220,7 @@ def get_uri_out():
             except:
                 cc = None
             if not cc:
-                return mess('Connection to [%s] id lost, try lates ' % curr_out_name)
+                return mess('Connection to [%s] is lost, try later ' % curr_out_name)
             if crypto_client.is_not_valid_addr(cc, addr_out):
                 return mess('address not valid for - ' + curr_out_name + ' - ' + addr_out)
 
@@ -235,7 +235,7 @@ def get_uri_out():
         deal_acc_id = db_client.get_deal_acc_id(db, deal, addr_out, curr_out)
         deal_acc_addr = db_client.get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr_in, xcurr_in, x_acc_label)
         if not deal_acc_addr:
-            return mess('Connection to [%s] id lost, try lates ' % curr_in_name)
+            return mess('Connection to [%s] is lost, try later ' % curr_in_name)
 
         addr_in = deal_acc_addr.addr
         
@@ -301,6 +301,7 @@ def get_uri_out():
 # https://127.0.0.1/apipay/get_uri/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_out]
 # http://face2face.cash/apipay/get_uri/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - html
 # http://face2face.cash/apipay/get_uri.json/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - JSON
+# http://127.0.0.1:8000/ipay3_free/apipay/get_uri/2/9/3/39b83inCcbcpTKZWQXEwTaSe5d8kVEh4vC/0.1 - not my!
 
 ''' out parameters:
     free_bal - free balance for CURR_OUT inside exchange
@@ -380,7 +381,7 @@ def get_uri():
         if token_system_out:
             curr_block = rpc_erachain.get_info(token_system_out.connect_url)
             if type(curr_block) != type(1):
-                return mess('Connection to [%s] id lost, try lates ' % curr_out_name)
+                return mess('Connection to [%s] is lost, try later ' % curr_out_name)
             if rpc_erachain.is_not_valid_addr(token_system_out.connect_url, addr_out):
                 return mess('address not valid for ' + curr_out_name + ' - ' + addr_out)
             
@@ -392,7 +393,7 @@ def get_uri():
             except:
                 cc = None
             if not cc:
-                return mess('Connection to [%s] id lost, try lates ' % curr_out_name)
+                return mess('Connection to [%s] is lost, try later ' % curr_out_name)
             if crypto_client.is_not_valid_addr(cc, addr_out):
                 return mess('address not valid for - ' + curr_out_name + ' - ' + addr_out)
 
@@ -407,7 +408,7 @@ def get_uri():
         deal_acc_id = db_client.get_deal_acc_id(db, deal, addr_out, curr_out)
         deal_acc_addr = db_client.get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr_in, xcurr_in, x_acc_label)
         if not deal_acc_addr:
-            return mess('Connection to [%s] id lost, try lates ' % curr_in_name)
+            return mess('Connection to [%s] is lost, try later ' % curr_in_name)
 
         addr_in = deal_acc_addr.addr
         

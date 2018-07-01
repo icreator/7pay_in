@@ -104,7 +104,7 @@ def get():
         if token_system_out:
             curr_block = rpc_erachain.get_info(token_system_out.connect_url)
             if type(curr_block) != type(1):
-                return mess(T('Connection to [%s] id lost, try lates ') % curr_out_name)
+                return mess(T('Connection to [%s] is lost, try later ') % curr_out_name)
             if rpc_erachain.is_not_valid_addr(token_system_out.connect_url, addr_out):
                 return mess(T('address not valid for ') + curr_out_name + ' - ' + addr_out)
             
@@ -116,7 +116,7 @@ def get():
             except:
                 cc = None
             if not cc:
-                return mess(T('Connection to [%s] id lost, try lates ') % curr_out_name)
+                return mess(T('Connection to [%s] is lost, try later ') % curr_out_name)
             if crypto_client.is_not_valid_addr(cc, addr_out):
                 return mess(T('address not valid for - ') + curr_out_name + ' - ' + addr_out)
 
