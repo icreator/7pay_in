@@ -15,7 +15,13 @@ import serv_to_buy
 def index():
     return dict(get_rate = dict(url = "get_rate/[curr_in_id]/[curr_out_id]/[vol_in]?get_limits=1",
                                 pars = "get_limits - limits in result",
-                                result = "j"),
+                                result = ""
+                                ),
+                get_bals = dict(url = "get_bals/[curr_abbrev]",
+                                pars = dict(curr_abbrev = " - if set then balance for it currency only",
+                                            ),
+                                result = ""
+                                   ),
                 get_uri_out = dict(url = "get_uri_out/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_out]",
                                 pars = dict(deal_id = " - for coins exchange use 2",
                                             curr_in_id = " 3 - BTC, 10 - ERA",
