@@ -1,0 +1,59 @@
+{{extend 'layout.html'}}
+
+<div class="container">
+    <a class="block button blue-bgc right" style="margin-top:10px;padding-bottom:10px;"
+       href="{{=URL('default','index', scheme=True, host=True)}}?short"><h3>{{=T('Почему мы')}}?</h3></a>
+    <h1>{{=title}}</h1>
+    <h3>{{=subtitle}}</h3>
+    <div class="row">
+        <div class="col-10-sm">
+            <p>
+                {{=XML(T('Здесь Вы можете обменять цифровые активы, включая токены из блокчейн платформы %s между собой. Достаточно один раз задать значения обмена и получить крипто-адрес для приема актива, а затем переводить на этот адрес токены - обмен будет совершаться автоматически при условии что в нашей службе есть досточное количество цифрового актива для выплаты той криптовалюты, которая задана в обмене.') % '<a href="http://erachain.org" target="blank"><b>Erachain</b></a>')}}
+            </p>
+        </div>
+    </div>
+</div>
+
+<div id="indx" class="container">
+    <h2 class="center">1. {{=T('Выберите нужный Вам актив')}}, <br />
+        <small>{{=T('который Вы хотите получить после обмена (выменять)')}}</small>
+    </h2>
+        
+    {{i = 2
+    icol = 12 / i
+    ii = 1}}
+    <div class="row">
+    {{for r in inp_currs:}}
+    {{if ii > i:
+    ii = 1}}
+        </div>
+        <div class="row">
+            {{pass}}
+            <center class="col-sm-{{=icol}}" style="padding:15px;">
+                <a class="block button blue-bgc btn_sel" style="padding: 0;"
+                   onclick="ajax('{{=URL('to_coin','sel',args=[r[0]])}}',[], 'sel');$('.btn_sel').addClass('disabled');"
+                   >
+                    <h3 style="margin:5px;">
+                    <img src="{{=URL('static','images/currs') + '/' + r[1] + '.png'}}" width="60"></img>
+                     {{=r[1]}} {{#=r[2]}} 
+                    {{=T('есть')}} {{=r[3]}}
+                    </h3>
+                </a>
+            </center>
+        {{ii += 1}}
+    {{pass}}
+    </div>
+</div>
+<div id="sel"></div>
+<p>
+    
+</p>
+<div class="container">
+    {{=USE_TO_DEALS and CAT(T('Вы можете напрямую оплатить биткоинами разные услуги и дела, самые популярные из них'), ':',
+       LOAD('deal','most' )) or ''}}
+</div>
+<p>
+    
+</p>
+{{#import recl2
+#=XML(recl2.get1())}}

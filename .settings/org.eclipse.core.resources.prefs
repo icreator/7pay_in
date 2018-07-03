@@ -17,6 +17,7 @@ encoding//controllers/to_wallet.py=utf8
 encoding//controllers/to_wallet_ex.py=utf8
 encoding//controllers/tool_ed.py=utf-8
 encoding//controllers/tools.py=utf8
+encoding//controllers/where.py=utf8
 encoding//languages/ru.py=utf-8
 encoding//models/0.py=utf-8
 encoding//models/db.py=utf-8

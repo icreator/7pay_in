@@ -15,7 +15,13 @@ import serv_to_buy
 def index():
     return dict(get_rate = dict(url = "get_rate/[curr_in_id]/[curr_out_id]/[vol_in]?get_limits=1",
                                 pars = "get_limits - limits in result",
-                                result = "j"),
+                                result = ""
+                                ),
+                get_bals = dict(url = "get_bals/[curr_abbrev]",
+                                pars = dict(curr_abbrev = " - if set then balance for it currency only",
+                                            ),
+                                result = ""
+                                   ),
                 get_uri_out = dict(url = "get_uri_out/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_out]",
                                 pars = dict(deal_id = " - for coins exchange use 2",
                                             curr_in_id = " 3 - BTC, 10 - ERA",
@@ -47,6 +53,28 @@ def index():
 def mess(error):
     return '{"error": "%s"}' % error
 
+
+# get_bals/[curr]
+def get_bals():
+    import db_client
+
+    abbrev = request.args(0)
+
+    out_res = {}
+    for r in db(
+             (db.currs.used == True)
+             & (db.currs.id == db.xcurrs.curr_id)
+             & (not abbrev or db.currs.abbrev == abbrev)
+             ).select(orderby=~db.currs.uses):
+        free_bal = db_client.curr_free_bal(r.currs)
+        
+        if abbrev:
+            return free_bal
+
+        out_res[r.currs.abbrev] = free_bal
+    
+    return request.extension == 'html' and dict(
+        h=DIV(BEAUTIFY(out_res), _class='container')) or out_res
 
 # get_rate/curr_in_id/curr_out_id/vol_in?get_limits=1
 def get_rate():
