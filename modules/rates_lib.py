@@ -329,24 +329,40 @@ def top_line(db, curr, filter=[]):
 # get_rate/curr_in_id/curr_out_id/vol_in?get_limits=1
 def get_rate_for_api(db, curr_id, curr_out_id, vol_in, deal = None, dealer_deal = None, get_limits = None):
     import common
-        
+
+    if not curr_id:
+        return mess('curr in id...')        
     try:
         curr_id = int(curr_id)
-        vol_in = float(vol_in)
-        curr_out_id = int(curr_out_id)
+        curr_in = db.currs[ curr_id ]
     except:
-        return mess('digs...')
+        curr_in = db(db.currs.abbrev == curr_id).select().first()
+    if not curr_in:
+        return mess('curr in id...')
+    curr_id = curr_in.id
+
+    if not curr_out_id:
+        return mess('curr out id...')
+    try:
+        curr_out_id = int(curr_out_id)
+        curr_out = db.currs[ curr_out_id ]
+    except:
+        curr_out = db(db.currs.abbrev == curr_out_id).select().first()
+    if not curr_out:
+        return mess('curr out id...')
+    curr_out_id = curr_out.id
     
-    curr_in = db.currs[ curr_id ]
-    if not curr_in: return mess('curr...')
+    try:
+        vol_in = float(vol_in)
+    except:
+        return mess('vol digs...')
+    
     #xcurr_in = db(db.xcurrs.curr_id == curr_id).select().first()
     #if not xcurr_in: return mess('xcurr...')
 
-    if not curr_out_id: return mess('curr out id...')
-    curr_out = db.currs[ curr_out_id ]
-    if not curr_out: return mess('curr out...')
     #xcurr_out = db(db.xcurrs.curr_id == curr_out.id).select().first()
     #if not xcurr_out: return mess('xcurr out...')
+    
     curr_out_abbrev = curr_out.abbrev
     
     out_res = dict(
