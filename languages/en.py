@@ -215,6 +215,7 @@
 'Old password': 'Old password',
 'or import from csv file': 'or import from csv file',
 'Origin': 'Origin',
+'Other payment API': 'Other payment API',
 'Overview': 'Overview',
 'Oплатить биткоинами услуги': 'Oплатить биткоинами услуги',
 'Partners': 'Partners',
