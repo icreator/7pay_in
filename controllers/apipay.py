@@ -14,7 +14,10 @@ import serv_to_buy
 @cache.action(time_expire=time_exp, cache_model=cache.disk) #, vars=False, public=True, lang=True)
 def index():
     return dict(get_rate = dict(url = "get_rate/[curr_in_id]/[curr_out_id]/[vol_in]?get_limits=1",
-                                pars = "get_limits - limits in result",
+                                pars = dict(get_limits = " - limits in result",
+                                            curr_in_id = " - income currency as digit No. or as Abbreviation. For example: 3 or BTC",
+                                            curr_out_id = " - outcome currency as digit No. or as Abbreviation",
+                                            ),
                                 result = ""
                                 ),
                 get_bals = dict(url = "get_bals/[curr_abbrev]",
@@ -24,8 +27,8 @@ def index():
                                    ),
                 get_uri_in = dict(url = "get_uri_out/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_in]",
                                 pars = dict(deal_id = " - for coins exchange use 2",
-                                            curr_in_id = " 3 - BTC, 9 - ERA, 10 - COMPU",
-                                            curr_out_id = " 3 - BTC, 9 - ERA, 10 - COMPU",
+                                            curr_in_id = " - income currency as digit No. or as Abbreviation. For example: 3 or BTC",
+                                            curr_out_id = " - outcome currency as digit No. or as Abbreviation. 3 - BTC, 9 - ERA, 10 - COMPU",
                                             address_out = "address for out",
                                             amount_in = "amount You want to sell (income)"
                                             ),
@@ -39,8 +42,8 @@ def index():
                                    ),
                 get_uri = dict(url = "get_uri/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_out]",
                                 pars = dict(deal_id = " - for coins exchange use 2",
-                                            curr_in_id = " 3 - BTC, 10 - ERA",
-                                            curr_out_id = " 3 - BTC, 10 - ERA",
+                                            curr_in_id = " - income currency as digit No. or as Abbreviation. For example: 3 or BTC",
+                                            curr_out_id = " - outcome currency as digit No. or as Abbreviation. 3 - BTC, 9 - ERA, 10 - COMPU",
                                             address_out = "address for out",
                                             amount_out = "amount You want to buy (outcome)"
                                             ),
@@ -92,7 +95,11 @@ def get_rate():
             return mess('err...')
     
     curr_id = args(0) or vars.get('curr_in')
+    if not curr_id or len(curr_id) > 20:
+        return mess('error curr_out')
     curr_out_id = args(1) or vars.get('curr_out')
+    if not curr_out_id or len(curr_out_id) > 20:
+        return mess('error curr_out_id')
 
     vol_in = args(2) or vars.get('vol_in')
     if not vol_in or len(vol_in) > 20:
@@ -129,11 +136,41 @@ def get_uri_in():
     ##print args, '\n', request.vars
     if len(args) < 2: return mess('err...')
     deal_id = args(0)
-    curr_id = args(1)
-    curr_out_id = args(2)
+
+    curr_id = args(1) or vars.get('curr_in')
+    if not curr_id or len(curr_id) > 20:
+        return mess('error curr_in')
+    try:
+        curr_id = int(curr_id)
+        curr_in = db.currs[ curr_id ]
+        if not curr_in:
+            return mess('curr in id...')
+    except:
+        curr_in = db(db.currs.abbrev == curr_id).select().first()
+        curr_id = curr_in.id
+        if not curr_in:
+            return mess('curr in id...')
+        curr_id = curr_in.id
+
+    curr_out_id = args(2) or vars.get('curr_out')
+    if not curr_out_id or len(curr_out_id) > 20:
+        return mess('error curr_out')
+    try:
+        curr_out_id = int(curr_out_id)
+        curr_out = db.currs[ curr_out_id ]
+        if not curr_out:
+            return mess('curr out id...')
+    except:
+        curr_out = db(db.currs.abbrev == curr_out_id).select().first()
+        if not curr_out:
+            return mess('curr out id...')
+        curr_out_id = curr_out.id
+
+    
     addr_out = args(3)
-    if not deal_id.isdigit() or not curr_id.isdigit():
-        return mess('dig...')
+
+    #if not deal_id.isdigit() or not curr_id.isdigit():
+    #    return mess('dig...')
 
     vol = args(4)
     if not vol or len(vol) > 20:
@@ -141,7 +178,6 @@ def get_uri_in():
     
     try:
         vol = float(vol)
-        curr_id = int(curr_id)
     except:
         return mess('digs...')
 
@@ -157,14 +193,9 @@ def get_uri_in():
     deal = db.deals[ deal_id ]
     if not deal: return mess('deal...')
     
-    curr_in = db.currs[ curr_id ]
-    if not curr_in: return mess('curr...')
     xcurr_in = db(db.xcurrs.curr_id == curr_id).select().first()
     if not xcurr_in: return mess('xcurr...')
 
-    if not curr_out_id: return mess('curr out id...')
-    curr_out = db.currs[ curr_out_id ]
-    if not curr_out: return mess('curr out...')
     xcurr_out = db(db.xcurrs.curr_id == curr_out.id).select().first()
     if not xcurr_out: return mess('xcurr out...')
     curr_out_abbrev = curr_out.abbrev
