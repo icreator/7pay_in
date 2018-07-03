@@ -22,31 +22,35 @@ def index():
                                             ),
                                 result = ""
                                    ),
-                get_uri_out = dict(url = "get_uri_out/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_out]",
+                get_uri_in = dict(url = "get_uri_out/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_in]",
                                 pars = dict(deal_id = " - for coins exchange use 2",
-                                            curr_in_id = " 3 - BTC, 10 - ERA",
-                                            curr_out_id = " 3 - BTC, 10 - ERA",
+                                            curr_in_id = " 3 - BTC, 9 - ERA, 10 - COMPU",
+                                            curr_out_id = " 3 - BTC, 9 - ERA, 10 - COMPU",
+                                            address_out = "address for out",
+                                            amount_in = "amount You want to sell (income)"
                                             ),
                                 result = dict(free_bal = "free balance for CURR_OUT inside exchange",
                                       addr_in = "cryptocurrency address for income",
                                       url_uri = "URI for auto open wallet or generate QR-code",
                                       lim_bal = "(False/True) - is limited on accept CURR_IN?",
-                                      may_pay = "(0 or [amount]) - how namy echange may accept CURR_IN?",
-                                      volume_in = "- need to pay by client",
-                                      volume_out = " - will be taken by client")
+                                      may_pay = "(0 or [amount]) - how many exchange may accept CURR_IN?",
+                                      volume_in = "- amount You want to sell",
+                                      volume_out = " - amount You want to buy")
                                    ),
                 get_uri = dict(url = "get_uri/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_out]",
                                 pars = dict(deal_id = " - for coins exchange use 2",
                                             curr_in_id = " 3 - BTC, 10 - ERA",
                                             curr_out_id = " 3 - BTC, 10 - ERA",
+                                            address_out = "address for out",
+                                            amount_out = "amount You want to buy (outcome)"
                                             ),
                                 result = dict(free_bal = "free balance for CURR_OUT inside exchange",
                                       addr_in = "cryptocurrency address for income",
                                       url_uri = "URI for auto open wallet or generate QR-code",
                                       lim_bal = "(False/True) - is limited on accept CURR_IN?",
-                                      may_pay = "(0 or [amount]) - how namy echange may accept CURR_IN?",
-                                      volume_in = "- need to pay by client",
-                                      volume_out = " - will be taken by client")
+                                      may_pay = "(0 or [amount]) - how many exchange may accept CURR_IN?",
+                                      volume_in = "- amount You want to sell",
+                                      volume_out = " - amount You want to buy")
                                    )
                 )
 
@@ -102,10 +106,10 @@ def get_rate():
 
 
 # get URI for income exchanges
-# http://127.0.0.1:8000/apipay/get_uri/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_out]
-# http://face2face.cash/apipay/get_uri/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - html
-# http://face2face.cash/apipay/get_uri.json/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - JSON
-# http://127.0.0.1:8000/ipay3_free/apipay/get_uri/2/9/3/39b83inCcbcpTKZWQXEwTaSe5d8kVEh4vC/0.1 - not my!
+# http://127.0.0.1:8000/apipay/get_uri_in/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_in]
+# http://face2face.cash/apipay/get_uri_in/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - html
+# http://face2face.cash/apipay/get_uri_in.json/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - JSON
+# http://127.0.0.1:8000/ipay3_free/apipay/get_uri_in/2/9/3/39b83inCcbcpTKZWQXEwTaSe5d8kVEh4vC/0.1 - not my!
  
 
 ''' out parameters:
@@ -117,8 +121,8 @@ def get_rate():
     volume_out - will be taken by client
 '''
 
-# get_in/deal_id/curr_in_id/curr_out_id/addr/vol_in
-def get_uri_out():
+# get_uri_in/deal_id/curr_in_id/curr_out_id/addr/vol_in
+def get_uri_in():
     import rates_lib, common
 
     args = request.args
@@ -206,7 +210,7 @@ def get_uri_out():
     
     if token_system_in:
         deal_acc_id, deal_acc_addr = rpc_erachain.get_deal_acc_addr(db, deal_id, curr_out, addr_out, token_system_in.account, xcurr_in)
-        addr_in =  token_system_in.account
+        addr_in = token_system_in.account
         pass
     else:
         x_acc_label = db_client.make_x_acc(deal, addr_out, curr_out_abbrev)
