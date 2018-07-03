@@ -96,15 +96,16 @@ def get_unconf_incomes(rpc_url, addr):
     recs = rpc_request(rpc_url + '/transactions/unconfirmedincomes/' + addr)
     return recs
 
-def get_transactions(rpc_url, addr, from_block=2):
+def get_transactions(rpc_url, addr, from_block=2, conf=2):
     
     result = []
 
     height = rpc_request(rpc_url + "/blocks/height")
     i = from_block
     
-    while i < height:
-        if i - from_block > 3000:
+    ## TODO + confirmed HARD
+    while i + conf <= height:
+        if len(result) > 10 or i - from_block > 3000:
             break
 
         i += 1
@@ -121,6 +122,7 @@ def get_transactions(rpc_url, addr, from_block=2):
         result += recs
     
     return result, i
+
 
 def send(db, curr, xcurr, addr, amo, token_system = None, token = None):
     
