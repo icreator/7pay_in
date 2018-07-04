@@ -17,7 +17,7 @@ import db_common
 import db_client
 
 def mess(error):
-    return '{"error": "%s"}' % error
+    return dict(error = error)
 
 # удалим из стека просроченные чтобы не мешались
 def check_orders(db):
