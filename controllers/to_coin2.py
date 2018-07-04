@@ -35,6 +35,17 @@ def err_dict(m, not_add_err=False):
     response.view = 'views/generic.html'
     return dict(h = mess(m + ( not_add_err and ' ' or ', ' + 'просьба сообщить об ошибке в службу поддержки!')))
 
+def get_uri_in():
+    print request.vars
+    import rates_lib
+    result = rates_lib.get_rate_for_api(db, request.vars.get('curr_in'), request.vars.get('curr_out'), request.vars.get('vol_in'), get_limits = True)
+    print result
+
+    response.js = "$('.go2-btn').removeClass('disabled');$('#go2').children('i').removeClass('fa-refresh fa-spin').addClass('fa-search');"
+
+    import gluon.contrib.simplejson
+    return CAT(gluon.contrib.simplejson.dumps(result))
+
 
 def get_rate():
     print request.vars
@@ -47,11 +58,6 @@ def get_rate():
     import gluon.contrib.simplejson
     return CAT(gluon.contrib.simplejson.dumps(result))
     
-
-###############################################################
-# /deal_id/curr_id
-def sel():
-    return dict()
 
 ################# used INCOME AMOUNT ###########################################
 ###  pars:
@@ -97,14 +103,16 @@ def index():
         
         input_currs.append(
             (
-            CAT(IMG(_src=URL('static', 'images/currs/' + r.currs.abbrev + '.png'), _width=30, _alt=''),
-                        ' ', r.currs.name, ' ', free_bal), False, '' # URL()
+            SPAN(IMG(_src=URL('static', 'images/currs/' + r.currs.abbrev + '.png'), _width=30, _alt=''),
+                        ' ', r.currs.name, ' ', free_bal,
+                _onclick='$("#curr_in").val("' + r.currs.abbrev + '");'), False, ''
                   )
             )
         output_currs.append(
             (
-            CAT(IMG(_src=URL('static', 'images/currs/' + r.currs.abbrev + '.png'), _width=30, _alt=''),
-                        ' ', r.currs.name, ' ', free_bal), False, '' #URL()
+            SPAN(IMG(_src=URL('static', 'images/currs/' + r.currs.abbrev + '.png'), _width=30, _alt=''),
+                        ' ', r.currs.name, ' ', free_bal,
+                _onclick='$("#curr_out").val("' + r.currs.abbrev + '");'), False, ''
                   )
             )
 
@@ -115,11 +123,15 @@ def index():
 
     
     input_currs = [
-        (input_currs[1][0],
+        (
+            TAG.i(_class='fa fa-search go-btn- button- ll-blue-bgc- center', _style='width:100px;',
+                    ),
             False, None, input_currs)
         ]
     output_currs = [
-        (output_currs[3][0],
+        (
+            TAG.i(_class='fa fa-search go-btn- button- ll-blue-bgc- center', _style='width:100px;',
+                  ),
             False, None, output_currs)
         ]
 
