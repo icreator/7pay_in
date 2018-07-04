@@ -85,7 +85,7 @@ def get_bals():
 
 # get_rate/curr_in_id/curr_out_id/vol_in?get_limits=1
 def get_rate():
-    import rates_lib, common
+    import db_client, rates_lib, common
 
     args = request.args
     vars = request.vars
@@ -107,6 +107,14 @@ def get_rate():
     
     out_res = rates_lib.get_rate_for_api(db, curr_id, curr_out_id, vol_in,
                                          deal = db.deals[current.TO_COIN_ID], get_limits = vars.get('get_limits'))
+
+    lim_bal, may_pay = db_client.is_limited_ball(out_res['curr_in_rec'])
+    out_res['lim_bal'] = lim_bal
+    out_res['may_pay'] = may_pay
+
+    out_res.pop('curr_in_rec')
+    del out_res['curr_out_rec']
+
 
     return request.extension == 'html' and dict(
         h=DIV(BEAUTIFY(out_res), _class='container')) or out_res

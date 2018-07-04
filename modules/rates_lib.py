@@ -369,6 +369,8 @@ def get_rate_for_api(db, curr_id, curr_out_id, vol_in, deal = None, dealer_deal 
            volume_in = vol_in,
            curr_in = curr_in.abbrev,
            curr_out = curr_out.abbrev,
+           curr_in_rec = curr_in,
+           curr_out_rec = curr_out
           )
 
 
