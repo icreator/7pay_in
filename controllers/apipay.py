@@ -18,7 +18,14 @@ def index():
                                             curr_in_id = " - income currency as digit No. or as Abbreviation. For example: 3 or BTC",
                                             curr_out_id = " - outcome currency as digit No. or as Abbreviation",
                                             ),
-                                result = ""
+                                result = dict(free_bal = "free balance for CURR_OUT inside exchange",
+                                      addr_in = "cryptocurrency address for income",
+                                      url_uri = "URI for auto open wallet or generate QR-code",
+                                      lim_bal = "(False/True) - is limited on accept CURR_IN?",
+                                      may_pay = "(0 or [amount]) - how many exchange may accept CURR_IN?",
+                                      volume_in = "- amount You want to sell",
+                                      volume_out = " - amount You want to buy"
+                                   )
                                 ),
                 get_bals = dict(url = "get_bals/[curr_abbrev]",
                                 pars = dict(curr_abbrev = " - if set then balance for it currency only",
@@ -107,10 +114,6 @@ def get_rate():
     
     out_res = rates_lib.get_rate_for_api(db, curr_id, curr_out_id, vol_in,
                                          deal = db.deals[current.TO_COIN_ID], get_limits = vars.get('get_limits'))
-
-    lim_bal, may_pay = db_client.is_limited_ball(out_res['curr_in_rec'])
-    out_res['lim_bal'] = lim_bal
-    out_res['may_pay'] = may_pay
 
     out_res.pop('curr_in_rec')
     del out_res['curr_out_rec']
