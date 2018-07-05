@@ -36,28 +36,55 @@ def err_dict(m, not_add_err=False):
     return dict(h = mess(m + ( not_add_err and ' ' or ', ' + 'просьба сообщить об ошибке в службу поддержки!')))
 
 def get_uri_in():
-    print request.vars
+    h, result = get_rate_result(request)
+    addr = request.vars.get('addr')
+    
+    return h
+
+
+def get_rate_result(request):
     import rates_lib
     result = rates_lib.get_rate_for_api(db, request.vars.get('curr_in'), request.vars.get('curr_out'), request.vars.get('vol_in'), get_limits = True)
-    print result
-
-    response.js = "$('.go2-btn').removeClass('disabled');$('#go2').children('i').removeClass('fa-refresh fa-spin').addClass('fa-search');"
-
-    import gluon.contrib.simplejson
-    return CAT(gluon.contrib.simplejson.dumps(result))
-
-
-def get_rate():
-    print request.vars
-    import rates_lib
-    result = rates_lib.get_rate_for_api(db, request.vars.get('curr_in'), request.vars.get('curr_out'), request.vars.get('vol_in'), get_limits = True)
-    print result
 
     response.js = "$('.go-btn').removeClass('disabled');$('#go').children('i').removeClass('fa-refresh fa-spin').addClass('fa-search');"
 
-    import gluon.contrib.simplejson
-    return CAT(gluon.contrib.simplejson.dumps(result))
-    
+    if 'wrong' in result:
+        h = CAT(
+            H2(XML(T('Обменный курс %s/%s не найден') % (B(result['curr_in']), B(result['curr_out']))), '', _class='alert_value'),
+            P(T('Возможно это носит временный характер. Вы можете совершить платеж по предоставленным платежным реквизитом и ваша заявка автоматически сработает при появлении курса обмена на сервисе и при условии что нужные Вам средства есть на сервисе в достаточном объеме'), '.')
+            )
+        return h
+
+    print result
+
+    #import gluon.contrib.simplejson
+    #return CAT(gluon.contrib.simplejson.dumps(result))
+    h = CAT()
+    if result['rate_out'] <= 0:
+        h += CAT(
+            H2(
+               XML(T('Введена слишком маленькая величина для обмена: %s. Введите значение больше') % (B(result['volume_in'], '[', result['curr_in'], ']'))), '', _class='alert_value'))
+        return h
+        
+    h += H2(T('Найден курс обмена для'), ' ', B(result['volume_in'], '[', result['curr_in'], ']'), ': x ', SPAN(B(result['rate_out']), _class='rate_succes'))
+
+    if result['free_bal'] - result['volume_out'] < 0:
+        h += CAT(H2(T('Сейчас на сервисе недостаточно средств'), ' ', B(result['curr_out']), _class='alert_value'),
+            P(XML(T('Скорее всего это носит временный характер. Вы можете совершить платеж по предоставленным платежным реквизитом и ваша заявка автоматически сработает при появлении на сервисе нужных Вам средств %s в достаточном объеме и при условии что курс обмена будет доступен') % ('<b>'+result['curr_out']+'</b>')), '. ',
+             T('Для исполнения вашей заявки необходимо чтобы на сервисе появилось еще'), ' ', B(result['volume_out'] - result['free_bal'],
+              '[', result['curr_out'], ']', _class='alert_value'))
+            )
+
+    if result['lim_bal'] > 0 and result['may_pay'] < result['volume_in']:
+        h += CAT(H2(T('Сейчас сервис не готов принять всю вашу сумму'), ' ', B(result['curr_in']), _class='alert_value'),
+            P(XML(T('Скорее всего это носит временный характер. Вы можете совершить платеж по предоставленным платежным реквизитом и ваша заявка автоматически сработает когда остатки %s на сервисе уменьшатся до %s и при условии что на сервисе досточно нужных Вам средств %s и что курс обмена доступен') % ('<b>'+result['curr_in']+'</b>', B(result['volume_in'], '[', result['curr_in'], ']'), '<b>'+result['curr_out']+'</b>')), '. ', T('Либо уменьшите количество обмена до'), ' ', B(result['may_pay'], '[',result['curr_in'],']', _class='alert_value'))
+            )
+
+    return h, result
+
+def get_rate():
+    h, _ = get_rate_result(request)
+    return h
 
 ################# used INCOME AMOUNT ###########################################
 ###  pars:
@@ -69,8 +96,8 @@ def index():
     #common.page_stats(db, response['view'])
     #print request.args
 
-    response.title=T("Обмен цифровых активов")
-    response.subtitle = T('Bitcoin Erachaim')
+    response.title=T("Exchange Bitcoin and ERA, COMPU")
+    response.subtitle = T('Bitcoin Erachain Gate')
 
     abbrev = request.args(0)
     addr = request.args(1)
@@ -103,17 +130,22 @@ def index():
         
         input_currs.append(
             (
-            SPAN(IMG(_src=URL('static', 'images/currs/' + r.currs.abbrev + '.png'), _width=30, _alt=''),
-                        ' ', r.currs.name, ' ', free_bal,
-                _onclick='$("#curr_in").val("' + r.currs.abbrev + '");'), False, ''
-                  )
+                ## need DIV insead SPAN
+            DIV(IMG(_src=URL('static', 'images/currs/' + r.currs.abbrev + '.png'), _width=30, _alt=''),
+                        ' ', SPAN(r.currs.name, _style='font-size:22px'),
+                _onclick='$("#curr_in").val("' + r.currs.abbrev + '");', # _style='margin: 0px -20px; padding: 10px 40px 10px 30px;'
+                 _style='margin: 0px -20px; padding: 5px 20px 5px 20px; font-size:22px'
+                ), False, ''
+              )
             )
         output_currs.append(
             (
-            SPAN(IMG(_src=URL('static', 'images/currs/' + r.currs.abbrev + '.png'), _width=30, _alt=''),
-                        ' ', r.currs.name, ' ', free_bal,
-                _onclick='$("#curr_out").val("' + r.currs.abbrev + '");'), False, ''
-                  )
+            DIV(IMG(_src=URL('static', 'images/currs/' + r.currs.abbrev + '.png'), _width=30, _alt=''),
+                        ' ', SPAN(r.currs.name, _style='font-size:22px'), ' ', free_bal,
+                _onclick='$("#curr_out").val("' + r.currs.abbrev + '");', # _style='margin: 0px -20px; padding: 10px 40px 10px 30px;'
+                 _style='margin: 0px -20px; padding: 5px 20px 5px 20px; font-size:24px'
+                 ), False, ''
+              )
             )
 
     if len(inp_currs)==0:
@@ -124,13 +156,13 @@ def index():
     
     input_currs = [
         (
-            TAG.i(_class='fa fa-search go-btn- button- ll-blue-bgc- center', _style='width:100px;',
+            TAG.i(_class='fa fa-search go-btn- button- ll-blue-bgc- center', _style='width:50px;',
                     ),
             False, None, input_currs)
         ]
     output_currs = [
         (
-            TAG.i(_class='fa fa-search go-btn- button- ll-blue-bgc- center', _style='width:100px;',
+            TAG.i(_class='fa fa-search go-btn- button- ll-blue-bgc- center', _style='width:50px;',
                   ),
             False, None, output_currs)
         ]

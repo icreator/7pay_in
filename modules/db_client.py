@@ -18,7 +18,7 @@ def is_limited_ball(curr_in):
     bal_dep = Decimal(curr_in.balance or 0) - Decimal(curr_in.deposit or 0)
     if max_bal and max_bal > 0:
         return max_bal, max_bal - bal_dep
-    return False, 0
+    return 0, 0
 
 def make_x_acc(deal, acc, curr_out_abbrev):
     # это имя аккаунта в моем кошельке какое будет

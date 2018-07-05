@@ -400,7 +400,7 @@ def get_rate_for_api(db, curr_id, curr_out_id, vol_in, deal = None, dealer_deal 
 
             out_res['lim_bal'] = lim_bal
             out_res['may_pay'] = may_pay
-            out_res['free_bal'] = float(free_bal),
+            out_res['free_bal'] = float(free_bal)
 
     else:
        out_res["wrong"] = "rate not found"
