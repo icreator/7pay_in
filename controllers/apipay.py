@@ -115,8 +115,9 @@ def get_rate():
     out_res = rates_lib.get_rate_for_api(db, curr_id, curr_out_id, vol_in,
                                          deal = db.deals[current.TO_COIN_ID], get_limits = vars.get('get_limits'))
 
-    out_res.pop('curr_in_rec')
-    del out_res['curr_out_rec']
+    if 'curr_in_rec' in out_res:
+        out_res.pop('curr_in_rec')
+        del out_res['curr_out_rec']
 
 
     return request.extension == 'html' and dict(

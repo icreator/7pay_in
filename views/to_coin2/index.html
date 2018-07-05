@@ -12,48 +12,72 @@
     <h2 class="center"{{=T('Что вы хотите продать, в каком количестве и за что')}}, <br />
     </h2>
 
-    <form action="javascript: void(0);" enctype="multipart/form-data" method="post" id="inp_f">
+    <form action="javascript: void(0);" enctype="multipart/form-data" method="get" id="set">
     <div class="row">
-        <div class="col-lg-2 col-md-1 col-sm-0">
-        </div>
-
         
+        <div class="col-sm-1">
+            <input name="curr_in" value=BTC id="curr_in" type="text" placeholder="{{=T('I Sell')}}" />
+        </div>
         <div class="col-sm-2">
-                
-             {{=MENU(input_currs, _class='nav navbar-nav navbar-nav ', _style='background-color: #26198a;',
+             {{=MENU(input_currs, _class='nav navbar-nav ', _style='background-color: #26198a; padding:0px',
                 li_class='dropdown',ul_class='dropdown-menu')}}
-                    </div>
+        </div>
         <div class="col-sm-2">
-            <input name="curr_in" id="curr_in" type="text" placeholder="{{=T('Вход')}}" />
-            <input class="blue-c" name="vol_in" placeholder="{{=T('Количество')}}"
+            <input class="blue-c" name="vol_in" value=0.1 placeholder="{{=T('Количество')}}"
                autofocus="1" id="vol_in"
                style="  width: 90%; padding:5px; margin-bottom:25px;"
                type="text" />
-            <input name="curr_out" id="curr_out" type="text" placeholder="{{=T('Выход')}}" />
+        </div>
+        <div class="col-sm-1">
+            <input name="curr_out" value=COMPU id="curr_out" type="text" placeholder="{{=T('I Buy')}}" />
         </div>
         <div class="col-sm-2">
-             {{=MENU(output_currs, _class='nav navbar-nav navbar-nav right-', _style='background-color: #26198a;',
+             {{=MENU(output_currs, _class='nav navbar-nav ', _style='background-color: #26198a; padding:0px',
                 li_class='dropdown',ul_class='dropdown-menu')}}
         </div>
         <div class="col-sm-2">
-            <div class="col-sm-12">
                 
-            {{=A(TAG.i(_class='fa fa-search', _style='width:100px; font-size: 30px;padding: 5px;'),
+            {{=A(TAG.i(_class='fa fa-search', _style='width:100px; font-size:24px;'),
                     _id = 'go',
                     _onclick='ajax("'+URL('to_coin2', 'get_rate')+'", ["curr_in", "vol_in", "curr_out"], "tag");$(".go-btn").addClass("disabled");$(this).children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");',
                     _class='go-btn button ll-blue-bgc center navbar-nav',
                     )}}
                 <button class="go-btn hidden"
-                    onclick='ajax("{{=URL('to_coin2', 'get_rate')}}", ["curr_in", "amo_in", "curr_out"], "tag");$(".go-btn").addClass("disabled");$("#go").children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");'
+                    onclick='ajax("{{=URL('to_coin2', 'get_rate')}}", ["curr_in", "vol_in", "curr_out"], "tag");$(".go-btn").addClass("disabled");$("#go").children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");'
                     type='submit'
                         />
-            </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-sm-12" id="tag"></div>
+    </div>
     </form>
-        <div class="row">
-            <div class="col-sm-12" id="tag"></div>
+
+    <form action="javascript: void(0);" enctype="multipart/form-data" method="get" id="get_uri">
+
+    <div class="row">
+        <div class="col-sm-7">
+            <input class="blue-c" name="addr" placeholder="{{=T('WALLET ADDRESS')}}"
+               autofocus="1" id="addr"
+               style="  width: 100%; padding:5px; margin-bottom:25px;"
+               type="text" />
         </div>
+        <div class="col-sm-3">
+            {{=A(TAG.i(_class='fa fa-search', _style='width:100px; font-size: 24px;'),
+                    _id = 'go2',
+                    _onclick='ajax("'+URL('to_coin2', 'get_uri_in')+'", ["curr_in", "vol_in", "curr_out", "addr"], "tag2");$(".go2-btn").addClass("disabled");$(this).children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");',
+                    _class='go2-btn button ll-blue-bgc center navbar-nav',
+                    )}}
+                <button class="go2-btn hidden"
+                    onclick='ajax("{{=URL('to_coin2', 'get_uri_in')}}", ["curr_in", "vol_in", "curr_out", "addr"], "tag2");$(".go2-btn").addClass("disabled");$("#go2").children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");'
+                    type='submit'
+                        />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12" id="tag2"></div>
+    </div>
+    </form>
 </div>
 
 <p>

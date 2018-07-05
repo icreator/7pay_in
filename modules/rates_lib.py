@@ -17,7 +17,7 @@ import db_common
 import db_client
 
 def mess(error):
-    return '{"error": "%s"}' % error
+    return dict(error = error)
 
 # удалим из стека просроченные чтобы не мешались
 def check_orders(db):
@@ -327,11 +327,11 @@ def top_line(db, curr, filter=[]):
 
 
 # get_rate/curr_in_id/curr_out_id/vol_in?get_limits=1
-def get_rate_for_api(db, curr_id, curr_out_id, vol_in, deal = None, dealer_deal = None, get_limits = None):
+def get_rate_for_api(db, curr_id, curr_out_id, vol_in, deal = None, dealer_deal = None, get_limits = None, get_currs = None):
     import common
 
     if not curr_id:
-        return mess('curr in id...')        
+        return mess('curr in id...')
     try:
         curr_id = int(curr_id)
         curr_in = db.currs[ curr_id ]
@@ -368,11 +368,12 @@ def get_rate_for_api(db, curr_id, curr_out_id, vol_in, deal = None, dealer_deal 
     out_res = dict(
            volume_in = vol_in,
            curr_in = curr_in.abbrev,
-           curr_out = curr_out.abbrev,
-           curr_in_rec = curr_in,
-           curr_out_rec = curr_out
+           curr_out = curr_out.abbrev
           )
 
+    if get_currs:
+       out_res['curr_in_rec'] = curr_in
+       out_res['curr_out_rec'] = curr_out
 
     pr_b, pr_s, pr_avg = get_average_rate_bsa(db, curr_in.id, curr_out.id, None)
     if pr_avg:
