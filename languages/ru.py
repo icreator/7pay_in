@@ -157,6 +157,7 @@
 'Config.ini': 'Config.ini',
 'Confirm Password': 'Confirm Password',
 'Connection to [%s] id lost, try lates ': 'Connection to [%s] id lost, try lates ',
+'Connection to [%s] is lost, try later ': 'Connection to [%s] is lost, try later ',
 'contains': 'contains',
 'Controller': 'Controller',
 'Copyright': 'Copyright',
