@@ -41,6 +41,7 @@ def get_uri_in():
     response.js = "$('.go2-btn').removeClass('disabled');$('#go2').children('i').removeClass('fa-refresh fa-spin').addClass('fa-search');"
 
     h, result = get_rate_result(request, get_currs = True)
+    print result
     
     addr_out = request.vars.addr
     #print request.vars
@@ -146,11 +147,11 @@ def get_uri_in():
         DIV(okIN and ' ' or H3(T('ПРАВИЛА ОПЛАТЫ'), _class='center'),
            P(T('При оплате необходимо соблюдать следующие правила:')),
            UL(
-                T('Желательно задать обратный адрес для возврата монет на случай если наша служба по каким-либо причинам не сможет совершить оплату по делу [%s]') % deal.name,
-                T('Если Вы не задали обратный адрес для возврата монет, то необходимо платить биткоины и другую криптовалюту только со своего кошелька, задав адреса входов, которыми Вы действительно обладаете, а не с кошельков бирж, пулов или разных онлайн-кошельков. Так как монеты, в случае если платеж будет отвергнут нашим партнёром, могут автоматически вернуться только на адрес отправителя.'),
+                #T('Желательно задать обратный адрес для возврата монет на случай если наша служба по каким-либо причинам не сможет совершить оплату по делу [%s]') % deal.name,
+                T('Желательно производить плату только со своего кошелька, задав адреса входов, которыми Вы действительно обладаете, а не с кошельков бирж, пулов или онлайн-кошельков. Так как при отправке со своего личного кошелька Вы всегда сможете доказать что это Ваш платеж.'),
                 T('Комиссия сети добавляется к сумме для обмена, о чем указывается ниже.'),
                 T('Если Вы оплатите другую сумму, то курс обмена может немножко измениться'),
-                T('Если Вы платите регулярно, то можете платить на тот же адрес кошелька криптовалюты, что получили ранее. Хотя желательно заходить на нашу службу для получения новостей хотябы раз в пол года или подписаться на важные новости и сообщения оставив свой емайл.'),
+                T('Если Вы платите регулярно, то можете далее платить на тот же адрес кошелька криптовалюты, что получили ранее с указанием тех же деталей платежа. Хотя желательно заходить на нашу службу для получения новостей хотябы раз в пол года или подписаться на важные новости и сообщения оставив свой емайл.'),
                 ),
             H4(A(T('Понятно'), _onclick='$(".okIN").hide("fast");ajax("%s")'
               % URL('aj','ok_to',args=['Wt']), _class='button warn'), _class='center'),
@@ -176,24 +177,16 @@ def get_uri_in():
     adds_mess = XML(gifts_lib.add_mess_curr(deal_acc, curr_out, T))
     if adds_mess:
         h += sect(XML(adds_mess), 'gift-bgc pb-10 pb-10')
-    
 
-    if 'rate_out' not in result:
-        return h
+    hh = CAT(H2(T('Реквизиты оплаты'), _class='center'))
 
-    hh = CAT(H2(T('Оплатите по данным реквизитам'), _class='center'))
-
-    best_rate = result['rate_out']
-    if best_rate:
+    if 'base_rate' in result:
+        base_rate = result['base_rate']
         is_order = True
         dealer_deal = None
-        # сначала открутим обратную таксу
-        txfee = float(xcurr_out.txfee or 0.0001)
-        ## теперь таксы для человека получим и должна та же цифра выйти
         volume_out, tax_rep = db_client.calc_fees(db, deal, dealer_deal, curr_in, curr_out, volume_in,
-                                           best_rate, is_order, note=1)
+                                           base_rate, is_order, note=1)
 
-        ##volume_in = common.rnd_8(volume_in)
         volume_out = common.rnd_8(volume_out)
         rate_out = volume_out / volume_in
         #print 'rate_out', rate_out, 'volume_in', volume_in, 'volume_out', volume_out
@@ -206,68 +199,54 @@ def get_uri_in():
             )
         # теперь стек добавим, который будем удалять потом
         db.orders_stack.insert( ref_ = order_id )
-        hh += DIV(
-            T('Создан заказ №%s') % order_id,' ',
-            T('на заморозку обменного курса по'), ' ', rate_out,
-            ' (',T('обратный курс'), ' ', round(1.0/float(rate_out),8),') ',
+        txfee = float(xcurr_out.txfee or 0.0001)
+        hh += DIV(P(
+            T('Создан заказ №%s') % order_id,' ', T('на заморозку обменного курса по'), ' ', rate_out,
+            ' (', T('обратный курс'), ' ', round(1.0/float(rate_out),8),') ',
             T('для объема'),' ',volume_out, ' ', curr_out_abbrev, ' (', T('с учётом комиссии сети'),' ',txfee,').',
-            H5('*',T('Данный курс будет заморожен для Вас на 20 минут для объёма криптовалюты не больше указанного. Проверить можно по номеру заказа в списке платежей.')),
+            H5('*',T('Данный курс будет заморожен для Вас на 20 минут для объёма криптовалюты не больше указанного. Проверить можно по номеру заказа в списке платежей.'))),
             _class='row')
     else:
-        volume_in = volume_out = rate_out = tax_rep = None
-        hh += mess('[' + curr_in_name + '] -> [' + curr_out_name + ']' + T(' - лучшая цена не доступна.') + T('Но Вы можете оплатить вперед'), 'warning pb-10')
+        base_rate = volume_out = rate_out = tax_rep = None
 
     _, url_uri = common.uri_make( curr_in.name2, addr_in, {'amount':volume_in, 'label': db_client.make_x_acc_label(deal, addr_out, curr_out_abbrev)})
 
-    curr_in_abbrev = curr_in.abbrev
-
     if token_system_in:
-        addr_out_full = (token_system_out and ('%d' % token_out.token_key) or curr_out.abbrev) + ':' + addr_out
+        addr_out_full = (token_system_out and ('%d' % token_out.token_key) or curr_out_abbrev) + ':' + addr_out
     else:
         addr_out_full = addr_out
 
     free_bal = result['free_bal']
-    lim_bal_mess = '***'
     hh += DIV(
         P(
-        T('Оплата обмена на'), ' ',curr_out_abbrev, ' ', T('с выплатой монет на адрес'),  ': ',
-        addr_out, '. ', T('Текущая сумма обмена'), ' ', volume_out, ' ', curr_out_abbrev,' (',
-            T('с учётом комиссии сети'),') ',
-        ' ', T('из доступных в службе'), ' ', free_bal, '. ',
-        T('Так же Вы можете делать ещё платежи на созданый %s адрес для совершения автоматического обмена %s на %s по текущему курсу.') % (curr_in_name, curr_in_name, curr_out_name),
+        T('Оплата обмена на'), ' ',curr_out_abbrev, ' ', T('с выплатой монет на адрес'),  ': ', addr_out, '. ',
+        CAT(T('Текущая сумма обмена'), ' ', volume_out, ' ', curr_out_abbrev,' (', T('с учётом комиссии сети'),') ',
+        ' ', T('из доступных в службе')) if volume_out else CAT(T('Доступно в службе')),
+        ' ', free_bal, '. '),
+        P(T('Вы можете делать ещё платежи на созданый %s адрес для совершения автоматического обмена %s на %s по текущему курсу.') % (curr_in_name, curr_in_name, curr_out_name),
         ),
-        volume_out > free_bal and P(
-                        H3(T('Сейчас средств на балансе меньше чем Вам надо'), _style='color:crimson;'),
-                        SPAN(T('Поэтому Ваш заказ будет исполнен позже'), BR(),
-                        T('когда на балансе службы появится достаточно средств'), _style='color:black;'), BR(),
-                        ) or '',
-        lim_bal_mess,
         DIV(CENTER(
             A(SPAN(T('Оплатить'),' ', volume_in or '', ' ',
             IMG(_src=URL('static','images/currs/' + curr_in_abbrev + '.png'), _width=50)),
             _class='block button blue-bgc', _style='font-size:x-large; max-width:500px; margin:0px 7px;',
             _href=url_uri),
+            H5(T('Если кошелек не запускается автоматически, произведите оплату вручную по указанным ниже реквизитам, см. ниже')),
                     ),
             _class='row'
-            ) if not token_system_in else '',
+            ) if True or not token_system_in else '',
         BR(),
-        DIV(
-            A(T('Показать QR-код'),  _class='btn btn-info',
-               ##_onclick="jQuery(this).parent().html('%s')" % IMG(_src=URL('static','images/loading.gif'), _width=64),
+        DIV(H3(A(T('Показать QR-код'),
                _onclick="jQuery(this).parent().html('<i class=\"fa fa-spin fa-refresh\" />')",
                callback=URL('plugins','qr', vars={'mess': url_uri}),
-               target='tag0',
-               #delete='div#tag0'
-               ),
-            _id='tag0'),
-        H3(T('или')),
-        T('Оплатите вручную'), '. ',# 'URI:', url_uri,'. ',
-        T("Для этого скопируйте значения полей (двойной клик по полю для выделения) и вставьте их в платеж на вашем кошельке"), ': ',
+               target='tagQR',
+               _class='button blue-bgc right'), _class='pull-right-'), _class='col-sm-12', _id='tagQR'),
+        T('Для оплаты вручную скопируйте детали платежа в свой кошелек'), ': ',
+        H5(T("Двойной клик по полю или нажмите Ctrl-A внутри поля для выделения в поле всех данных. Далее нажмите Ctrl-C для копирования выделенного в буфер обмена")),
         FORM( ## ВНИМАНИЕ !!! тут имена полей надо другие указывать или
             # FORM в основной делать тоже иначе они складываются
-            LABEL(T("Volume")), " ", INPUT(_name='v', value=volume_in, _class="pay_val", _readonly=''), curr_in_abbrev, BR(),
-            LABEL(T("Получатель")), " ", INPUT(_name='addr_in', _value=addr_in, _class='wallet', _readonly=''), BR(),
-            CAT(LABEL(T("Назначение (вставьте в заголовок платежа)")), " ", INPUT(_name='addr_out', _value=addr_out_full, _class='wallet', _readonly=''), BR()) if token_system_in else '',
+            LABEL(T("Volume"),":"), " ", INPUT(_name='v', value=volume_in, _class="pay_val", _readonly=''), curr_in_abbrev, BR(),
+            LABEL(T("Получатель"),":"), " ", INPUT(_name='addr_in', _value=addr_in, _class='wallet', _readonly=''), BR(),
+            CAT(LABEL(T("Назначение (вставьте в заголовок платежа или в тело сообщения, которое так же можно зашифровать)"),":"), " ", INPUT(_name='addr_out', _value=addr_out_full, _class='wallet', _readonly=''), BR()) if token_system_in else '',
             #T('Резервы службы'), ' ', B(free_bal), ' ', T('рублей'), BR(),
             #LOAD('where', 'for_addr', vars={'addr': addr_in}, ajax=True, times=100, timeout=20000,
             #    content=IMG(_src=URL('static','images/loading.gif'), _width=48)),
@@ -283,21 +262,22 @@ def get_uri_in():
     
     h += sect(hh, 'bg-info pb-10')
 
-    h += sect(DIV(DIV(
-        H3(T('Почему получился такой курс?')),
-        tax_rep, BR(),
-        T('При этом Вы получаете следующие преимущества при обмене криптовалют у нас'),':',
-        UL(
-            [
-                T('Вы можете теперь постоянно делать обмен со своего кошелька на полученный адрес даже не заходя на наш сайт'),
-                T('не нужно нигде регистрироваться'),
-                T('не нужно делать подтверждения по СМС или по емайл'),
-                T('обмен производится быстро и автоматически'),
-                T('Вам не нужно хранить свои деньги у нас'),
-            ]
-        ),
-        T('Время - деньги!'),
-        _class='col-sm-12'), _class='row'))
+    if base_rate:
+        h += sect(DIV(DIV(
+            H3(T('Почему получился такой курс?')),
+            tax_rep, BR(),
+            T('При этом Вы получаете следующие преимущества при обмене криптовалют у нас'),':',
+            UL(
+                [
+                    T('Вы можете теперь постоянно делать обмен со своего кошелька на полученный адрес даже не заходя на наш сайт'),
+                    T('не нужно нигде регистрироваться'),
+                    T('не нужно делать подтверждения по СМС или по емайл'),
+                    T('обмен производится быстро и автоматически'),
+                    T('Вам не нужно хранить свои деньги у нас'),
+                ]
+            ),
+            T('Время - деньги!'),
+            _class='col-sm-12'), _class='row'))
 
     h += SCRIPT('''
         $('html, body').animate( { scrollTop: $('#tag2').offset().top - $('#aside1').height() }, 500 );
