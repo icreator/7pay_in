@@ -2,6 +2,14 @@
     color:lightseagreen;
 }
 
+.alert_value {
+    color: #d6008a;
+}
+.rate_succes {
+    color: #13ad00;
+}
+
+
 p {
     text-indent: 1.5em; /* Отступ первой строки в пикселах */
    }

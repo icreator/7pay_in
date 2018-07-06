@@ -377,32 +377,33 @@ def get_rate_for_api(db, curr_id, curr_out_id, vol_in, deal = None, dealer_deal 
 
     pr_b, pr_s, pr_avg = get_average_rate_bsa(db, curr_in.id, curr_out.id, None)
     if pr_avg:
-        _, _, best_rate = get_rate(db, curr_in, curr_out, vol_in)
+        _, _, base_rate = get_rate(db, curr_in, curr_out, vol_in)
     else:
-        best_rate = None
+        base_rate = None
 
-    if best_rate:
+    if base_rate:
 
         is_order = False
         deal = deal or db.deals[current.TO_COIN_ID]
         vol_out, mess_out = db_client.calc_fees(db, deal, dealer_deal, curr_in, curr_out, vol_in,
-                                           best_rate, is_order=0, note=0, only_tax=0)
+                                           base_rate, is_order=0, note=0, only_tax=0)
         ## vol_out - is Decimal
         vol_out = common.rnd_8(vol_out)
         rate_out = vol_out / vol_in
-        
+
         out_res['volume_out'] = vol_out
         out_res['rate_out'] = rate_out
-        
-        if get_limits:
-            lim_bal, may_pay = db_client.is_limited_ball(curr_in)
-            free_bal = db_client.curr_free_bal(curr_out)
-
-            out_res['lim_bal'] = lim_bal
-            out_res['may_pay'] = may_pay
-            out_res['free_bal'] = float(free_bal),
-
+        out_res['base_rate'] = base_rate
     else:
        out_res["wrong"] = "rate not found"
+
+    if get_limits:
+        lim_bal, may_pay = db_client.is_limited_ball(curr_in)
+        free_bal = db_client.curr_free_bal(curr_out)
+
+        out_res['lim_bal'] = lim_bal
+        out_res['may_pay'] = may_pay
+        out_res['free_bal'] = float(free_bal)
+
 
     return out_res

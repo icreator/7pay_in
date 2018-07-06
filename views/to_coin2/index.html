@@ -9,30 +9,28 @@
     </div>
 </div>
 <div class="container">
-    <h2 class="center"{{=T('Что вы хотите продать, в каком количестве и за что')}}, <br />
-    </h2>
 
     <form action="javascript: void(0);" enctype="multipart/form-data" method="get" id="set">
     <div class="row">
         
         <div class="col-sm-1">
-            <input name="curr_in" value=BTC id="curr_in" type="text" placeholder="{{=T('I Sell')}}" />
+            <input name="curr_in" value=BTC id="curr_in" type="text" placeholder="{{=T('I Sell')}}" style="width:300%"/>
         </div>
         <div class="col-sm-2">
-             {{=MENU(input_currs, _class='nav navbar-nav ', _style='background-color: #26198a; padding:0px',
+             {{=MENU(input_currs, _class='nav navbar-nav right', _style='background-color: #26198a; padding:0px',
                 li_class='dropdown',ul_class='dropdown-menu')}}
         </div>
         <div class="col-sm-2">
             <input class="blue-c" name="vol_in" value=0.1 placeholder="{{=T('Количество')}}"
                autofocus="1" id="vol_in"
-               style="  width: 90%; padding:5px; margin-bottom:25px;"
+               style="width: 100%;"
                type="text" />
         </div>
         <div class="col-sm-1">
-            <input name="curr_out" value=COMPU id="curr_out" type="text" placeholder="{{=T('I Buy')}}" />
+            <input name="curr_out" value=COMPU id="curr_out" type="text" placeholder="{{=T('I Buy')}}"  style="width:300%"/>
         </div>
         <div class="col-sm-2">
-             {{=MENU(output_currs, _class='nav navbar-nav ', _style='background-color: #26198a; padding:0px',
+             {{=MENU(output_currs, _class='nav navbar-nav right', _style='background-color: #26198a; padding:0px',
                 li_class='dropdown',ul_class='dropdown-menu')}}
         </div>
         <div class="col-sm-2">
@@ -48,9 +46,19 @@
                         />
         </div>
     </div>
+</div>
+<div id="tag">
+
+</div>
+<div class="container">
     <div class="row">
-        <div class="col-sm-12" id="tag"></div>
+        <div class="col-sm-12">
+            <h4>
+                {{=T('Введите адрес для выпаты и нажмите Enter для получения платежных реквизитов для обмена')}}
+            </h4>
+        </div>
     </div>
+        
     </form>
 
     <form action="javascript: void(0);" enctype="multipart/form-data" method="get" id="get_uri">
@@ -74,10 +82,9 @@
                         />
         </div>
     </div>
-    <div class="row">
-        <div class="col-sm-12" id="tag2"></div>
-    </div>
     </form>
+</div>
+<div id="tag2">
 </div>
 
 <p>
