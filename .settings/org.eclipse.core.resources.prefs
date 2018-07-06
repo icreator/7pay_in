@@ -10,7 +10,6 @@ encoding//controllers/edealers.py=utf8
 encoding//controllers/gifts.py=utf8
 encoding//controllers/to_buy.py=utf8
 encoding//controllers/to_coin.py=utf8
-encoding//controllers/to_coin2.py=utf8
 encoding//controllers/to_deal.py=utf8
 encoding//controllers/to_phone.py=utf8
 encoding//controllers/to_wallet.py=utf8

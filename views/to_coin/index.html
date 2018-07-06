@@ -1,59 +1,93 @@
 {{extend 'layout.html'}}
 
 <div class="container">
-    <a class="block button blue-bgc right" style="margin-top:10px;padding-bottom:10px;"
-       href="{{=URL('default','index', scheme=True, host=True)}}?short"><h3>{{=T('Почему мы')}}?</h3></a>
     <h1>{{=title}}</h1>
     <h3>{{=subtitle}}</h3>
     <div class="row">
-        <div class="col-10-sm">
-            <p>
-                {{=XML(T('Здесь Вы можете обменять цифровые активы, включая токены из блокчейн платформы %s между собой. Достаточно один раз задать значения обмена и получить крипто-адрес для приема актива, а затем переводить на этот адрес токены - обмен будет совершаться автоматически при условии что в нашей службе есть досточное количество цифрового актива для выплаты той криптовалюты, которая задана в обмене.') % '<a href="http://erachain.org" target="blank"><b>Erachain</b></a>')}}
-            </p>
+        <div class="col-12-sm">
         </div>
     </div>
+</div>
+<div class="container">
+
+    <form action="javascript: void(0);" enctype="multipart/form-data" method="get" id="set">
+    <div class="row">
+        
+        <div class="col-sm-1">
+            <input name="curr_in" value=BTC id="curr_in" type="text" placeholder="{{=T('I Sell')}}" style="width:300%"/>
+        </div>
+        <div class="col-sm-2">
+             {{=MENU(input_currs, _class='nav navbar-nav right', _style='background-color: #26198a; padding:0px',
+                li_class='dropdown',ul_class='dropdown-menu')}}
+        </div>
+        <div class="col-sm-2">
+            <input class="blue-c" name="vol_in" value=0.1 placeholder="{{=T('Количество')}}"
+               autofocus="1" id="vol_in"
+               style="width: 100%;"
+               type="text" />
+        </div>
+        <div class="col-sm-1">
+            <input name="curr_out" value=COMPU id="curr_out" type="text" placeholder="{{=T('I Buy')}}"  style="width:300%"/>
+        </div>
+        <div class="col-sm-2">
+             {{=MENU(output_currs, _class='nav navbar-nav right', _style='background-color: #26198a; padding:0px',
+                li_class='dropdown',ul_class='dropdown-menu')}}
+        </div>
+        <div class="col-sm-2">
+                
+            {{=A(TAG.i(_class='fa fa-search', _style='width:100px; font-size:24px;'),
+                    _id = 'go',
+                    _onclick='ajax("'+URL('to_coin', 'get_rate')+'", ["curr_in", "vol_in", "curr_out"], "tag");$(".go-btn").addClass("disabled");$(this).children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");$("#tag2").html("");',
+                    _class='go-btn button ll-blue-bgc center navbar-nav',
+                    )}}
+                <button class="go-btn hidden"
+                    onclick='ajax("{{=URL('to_coin', 'get_rate')}}", ["curr_in", "vol_in", "curr_out"], "tag");$(".go-btn").addClass("disabled");$("#go").children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");$("#tag2").html("");'
+                    type='submit'
+                        />
+        </div>
+    </div>
+</div>
+<div id="tag">
+
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <h4>
+                {{=T('Введите адрес для выпаты и нажмите Enter для получения платежных реквизитов для обмена')}}
+            </h4>
+        </div>
+    </div>
+        
+    </form>
+
+    <form action="javascript: void(0);" enctype="multipart/form-data" method="get" id="get_uri">
+
+    <div class="row">
+        <div class="col-sm-7">
+            <input class="blue-c" name="addr" placeholder="{{=T('WALLET ADDRESS')}}"
+               autofocus="1" id="addr"
+               style="  width: 100%; padding:5px; margin-bottom:25px;"
+               type="text" />
+        </div>
+        <div class="col-sm-3">
+            {{=A(TAG.i(_class='fa fa-search', _style='width:100px; font-size: 24px;'),
+                    _id = 'go2',
+                    _onclick='ajax("'+URL('to_coin', 'get_uri_in')+'", ["curr_in", "vol_in", "curr_out", "addr"], "tag2");$(".go2-btn").addClass("disabled");$(this).children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");$("#tag").html("");',
+                    _class='go2-btn button ll-blue-bgc center navbar-nav',
+                    )}}
+                <button class="go2-btn hidden"
+                    onclick='ajax("{{=URL('to_coin', 'get_uri_in')}}", ["curr_in", "vol_in", "curr_out", "addr"], "tag2");$(".go2-btn").addClass("disabled");$("#go2").children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");$("#tag").html("");'
+                    type='submit'
+                        />
+        </div>
+    </div>
+    </form>
+</div>
+<div id="tag2">
 </div>
 
-<div id="indx" class="container">
-    <h2 class="center">1. {{=T('Выберите нужный Вам актив')}}, <br />
-        <small>{{=T('который Вы хотите получить после обмена (выменять)')}}</small>
-    </h2>
-        
-    {{i = 2
-    icol = 12 / i
-    ii = 1}}
-    <div class="row">
-    {{for r in inp_currs:}}
-    {{if ii > i:
-    ii = 1}}
-        </div>
-        <div class="row">
-            {{pass}}
-            <center class="col-sm-{{=icol}}" style="padding:15px;">
-                <a class="block button blue-bgc btn_sel" style="padding: 0;"
-                   onclick="ajax('{{=URL('to_coin','sel',args=[r[0]])}}',[], 'sel');$('.btn_sel').addClass('disabled');"
-                   >
-                    <h3 style="margin:5px;">
-                    <img src="{{=URL('static','images/currs') + '/' + r[1] + '.png'}}" width="60"></img>
-                     {{=r[1]}} {{#=r[2]}} 
-                    {{=T('есть')}} {{=r[3]}}
-                    </h3>
-                </a>
-            </center>
-        {{ii += 1}}
-    {{pass}}
-    </div>
-</div>
-<div id="sel"></div>
 <p>
-    
-</p>
-<div class="container">
-    {{=USE_TO_DEALS and CAT(T('Вы можете напрямую оплатить биткоинами разные услуги и дела, самые популярные из них'), ':',
-       LOAD('deal','most' )) or ''}}
-</div>
-<p>
-    
 </p>
 {{#import recl2
 #=XML(recl2.get1())}}
