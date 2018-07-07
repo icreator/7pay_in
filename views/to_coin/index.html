@@ -20,10 +20,15 @@
              {{=MENU(input_currs, _class='nav navbar-nav right', _style='background-color: #26198a; padding:0px',
                 li_class='dropdown',ul_class='dropdown-menu')}}
         </div>
-        <div class="col-sm-2">
+        <div class="col-sm-3">
             <input class="blue-c" name="vol_in" value=0.1 placeholder="{{=T('Количество')}}"
                autofocus="1" id="vol_in"
-               style="width: 100%;"
+               style="width: 40%;"
+               type="text" />
+            {{=TAG.i(_class='fa fa-refresh', _style='font-size:24px;')}}
+            <input class="blue-c" name="vol_out" value="???" disabled
+               id="vol_out"
+               style="width: 40%;"
                type="text" />
         </div>
         <div class="col-sm-1">
