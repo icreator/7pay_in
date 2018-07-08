@@ -313,7 +313,7 @@ def get_rate_result(request, get_currs = False):
                XML(T('Введена слишком маленькая величина для обмена: %s. Введите значение больше') % (B(result['volume_in'], '[', result['curr_in'], ']'))), '', _class='alert_value'))
         return DIV(h, _class='container'), result
         
-    h += H2(T('Найден курс обмена для'), ' ', B(result['volume_in'], '[', result['curr_in'], ']'), ': x ', SPAN(B(result['rate_out']), _class='rate_succes'))
+    h += H3(T('Найден курс обмена для'), ' ', B(result['volume_in'], '[', result['curr_in'], ']'), ': x ', SPAN(B(result['rate_out']), _class='rate_succes'))
 
     if result['free_bal'] - result['volume_out'] < 0:
         h += CAT(H2(T('Сейчас на сервисе недостаточно средств'), ' ', B(result['curr_out']), _class='alert_value'),
@@ -330,9 +330,19 @@ def get_rate_result(request, get_currs = False):
     return DIV(h, _class='container'), result
 
 def get_rate():
-    response.js = "$('.go-btn').removeClass('disabled');$('#go').children('i').removeClass('fa-refresh fa-spin').addClass('fa-search');"
 
-    h, _ = get_rate_result(request)
+    h, result = get_rate_result(request)
+    if 'rate_out' in result:
+        rate_out = "%s" % result['rate_out']
+    else:
+        rate_out = "--"
+    if 'volume_out' in result:
+        volume_out = "%s" % result['volume_out']
+    else:
+        volume_out = "--"
+
+    response.js = "$('.go-btn').removeClass('disabled');$('#go').children('i').removeClass('fa-refresh fa-spin').addClass('fa-search'); \
+        $('#rate_out').val('" + rate_out + "');$('#vol_out').val('" + volume_out + "');"
 
     return h
 
@@ -406,14 +416,14 @@ def index():
     
     input_currs = [
         (
-            TAG.i(_class='fa fa-search go-btn- button- ll-blue-bgc- center', _style='width:50px;',
-                    ),
+            #TAG.i(_class='fa fa-search go-btn- button- ll-blue-bgc- center', _style='width:20px;font-size:20px;'),
+            XML('<input name="curr_in" value=BTC id="curr_in" type="text" placeholder="' + T('I Sell') + '"/>'),
             False, None, input_currs)
         ]
     output_currs = [
         (
-            TAG.i(_class='fa fa-search go-btn- button- ll-blue-bgc- center', _style='width:50px;',
-                  ),
+            #TAG.i(_class='fa fa-search go-btn- button- ll-blue-bgc- center', _style='width:20px;font-size:20px;'),
+            XML('<input name="curr_out" value=COMPU id="curr_out" type="text" placeholder="' + T('I Bye') + '"/>'),
             False, None, output_currs)
         ]
 

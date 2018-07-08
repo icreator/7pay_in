@@ -247,7 +247,8 @@ def curr_get_info():
         # UESE tokenSystem
         import rpc_erachain
         res = rpc_erachain.get_info(token_system.connect_url)
-        res = {'height': res, 'balances': rpc_erachain.get_balances(token_system.connect_url, token_system.account) }
+        res = {'height': res, 'balances': rpc_erachain.get_balances(token_system.connect_url, token_system.account),
+               'from_block': token_system.from_block }
     else:
         from crypto_client import conn
         try:

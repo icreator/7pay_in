@@ -9,7 +9,9 @@ T = current.T
 cache = current.cache
 #from gluon.cache import lazy_cache
 
-from jsonrpc import ServiceProxy
+####from jsonrpc import ServiceProxy
+from crypto_authproxy import AuthServiceProxy as ServiceProxy
+
 ROUND_TO = 8
 
 ##import db_client
@@ -182,8 +184,11 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system = None, token = 
     if amo> txfee*2:
         #if True:
         try:
-            print 'res = cc.sendtoaddress(addr, amo - txfee)', amo - txfee
-            res = cc.sendtoaddress(addr, amo - txfee)
+            to_send_amo = int((amo - txfee) * 100000000)
+            to_send_amo = to_send_amo / 100000000
+            
+            print 'res = cc.sendtoaddress(addr, amo - txfee)', to_send_amo
+            res = cc.sendtoaddress(addr, to_send_amo)
             print "SENDed? ", res
         #else:
         except Exception as e:

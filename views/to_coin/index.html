@@ -11,31 +11,36 @@
 <div class="container">
 
     <form action="javascript: void(0);" enctype="multipart/form-data" method="get" id="set">
-    <div class="row">
+    <div class="row to_coin_select">
         
-        <div class="col-sm-1">
-            <input name="curr_in" value=BTC id="curr_in" type="text" placeholder="{{=T('I Sell')}}" style="width:300%"/>
-        </div>
-        <div class="col-sm-2">
-             {{=MENU(input_currs, _class='nav navbar-nav right', _style='background-color: #26198a; padding:0px',
+        <div class="col-sm-1 sel_currs">
+             {{=MENU(input_currs, _class='sel_curr nav navbar-nav ll-blue-bgc- blue-bgc',
                 li_class='dropdown',ul_class='dropdown-menu')}}
         </div>
-        <div class="col-sm-2">
-            <input class="blue-c" name="vol_in" value=0.1 placeholder="{{=T('Количество')}}"
+        <div class="col-sm-1 vol_in">
+            <input name="vol_in" value=0.1 placeholder="{{=T('Количество')}}"
                autofocus="1" id="vol_in"
-               style="width: 100%;"
+               type="text" />
+            {{#=TAG.i(_class='fa fa-refresh', _style='font-size:24px;')}}
+        </div>
+        <div class="col-sm-1 vol_x">x</div>
+        <div class="col-sm-1 rate_out">
+            <input name="rate_out" value="0" disabled id="rate_out" type="text" placeholder="{{=T('rate')}}"
+                   />
+        </div>
+        <div class="col-sm-1 vol_x">=</div>
+        <div class="col-sm-1 vol_out">
+            <input class="blue-c" name="vol_out" value="???" disabled
+               id="vol_out"
                type="text" />
         </div>
-        <div class="col-sm-1">
-            <input name="curr_out" value=COMPU id="curr_out" type="text" placeholder="{{=T('I Buy')}}"  style="width:300%"/>
-        </div>
-        <div class="col-sm-2">
-             {{=MENU(output_currs, _class='nav navbar-nav right', _style='background-color: #26198a; padding:0px',
+        <div class="col-sm-1 sel_currs">
+             {{=MENU(output_currs, _class='sel_curr nav navbar-nav right ll-blue-bgc- blue-bgc',
                 li_class='dropdown',ul_class='dropdown-menu')}}
         </div>
         <div class="col-sm-2">
-                
-            {{=A(TAG.i(_class='fa fa-search', _style='width:100px; font-size:24px;'),
+
+            {{=A(TAG.i(_class='fa fa-search', _style='wi-dth:100px; font-size:24px;'),
                     _id = 'go',
                     _onclick='ajax("'+URL('to_coin', 'get_rate')+'", ["curr_in", "vol_in", "curr_out"], "tag");$(".go-btn").addClass("disabled");$(this).children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");$("#tag2").html("");',
                     _class='go-btn button ll-blue-bgc center navbar-nav',
@@ -67,7 +72,7 @@
         <div class="col-sm-7">
             <input class="blue-c" name="addr" placeholder="{{=T('WALLET ADDRESS')}}"
                autofocus="1" id="addr"
-               style="  width: 100%; padding:5px; margin-bottom:25px;"
+               style="width: 100%; padding:5px; margin-bottom:25px;"
                type="text" />
         </div>
         <div class="col-sm-3">
