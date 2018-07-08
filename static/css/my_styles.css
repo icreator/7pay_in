@@ -9,6 +9,17 @@
     color: #13ad00;
 }
 
+ul.sel_curr {
+    background-color: #0078d7;
+}
+ul.sel_curr.nav.navbar-nav>li>a {
+    padding: 0px;
+}
+ul.sel_curr.nav.navbar-nav>li>a>input {
+    font-size:16px;
+    width: 5em;
+    background-color: #26198a;
+}
 
 p {
     text-indent: 1.5em; /* Отступ первой строки в пикселах */
