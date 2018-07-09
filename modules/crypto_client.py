@@ -185,7 +185,7 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system = None, token = 
         #if True:
         try:
             to_send_amo = int((amo - txfee) * 100000000)
-            to_send_amo = to_send_amo / 100000000
+            to_send_amo = float(to_send_amo) / 100000000.0
             
             print 'res = cc.sendtoaddress(addr, amo - txfee)', to_send_amo
             res = cc.sendtoaddress(addr, to_send_amo)
