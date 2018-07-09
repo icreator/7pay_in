@@ -413,7 +413,6 @@ def index():
             T('ОШИБКА: Нет доступных криптовалют для обмена')
             + (abbrev and (' ' + T('или неправильно задано имя [%s] нужной криптовалюты!') % abbrev) or ''))
 
-    
     input_currs = [
         (
             #TAG.i(_class='fa fa-search go-btn- button- ll-blue-bgc- center', _style='width:20px;font-size:20px;'),

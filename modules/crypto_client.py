@@ -9,8 +9,8 @@ T = current.T
 cache = current.cache
 #from gluon.cache import lazy_cache
 
-####from jsonrpc import ServiceProxy
-from crypto_authproxy import AuthServiceProxy as ServiceProxy
+from jsonrpc import ServiceProxy
+### not worked yet (( from crypto_authproxy import AuthServiceProxy as ServiceProxy
 
 ROUND_TO = 8
 
