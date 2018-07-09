@@ -283,7 +283,7 @@ def get_uri_in():
         $('html, body').animate( { scrollTop: $('#tag2').offset().top - $('#aside1').height() }, 500 );
       ''')
     
-    #response.js = "$('.go2-btn').removeClass('disabled');$('#go2').children('i').removeClass('fa-refresh fa-spin').addClass('fa-search');"
+    response.js += '$("#tag").html("");'
 
     return h
 
