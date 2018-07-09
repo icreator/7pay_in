@@ -15,6 +15,8 @@ ul.sel_curr {
 form#set>div.row {
     padding-left: 10px;
     padding-right: 10px;
+    margin-bottom: 3px;
+    margin-top: 3px;
 }
 form#set>div.to_coin_select>div {
     padding-left: 3px;
@@ -26,11 +28,13 @@ form#set>div.to_coin_select>div.sel_currs {
 }
 
 ul.sel_curr.nav.navbar-nav>li>a.dropdown-toggle {
-    padding: 7px;
+    padding: 10px;
     width: max-content;
+
 }
 ul.sel_curr.nav.navbar-nav>li>a.dropdown-toggle>input {
-    font-size:16px;
+    font-
+   :16px;
     #width: max-content;
     width: 6em;
     color: black;
@@ -40,26 +44,26 @@ form#set>div.to_coin_select>div.vol_in {
     width:7em;
 }
 form#set>div.to_coin_select>div.vol_in>input {
-    width:100%; font-size:16px;
+    width:100%; font-size:22px;
 }
 form#set>div.to_coin_select>div.vol_x {
-    width:1em; font-size:16px;
+    width:1em; font-size:22px;
 }
 form#set>div.to_coin_select>div.rate_out {
     width:9em;
 }
 form#set>div.to_coin_select>div.rate_out>input {
-    width:100%; font-size:14px;
+    width:100%; font-size:18px;
 }
 form#set>div.to_coin_select>div.vol_out {
     width:8em;
 }
 form#set>div.to_coin_select>div.vol_out>input {
-    width:100%; font-size:16px;
+    width:100%; font-size:22px;
 }
 
 a#go {
-    margin-top: -10px;
+    margin-top: -6px;
 }
 
 p {

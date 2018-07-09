@@ -313,7 +313,8 @@ def get_rate_result(request, get_currs = False):
                XML(T('Введена слишком маленькая величина для обмена: %s. Введите значение больше') % (B(result['volume_in'], '[', result['curr_in'], ']'))), '', _class='alert_value'))
         return DIV(h, _class='container'), result
         
-    h += H3(T('Найден курс обмена для'), ' ', B(result['volume_in'], '[', result['curr_in'], ']'), ': x ', SPAN(B(result['rate_out']), _class='rate_succes'))
+    h += H3(T('Найден курс обмена для'), ' ', B(result['volume_in'], '[', result['curr_in'], ']'), ': x ', SPAN(B(result['rate_out']), _class='rate_succes'),
+           ' = ', SPAN(B(result['volume_out'], '[', result['curr_out'], ']'), _class='-'))
 
     if result['free_bal'] - result['volume_out'] < 0:
         h += CAT(H2(T('Сейчас на сервисе недостаточно средств'), ' ', B(result['curr_out']), _class='alert_value'),
