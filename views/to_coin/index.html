@@ -70,11 +70,11 @@
             {{=A(TAG.i(_class='fa fa-search', _style='font-size: 24px;'),
                 ' ', B(T('Get Payment Details'), _style='font-size:18px;'),
                     _id = 'go2',
-                    _onclick='ajax("'+URL('to_coin', 'get_uri_in')+'", ["curr_in", "vol_in", "curr_out", "addr"], "tag2");$(".go2-btn").addClass("disabled");$(this).children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");$("#tag").html("");',
+                    _onclick='ajax("'+URL('to_coin', 'get_uri_in')+'", ["curr_in", "vol_in", "curr_out", "addr"], "tag2");$(".go2-btn").addClass("disabled");$(this).children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");',
                     _class='go2-btn button ll-blue-bgc center navbar-nav',
                     )}}
                 <button class="go2-btn hidden"
-                    onclick='ajax("{{=URL('to_coin', 'get_uri_in')}}", ["curr_in", "vol_in", "curr_out", "addr"], "tag2");$(".go2-btn").addClass("disabled");$("#go2").children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");$("#tag").html("");'
+                    onclick='ajax("{{=URL('to_coin', 'get_uri_in')}}", ["curr_in", "vol_in", "curr_out", "addr"], "tag2");$(".go2-btn").addClass("disabled");$("#go2").children("i").removeClass("fa-search").addClass("fa-refresh fa-spin");'
                     type='submit'
                         />
         </div>
