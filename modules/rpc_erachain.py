@@ -149,10 +149,11 @@ def send(db, curr, xcurr, addr, amo, token_system = None, token = None):
     
     # проверим готовность базы - is lock - и запишем за одно данные
     log_commit(db, 'try send: %s[%s] %s, fee: %s' % (amo, curr.abbrev, addr, txfee))
-    if amo > txfee*2:
+    if amo > txfee * 2:
         #if True:
         try:
-            amo_to_pay = amo - txfee
+            ##amo_to_pay = amo - txfee - it already inserted in GET_RATE by db.currs
+            amo_to_pay = amo
             print 'res = erachain.send(addr, amo - txfee)', amo_to_pay
             vars = { 'assetKey': token.token_key, 'feePow': 0,
                 'amount': amo_to_pay, 'sender': token_system.account, 'recipient': addr,
