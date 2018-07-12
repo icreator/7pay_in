@@ -171,7 +171,7 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system = None, token = 
         return {'error':'invalid [%s] address' % curr.abbrev }, None
     amo = round(float(amo),8)
     if True:
-        txfee = round(float(xcurr.txfee or 0),8)
+        txfee = round(float(xcurr.txfee or 0), 8)
     else:
         txfee = 0
     # reserve - то что уже учтено нами и это можно отослать дальше
@@ -181,13 +181,14 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system = None, token = 
     # проверим готовность базы - is lock - и запишем за одно данные
     log_commit(db, 'try send: %s[%s] %s' % (amo, curr.abbrev, addr))
     cc.settxfee( txfee )
-    if amo> txfee*2:
+    if amo > txfee * 2:
         #if True:
         try:
-            to_send_amo = int((amo - txfee) * 100000000)
+            #to_send_amo = int((amo - txfee) * 100000000) - txfee already included in get_RATE from db.currs
+            to_send_amo = int(amo * 100000000)
             to_send_amo = float(to_send_amo) / 100000000.0
             
-            print 'res = cc.sendtoaddress(addr, amo - txfee)', to_send_amo
+            print 'res = cc.sendtoaddress(addr, amo)', to_send_amo
             res = cc.sendtoaddress(addr, to_send_amo)
             print "SENDed? ", res
         #else:
