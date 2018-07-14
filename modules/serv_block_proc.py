@@ -231,6 +231,22 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
     # так как вых платеж может произойти тут надо сохранить
     db.commit()
 
+def parse_mess(db, mess, creator):
+    args = mess.strip().split(':')
+    #print args
+    import db_common
+    curr_out, xcurr_out, e = db_common.get_currs_by_abbrev(db, args[0].strip())
+    if xcurr_out:
+        if len(args) > 1:
+            addr = args[1].strip()
+            return curr_out.name + ':' + addr
+        else:
+            token_key = xcurr_out.as_token
+            if token_key:
+                token = db.tokens[token_key]
+                token_system = db.systems[token.system_id]
+                return curr_out.name + ':' + creator
+            
 
 def get_incomed(db, token_system, from_block_in=None):
     
@@ -278,12 +294,14 @@ def get_incomed(db, token_system, from_block_in=None):
         if not amount or amount < 0 or not action_key or action_key != 1:
             continue
 
-        head = rec.get('head', rec.get('data'))
+        acc = parse_mess(db, rec.get('head'), rec.get('creator'))
+        if not acc:
+            acc = parse_mess(db, rec.get('data'), rec.get('creator'))
             
-        if not head:
+        if not acc:
             acc = 'refuse:' + rec['creator']
         else:
-            acc = ('%d' % rec['asset']) + '>' + head
+            acc = ('%d' % rec['asset']) + '>' + acc
                 
         #print rec
         transactions.append(dict(
