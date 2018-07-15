@@ -140,10 +140,10 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
                     # если это приход на  главный адрес - например пополнения с обмена\
                     # то такую проводку пропустим
                     continue
-                elif conn:
+                elif conn or token_system:
                     print 'unknown [%s] address %s for account:"%s"' % (curr.abbrev, addr, acc)
                     # если не найдено в делах то запомним в неизвестных
-                    send_back(conn, curr, xcurr, txid,  amo)
+                    send_back(conn, token_system, curr, xcurr, txid,  amo)
                     print 'to return -> txid', txid
                     continue
                 else:
@@ -168,7 +168,7 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
                 # переводы на этоот адрес запрещены - тоже вернем его
                 print 'UNUSED [%s] address %s for account:"%s"' % (curr.abbrev, addr, acc)
                 # если не найдено в делах то запомним в неизвестных
-                send_back(conn, curr, xcurr, txid,  amo, addr_ret)
+                send_back(conn, token_system, curr, xcurr, txid,  amo, addr_ret)
                 print 'to return -> txid', txid
                 continue
 
@@ -443,14 +443,34 @@ def b_p_proc_unspent( db, conn, curr, xcurr, addr_in=None, from_block_in=None ):
     #print '\n\nsumUnsp:',sumUnsp, '  sumChange:',sumChange, ' SUM:',sumFull
     return tab, curr_block
 
-def send_back(conn, curr, xcurr, txid, amount, to_addr=None):
+def send_back(conn, token_system, curr, xcurr, txid, amount, to_addr=None):
     # такой платеж возвращаем
-    sender_addr = to_addr or crypto_client.sender_addr(conn, txid)
+
+    sender_addr = to_addr or crypto_client.sender_addr(conn, token_system, txid)
     print 'return to sender_addr:', sender_addr
     if not sender_addr: return
     amo = round(float (amount - xcurr.txfee * 2), 8)
     if amo > 0:
+
         print 'send_back:', curr.abbrev, amo, sender_addr
+        if True:
+            res, bal = crypto_client.send(db, curr, xcurr, sender_addr, amo)
+            log( db, 'send_back - res: %s' % res)
+            if bal:
+                curr.update_record( balance = bal )
+            if type(res) == type(u' '):
+                # прошла транзакция, создадим массив инфо
+                return res
+        else:
+            txid = conn.sendtoaddress(sender_addr, amo )
+            try:
+                # может быть ошибка при конвертации ASCII
+                print txid
+            except:
+                pass
+            return txid
+
+        
         txid = conn.sendtoaddress(sender_addr, amo )
         try:
             # может быть ошибка прри конвертации в ASCII
@@ -462,7 +482,7 @@ def send_back(conn, curr, xcurr, txid, amount, to_addr=None):
         return 'so small to return - wipe'
     return
 
-def return_refused(db, curr, xcurr, conn):
+def return_refused(db, curr, xcurr, conn, token_system):
     # возвраты
     for r in db((db.pay_ins_stack.ref_ == db.pay_ins.id)
                  & (db.pay_ins.ref_ == db.deal_acc_addrs.id)
@@ -475,7 +495,7 @@ def return_refused(db, curr, xcurr, conn):
             # такой платеж возвращаем
             # причем если адрес возврата уже задан в записи то возьмем его
             if True:
-                txid = send_back(conn, curr, xcurr,  r.pay_ins.txid,
+                txid = send_back(conn, token_system, curr, xcurr,  r.pay_ins.txid,
                      r.pay_ins.amount, r.deal_acc_addrs.addr_return)
             else:
                 txid='probe1'
@@ -578,6 +598,7 @@ def run_once(db, abbrev):
                 token_xcurr = db(db.xcurrs.as_token == token_rec.id).select().first()
                 token_curr = db.currs[token_xcurr.curr_id]
                 serv_to_pay.proc_xcurr(db, token_curr, token_xcurr)
+                return_refused(db, token_curr, token_xcurr, conn, token_system)
                 db.commit()
         else:
             serv_to_pay.proc_xcurr(db, curr, xcurr)
@@ -593,7 +614,7 @@ def run_once(db, abbrev):
         try:
         #if True:
             # если есть отвергнутиые платежи то вернем их
-            return_refused(db, curr, xcurr, conn)
+            return_refused(db, curr, xcurr, conn, token_system)
             db.commit()
         except Exception as e:
             db.rollback()

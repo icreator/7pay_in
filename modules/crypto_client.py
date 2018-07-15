@@ -113,7 +113,13 @@ def get_reserve(curr, xcurr, cn=None):
     return sum_Full
 
 
-def get_tx_info(conn, txid, pars=None):
+def get_tx_info(conn, token_system, txid, pars=None):
+    if token_system:
+        import rpc_erachain
+        return rpc_erachain.get_tx_info(token_system, txid)
+    elif not conn:
+        return None
+
     res = None
     try:
         res = conn.gettransaction(txid)
@@ -249,14 +255,21 @@ def locks(conn):
         print e.error
 
 # найти адрес того кто выслал их
-def sender_addr(conn, tr):
+def sender_addr(conn, token_system, tr):
+    
+    if token_system:
+        import rpc_erachain
+        return rpc_erachain.get_tx_info(token_system, tr)['creator']
+    elif not conn:
+        return None
+
     tr_info = conn.getrawtransaction(tr,1)
     vins =  tr_info and 'vin' in tr_info and tr_info['vin']
     if not vins:
         #res.append({ 'tr_info.vins': 'None'})
         # тут может быть приход с добвтого блока - тогда тоже будет пусто!
         print 'ERROR: sender_addr - tr_in_info:', tr_in_info
-        print 'RUN "C:\Program Files (x86)\CopperLark\CopperLark.exe"  -reindex -txindex'
+        print 'RUN "crypto WALLET.exe"  -reindex -txindex'
         return
     vin = vins[0]
     txid = vin['txid']
@@ -265,7 +278,7 @@ def sender_addr(conn, tr):
 
     if 'error' in tr_in_info:
         print 'ERROR: sender_addr - tr_in_info:', tr_in_info
-        print 'RUN "C:\Program Files (x86)\CopperLark\CopperLark.exe"  -reindex -txindex'
+        print 'RUN "crypto WALLET.exe"  -reindex -txindex'
         return
     vin = vins[0]
     txid = vin['txid']
@@ -274,7 +287,7 @@ def sender_addr(conn, tr):
 
     if 'error' in tr_in_info:
         print 'ERROR: sender_addr - tr_in_info:', tr_in_info
-        print 'RUN "C:\Program Files (x86)\CopperLark\CopperLark.exe"  -reindex -txindex'
+        print 'RUN "crypto WALLET.exe"  -reindex -txindex'
         return
     sender = tr_in_info[u'vout'][vout][u'scriptPubKey'][u'addresses']
     return sender[0]

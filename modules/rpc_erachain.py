@@ -96,6 +96,11 @@ def get_unconf_incomes(rpc_url, addr):
     recs = rpc_request(rpc_url + '/transactions/unconfirmedincomes/' + addr)
     return recs
 
+def get_tx_info(token_system, txid):
+
+    recs = rpc_request(token_system.connect_url + '/transactions/signature/' + txid)
+    return recs
+
 def get_transactions(rpc_url, addr, from_block=2, conf=2):
     
     result = []
