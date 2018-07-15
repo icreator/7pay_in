@@ -31,6 +31,15 @@ def tx():
         return {"error": "invalid curr:  /tx_info.json/[curr]/[txid]"}
     
     sleep(1)
+
+    token_system = conn = None
+    token_key = xcurr.as_token
+    if token_key:
+        token = db.tokens[token_key]
+        token_system = db.systems[token.system_id]
+        res = dict(result=crypto_client.get_tx_info(conn, token_system, txid))
+        return res
+
     conn = crypto_client.conn(curr, xcurr)
     if not conn:
         return {"error": "not connected to wallet"}
