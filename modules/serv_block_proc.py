@@ -117,6 +117,7 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
                 print 'make deal_acc'
                 deal_acc_id = db.deal_accs.insert(deal_id = TO_COIN_ID, acc = addr, curr_id = curr_out.id)
                 deal_acc_addr_id = db.deal_acc_addrs.insert(deal_acc_id = deal_acc_id, addr = token_system.account, xcurr_id = xcurr.id)
+                deal_acc_addr = db.deal_acc_addrs[deal_acc_addr]
             else:
                 deal_acc_addr = db((db.deal_acc_addrs.deal_acc_id==deal_acc.id)
                                    & (db.deal_acc_addrs.xcurr_id==xcurr.id)).select().first()
@@ -124,6 +125,8 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
                     print 'make deal_acc_addr'
                     deal_acc_addr_id = db.deal_acc_addrs.insert(deal_acc_id = deal_acc.id, addr = token_system.account, xcurr_id = xcurr.id)
                     deal_acc_addr = db.deal_acc_addrs[deal_acc_addr_id]
+                else:
+                    deal_acc_addr_id = deal_acc_addr.id
 
             
         else:
@@ -239,13 +242,13 @@ def parse_mess(db, mess, creator):
     if xcurr_out:
         if len(args) > 1:
             addr = args[1].strip()
-            return curr_out.name + ':' + addr
+            return curr_out.abbrev + ':' + addr
         else:
             token_key = xcurr_out.as_token
             if token_key:
                 token = db.tokens[token_key]
                 token_system = db.systems[token.system_id]
-                return curr_out.name + ':' + creator
+                return curr_out.abbrev + ':' + creator
             
 
 def get_incomed(db, token_system, from_block_in=None):
