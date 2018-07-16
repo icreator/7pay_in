@@ -187,7 +187,7 @@ def proc_ecurr(db, curr, xcurr, conn):
 
     print 'serv_to_buy proc_ecurr'
     if not conn:
-        mess = '[' + curr_out.name + '] not connection'
+        mess = '[' + curr.name + '] not connection'
         print mess
         return # { 'error': mess }, None
     # найдем дело

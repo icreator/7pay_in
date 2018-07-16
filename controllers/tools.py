@@ -541,7 +541,17 @@ def tx_info():
     curr,xcurr,e = db_common.get_currs_by_abbrev(db, curr_abbrev)
     if not xcurr:
         return {"error": "invalid curr:  /tx_info.json/[curr]/[txid]"}
+
     import crypto_client
+
+    token_system = conn = None
+    token_key = xcurr.as_token
+    if token_key:
+        token = db.tokens[token_key]
+        token_system = db.systems[token.system_id]
+        res = dict(result=crypto_client.get_tx_info(conn, token_system, txid))
+        return res
+
     conn = crypto_client.conn(curr, xcurr)
     if not conn:
         return {"error": "not connected to wallet"}
@@ -557,14 +567,23 @@ def tx_senders():
         return {'error':"need txid: /tx_senders.json/[curr]/[txid]"}
     curr_abbrev = request.args(0)
     import db_common
-    curr,xcurr,e = db_common.get_currs_by_abbrev(db, curr_abbrev)
+    curr, xcurr, e = db_common.get_currs_by_abbrev(db, curr_abbrev)
     if not xcurr:
         return {"error": "invalid curr"}
+    
+    token_system = None
+    token_key = xcurr.as_token
+    if token_key:
+        token = db.tokens[token_key]
+        token_system = db.systems[token.system_id]
+        res = dict(result=crypto_client.sender_addrs(conn, token_system, txid))
+        return res
+
     import crypto_client
     conn = crypto_client.conn(curr, xcurr)
     if not conn:
         return {"error": "not connected to wallet"}
-    res = dict(result=crypto_client.sender_addrs(conn, txid))
+    res = dict(result=crypto_client.sender_addrs(conn, token_system, txid))
     return res
 
 
@@ -580,3 +599,27 @@ def check_txid():
 def datetime():
     import datetime
     return 'request.now = %s <br> datetime.datetime.now() = %s' % (request.now, datetime.datetime.now())
+
+def parse_mess(mess):
+    args = mess.strip().split(':')
+    #print args
+    import db_common
+    curr_out, xcurr_out, e = db_common.get_currs_by_abbrev(db, args[0].strip())
+    if xcurr_out:
+        if len(args) > 1:
+            addr = args[1].strip()
+            return curr_out.name + ':' + addr
+        else:
+            token_key = xcurr_out.as_token
+            if token_key:
+                token = db.tokens[token_key]
+                token_system = db.systems[token.system_id]
+                return curr_out.name + ':' + 'as RECIPIENT'
+
+def probe_mess():
+    
+    acc = parse_mess(request.vars.get('head'))
+    if not acc:
+        acc = parse_mess(request.vars.get('message'))
+        
+    return acc
