@@ -35,7 +35,7 @@ def mess(h, cls_c='error'):
                    _class='container')
 def err_dict(m, not_add_err=False):
     response.view = 'views/generic.html'
-    return dict(h = mess(m + ( not_add_err and ' ' or ', ' + 'просьба сообщить об ошибке в службу поддержки!')))
+    return dict(h = mess(m + ( not_add_err and ' ' or ', ' + T('просьба сообщить об ошибке в службу поддержки') + '!')))
 
 def get_uri_in():
     response.js = "$('.go2-btn').removeClass('disabled');$('#go2').children('i').removeClass('fa-refresh fa-spin').addClass('fa-search');"
