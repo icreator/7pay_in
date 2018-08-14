@@ -27,7 +27,7 @@ def log_commit(db, mess):
 def get_ticker(db, exchg_id, curr_id):
     curr = db.currs[curr_id]
     if curr.used:
-        limits = db_client.get_limits(db, exchg_id, curr_id)
+        limits = db_common.get_limits(db, exchg_id, curr_id)
         return limits and limits.ticker or curr.abbrev.lower()
 def get_curr(db, exchg_id, ticker):
     limit = db((db.exchg_limits.exchg_id==exchg_id) & (db.exchg_limits.ticker==ticker)).select().first()
@@ -35,7 +35,7 @@ def get_curr(db, exchg_id, ticker):
 
 def from_livecoin(db, exchg):
     exchg_id = exchg.id
-    for pair in db_client.get_exchg_pairs(db, exchg_id):
+    for pair in db_common.get_exchg_pairs(db, exchg_id):
         if not pair.used: continue
         t1 = get_ticker(db, exchg_id, pair.curr1_id).upper()
         t2 = get_ticker(db, exchg_id, pair.curr2_id).upper()
@@ -72,7 +72,7 @@ def from_livecoin(db, exchg):
 def from_poloniex(db, exchg):
     exchg_id = exchg.id
     ##PRINT_AS_FUNC and print(conn) or print conn
-    for pair in db_client.get_exchg_pairs(db, exchg_id):
+    for pair in db_common.get_exchg_pairs(db, exchg_id):
         if not pair.used: continue
         t1 = get_ticker(db, exchg_id, pair.curr1_id)
         t2 = get_ticker(db, exchg_id, pair.curr2_id)
@@ -115,7 +115,7 @@ def from_poloniex(db, exchg):
 def from_cryptsy(db, exchg):
     exchg_id = exchg.id
     ##PRINT_AS_FUNC and print(conn) or print conn
-    for pair in db_client.get_exchg_pairs(db, exchg_id):
+    for pair in db_common.get_exchg_pairs(db, exchg_id):
         if not pair.used: continue
         t1 = get_ticker(db, exchg_id, pair.curr1_id)
         t2 = get_ticker(db, exchg_id, pair.curr2_id)
@@ -175,7 +175,7 @@ def from_cryptsy(db, exchg):
 def from_btc_e_3(db,exchg):
     exchg_id = exchg.id
     pairs = []
-    for pair in db_client.get_exchg_pairs(db, exchg_id):
+    for pair in db_common.get_exchg_pairs(db, exchg_id):
         if not pair.used: continue
         t1 = get_ticker(db, exchg_id, pair.curr1_id)
         t2 = get_ticker(db, exchg_id, pair.curr2_id)
@@ -215,7 +215,7 @@ def from_btc_e(db, exchg):
     from_btc_e_3(db, exchg)
     return
     
-    for pair in db_client.get_exchg_pairs(db, exchg.id):
+    for pair in db_common.get_exchg_pairs(db, exchg.id):
         if not pair.used: continue
         curr1 = db.currs[pair.curr1_id]
         if not curr1.used: continue
@@ -223,8 +223,8 @@ def from_btc_e(db, exchg):
         if not curr2.used: continue
         
         #PRINT_AS_FUNC and print(pair) or print pair
-        limits1 = db_client.get_limits(db, exchg.id, pair.curr1_id)
-        limits2 = db_client.get_limits(db, exchg.id, pair.curr2_id)
+        limits1 = db_common.get_limits(db, exchg.id, pair.curr1_id)
+        limits2 = db_common.get_limits(db, exchg.id, pair.curr2_id)
         #if not limits1 or not limits2: continue
         # если нет лимитов то берем мелкие буквы
         #PRINT_AS_FUNC and print(pair.curr1_id, pair.curr2_id) or print pair.curr1_id, pair.curr2_id
