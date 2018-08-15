@@ -14,7 +14,7 @@ import serv_to_buy
 @cache.action(time_expire=time_exp, cache_model=cache.disk) #, vars=False, public=True, lang=True)
 def index():
     return dict(
-                get_curs = dict(url = "get_currs",
+                get_currs = dict(url = "get_currs",
                                 pars = dict(),
                                 result = dict(
                                       icon_url = "URL for icons",
@@ -26,7 +26,7 @@ def index():
                                       out = dict(
                                             name = "Currency name for view",
                                             name2 = "Currency name for URI",
-                                            free_bal = "free balance",
+                                            bal = "free balance",
                                           ),
                                    )
                                 ),
@@ -101,7 +101,7 @@ def get_currs():
         if lim_bal > 0:
             out_res['in'][r.currs.abbrev]['may_pay'] = float(may_pay)
 
-        out_res['out'][r.currs.abbrev] = { 'free_bal': float(free_bal),
+        out_res['out'][r.currs.abbrev] = { 'bal': float(free_bal),
                                            'name': r.currs.name, 'name2': r.currs.name2,
                                           'icon':  r.currs.abbrev + '.png'}
 
