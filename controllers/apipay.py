@@ -13,7 +13,24 @@ import serv_to_buy
 
 @cache.action(time_expire=time_exp, cache_model=cache.disk) #, vars=False, public=True, lang=True)
 def index():
-    return dict(get_rate = dict(url = "get_rate/[curr_in_id]/[curr_out_id]/[vol_in]?get_limits=1",
+    return dict(
+                get_curs = dict(url = "get_currs",
+                                pars = dict(),
+                                result = dict(
+                                      icon_url = "URL for icons",
+                                      in_ = dict(
+                                            name = "Currency name for view",
+                                            name2 = "Currency name for URI",
+                                            may_pay = "[amount] - If exists - how many exchange may accept",
+                                          ),
+                                      out = dict(
+                                            name = "Currency name for view",
+                                            name2 = "Currency name for URI",
+                                            free_bal = "free balance",
+                                          ),
+                                   )
+                                ),
+                get_rate = dict(url = "get_rate/[curr_in_id]/[curr_out_id]/[vol_in]?get_limits=1",
                                 pars = dict(get_limits = " - limits in result",
                                             curr_in_id = " - income currency as digit No. or as Abbreviation. For example: 3 or BTC",
                                             curr_out_id = " - outcome currency as digit No. or as Abbreviation",
@@ -21,8 +38,7 @@ def index():
                                 result = dict(free_bal = "free balance for CURR_OUT inside exchange",
                                       addr_in = "cryptocurrency address for income",
                                       url_uri = "URI for auto open wallet or generate QR-code",
-                                      lim_bal = "(False/True) - is limited on accept CURR_IN?",
-                                      may_pay = "(0 or [amount]) - how many exchange may accept CURR_IN?",
+                                      may_pay = "[amount] - If exists - how many exchange may accept CURR_IN?",
                                       volume_in = "- amount You want to sell",
                                       volume_out = " - amount You want to buy"
                                    )
@@ -42,8 +58,7 @@ def index():
                                 result = dict(free_bal = "free balance for CURR_OUT inside exchange",
                                       addr_in = "cryptocurrency address for income",
                                       url_uri = "URI for auto open wallet or generate QR-code",
-                                      lim_bal = "(False/True) - is limited on accept CURR_IN?",
-                                      may_pay = "(0 or [amount]) - how many exchange may accept CURR_IN?",
+                                      may_pay = "[amount] - If exists - how many exchange may accept CURR_IN?",
                                       volume_in = "- amount You want to sell",
                                       volume_out = " - amount You want to buy")
                                    ),
@@ -57,8 +72,7 @@ def index():
                                 result = dict(free_bal = "free balance for CURR_OUT inside exchange",
                                       addr_in = "cryptocurrency address for income",
                                       url_uri = "URI for auto open wallet or generate QR-code",
-                                      lim_bal = "(False/True) - is limited on accept CURR_IN?",
-                                      may_pay = "(0 or [amount]) - how many exchange may accept CURR_IN?",
+                                      may_pay = "[amount] - If exists - how many exchange may accept CURR_IN?",
                                       volume_in = "- amount You want to sell",
                                       volume_out = " - amount You want to buy")
                                    )
@@ -66,6 +80,34 @@ def index():
 
 def mess(error):
     return '{"error": "%s"}' % error
+
+
+# get_currs
+def get_currs():
+    import db_client
+
+    out_res = {'icon_url': URL('static', 'images/currs'), 'in': {}, 'out': {}}
+    
+    for r in db(
+             (db.currs.used == True)
+             & (db.currs.id == db.xcurrs.curr_id)
+             ).select(orderby=~db.currs.uses):
+        free_bal = db_client.curr_free_bal(r.currs)
+        lim_bal, may_pay = db_client.is_limited_ball(r.currs)
+
+        out_res['in'][r.currs.abbrev] = {
+                                           'name': r.currs.name, 'name2': r.currs.name2,
+                                          'icon':  r.currs.abbrev + '.png'}
+        if lim_bal > 0:
+            out_res['in'][r.currs.abbrev]['may_pay'] = float(may_pay)
+
+        out_res['out'][r.currs.abbrev] = { 'free_bal': float(free_bal),
+                                           'name': r.currs.name, 'name2': r.currs.name2,
+                                          'icon':  r.currs.abbrev + '.png'}
+
+    
+    return request.extension == 'html' and dict(
+        h=DIV(BEAUTIFY(out_res), _class='container')) or out_res
 
 
 # get_bals/[curr]
@@ -85,7 +127,7 @@ def get_bals():
         if abbrev:
             return free_bal
 
-        out_res[r.currs.abbrev] = free_bal
+        out_res[r.currs.abbrev] = float(free_bal)
     
     return request.extension == 'html' and dict(
         h=DIV(BEAUTIFY(out_res), _class='container')) or out_res
@@ -133,8 +175,7 @@ def get_rate():
 
 ''' out parameters:
     free_bal - free balance for CURR_OUT inside exchange
-    lim_bal (False/True) - is limited on accept CURR_IN?
-    may_pay	(0 or [amount]) - how namy echange may accept CURR_IN?
+    may_pay	[amount] - If exists - how namy echange may accept CURR_IN?
     url_uri - URI for cryptocurrency wallet
     volume_in - need to pay by client
     volume_out - will be taken by client
@@ -312,9 +353,11 @@ def get_uri_in():
     out_res = dict(curr_out_abbrev = curr_out_abbrev, addr_out = addr_out, volume_out = vol_out,
                    free_bal = float(free_bal),
                    curr_in_name = curr_in_name, volume_in = vol_in, curr_in_abbrev= curr_in_abbrev, addr_in = addr_in,
-                   lim_bal = lim_bal, may_pay = may_pay,
                    url_uri= url_uri
                   )
+    if lim_bal > 0:
+        out_res['may_pay'] = float(may_pay)
+
     if token_system_in:
         out_res['addr_out_full'] = addr_out_full
     
@@ -330,8 +373,7 @@ def get_uri_in():
 
 ''' out parameters:
     free_bal - free balance for CURR_OUT inside exchange
-    lim_bal (False/True) - is limited on accept CURR_IN?
-    may_pay	(0 or [amount]) - how namy echange may accept CURR_IN?
+    may_pay	[amount] - If exists - how namy echange may accept CURR_IN?
     url_uri - URI for cryptocurrency wallet
     volume_in - need to pay by client
     volume_out - will be taken by client
@@ -488,9 +530,11 @@ def get_uri():
     out_res = dict(curr_out_abbrev = curr_out_abbrev, addr_out = addr_out, volume_out = volume_out,
                    free_bal = float(free_bal),
                    curr_in_name = curr_in_name, volume_in = volume_in, curr_in_abbrev= curr_in_abbrev, addr_in = addr_in,
-                   lim_bal = lim_bal, may_pay = may_pay,
                    url_uri= url_uri
                   )
+    if lim_bal > 0:
+        out_res['may_pay'] = float(may_pay)
+
     if token_system_in:
         out_res['addr_out_full'] = addr_out_full
     

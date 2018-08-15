@@ -235,6 +235,10 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
     db.commit()
 
 def parse_mess(db, mess, creator):
+    
+    if not mess:
+        return NUll
+    
     args = mess.strip().split(':')
     #print args
     import db_common
