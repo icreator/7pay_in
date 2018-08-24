@@ -237,7 +237,7 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
 def parse_mess(db, mess, creator):
     
     if not mess:
-        return NUll
+        return None
     
     args = mess.strip().split(':')
     #print args
@@ -304,6 +304,10 @@ def get_incomed(db, token_system, from_block_in=None):
         acc = parse_mess(db, rec.get('head'), rec.get('creator'))
         if not acc:
             acc = parse_mess(db, rec.get('data'), rec.get('creator'))
+        if not acc:
+            acc = parse_mess(db, rec.get('title'), rec.get('creator'))
+        if not acc:
+            acc = parse_mess(db, rec.get('message'), rec.get('creator'))
             
         if not acc:
             acc = 'refuse:' + rec['creator']
