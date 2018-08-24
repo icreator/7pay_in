@@ -37,11 +37,11 @@ def index():
                                             ),
                                 result = dict(bal = "free balance for CURR_OUT inside exchange",
                                       addr_in = "cryptocurrency address for income",
-                                      uri = "URI for auto open wallet or generate QR-code",
                                       may_pay = "[amount] - If exists - how many exchange may accept CURR_IN?",
                                       volume_in = "amount You want to sell",
                                       volume_out = "amount You want to buy",
-                                      rate = "rate of exchange",
+                                      base_rate = "middle rate of exchange",
+                                      rate = "rate of this exchange",
                                       wrong = "message if rate not found"
                                    )
                                 ),
@@ -164,10 +164,24 @@ def get_rate():
     out_res = rates_lib.get_rate_for_api(db, curr_id, curr_out_id, vol_in,
                                          deal = db.deals[current.TO_COIN_ID], get_limits = vars.get('get_limits'))
 
+    if 'free_bal' in out_res:
+        out_res['bal'] = out_res.pop('free_bal')
+
+    if 'rate_out' in out_res:
+        out_res['rate'] = out_res.pop('rate_out')
+
     if 'curr_in_rec' in out_res:
         out_res.pop('curr_in_rec')
         del out_res['curr_out_rec']
 
+    if 'lim_bal' in out_res:
+        if out_res['lim_bal'] == 0:
+            out_res.pop('may_pay')
+        else:
+            out_res['may_pay'] = float(out_res['may_pay'])
+            
+        out_res.pop('lim_bal')
+        
 
     return request.extension == 'html' and dict(
         h=DIV(BEAUTIFY(out_res), _class='container')) or out_res
