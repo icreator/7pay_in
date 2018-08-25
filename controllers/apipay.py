@@ -31,50 +31,57 @@ def index():
                                    )
                                 ),
                 get_rate = dict(url = "get_rate/[curr_in_id]/[curr_out_id]/[vol_in]?get_limits=1",
-                                pars = dict(get_limits = " - limits in result",
-                                            curr_in_id = " - income currency as digit No. or as Abbreviation. For example: 3 or BTC",
-                                            curr_out_id = " - outcome currency as digit No. or as Abbreviation",
+                                pars = dict(get_limits = "limits in result",
+                                            curr_in_id = "income currency as digit No. or as Abbreviation. For example: 3 or BTC",
+                                            curr_out_id = "outcome currency as digit No. or as Abbreviation",
                                             ),
-                                result = dict(free_bal = "free balance for CURR_OUT inside exchange",
+                                result = dict(bal = "free balance for CURR_OUT inside exchange",
                                       addr_in = "cryptocurrency address for income",
-                                      url_uri = "URI for auto open wallet or generate QR-code",
                                       may_pay = "[amount] - If exists - how many exchange may accept CURR_IN?",
-                                      volume_in = "- amount You want to sell",
-                                      volume_out = " - amount You want to buy"
+                                      volume_in = "amount You want to sell",
+                                      volume_out = "amount You want to buy",
+                                      base_rate = "middle rate of exchange",
+                                      rate = "rate of this exchange",
+                                      wrong = "message if rate not found"
                                    )
                                 ),
                 get_bals = dict(url = "get_bals/[curr_abbrev]",
-                                pars = dict(curr_abbrev = " - if set then balance for it currency only",
+                                pars = dict(curr_abbrev = "if set then balance for it currency only",
                                             ),
                                 result = ""
                                    ),
-                get_uri_in = dict(url = "get_uri_out/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_in]",
-                                pars = dict(deal_id = " - for coins exchange use 2",
-                                            curr_in_id = " - income currency as digit No. or as Abbreviation. For example: 3 or BTC",
-                                            curr_out_id = " - outcome currency as digit No. or as Abbreviation. 3 - BTC, 9 - ERA, 10 - COMPU",
+                get_uri_in = dict(url = "get_uri_in/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_in]",
+                                pars = dict(deal_id = "for coins exchange use 2",
+                                            curr_in_id = "income currency as digit No. or as Abbreviation. For example: 3 or BTC",
+                                            curr_out_id = "outcome currency as digit No. or as Abbreviation. 3 - BTC, 9 - ERA, 10 - COMPU",
                                             address_out = "address for out",
                                             amount_in = "amount You want to sell (income)"
                                             ),
-                                result = dict(free_bal = "free balance for CURR_OUT inside exchange",
+                                result = dict(bal = "free balance for CURR_OUT inside exchange",
                                       addr_in = "cryptocurrency address for income",
-                                      url_uri = "URI for auto open wallet or generate QR-code",
+                                      uri = "URI for auto open wallet or generate QR-code",
                                       may_pay = "[amount] - If exists - how many exchange may accept CURR_IN?",
-                                      volume_in = "- amount You want to sell",
-                                      volume_out = " - amount You want to buy")
+                                      volume_in = "amount You want to sell",
+                                      volume_out = "amount You want to buy",
+                                      wrong = "message if rate not found"
+                                     )
                                    ),
                 get_uri = dict(url = "get_uri/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_out]",
-                                pars = dict(deal_id = " - for coins exchange use 2",
-                                            curr_in_id = " - income currency as digit No. or as Abbreviation. For example: 3 or BTC",
-                                            curr_out_id = " - outcome currency as digit No. or as Abbreviation. 3 - BTC, 9 - ERA, 10 - COMPU",
+                                pars = dict(deal_id = "for coins exchange use 2",
+                                            curr_in_id = "income currency as digit No. or as Abbreviation. For example: 3 or BTC",
+                                            curr_out_id = "outcome currency as digit No. or as Abbreviation. 3 - BTC, 9 - ERA, 10 - COMPU",
                                             address_out = "address for out",
                                             amount_out = "amount You want to buy (outcome)"
                                             ),
-                                result = dict(free_bal = "free balance for CURR_OUT inside exchange",
+                                result = dict(bal = "free balance for CURR_OUT inside exchange",
                                       addr_in = "cryptocurrency address for income",
-                                      url_uri = "URI for auto open wallet or generate QR-code",
+                                      uri = "URI for auto open wallet or generate QR-code",
                                       may_pay = "[amount] - If exists - how many exchange may accept CURR_IN?",
-                                      volume_in = "- amount You want to sell",
-                                      volume_out = " - amount You want to buy")
+                                      volume_in = "amount You want to sell",
+                                      volume_out = "amount You want to buy",
+                                      rate = "rate of exchange",
+                                      wrong = "message if rate not found"
+                                     )
                                    )
                 )
 
@@ -95,13 +102,13 @@ def get_currs():
         free_bal = db_client.curr_free_bal(r.currs)
         lim_bal, may_pay = db_client.is_limited_ball(r.currs)
 
-        out_res['in'][r.currs.abbrev] = {
+        out_res['in'][r.currs.abbrev] = { 'id': int(r.currs.id),
                                            'name': r.currs.name, 'name2': r.currs.name2,
                                           'icon':  r.currs.abbrev + '.png'}
         if lim_bal > 0:
             out_res['in'][r.currs.abbrev]['may_pay'] = float(may_pay)
 
-        out_res['out'][r.currs.abbrev] = { 'bal': float(free_bal),
+        out_res['out'][r.currs.abbrev] = { 'id': int(r.currs.id), 'bal': float(free_bal),
                                            'name': r.currs.name, 'name2': r.currs.name2,
                                           'icon':  r.currs.abbrev + '.png'}
 
@@ -157,10 +164,24 @@ def get_rate():
     out_res = rates_lib.get_rate_for_api(db, curr_id, curr_out_id, vol_in,
                                          deal = db.deals[current.TO_COIN_ID], get_limits = vars.get('get_limits'))
 
+    if 'free_bal' in out_res:
+        out_res['bal'] = out_res.pop('free_bal')
+
+    if 'rate_out' in out_res:
+        out_res['rate'] = out_res.pop('rate_out')
+
     if 'curr_in_rec' in out_res:
         out_res.pop('curr_in_rec')
         del out_res['curr_out_rec']
 
+    if 'lim_bal' in out_res:
+        if out_res['lim_bal'] == 0:
+            out_res.pop('may_pay')
+        else:
+            out_res['may_pay'] = float(out_res['may_pay'])
+            
+        out_res.pop('lim_bal')
+        
 
     return request.extension == 'html' and dict(
         h=DIV(BEAUTIFY(out_res), _class='container')) or out_res
@@ -174,9 +195,9 @@ def get_rate():
  
 
 ''' out parameters:
-    free_bal - free balance for CURR_OUT inside exchange
-    may_pay	[amount] - If exists - how namy echange may accept CURR_IN?
-    url_uri - URI for cryptocurrency wallet
+    bal - free balance for CURR_OUT inside exchange
+    may_pay    [amount] - If exists - how namy echange may accept CURR_IN?
+    uri - URI for cryptocurrency wallet
     volume_in - need to pay by client
     volume_out - will be taken by client
 '''
@@ -335,9 +356,9 @@ def get_uri_in():
             )
         db.orders_stack.insert( ref_ = order_id )
     else:
-        vol_in = rate_out = tax_rep = None
+        vol_out = rate_out = tax_rep = None
 
-    _, url_uri = common.uri_make( curr_in.name2, addr_in, {'amount':vol_in, 'label': db_client.make_x_acc_label(deal, addr_out, curr_out_abbrev)})
+    _, uri = common.uri_make( curr_in.name2, addr_in, {'amount':vol_in, 'label': db_client.make_x_acc_label(deal, addr_out, curr_out_abbrev)})
 
     curr_in_abbrev = curr_in.abbrev
     
@@ -351,12 +372,15 @@ def get_uri_in():
         addr_out_full = addr_out
 
     out_res = dict(curr_out_abbrev = curr_out_abbrev, addr_out = addr_out, volume_out = vol_out,
-                   free_bal = float(free_bal),
+                   bal = float(free_bal / 2), rate = rate_out,
                    curr_in_name = curr_in_name, volume_in = vol_in, curr_in_abbrev= curr_in_abbrev, addr_in = addr_in,
-                   url_uri= url_uri
+                   uri= uri
                   )
     if lim_bal > 0:
-        out_res['may_pay'] = float(may_pay)
+        out_res['may_pay'] = float(may_pay / 2)
+    
+    if not vol_out:
+        out_res['wrong'] = 'rate not found'
 
     if token_system_in:
         out_res['addr_out_full'] = addr_out_full
@@ -372,9 +396,9 @@ def get_uri_in():
 # http://127.0.0.1:8000/ipay3_free/apipay/get_uri/2/9/3/39b83inCcbcpTKZWQXEwTaSe5d8kVEh4vC/0.1 - not my!
 
 ''' out parameters:
-    free_bal - free balance for CURR_OUT inside exchange
-    may_pay	[amount] - If exists - how namy echange may accept CURR_IN?
-    url_uri - URI for cryptocurrency wallet
+    bal - free balance for CURR_OUT inside exchange
+    may_pay    [amount] - If exists - how namy echange may accept CURR_IN?
+    uri - URI for cryptocurrency wallet
     volume_in - need to pay by client
     volume_out - will be taken by client
 '''
@@ -387,11 +411,41 @@ def get_uri():
     ##print args, '\n', request.vars
     if len(args) < 2: return mess('err...')
     deal_id = args(0)
-    curr_id = args(1)
-    curr_out_id = args(2)
+
+    curr_id = args(1) or vars.get('curr_in')
+    if not curr_id or len(curr_id) > 20:
+        return mess('error curr_in')
+    try:
+        curr_id = int(curr_id)
+        curr_in = db.currs[ curr_id ]
+        if not curr_in:
+            return mess('curr in id...')
+    except:
+        curr_in = db(db.currs.abbrev == curr_id).select().first()
+        curr_id = curr_in.id
+        if not curr_in:
+            return mess('curr in id...')
+        curr_id = curr_in.id
+
+    curr_out_id = args(2) or vars.get('curr_out')
+    if not curr_out_id or len(curr_out_id) > 20:
+        return mess('error curr_out')
+    try:
+        curr_out_id = int(curr_out_id)
+        curr_out = db.currs[ curr_out_id ]
+        if not curr_out:
+            return mess('curr out id...')
+    except:
+        curr_out = db(db.currs.abbrev == curr_out_id).select().first()
+        if not curr_out:
+            return mess('curr out id...')
+        curr_out_id = curr_out.id
+
+    
     addr_out = args(3)
-    if not deal_id.isdigit() or not curr_id.isdigit():
-        return mess('dig...')
+
+    #if not deal_id.isdigit() or not curr_id.isdigit():
+    #    return mess('dig...')
 
     vol = args(4)
     if not vol or len(vol) > 20:
@@ -399,7 +453,6 @@ def get_uri():
     
     try:
         vol = float(vol)
-        curr_id = int(curr_id)
     except:
         return mess('digs...')
 
@@ -415,14 +468,9 @@ def get_uri():
     deal = db.deals[ deal_id ]
     if not deal: return mess('deal...')
     
-    curr_in = db.currs[ curr_id ]
-    if not curr_in: return mess('curr...')
     xcurr_in = db(db.xcurrs.curr_id == curr_id).select().first()
     if not xcurr_in: return mess('xcurr...')
 
-    if not curr_out_id: return mess('curr out id...')
-    curr_out = db.currs[ curr_out_id ]
-    if not curr_out: return mess('curr out...')
     xcurr_out = db(db.xcurrs.curr_id == curr_out.id).select().first()
     if not xcurr_out: return mess('xcurr out...')
     curr_out_abbrev = curr_out.abbrev
@@ -514,7 +562,7 @@ def get_uri():
     else:
         volume_in = rate_out = tax_rep = None
 
-    _, url_uri = common.uri_make( curr_in.name2, addr_in, {'amount':volume_in, 'label': db_client.make_x_acc_label(deal, addr_out, curr_out_abbrev)})
+    _, uri = common.uri_make( curr_in.name2, addr_in, {'amount':volume_in, 'label': db_client.make_x_acc_label(deal, addr_out, curr_out_abbrev)})
 
     curr_in_abbrev = curr_in.abbrev
     
@@ -528,12 +576,15 @@ def get_uri():
         addr_out_full = addr_out
 
     out_res = dict(curr_out_abbrev = curr_out_abbrev, addr_out = addr_out, volume_out = volume_out,
-                   free_bal = float(free_bal),
+                   bal = float(free_bal / 2), rate = rate_out,
                    curr_in_name = curr_in_name, volume_in = volume_in, curr_in_abbrev= curr_in_abbrev, addr_in = addr_in,
-                   url_uri= url_uri
+                   uri = uri
                   )
     if lim_bal > 0:
-        out_res['may_pay'] = float(may_pay)
+        out_res['may_pay'] = float(may_pay / 2)
+
+    if not volume_in:
+        out_res['wrong'] = 'rate not found'
 
     if token_system_in:
         out_res['addr_out_full'] = addr_out_full
