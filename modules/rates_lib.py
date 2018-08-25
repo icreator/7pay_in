@@ -111,7 +111,8 @@ def get_average_rate_bsa_2(db, in_id, out_id, expired):
 
 def get_average_rate_bsa(db, in_id, out_id, expired=None):
     if in_id == out_id: return 1,1,1
-    # берем в расчет только недавние цены
+    
+    # get fresh rates
     expired = expired or datetime.datetime.now() - datetime.timedelta(0,RATES_TIME)
 
     b,s,avg = get_average_rate_bsa_2(db, in_id, out_id, expired)
@@ -119,28 +120,58 @@ def get_average_rate_bsa(db, in_id, out_id, expired=None):
         #print in_id,'->',out_id, b, s
         ##b,s = add_tax(db, in_id, out_id, b, s)
         return b, s, avg
-    # иначе попробуем взять через Биткоин кросскурс
-    btc, x, e = db_common.get_currs_by_abbrev(db,'BTC')
-    b1,s1,avg1 = get_average_rate_bsa_2(db, in_id, btc.id, expired)
-    b2,s2,avg2 = get_average_rate_bsa_2(db, btc.id, out_id, expired)
-    if b1 and s1 and b2 and s2:
-        #print in_id,'->BTC->',out_id, b1, s1, 'and', b2, s2
-        # нашли кросскурс
-        b = b1 * b2
-        s = s1 * s2
-        ##b, s = add_tax(db, in_id, out_id, b, s)
-        return b, s, avg1*avg2
 
-    btc, x, e = db_common.get_currs_by_abbrev(db,'USD')
-    b1,s1,avg1 = get_average_rate_bsa_2(db, in_id, btc.id, expired)
-    b2,s2,avg2 = get_average_rate_bsa_2(db, btc.id, out_id, expired)
-    if b1 and s1 and b2 and s2:
-        #print in_id,'->USD->',out_id, b1, s1, 'and', b2, s2
-        # нашли кросскурс
-        b = b1 * b2
-        s = s1 * s2
-        ##b, s = add_tax(db, in_id, out_id, b, s)
-        return b, s, avg1*avg2
+    # try use BTC cross-rate
+    btc, x, e = db_common.get_currs_by_abbrev(db,'BTC')
+    #print 'get_average_rate_bsa <>BTC'
+    bBTC1,sBTC1,avgBTC1 = get_average_rate_bsa_2(db, in_id, btc.id, expired)
+    bBTC2,sBTC2,avgBTC2 = get_average_rate_bsa_2(db, btc.id, out_id, expired)
+    #print 'get_average_rate_bsa <>BTC', bBTC1, sBTC1, ' // ', bBTC2, sBTC2
+    if bBTC1 and sBTC1 and bBTC2 and sBTC2:
+        #cross-rate is found
+        b = bBTC1 * bBTC2
+        s = sBTC1 * sBTC2
+        avg = avgBTC1*avgBTC2
+        return b, s, avg
+
+    # try use USD cross-rate
+    usd, x, e = db_common.get_currs_by_abbrev(db,'USD')
+    #print 'get_average_rate_bsa <>USD'
+    bUSD1,sUSD1,avgUSD1 = get_average_rate_bsa_2(db, in_id, usd.id, expired)
+    bUSD2,sUSD2,avgUSD2 = get_average_rate_bsa_2(db, usd.id, out_id, expired)
+    #print 'get_average_rate_bsa <>USD', bUSD1, sUSD1, ' // ', bUSD2, sUSD2
+    if bUSD1 and sUSD1 and bUSD2 and sUSD2:
+        #cross-rate is found
+        b = bUSD1 * bUSD2
+        s = sUSD1 * sUSD2
+        avg = avgUSD1*avgUSD2
+        return b, s, avg
+
+    # try use BTC->USD cross-rate
+    if bBTC1 and sBTC1 and bUSD2 and sUSD2:
+        #print 'get_average_rate_bsa >>BTC>>>USD>>>'
+        bBTC_USD1, sBTC_USD1, avgBTC_USD1 = get_average_rate_bsa_2(db, btc.id, usd.id, expired)
+        #print 'get_average_rate_bsa >>BTC>>>USD>>>', bBTC_USD1, sBTC_USD1
+        if bBTC_USD1 and sBTC_USD1:
+            #cross-rate is found
+            b = bBTC1 * bBTC_USD1 * bUSD2
+            s = sBTC1 * sBTC_USD1 * sUSD2
+            avg = avgBTC1 * avgBTC_USD1 * avgUSD2
+            #print '***BTC > USD***', b, s, avg
+            return b, s, avg
+
+    # try use reverse BTC->USD cross-rate
+    if bBTC2 and sBTC2 and bUSD1 and sUSD1:
+        bBTC_USD2, sBTC_USD2, avgBTC_USD2 = get_average_rate_bsa_2(db, usd.id, btc.id, expired)
+        #print 'get_average_rate_bsa <<BTC<<<USD<<<', bBTC_USD2, sBTC_USD2
+        if bBTC_USD2 and sBTC_USD2:
+            #cross-rate is found
+            b = bBTC2 * bBTC_USD2 * bUSD1
+            s = sBTC2 * sBTC_USD2 * sUSD1
+            avg = avgBTC2 * avgBTC_USD2 * avgUSD1
+            #print '***BTC < USD***', b, s, avg
+            return b, s, avg
+
     return None, None, None
 
 def get_avr_rate_or_null(db, curr_in_id, curr_out_id):
