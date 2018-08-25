@@ -372,12 +372,12 @@ def get_uri_in():
         addr_out_full = addr_out
 
     out_res = dict(curr_out_abbrev = curr_out_abbrev, addr_out = addr_out, volume_out = vol_out,
-                   bal = float(free_bal), rate = rate_out,
+                   bal = float(free_bal / 2), rate = rate_out,
                    curr_in_name = curr_in_name, volume_in = vol_in, curr_in_abbrev= curr_in_abbrev, addr_in = addr_in,
                    uri= uri
                   )
     if lim_bal > 0:
-        out_res['may_pay'] = float(may_pay)
+        out_res['may_pay'] = float(may_pay / 2)
     
     if not vol_out:
         out_res['wrong'] = 'rate not found'
@@ -576,12 +576,12 @@ def get_uri():
         addr_out_full = addr_out
 
     out_res = dict(curr_out_abbrev = curr_out_abbrev, addr_out = addr_out, volume_out = volume_out,
-                   bal = float(free_bal), rate = rate_out,
+                   bal = float(free_bal / 2), rate = rate_out,
                    curr_in_name = curr_in_name, volume_in = volume_in, curr_in_abbrev= curr_in_abbrev, addr_in = addr_in,
                    uri = uri
                   )
     if lim_bal > 0:
-        out_res['may_pay'] = float(may_pay)
+        out_res['may_pay'] = float(may_pay / 2)
 
     if not volume_in:
         out_res['wrong'] = 'rate not found'
