@@ -309,3 +309,31 @@ def get_rates():
 def get_buy_rates():
     session.forget(response)
     return { 'error': 'please use /rates/in_ydrub or rates/help API call instead'}
+
+@cache.action(time_expire=IS_LOCAL and 5 or 300, cache_model=cache.ram, public=False, lang=False)
+def rates3():
+    session.forget(response)
+    curr_out = db(db.currs.abbrev == 'BTC').select().first()
+    if not curr_out: return 'curr_out [BTC] not found'
+
+    currs_list = ['BTC', 'LTC', 'DASH', 'ERA', 'COMPU']
+    import rates_lib
+    btc_rates = []
+    for r in rates_lib.top_line(db, curr_out, currs_list):
+        btc_rates.append(r)
+
+    curr_out = db(db.currs.abbrev == 'USD').select().first()
+    if not curr_out: return 'curr_out [USD] not found'
+
+    usd_rates = []
+    for r in rates_lib.top_line(db, curr_out, currs_list):
+        usd_rates.append(r)
+
+    curr_out = db(db.currs.abbrev == 'RUB').select().first()
+    if not curr_out: return 'curr_out [RUB] not found'
+
+    rub_rates = []
+    for r in rates_lib.top_line(db, curr_out, currs_list):
+        rub_rates.append(r)
+    
+    return dict( btc = btc_rates, usd = usd_rates, rub = rub_rates)
