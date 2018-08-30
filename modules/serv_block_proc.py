@@ -497,6 +497,7 @@ def send_back(conn, token_system, curr, xcurr, txid, amount, to_addr=None):
         return 'so small to return - wipe'
     return
 
+
 def return_refused(db, curr, xcurr, conn, token_system):
     # возвраты
     for r in db((db.pay_ins_stack.ref_ == db.pay_ins.id)
