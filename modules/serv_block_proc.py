@@ -101,11 +101,11 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
                 token_system_out = True
                 xcurr_out = db_common.get_xcurr_by_system_token(db, token_system, curr_out_key)
                 curr_out = xcurr_out and db.currs[xcurr_out.curr_id]
-                print 'as TOKEN curr_out: ', curr_out
+                print 'as TOKEN curr_out: ', curr_out.abbrev
             except Exception as e:
                 token_system_out = False
                 curr_out, xcurr_out, e = db_common.get_currs_by_abbrev(db, curr_out_name)
-                print 'as COIN curr_out: ', curr_out
+                print 'as COIN curr_out: ', curr_out.abbrev
             
             if not curr_out:
                 log(db, 'AS TOKEN not found curr_out ' + acc)
@@ -253,7 +253,14 @@ def parse_mess(db, mess, creator):
                 token = db.tokens[token_key]
                 token_system = db.systems[token.system_id]
                 return curr_out.abbrev + ':' + creator
-            
+    else:
+        # may be here only ADDRESS
+        addr = args[0].strip()
+        from db_common import get_currs_by_addr
+        curr, xcurr, _ = get_currs_by_addr(db, addr)
+        if xcurr:
+            return curr.abbrev + ':' + addr
+
 
 def get_incomed(db, token_system, from_block_in=None):
     
@@ -287,7 +294,7 @@ def get_incomed(db, token_system, from_block_in=None):
         token_system.from_block = from_block = 1 # все входы со всеми подтверждениями берем
         token_system.update_record()
         tab, curr_block = rpc_erachain.get_transactions(erachain_rpc, erachain_addr, conf = token_system.conf)
-        print type(tab), tab
+        #print type(tab), tab
         if type(tab) == type({}):
             # ошибка
             log(db, 'listunspent %s' % Unsp)

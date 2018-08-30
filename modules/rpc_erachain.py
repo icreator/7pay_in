@@ -110,7 +110,7 @@ def get_transactions(rpc_url, addr, from_block=2, conf=2):
     
     ## TODO + confirmed HARD
     while i + conf <= height:
-        if len(result) > 10 or i - from_block > 3000:
+        if len(result) > 100 or i - from_block > 3000:
             break
 
         i += 1
@@ -122,9 +122,22 @@ def get_transactions(rpc_url, addr, from_block=2, conf=2):
             return result, i - 1
         
         if len(recs) > 0:
-            print 'height: ', i
+            print 'erachain incomed - height: ', i, ' recs:', len(recs)
+        else:
+            continue
             
-        result += recs
+        incomes = []
+        for rec in recs:
+            if rec['type'] != 31:
+                # only SEND transactions
+                continue
+            if 'action_key' not in rec or rec['action_key'] != 1:
+                # only SEN PROPERTY action
+                continue
+            incomes.append(rec)
+            print 'erachain - title:', rec.get('title', rec.get('head')), 'message:', rec.get('message', rec.get('data'))
+            
+        result += incomes
     
     return result, i
 
