@@ -309,3 +309,156 @@ def get_rates():
 def get_buy_rates():
     session.forget(response)
     return { 'error': 'please use /rates/in_ydrub or rates/help API call instead'}
+
+@cache.action(time_expire=IS_LOCAL and 5 or 300, cache_model=cache.ram, public=False, lang=False)
+def rates3():
+    session.forget(response)
+    curr_out = db(db.currs.abbrev == 'BTC').select().first()
+    if not curr_out: return 'curr_out [BTC] not found'
+
+    currs_list = ['BTC', 'LTC', 'DASH', 'ERA', 'COMPU']
+    import rates_lib
+    btc_rates = []
+    for r in rates_lib.top_line(db, curr_out, currs_list):
+        btc_rates.append(r)
+
+    curr_out = db(db.currs.abbrev == 'USD').select().first()
+    if not curr_out: return 'curr_out [USD] not found'
+
+    usd_rates = []
+    for r in rates_lib.top_line(db, curr_out, currs_list):
+        usd_rates.append(r)
+
+    curr_out = db(db.currs.abbrev == 'RUB').select().first()
+    if not curr_out: return 'curr_out [RUB] not found'
+
+    rub_rates = []
+    for r in rates_lib.top_line(db, curr_out, currs_list):
+        rub_rates.append(r)
+    
+    return dict( btc = btc_rates, usd = usd_rates, rub = rub_rates)
+
+# адес тут должен быть точный
+def for_addr():
+    session.forget(response)
+    addr = request.vars and request.vars.get('addr')
+    #print addr
+    if not addr or len(addr) < 24: return dict(pays=T('ошибочный адрес [%s]') % addr)
+
+    pays = where.found_buys(db, addr)
+    if len(pays)>0:
+        return dict(pays=pays)
+
+    pays=[]
+    # все еще не подтвержденные
+    curr, xcurr, _, = db_common.get_currs_by_addr(db, addr)
+    #print curr, '\n', xcurr
+    if not curr or not curr.used: return dict(pays=T('ошибочный адрес по первой букве [%s]') % addr)
+    where.found_unconfirmed(db, curr, xcurr, addr, pays)
+
+
+    where.found_pay_ins(db, curr, xcurr, addr, pays, None)
+    if len(pays)==0: pays = T('Входов не найдено...')
+    return dict(pays=pays)
+
+#@cache.action(time_expire=request.is_local and 5 or 30, cache_model=cache.disk,
+#              vars=True, public=True, lang=True)
+def deals_does():
+
+    addr = request.args(0) or request.vars.addr
+    if addr and len(addr) > 40: addr = None
+
+    import where3
+    pays = []
+
+    deal_acc_addr = db(db.deal_acc_addrs.addr == addr).select().first()
+    if not deal_acc_addr:
+        return mess('Deals not found')
+    xcurr_in = db.xcurrs[deal_acc_addr.xcurr_id ]
+    curr_in = db.currs[ xcurr_in.curr_id ]
+    deal_acc = db.deal_accs[ deal_acc_addr.deal_acc_id]
+    curr_out = db.currs[ deal_acc.curr_id ]
+    deal = db.deals[ deal_acc.deal_id ]
+    payed_month = not deal.is_shop and deal_acc.payed_month or Decimal(0)
+    MAX = deal.MAX_pay
+    payed = deal_acc.payed or Decimal(0)
+    price = deal_acc.price
+    order_id = deal_acc.acc
+    amo_rest_url = None
+    client = db(db.clients.deal_id == deal.id).select().first()
+    if client:
+        curr_out = db.currs[deal_acc.curr_id]
+        vvv = {'order':order_id, 'curr_out':curr_out.abbrev}
+
+        if price and price >0 and price - payed > 0:
+            # еще надо доплатить
+            vvv['sum'] = price - payed
+        amo_rest_url=A(T('Доплатить'), _href=URL('to_shop','index', args=[client.id],
+            vars=vvv))
+
+    import gifts_lib
+    if 'to COIN' in deal.name:
+        rnd = 8
+    else:
+        rnd = 2
+    adds_mess = XML(gifts_lib.adds_mess(deal_acc, PARTNER_MIN, T, rnd))
+
+    pays_unconf = []
+    where3.found_unconfirmed(db, curr_in, xcurr_in, addr, pays_unconf)
+    #print 'pays_unconf:', pays_unconf
+
+    pays_process=[]
+    where3.found_pay_ins_process(db, addr, pays_process)
+
+    pays=[]
+    where3.found_pay_ins(db, addr, pays)
+    #print 'pays:', pays
+    return dict( pays_unconf=pays_unconf, pays_process=pays_process, pays=pays,
+        payed_month=payed_month, MAX=MAX, addr=addr,
+        payed=payed, price=price, order_id=order_id, amo_rest_url=amo_rest_url,
+        adds_mess = adds_mess,
+        curr_in = curr_in, deal_acc = deal_acc,
+        curr_out = curr_out, deal = deal, privat = False,
+        )
+
+    # сюда пришло значит ищес общий список
+    pays_process=[]
+    where3.found_pay_ins_process(db, addr, pays_process)
+    pays=[]
+    privat = where3.found_pay_ins(db, addr, pays)
+
+    pays_unconf = []
+    if not privat:
+        # если мне то и все неподтв
+        # все еще не подтвержденные
+        for xcurr_in in db(db.xcurrs).select():
+            curr_in = db.currs[xcurr_in.curr_id]
+            if not curr_in or not curr_in.used: continue
+            where3.found_unconfirmed(db, curr_in, xcurr_in, None, pays_unconf)
+
+    return dict( adds_mess = None, pays_unconf=pays_unconf, pays_process=pays_process, addr = None, pays=pays, privat = privat)
+
+def deals_wait():
+    addr = request.args(0) or request.vars.addr
+    if addr and len(addr) > 40: addr = None
+
+    import where3
+    pays = []
+
+
+    # сюда пришло значит ищес общий список
+    pays_process=[]
+    where3.found_pay_ins_process(db, addr, pays_process)
+    pays=[]
+    privat = where3.found_pay_ins(db, addr, pays)
+
+    pays_unconf = []
+    if not privat:
+        # если мне то и все неподтв
+        # все еще не подтвержденные
+        for xcurr_in in db(db.xcurrs).select():
+            curr_in = db.currs[xcurr_in.curr_id]
+            if not curr_in or not curr_in.used: continue
+            where3.found_unconfirmed(db, curr_in, xcurr_in, None, pays_unconf)
+
+    return dict( adds_mess = None, pays_unconf=pays_unconf, pays_process=pays_process, addr = None, pays=pays, privat = privat)

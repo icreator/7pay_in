@@ -42,9 +42,11 @@ def get_deal_acc_id(db, deal, acc, curr_out, price=None):
     deal_acc = None
     for rec in db((db.deal_accs.deal_id==deal.id) # для данного дела
             & (db.deal_accs.acc==acc) # есть такой аккаунт
+            & (db.deal_accs.curr_id==curr_out.id)
             ).select():
         if len(rec.acc)<3: continue
         deal_acc = rec
+        ##print 'get_deal_acc_id found:', deal_acc.id, deal_acc.acc, curr_out.id
         break
 
     if deal_acc:
@@ -52,6 +54,7 @@ def get_deal_acc_id(db, deal, acc, curr_out, price=None):
     else:
         time.sleep(2)
         deal_acc_id = db.deal_accs.insert(deal_id = deal.id, acc = acc, curr_id = curr_out.id, price = price)
+        ##print 'insert new - deal_acc_id:', deal_acc_id
     return deal_acc_id
 
 def get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr, xcurr, x_acc_label):
@@ -61,6 +64,7 @@ def get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr, xcurr, x_acc_label):
         & (db.deal_acc_addrs.xcurr_id==xcurr.id)
         ).select().first()
     if deal_acc_addr:
+        ##print 'get_deal_acc_addr_for_xcurr found:', 'deal_acc_id:', deal_acc_id, 'xcurr_id:', xcurr.id, '>>', deal_acc_addr.id, deal_acc_addr.addr
         return deal_acc_addr
 
     # Erachain tokens?
@@ -81,7 +85,7 @@ def get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr, xcurr, x_acc_label):
         x_acc_label = x_acc_label.decode('utf8')
         #x_acc_label = x_acc_label.encode('koi8_r') # 'iso8859_5') # 'cp866') # 'cp1251') #'cp855')
         #x_acc_label = x_acc_label.decode('cp855')
-        #print 'GET new addr for',x_acc_label
+        ##print 'GET new addr for x_acc_label:', x_acc_label
         try:
             addr = crypto_client.get_xaddress_by_label(conn, x_acc_label)
         except:
@@ -93,6 +97,7 @@ def get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr, xcurr, x_acc_label):
               xcurr_id=xcurr.id,
               addr = addr)
     deal_acc_addr = db.deal_acc_addrs[id]
+    ##print 'GETed new addr :', addr
     return deal_acc_addr
 
 ######################################################
@@ -260,13 +265,13 @@ def test2():
     c2, x,e =get_currs_by_abbrev(db,'RUB').id
     pair = db((db.exchg_pairs.curr1_id==c1.id) & (db.exchg_pairs.curr2_id==c2.id)).select().first()
     for vol in (1,10,100,1000,10000, 33000):
-        print "\n", vol
-        print "--->"
+        #print "\n", vol
+        #print "--->"
         best_price, best_pair, best_tax, best_fee_ed = get_best_price_for_volume(db, x1_id, x2_id, vol, expired)
         # и проверим обратную
-        print "<<<<"
+        #print "<<<<"
         rateB, rateS, rateA = rates_lib.get_average_rate_bsa(db, x2_id, x1_id, expired)
-        print "rateB, rateS, rateA", rateB, rateS, rateA
+        #print "rateB, rateS, rateA", rateB, rateS, rateA
         if rateS: best_price, best_pair, best_tax, best_fee_ed = get_best_price_for_volume(db, x2_id, x1_id, vol/rateS, expired)
 
 ####################################################################
