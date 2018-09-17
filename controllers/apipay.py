@@ -2,6 +2,9 @@
 
 session.forget(response)
 
+## ALLOW API from not local
+response.headers['Access-Control-Allow-Origin'] = '*'
+
 time_exp = IS_LOCAL and 3 or 666
 
 import datetime

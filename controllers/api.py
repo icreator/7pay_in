@@ -10,6 +10,9 @@ import db_common
 import db_client
 import serv_to_buy
 
+## ALLOW API from not local
+response.headers['Access-Control-Allow-Origin'] = '*'
+
 def help():
     redirect(URL('index'))
 
