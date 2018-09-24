@@ -108,6 +108,8 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
   }
 
             '''
+            if u'amount' not in r: continue
+            
             txid = r[u'signature']
             pays.append([
                     curr, r[u'amount'], txid, 0,

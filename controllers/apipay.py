@@ -85,6 +85,23 @@ def index():
                                       rate = "rate of exchange",
                                       wrong = "message if rate not found"
                                      )
+                                   ),
+                history = dict(url = "history/[address]",
+                                pars = dict(
+                                            address = "address for view deals history",
+                                            ),
+                                result = dict(
+                                        unconfirmed = "payments wait confirmations",
+                                        in_process = "payments in process", 
+                                        done = "done deals",
+                                        payed_month = "payed_month", 
+                                        MAX = "MAX", 
+                                        address = "address",
+                                        payed = "total", 
+                                        price = "price",
+                                        order_id = "order id",
+                                        message = "message for address"
+                                     )
                                    )
                 )
 
@@ -592,5 +609,117 @@ def get_uri():
     if token_system_in:
         out_res['addr_out_full'] = addr_out_full
     
+    return request.extension == 'html' and dict(
+        h=DIV(BEAUTIFY(out_res), _class='container')) or out_res
+
+
+def history():
+    addr = request.args(0)
+    if not addr or len(addr) < 24 or len(addr) > 40: return mess('wrong address [%s]' % addr)
+
+    import where3
+    
+    deal_acc_addr = db(db.deal_acc_addrs.addr == addr).select().first()
+    if not deal_acc_addr:
+        return mess('Deals not found')
+    xcurr_in = db.xcurrs[deal_acc_addr.xcurr_id ]
+    curr_in = db.currs[ xcurr_in.curr_id ]
+    deal_acc = db.deal_accs[ deal_acc_addr.deal_acc_id]
+    curr_out = db.currs[ deal_acc.curr_id ]
+    deal = db.deals[ deal_acc.deal_id ]
+    payed_month = not deal.is_shop and deal_acc.payed_month or Decimal(0)
+    MAX = deal.MAX_pay
+    payed = deal_acc.payed or Decimal(0)
+    price = deal_acc.price
+    order_id = deal_acc.acc
+
+
+    import gifts_lib
+    if 'to COIN' in deal.name:
+        rnd = 8
+    else:
+        rnd = 2
+    adds_mess = XML(gifts_lib.adds_mess(deal_acc, PARTNER_MIN, T, rnd))
+
+    pays_unconf = []
+    where3.found_unconfirmed(db, curr_in, xcurr_in, addr, pays_unconf)
+    #print 'pays_unconf:', pays_unconf
+
+    pays_process=[]
+    where3.found_pay_ins_process(db, addr, pays_process)
+    in_proc = []
+    for r in pays_process:
+                    
+        pay_in = r['pay_in']
+
+        in_proc.append({
+            "curr_in": r['curr_in'].abbrev,
+            "curr_in_id": r['curr_in'].id,
+            "curr_out": r['curr_out'].abbrev,
+            "curr_out_id": r['curr_out'].id,
+            "acc": r['deal_acc'].acc,
+
+            #"pay_in" : dict(amount = pay_in.amount, confitmations = pay_in.confs, order_id = pay_in.order_id,
+            #                stasus = pay_in.status, status_mess = pay_in.status_mess,
+            #                txid = pay_in.txid),
+            "pay_in": pay_in
+            
+            })
+
+    pays=[]
+    where3.found_pay_ins(db, addr, pays)
+    done = []
+    for r in pays:
+        
+        pay_in = r['pay_in']
+        pay_out = r['pay_out']
+        
+        done.append({
+            "curr_in": r['curr_in'].abbrev,
+            "curr_in_id": r['curr_in'].id,
+            "curr_out": r['curr_out'].abbrev,
+            "curr_out_id": r['curr_out'].id,
+            "acc": r['deal_acc'].acc,
+            
+            "pay_in" : dict(amount = float(pay_in.amount), confitmations = pay_in.confs, order_id = pay_in.order_id,
+                            stasus = pay_in.status, status_mess = pay_in.status_mess,
+                            txid = pay_in.txid),
+            "pay_out" : dict(amo_gift = float(pay_out.amo_gift),
+                             amo_in = float(pay_out.amo_in),
+                             amo_partner = float(pay_out.amo_partner),
+                             amo_taken = float(pay_out.amo_taken),
+                             amo_to_pay = float(pay_out.amo_to_pay),
+                             amount = float(pay_out.amount),
+                             created_on = pay_out.created_on,
+                             id = pay_out.id,
+                             info = pay_out.info,
+                             status = pay_out.status,
+                             tax_mess = pay_out.tax_mess,
+                             txid = pay_out.txid,
+                             vars = pay_out.vars),
+            
+            })
+    
+    deal_res = dict(id = deal.id, name = deal.name)
+    
+    deal_acc_res = dict(id = deal_acc.id, name = deal_acc.acc,
+            gift_amount = float(deal_acc.gift_amount),
+            gift_payed = float(deal_acc.gift_payed),
+            gift_pick = float(deal_acc.gift_pick),
+            curr_out_id = deal_acc.curr_id,
+            )
+    
+    deal_acc_addr_res = dict(id = deal_acc_addr.id)
+    #print 'pays:', pays
+    out_res = dict(deal = deal_res, deal_acc = deal_acc_res, deal_acc_addr = deal_acc_addr_res, 
+        unconfirmed = pays_unconf, in_process = in_proc, done = done,
+        payed_month = payed_month, MAX = MAX, address = addr,
+        payed = payed, price = price,
+        order_id = order_id,
+        message = adds_mess,
+        ##curr_in = curr_in, deal_acc = deal_acc,
+        ##curr_out = curr_out, deal = deal, privat = False,
+        )
+
     return request.extension == 'html' and dict(
         h=DIV(BEAUTIFY(out_res), _class='container')) or out_res
