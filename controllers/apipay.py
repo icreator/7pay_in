@@ -629,7 +629,11 @@ def history():
     if not deal_acc:
         return mess('Deal ACCOUNT not found')
 
+    deal_acc = deal_acc.deal_accs
     deal = db.deals[ deal_acc.deal_id ]
+
+    from pytz import utc, timezone
+    from time import mktime
 
     import where3
 
@@ -651,17 +655,17 @@ def history():
         curr_in = r.currs
         addr = r.deal_acc_addrs.addr
         
-        found_unconfirmed(db, curr_in, xcurr_in, addr, pays_unconf)
+        where3.found_unconfirmed(db, curr_in, xcurr_in, addr, pays_unconf)
 
     ## SSE all TOKEN SYSTEMS
     for r in db(db.systems).select():
         
         addr = None # r.account
-        token = db(db.tokens.system_id == r.id).seletc().first()
-        xcurr_in = db(db.xcurrs.as_token == token.id)
+        token = db(db.tokens.system_id == r.id).select().first()
+        xcurr_in = db(db.xcurrs.as_token == token.id).select().first()
         curr_in = db.currs[xcurr_in.curr_id]
         
-        found_unconfirmed(db, curr_in, xcurr_in, addr, pays_unconf)
+        where3.found_unconfirmed(db, curr_in, xcurr_in, addr, pays_unconf)
         
 
     ####################### IN PROCCESS ##############
@@ -708,16 +712,16 @@ def history():
         pay_in = r.pay_ins
         if db(pay_in.id == db.pay_ins_stack.ref_).select().first(): continue
 
-        curr_out = db.currs[r.deal_acc.curr_id]
+        curr_out = db.currs[r.deal_accs.curr_id]
 
         result = dict(
             curr_in = dict(abbrev = r.currs.abbrev, id = r.currs.id),
             curr_out = dict(abbrev = curr_out.abbrev, id = curr_out.id),
             acc = r.deal_accs.acc,
-            amount_in = pay_in.amount,
+            amount_in = float(pay_in.amount),
             confitmations = pay_in.confs,
             txid = pay_in.txid,
-            created = created_on
+            created = pay_in.created_on
             )
 
         if pay_in.status: result['stasus'] = pay_in.status
@@ -738,6 +742,7 @@ def history():
                      amo_to_pay = float(pay_out.amo_to_pay),
                      amount = float(pay_out.amount),
                      created_on = pay_out.created_on,
+                     created_ts = mktime(utc.localize(pay_out.created_on).utctimetuple()),
                      id = pay_out.id,
                      info = pay_out.info,
                      status = pay_out.status,
@@ -766,7 +771,7 @@ def history():
         done.append(result)
             
     deal_res = dict(id = deal.id, name = deal.name,
-         MAX = deal.MAX_pay)
+         MAX = float(deal.MAX_pay))
     
     import gifts_lib
     if 'to COIN' in deal.name:
@@ -776,8 +781,8 @@ def history():
     deal_acc_mess = XML(gifts_lib.adds_mess(deal_acc, PARTNER_MIN, T, rnd))
 
     deal_acc_res = dict(id = deal_acc.id, name = deal_acc.acc,
-            payed_month = not deal.is_shop and deal_acc.payed_month or Decimal(0),
-            payed = deal_acc.payed or Decimal(0), price = deal_acc.price,
+            payed_month = float(not deal.is_shop and deal_acc.payed_month or Decimal(0)),
+            payed = float(deal_acc.payed or Decimal(0)), price = float(deal_acc.price or Decimal(0)),
             gift_amount = float(deal_acc.gift_amount),
             gift_payed = float(deal_acc.gift_payed),
             gift_pick = float(deal_acc.gift_pick),
