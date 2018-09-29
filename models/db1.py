@@ -322,6 +322,7 @@ db.define_table('deals_wants',
 '''
 # тут только персональные данные пользователя для данного дела
 # - его ИД или телефон и т.д - то что надо указать в платежке для диллера
+## for TO COUN - acc = out addres + curr_id = oute CURR
 db.define_table('deal_accs',
     Field('deal_id', db.deals),
     Field('curr_id', db.currs),
