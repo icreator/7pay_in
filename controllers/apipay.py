@@ -86,21 +86,24 @@ def index():
                                       wrong = "message if rate not found"
                                      )
                                    ),
-                history = dict(url = "history/[address]",
+                history = dict(url = "history/[curr_out]/[account (or address)]",
+                                exapmle = "history/COMPU/7PFRVswUdzWB7JYp9VJzfk9Qcnjh7eCVNY",
                                 pars = dict(
-                                            address = "address for view deals history",
+                                            curr_out = "currency for out, for example: COMPU",
+                                            account = 'account of DEAL (or address for deal "TO COIN"',
                                             ),
                                 result = dict(
                                         unconfirmed = "payments wait confirmations",
                                         in_process = "payments in process", 
-                                        done = "done deals",
-                                        payed_month = "payed_month", 
-                                        MAX = "MAX", 
-                                        address = "address",
-                                        payed = "total", 
-                                        price = "price",
-                                        order_id = "order id",
-                                        message = "message for address"
+                                        done = "payments was done",
+                                        deal = dict(id = "id", name = "name", MAX = "MAX"),
+                                        deal_acc = dict(
+                                            payed_month = "payed_month", 
+                                            address = "address",
+                                            payed = "total", 
+                                            price = "price",
+                                            message = "message for address"
+                                            ),
                                      )
                                    )
                 )
