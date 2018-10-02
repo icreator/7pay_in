@@ -616,6 +616,29 @@ def get_uri():
         h=DIV(BEAUTIFY(out_res), _class='container')) or out_res
 
 
+def histoty_result(db, r):
+    curr_out = db.currs[r.deal_accs.curr_id]
+    pay_in = r.pay_ins
+
+    result = dict(
+        curr_in = dict(abbrev = r.currs.abbrev, id = r.currs.id),
+        curr_out = dict(abbrev = curr_out.abbrev, id = curr_out.id),
+        acc = r.deal_accs.acc,
+        amount_in = float(pay_in.amount),
+        confitmations = pay_in.confs,
+        txid = pay_in.txid,
+        created = pay_in.created_on
+        )
+
+    if pay_in.status: result['stasus'] = pay_in.status
+    if pay_in.status_mess: result['status_mess'] = pay_in.status_mess
+    if pay_in.order_id:
+        result['order_id'] = pay_in.order_id
+        order = db.orders[pay_in.order_id]
+        result['order_rate'] = round(float(order.volume_in / order.volume_out), 10)
+
+    return result
+
 def history():
 
     if (len(request.args) < 2):  return mess('Use ABBREV/ACCOUNT')
@@ -658,7 +681,11 @@ def history():
         curr_in = r.currs
         addr = r.deal_acc_addrs.addr
         
-        where3.found_unconfirmed(db, curr_in, xcurr_in, addr, pays_unconf)
+        pays_unconf_curr = []
+        where3.found_unconfirmed_coins(db, curr_in, xcurr_in, pays_unconf_curr)
+        for item in pays_unconf_curr:
+            if item[8] == addr:
+                pays_unconf.append(pays_unconf_curr)
 
     ## SSE all TOKEN SYSTEMS
     for r in db(db.systems).select():
@@ -668,7 +695,8 @@ def history():
         xcurr_in = db(db.xcurrs.as_token == token.id).select().first()
         curr_in = db.currs[xcurr_in.curr_id]
         
-        where3.found_unconfirmed(db, curr_in, xcurr_in, addr, pays_unconf)
+        # add ALL incomes
+        where3.found_unconfirmed_tokens(db, curr_in, xcurr_in, pays_unconf)
         
 
     ####################### IN PROCCESS ##############
@@ -682,22 +710,7 @@ def history():
                & (db.currs.id == db.xcurrs.curr_id)
                ).select(orderby=~db.pay_ins.created_on):
         
-        curr_out = db.currs[r.deal_acc.curr_id]
-        pay_in = r.pay_ins
-
-        result = dict(
-            curr_in = dict(abbrev = r.currs.abbrev, id = r.currs.id),
-            curr_out = dict(abbrev = curr_out.abbrev, id = curr_out.id),
-            acc = r.deal_accs.acc,
-            amount_in = pay_in.amount,
-            confitmations = pay_in.confs,
-            txid = pay_in.txid,
-            created = created_on
-            )
-        
-        if pay_in.status: result['stasus'] = pay_in.status
-        if pay_in.status_mess: result['status_mess'] = pay_in.status_mess
-        if pay_in.order_id: result['order_id'] = pay_in.order_id
+        result = histoty_result(db, r)
         
         in_proc.append(result)
 
@@ -712,27 +725,10 @@ def history():
            & (db.pay_ins.created_on > expired)
            ).select(orderby=~db.pay_ins.created_on):
 
-        pay_in = r.pay_ins
-        if db(pay_in.id == db.pay_ins_stack.ref_).select().first(): continue
+        if db(db.pay_ins.id == db.pay_ins_stack.ref_).select().first():
+            continue
 
-        curr_out = db.currs[r.deal_accs.curr_id]
-
-        result = dict(
-            curr_in = dict(abbrev = r.currs.abbrev, id = r.currs.id),
-            curr_out = dict(abbrev = curr_out.abbrev, id = curr_out.id),
-            acc = r.deal_accs.acc,
-            amount_in = float(pay_in.amount),
-            confitmations = pay_in.confs,
-            txid = pay_in.txid,
-            created = pay_in.created_on
-            )
-
-        if pay_in.status: result['stasus'] = pay_in.status
-        if pay_in.status_mess: result['status_mess'] = pay_in.status_mess
-        if pay_in.order_id:
-            result['order_id'] = pay_in.order_id
-            order = db.orders[pay_in.order_id]
-            result['order_rate'] = round(float(order.volume_in / order.volume_out), 10)
+        result = histoty_result(db, r)
 
         if pay_in.payout_id:
             pay_out = db.pay_outs[pay_in.payout_id]

@@ -24,7 +24,179 @@ def found_buys(db, buys, addr=None):
         ##buys.append(rec.buys)
         buys.append(rec)
     return no_addr
-#
+
+
+def found_unconfirmed_tokens_0(db, curr, xcurr, pays):
+    #print curr.abbrev
+
+    from_block = xcurr.from_block
+    if not from_block:
+        mess = curr.name + ': ' + T('not last block, please wait...')
+        #print mess
+        pays.append(mess)
+        return
+    
+    confs_need = xcurr.conf
+    token_key = xcurr.as_token
+    token = db.tokens[token_key]
+    token_system = db.systems[token.system_id]
+    import rpc_erachain
+    curr_block = rpc_erachain.get_info(token_system.connect_url)
+    if type(curr_block) != type(1):
+        mess = curr.name + ': ' + T('no connection to wallet')
+        #print mess
+        pays.append(mess)
+        return
+
+    confMax = confs_need + curr_block - from_block - 1
+    #print 'confMax:', confMax
+
+    lUnsp = rpc_erachain.get_unconf_incomes(token_system.connect_url, token_system.account)
+    if type(lUnsp) != type([]):
+          mess = 'ERROR: found_unconfirmed lUnsp: %s' % lUnsp
+          pays.append(mess)
+          return
+      
+    for r in lUnsp:
+        '''
+          {
+  "type_name":"SEND",
+  "creator":"78JFPWVVAVP3WW7S8HPgSkt24QF2vsGiS5",
+  "amount":"333.00000000",
+  "signature":"ebfZ7saSLZSJxVneXK1dReTGNdgC1cKmYd1hNVsSpDbWh8YGSi65duJZ2LSCRSi23pKX4kEHEQKPykvUfY4Rg6X",
+  "fee":"0.00010176",
+  "type":31,
+  "confirmations":-1,
+  "version":0,
+  "record_type":"SEND",
+  "property2":128,
+  "action_key":1,
+  "property1":0,
+  "size":159,
+  "recipient":"7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7",
+  "asset":1,
+  "sub_type_name":"PROPERTY",
+  "timestamp":1520158685079,
+  "height":-1
+}
+
+        '''
+        if u'amount' not in r:
+            continue
+        if r[u'type'] != 31:
+            continue
+        if r[u'action_key'] != 1:
+            continue
+                
+        pays.append([dict(id = curr.id, abbrev = curr.abbrev),
+                r[u'amount'], r[u'signature'], 0,
+                #'Подтверждений: %s, ожидаем еще %s. Время создания: %s'
+                r[u'confirmations'], confs_need - r[u'confirmations'],
+                datetime.datetime.fromtimestamp(r[u'timestamp'] * 0.001),
+                r[u'creator']
+                    ])
+
+def found_unconfirmed_tokens(db, curr, xcurr, pays):
+    result = cache.ram(curr.abbrev + '_unc',
+                lambda: found_unconfirmed_tokens_0(db, curr, xcurr, pays), time_expire = 10)
+    return result
+
+def found_unconfirmed_coins_0(db, curr, xcurr, pays):
+    #print curr.abbrev
+    
+    confs_need = xcurr.conf
+    
+    conn = crypto_client.conn(curr, xcurr)
+    if not conn:
+        mess = curr.name + ': ' + T('no connection to wallet')
+        #print mess
+        pays.append(mess)
+        return
+
+    #print xcurr.name
+
+    try:
+        curr_block = conn.getblockcount()
+    except:
+        mess = curr.name + ': ' + T('no blockcount connection to wallet')
+        #print mess
+        pays.append(mess)
+        return
+        
+    #print curr_block
+    if type(curr_block) != type(-1):
+        pays.append(curr.name + ' not started else... curr block: %s' % curr_block )
+        return
+    from_block = xcurr.from_block
+    if not from_block:
+        mess = curr.name + ': ' + T('not last block, please wait...')
+        #print mess
+        pays.append(mess)
+        return
+    
+    confMax = confs_need + curr_block - from_block - 1
+    #print 'confMax:', confMax
+
+    lUnsp = conn.listunspent(0, confMax)
+    #print lUnsp
+    if type(lUnsp) != type([]):
+        mess = 'ERROR: found_unconfirmed lUnsp: %s' % lUnsp
+        pays.append(mess)
+        return
+    txids_used = {}
+    for r in lUnsp:
+        #print '\n\n',r.get(u'amount'), r
+        txid = r.get(u'txid')
+        if not txid:
+            mess = 'found_unconfirmed GEN [%s]?' % r
+            pays.append(mess)
+            continue
+        if txid in txids_used:
+            # обработанные транзакции пропустим
+            continue
+        txids_used[txid]=True #  запомним эту транзакцию
+        ti = conn.gettransaction(txid)
+
+        # тут массив - может быть несколько транзакций
+        # может быть [u'category'] == u'receive' ИЛИ u'send'
+        trans_details = ti['details']
+        #print 'trans LEN:', len( trans_details ), 'trans_details:',trans_details
+        #continue
+        # так вот, в одной транзакции может быть несколько входов!
+        # поэтому если есть выход - значит тут вход это сдача наша с вывода и такую
+        # транзакцию пропускаем
+        its_outcome = False
+        for detail in trans_details:
+            if detail[u'category'] == u'send':
+                its_outcome = True
+                # сдача тут
+                #print 'outcome'
+                break
+        if its_outcome:
+            continue
+
+        for income in trans_details:
+            if income[u'category'] != u'receive': continue
+            #print income[u'address']
+            
+            # далее только входы будут
+            #print 'income:   ',income
+            # CopperLark тут нету аккаунта и нет адреса
+            # а у Litecoin есть сразу в записи unspent
+            pays.append([dict(id = curr.id, abbrev = curr.abbrev),
+                income[u'amount'], txid, r[u'vout'],
+                #'Подтверждений: %s, ожидаем еще %s. Время создания: %s'
+                r[u'confirmations'], confs_need - r[u'confirmations'],
+                datetime.datetime.fromtimestamp(ti[u'time']),
+                income[u'address']
+                    ])
+
+def found_unconfirmed_coins(db, curr, xcurr, pays):
+    result = cache.ram(curr.abbrev + '_unc',
+                lambda: found_unconfirmed_coins_0(db, curr, xcurr, pays), time_expire = 10)
+    return result
+
+
 # тут если адрес пуст или "" то не опрашивает кошельки и инфо показывает урезанную
 # чтобы не было видно данных персональных
 #
@@ -186,6 +358,7 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
             0, confs_need - 0,
             datetime.datetime.now()
                 ])
+
 
 
 def get_refs(db, pay):
