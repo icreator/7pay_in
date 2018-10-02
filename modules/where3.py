@@ -5,7 +5,7 @@ import datetime
 
 from gluon import current, URL, XML, A
 T = current.T
-
+cache = current.cache
 
 import crypto_client
 import db_common

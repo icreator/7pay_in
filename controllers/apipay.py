@@ -730,6 +730,7 @@ def history():
 
         result = histoty_result(db, r)
 
+        pay_in = r.pay_ins
         if pay_in.payout_id:
             pay_out = db.pay_outs[pay_in.payout_id]
 
