@@ -641,19 +641,31 @@ def histoty_result(db, r):
 
 def history():
 
-    if (len(request.args) < 2):  return mess('Use ABBREV/ACCOUNT')
+    if len(request.args) == 1:
+        acc = request.args(0)
+        if not acc or len(acc) > 200:
+            return mess('wrong account. Use ABBREV/ACCOUNT')
+            
+        curr, xcurr, _, = db_common.get_currs_by_addr(db, acc)
+        if not xcurr:
+            return mess('Use ABBREV/ACCOUNT')
+        
+        curr_out_abbrev = curr.abbrev
+    elif len(request.args) == 2:
+        curr_out_abbrev = request.args(0)
+        if not curr_out_abbrev or len(curr_out_abbrev) > 10: return mess('wrong currency ABBREV. Use ABBREV/ACCOUNT')
+        acc = request.args(1)
+        if not acc or len(acc) > 200: return mess('wrong account. Use ABBREV/ACCOUNT')
+    else:
+        return mess('Use ABBREV/ACCOUNT')
     
-    curr_out_abbrev = request.args(0)
-    if not curr_out_abbrev or len(curr_out_abbrev) > 10: return mess('wrong currency ABBREV. Use ABBREV/ACCOUNT')
-    acc = request.args(1)
-    if not acc or len(acc) > 100: return mess('wrong account. Use ABBREV/ACCOUNT')
 
     deal_acc = db((db.deal_accs.acc == acc)
           & (db.deal_accs.curr_id == db.currs.id)
           & (db.currs.abbrev == curr_out_abbrev)
           ).select().first()
     if not deal_acc:
-        return mess('Deal ACCOUNT not found')
+        return mess('Deal ACCOUNT not found. Use ABBREV/ACCOUNT')
 
     deal_acc = deal_acc.deal_accs
     deal = db.deals[ deal_acc.deal_id ]
