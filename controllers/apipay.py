@@ -793,6 +793,7 @@ def history():
     deal_acc_mess = XML(gifts_lib.adds_mess(deal_acc, PARTNER_MIN, T, rnd))
 
     deal_acc_res = dict(id = deal_acc.id, name = deal_acc.acc,
+            to_pay = float(deal_acc.to_pay or Decimal(0)),
             payed_month = float(not deal.is_shop and deal_acc.payed_month or Decimal(0)),
             payed = float(deal_acc.payed or Decimal(0)), price = float(deal_acc.price or Decimal(0)),
             gift_amount = float(deal_acc.gift_amount),
