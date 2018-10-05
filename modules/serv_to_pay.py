@@ -126,7 +126,7 @@ def make_edealer_payment(db, geted_pays,  curr_in, xcurr, curr_out, ecurr, vol_i
         MIN = deal.MIN_pay
     else:
         xcurr_out = db(db.xcurrs.curr_id == curr_out.id).select().first()
-        MIN = (xcurr_out.txfee or curr_out.fee_in or curr_out.fee_out) * 10
+        MIN = (xcurr_out.txfee or curr_out.fee_in or curr_out.fee_out) * 3
 
     #log(db, 'volume_out %s, MIN %s' % (volume_out, MIN))
 
