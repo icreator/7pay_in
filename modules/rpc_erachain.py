@@ -122,7 +122,7 @@ def get_transactions(rpc_url, addr, from_block=2, conf=2):
             return result, i - 1
         
         if len(recs) > 0:
-            print 'erachain incomed - height: ', i, ' recs:', len(recs)
+            print 'erachain incomes - height: ', i, ' recs:', len(recs)
         else:
             continue
             
@@ -132,10 +132,14 @@ def get_transactions(rpc_url, addr, from_block=2, conf=2):
                 # only SEND transactions
                 continue
             if 'action_key' not in rec or rec['action_key'] != 1:
-                # only SEN PROPERTY action
+                # only SEND PROPERTY action
                 continue
+            if rec.get('title', rec.get('head')) == '.main.':
+                ## skip my deposit
+                continue
+            
             incomes.append(rec)
-            print 'erachain - title:', rec.get('title', rec.get('head')), 'message:', rec.get('message', rec.get('data'))
+            #print 'erachain - title:', rec.get('title', rec.get('head')), 'message:', rec.get('message', rec.get('data'))
             
         result += incomes
     

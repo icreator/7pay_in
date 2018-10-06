@@ -239,7 +239,8 @@ def parse_mess(db, mess, creator):
     if not mess:
         return None
     
-    args = mess.strip().split(':')
+    args = mess.strip().split('\n')[0].split(':')
+    
     #print args
     import db_common
     curr_out, xcurr_out, e = db_common.get_currs_by_abbrev(db, args[0].strip())
@@ -260,6 +261,29 @@ def parse_mess(db, mess, creator):
         curr, xcurr, _ = get_currs_by_addr(db, addr)
         if xcurr:
             return curr.abbrev + ':' + addr
+
+def make_rec(erachain_addr, acc, rec, transactions):
+    amount = rec.get('amount')
+    action_key = rec.get('action_key')
+    if not amount or amount < 0 or not action_key or action_key != 1:
+        return
+
+    if not acc:
+        acc = 'refuse:' + rec['creator']
+    else:
+        acc = ('%d' % rec['asset']) + '>' + acc
+            
+    #print rec
+    transactions.append(dict(
+        amo = amount,
+        txid=rec['signature'],
+        vout= '0', ### not need for SYSTEM_TOKENS - rec['sequence'], 
+        time = rec['timestamp'] * 0.001,
+        confs = rec['confirmations'],
+        addr = erachain_addr,
+        acc = acc
+            )
+        )
 
 
 def get_incomed(db, token_system, from_block_in=None):
@@ -303,11 +327,7 @@ def get_incomed(db, token_system, from_block_in=None):
     print tab, curr_block
     transactions = []
     for rec in tab:
-        amount = rec.get('amount')
-        action_key = rec.get('action_key')
-        if not amount or amount < 0 or not action_key or action_key != 1:
-            continue
-
+    
         acc = parse_mess(db, rec.get('head'), rec.get('creator'))
         if not acc:
             acc = parse_mess(db, rec.get('data'), rec.get('creator'))
@@ -315,23 +335,55 @@ def get_incomed(db, token_system, from_block_in=None):
             acc = parse_mess(db, rec.get('title'), rec.get('creator'))
         if not acc:
             acc = parse_mess(db, rec.get('message'), rec.get('creator'))
-            
         if not acc:
-            acc = 'refuse:' + rec['creator']
-        else:
-            acc = ('%d' % rec['asset']) + '>' + acc
-                
-        #print rec
-        transactions.append(dict(
-            amo = amount,
-            txid=rec['signature'],
-            vout= '0', ### not need for SYSTEM_TOKENS - rec['sequence'], 
-            time = rec['timestamp'] * 0.001,
-            confs = rec['confirmations'],
-            addr = erachain_addr,
-            acc = acc
-                )
-            )
+            continue
+        
+        # make record INCOME from Erachain TRANSACTION 
+        make_rec(erachain_addr, acc, rec, transactions)
+        
+        lines = rec.get('message', rec.get('data')).strip().split('\n')
+        if len(lines) > 1:
+            for line in limes:
+                #try:
+                if True:
+                    command = line.split(':')
+                    if len(command) > 1:
+                        if command[0].strip().lower() == 'add':
+                            ## ADD transactions without payments details to that payment
+                            ## need 
+                            for txid in command[1].strip().split(' '):
+                                # see this TX in DB and set DETAILS
+                                pay_in = db(db.pay_ins.txid == txid).select().first()
+                                if pay_in:
+                                    # already assigned
+                                    continue
+                                
+                                recAdded = rpc_erachain.get_tx_info(token_system, txid.strip())
+                                if recAdded['creator'] != rec['creator']:
+                                    # set payment details only for this creator records
+                                    continue
+
+                                # make record INCOME from Erachain TRANSACTION 
+                                make_rec(erachain_addr, acc, recOld, transactions)
+                                
+                                transactions.append(dict(
+                                    amo = amount,
+                                    txid=rec['signature'],
+                                    vout= '0', ### not need for SYSTEM_TOKENS - rec['sequence'], 
+                                    time = rec['timestamp'] * 0.001,
+                                    confs = rec['confirmations'],
+                                    addr = erachain_addr,
+                                    acc = acc
+                                        )
+                                    )
+
+
+                                
+                #except Exception as e:
+                else:
+                    mess = 'COMMAND: %s - %s' % (line, e)
+                    log(db, mess)
+
 
     return transactions, curr_block
 
