@@ -267,6 +267,9 @@ def make_rec(erachain_addr, acc, rec, transactions):
     action_key = rec.get('action_key')
     if not amount or amount < 0 or not action_key or action_key != 1:
         return
+    type = rec.get('type')
+    if not type or type != 31:
+        return
 
     if not acc:
         acc = 'refuse:' + rec['creator']
@@ -359,24 +362,12 @@ def get_incomed(db, token_system, from_block_in=None):
                                     continue
                                 
                                 recAdded = rpc_erachain.get_tx_info(token_system, txid.strip())
-                                if recAdded['creator'] != rec['creator']:
+                                if not recAdded or 'creator' not in recAdded or recAdded['creator'] != rec['creator']:
                                     # set payment details only for this creator records
                                     continue
 
                                 # make record INCOME from Erachain TRANSACTION 
-                                make_rec(erachain_addr, acc, recOld, transactions)
-                                
-                                transactions.append(dict(
-                                    amo = amount,
-                                    txid=rec['signature'],
-                                    vout= '0', ### not need for SYSTEM_TOKENS - rec['sequence'], 
-                                    time = rec['timestamp'] * 0.001,
-                                    confs = rec['confirmations'],
-                                    addr = erachain_addr,
-                                    acc = acc
-                                        )
-                                    )
-
+                                make_rec(erachain_addr, acc, recAdded, transactions)
 
                                 
                 #except Exception as e:
