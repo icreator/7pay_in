@@ -146,7 +146,7 @@ def get_transactions(rpc_url, addr, from_block=2, conf=2):
     return result, i
 
 
-def send(db, curr, xcurr, addr, amo, token_system = None, token = None):
+def send(db, curr, xcurr, addr, amo, token_system = None, token = None, title = None, mess = None):
     
     if token == None:
         token = db.tokens[xcurr.as_token]
@@ -177,13 +177,18 @@ def send(db, curr, xcurr, addr, amo, token_system = None, token = None):
             ##amo_to_pay = amo - txfee - it already inserted in GET_RATE by db.currs
             amo_to_pay = amo
             print 'res = erachain.send(addr, amo - txfee)', amo_to_pay
-            vars = { 'assetKey': token.token_key, 'feePow': 0,
-                'amount': amo_to_pay, 'sender': token_system.account, 'recipient': addr,
-                'password': PASSWORD}
-            data = {'password': PASSWORD}
-            pars = '/rec_payment/%d/%s/%d/%f/%s?password=%s' % (0, token_system.account, token.token_key, amo_to_pay, addr, PASSWORD )
-            print pars, data
-            res = rpc_request(token_system.connect_url + pars)
+            if False: ## 4.11 version Erachain
+                # GET r_send/7GvWSpPr4Jbv683KFB5WtrCCJJa6M36QEP/79MXsjo9DEaxzu6kSvJUauLhmQrB4WogsH?message=mess&encrypt=false&password=123456789
+                pars = "r_send/%s/%s?assetKey=%d&amount=%f&title=%s%s&encrypt=true&password=%s" % (token_system.account, addr,
+                                   token.token_key, amo_to_pay,
+                                   title or 'face2face.cash', mess and ('&message='+mess) or '',
+                                   PASSWORD)
+                print pars
+                res = rpc_request(token_system.connect_url + pars)
+            else:
+                pars = '/rec_payment/%d/%s/%d/%f/%s?password=%s' % (0, token_system.account, token.token_key, amo_to_pay, addr, PASSWORD )
+                print pars, data
+                res = rpc_request(token_system.connect_url + pars)
             print "SENDed? ", type(res), res
             if type(res) == type({}):
                 error = res.get('error')

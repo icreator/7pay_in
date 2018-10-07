@@ -346,7 +346,7 @@ def get_incomed(db, token_system, from_block_in=None):
         
         lines = rec.get('message', rec.get('data')).strip().split('\n')
         if len(lines) > 1:
-            for line in limes:
+            for line in lines:
                 #try:
                 if True:
                     command = line.split(':')
