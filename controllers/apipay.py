@@ -700,15 +700,15 @@ def history():
                 pays_unconf.append(pays_unconf_curr)
 
     ## SSE all TOKEN SYSTEMS
-    for r in db(db.systems).select():
+    for token_system in db(db.systems).select():
         
-        addr = None # r.account
-        token = db(db.tokens.system_id == r.id).select().first()
-        xcurr_in = db(db.xcurrs.as_token == token.id).select().first()
-        curr_in = db.currs[xcurr_in.curr_id]
+        #addr = None # r.account
+        #token = db(db.tokens.system_id == r.id).select().first()
+        #xcurr_in = db(db.xcurrs.as_token == token.id).select().first()
+        #curr_in = db.currs[xcurr_in.curr_id]
         
         # add ALL incomes
-        where3.found_unconfirmed_tokens(db, curr_in, xcurr_in, pays_unconf)
+        where3.found_unconfirmed_tokens(db, token_system, pays_unconf)
         
 
     ####################### IN PROCCESS ##############

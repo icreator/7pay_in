@@ -26,20 +26,22 @@ def found_buys(db, buys, addr=None):
     return no_addr
 
 
-def found_unconfirmed_tokens_0(db, curr, xcurr, pays):
+def found_unconfirmed_tokens_0(db, token_system, pays):
     #print curr.abbrev
 
-    from_block = xcurr.from_block
+    curr = db((db.tokens.system_id == token_system.id)
+              & (db.xcurrs.as_token == db.tokens.id)).seletc().first()
+    if not curr:
+        return
+    
+    from_block = token_system.from_block
     if not from_block:
         mess = curr.name + ': ' + T('not last block, please wait...')
         #print mess
         pays.append(mess)
         return
     
-    confs_need = xcurr.conf
-    token_key = xcurr.as_token
-    token = db.tokens[token_key]
-    token_system = db.systems[token.system_id]
+    confs_need = token_system.conf
     import rpc_erachain
     curr_block = rpc_erachain.get_info(token_system.connect_url)
     if type(curr_block) != type(1):
@@ -88,17 +90,18 @@ def found_unconfirmed_tokens_0(db, curr, xcurr, pays):
         if r[u'action_key'] != 1:
             continue
                 
+                  
         pays.append([dict(id = curr.id, abbrev = curr.abbrev),
                 r[u'amount'], r[u'signature'], 0,
                 #'Подтверждений: %s, ожидаем еще %s. Время создания: %s'
-                r[u'confirmations'], confs_need - r[u'confirmations'],
+                r[u'confirmations'], confs_need - r[u'confirmations'] + 1,
                 datetime.datetime.fromtimestamp(r[u'timestamp'] * 0.001),
                 r[u'creator']
                     ])
 
-def found_unconfirmed_tokens(db, curr, xcurr, pays):
+def found_unconfirmed_tokens(db, token_system, pays):
     result = cache.ram(curr.abbrev + '_unc',
-                lambda: found_unconfirmed_tokens_0(db, curr, xcurr, pays), time_expire = 10)
+                lambda: found_unconfirmed_tokens_0(db, token_system, pays), time_expire = 10)
     return result
 
 def found_unconfirmed_coins_0(db, curr, xcurr, pays):
