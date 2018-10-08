@@ -27,12 +27,6 @@ def found_buys(db, buys, addr=None):
 
 
 def found_unconfirmed_tokens_0(db, token_system, pays):
-    #print curr.abbrev
-
-    curr = db((db.tokens.system_id == token_system.id)
-              & (db.xcurrs.as_token == db.tokens.id)).seletc().first()
-    if not curr:
-        return
     
     from_block = token_system.from_block
     if not from_block:
@@ -90,17 +84,24 @@ def found_unconfirmed_tokens_0(db, token_system, pays):
         if r[u'action_key'] != 1:
             continue
                 
-                  
-        pays.append([dict(id = curr.id, abbrev = curr.abbrev),
+        curr = db((db.tokens.system_id == token_system.id)
+              & (db.tokens.token_key == r[u'asset'])
+              & (db.xcurrs.as_token == db.tokens.id)
+              & (db.currs.id == db.xcurrs.curr_id)).select().first()
+        if not curr:
+            return
+        curr = curr.currs
+
+        pays.append([dict(id = int(curr.id), abbrev = curr.abbrev),
                 r[u'amount'], r[u'signature'], 0,
                 #'Подтверждений: %s, ожидаем еще %s. Время создания: %s'
-                r[u'confirmations'], confs_need - r[u'confirmations'] + 1,
+                r[u'confirmations'], int(confs_need - r[u'confirmations']),
                 datetime.datetime.fromtimestamp(r[u'timestamp'] * 0.001),
                 r[u'creator']
                     ])
 
 def found_unconfirmed_tokens(db, token_system, pays):
-    result = cache.ram(curr.abbrev + '_unc',
+    result = cache.ram(token_system.name + '_unc',
                 lambda: found_unconfirmed_tokens_0(db, token_system, pays), time_expire = 10)
     return result
 
