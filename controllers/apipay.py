@@ -25,6 +25,7 @@ def index():
                                             name = "Currency name for view",
                                             name2 = "Currency name for URI",
                                             may_pay = "[amount] - If exists - how many exchange may accept",
+                                            min = "[amount] - If exists - minimal deposit",
                                           ),
                                       out = dict(
                                             name = "Currency name for view",
@@ -123,14 +124,25 @@ def get_currs():
              & (db.currs.id == db.xcurrs.curr_id)
              ).select(orderby=~db.currs.uses):
         free_bal = db_client.curr_free_bal(r.currs)
-        lim_bal, may_pay = db_client.is_limited_ball(r.currs)
+        lim_bal, may_pay = db_client.is_limited_ball(r.currs)            
+
+        fee_in = r.currs.fee_in
+        if fee_in and fee_in > 0: 
+            min =  float(fee_in * 10)
+        else:
+            fee_in = r.xcurrs.txfee
+            if fee_in and fee_in > 0: 
+                min =  float(fee_in * 10)
+            else:
+                min = 0.0001
 
         out_res['in'][r.currs.abbrev] = { 'id': int(r.currs.id),
                                            'name': r.currs.name, 'name2': r.currs.name2,
+                                           'min': min,
                                           'icon':  r.currs.abbrev + '.png'}
         if lim_bal > 0:
             out_res['in'][r.currs.abbrev]['may_pay'] = float(may_pay)
-
+        
         out_res['out'][r.currs.abbrev] = { 'id': int(r.currs.id), 'bal': float(free_bal),
                                            'name': r.currs.name, 'name2': r.currs.name2,
                                           'icon':  r.currs.abbrev + '.png'}
