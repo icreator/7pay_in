@@ -126,13 +126,13 @@ def get_currs():
         free_bal = db_client.curr_free_bal(r.currs)
         lim_bal, may_pay = db_client.is_limited_ball(r.currs)            
 
-        fee_in = r.currs.fee_in
-        if fee_in and fee_in > 0: 
-            min =  float(fee_in * 10)
+        fee = r.currs.fee_in
+        if fee and fee > 0: 
+            min = float(fee * 10)
         else:
-            fee_in = r.xcurrs.txfee
-            if fee_in and fee_in > 0: 
-                min =  float(fee_in * 10)
+            fee = r.xcurrs.txfee
+            if fee and fee > 0: 
+                min =  float(fee * 10)
             else:
                 min = 0.0001
 
@@ -142,9 +142,20 @@ def get_currs():
                                           'icon':  r.currs.abbrev + '.png'}
         if lim_bal > 0:
             out_res['in'][r.currs.abbrev]['may_pay'] = float(may_pay)
+
+        fee = r.currs.fee_out
+        if fee and fee > 0: 
+            min = float(fee * 10)
+        else:
+            fee = r.xcurrs.txfee
+            if fee and fee > 0: 
+                min =  float(fee * 10)
+            else:
+                min = 0.0001
         
         out_res['out'][r.currs.abbrev] = { 'id': int(r.currs.id), 'bal': float(free_bal),
                                            'name': r.currs.name, 'name2': r.currs.name2,
+                                           'min': min,
                                           'icon':  r.currs.abbrev + '.png'}
 
     
