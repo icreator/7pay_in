@@ -26,7 +26,9 @@ def found_buys(db, buys, addr=None):
     return no_addr
 
 
-def found_unconfirmed_tokens_0(db, token_system, pays):
+def found_unconfirmed_tokens_0(db, token_system):
+    
+    pays = []
     
     from_block = token_system.from_block
     if not from_block:
@@ -99,14 +101,17 @@ def found_unconfirmed_tokens_0(db, token_system, pays):
                 datetime.datetime.fromtimestamp(r[u'timestamp'] * 0.001),
                 r[u'creator']
                     ])
+    return pays
 
-def found_unconfirmed_tokens(db, token_system, pays):
+def found_unconfirmed_tokens(db, token_system):
     result = cache.ram(token_system.name + '_unc',
-                lambda: found_unconfirmed_tokens_0(db, token_system, pays), time_expire = 10)
+                lambda: found_unconfirmed_tokens_0(db, token_system), time_expire = 10)
     return result
 
-def found_unconfirmed_coins_0(db, curr, xcurr, pays):
+def found_unconfirmed_coins_0(db, curr, xcurr):
     #print curr.abbrev
+    
+    pays = []
     
     confs_need = xcurr.conf
     
@@ -194,10 +199,12 @@ def found_unconfirmed_coins_0(db, curr, xcurr, pays):
                 datetime.datetime.fromtimestamp(ti[u'time']),
                 income[u'address']
                     ])
+            
+    return pays
 
-def found_unconfirmed_coins(db, curr, xcurr, pays):
+def found_unconfirmed_coins(db, curr, xcurr):
     result = cache.ram(curr.abbrev + '_unc',
-                lambda: found_unconfirmed_coins_0(db, curr, xcurr, pays), time_expire = 10)
+                lambda: found_unconfirmed_coins_0(db, curr, xcurr), time_expire = 10)
     return result
 
 

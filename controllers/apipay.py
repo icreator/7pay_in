@@ -716,22 +716,18 @@ def history():
         curr_in = r.currs
         addr = r.deal_acc_addrs.addr
         
-        pays_unconf_curr = []
-        where3.found_unconfirmed_coins(db, curr_in, xcurr_in, pays_unconf_curr)
+        pays_unconf_curr = where3.found_unconfirmed_coins(db, curr_in, xcurr_in)
         for item in pays_unconf_curr:
             if item[8] == addr:
-                pays_unconf.append(pays_unconf_curr)
+                pays_unconf.append(item)
 
     ## SSE all TOKEN SYSTEMS
     for token_system in db(db.systems).select():
         
-        #addr = None # r.account
-        #token = db(db.tokens.system_id == r.id).select().first()
-        #xcurr_in = db(db.xcurrs.as_token == token.id).select().first()
-        #curr_in = db.currs[xcurr_in.curr_id]
-        
         # add ALL incomes
-        where3.found_unconfirmed_tokens(db, token_system, pays_unconf)
+        pays_unconf_curr = where3.found_unconfirmed_tokens(db, token_system)
+        for item in pays_unconf_curr:
+            pays_unconf.append(item)
         
 
     ####################### IN PROCCESS ##############
