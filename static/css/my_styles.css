@@ -172,7 +172,7 @@ ul.nav.navbar-nav2>li>a>span {
 div.wb-img {
     /*background-image: url(https://c.s-microsoft.com/ru-ru/CMSImages/wb_timer_hero_desktop.jpg?version=0de40c2b-3ebd-5554-c617-b9dc987762f6);*/
     /*background-image: url(http://face2face.cash/static/images/bg-p/front-p.jpg);*/
-    background-image: url(http://face2face.cash/static/images/bg-p/wb_timer_hero_desktop.jpg);
+    background-image: url(/static/images/bg-p/wb_timer_hero_desktop.jpg);
 
     background-size: cover;
     background-repeat: no-repeat;
