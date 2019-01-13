@@ -344,8 +344,11 @@ def get_incomed(db, token_system, from_block_in=None):
         # make record INCOME from Erachain TRANSACTION 
         make_rec(erachain_addr, acc, rec, transactions)
         
-        lines = rec.get('message', rec.get('data')).strip().split('\n')
-        if len(lines) > 1:
+        lines = rec.get('message', rec.get('data'))
+        if lines:
+            lines = lines.strip().split('\n')
+            
+        if lines and len(lines) > 1:
             for line in lines:
                 #try:
                 if True:
