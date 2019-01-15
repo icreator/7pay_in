@@ -549,6 +549,11 @@ def make_edealer_free_payment(db,
         log(db,  '%s[%s] -> [%s] - best rate not found!' % ( amo, curr_in.abbrev, curr_out.abbrev))
         return
     volume_out, _, best_rate = rates_lib.get_rate(db, curr_in, curr_out, amo)
+    if volume_out == None:
+        mark_pay_ins(db, geted_pays, 'wait', 'best rate not found!')
+        db.commit()
+        log(db,  '%s[%s] -> [%s] - best rate not found!' % ( amo, curr_in.abbrev, curr_out.abbrev))
+        return
     best_rate = Decimal(best_rate)
     volume_out = Decimal(volume_out)
     if client:

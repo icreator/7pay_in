@@ -117,7 +117,7 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
                 print 'make deal_acc'
                 deal_acc_id = db.deal_accs.insert(deal_id = TO_COIN_ID, acc = addr, curr_id = curr_out.id)
                 deal_acc_addr_id = db.deal_acc_addrs.insert(deal_acc_id = deal_acc_id, addr = token_system.account, xcurr_id = xcurr.id)
-                deal_acc_addr = db.deal_acc_addrs[deal_acc_addr]
+                deal_acc_addr = db.deal_acc_addrs[deal_acc_addr_id]
             else:
                 deal_acc_addr = db((db.deal_acc_addrs.deal_acc_id==deal_acc.id)
                                    & (db.deal_acc_addrs.xcurr_id==xcurr.id)).select().first()
@@ -240,27 +240,45 @@ def parse_mess(db, mess, creator):
         return None
     
     args = mess.strip().split('\n')[0].split(':')
+    print mess, args
     
-    #print args
     import db_common
-    curr_out, xcurr_out, e = db_common.get_currs_by_abbrev(db, args[0].strip())
-    if xcurr_out:
+    
+    arg1 = args[0].strip()
+    if len(arg1) < 20:
+        # as ABBREV
+        curr_out, xcurr_out, _ = db_common.get_currs_by_abbrev(db, arg1)
+        if xcurr_out:
+            if len(args) > 1:
+                addr = args[1].strip()
+                if addr[0] == '[':
+                    addr = addr[1:]
+                if addr[-1] == ']':
+                    addr = addr[:-1]
+                return curr_out.abbrev + ':' + addr
+            else:
+                return curr_out.abbrev + ':' + creator
+
+    # may be here only ADDRESS
+    if len(arg1) > 30:
+        from db_common import get_currs_by_addr
+        curr_out, xcurr_out, _ = get_currs_by_addr(db, arg1)
+        if xcurr_out:
+            return curr_out.abbrev + ':' + arg1
+
+    try:
+        token_id = int(arg1)
         if len(args) > 1:
             addr = args[1].strip()
-            return curr_out.abbrev + ':' + addr
+            if addr[0] == '[':
+                addr = addr[1:]
+            if addr[-1] == ']':
+                addr = addr[:-1]
+            return arg1 + ':' + addr
         else:
-            token_key = xcurr_out.as_token
-            if token_key:
-                token = db.tokens[token_key]
-                token_system = db.systems[token.system_id]
-                return curr_out.abbrev + ':' + creator
-    else:
-        # may be here only ADDRESS
-        addr = args[0].strip()
-        from db_common import get_currs_by_addr
-        curr, xcurr, _ = get_currs_by_addr(db, addr)
-        if xcurr:
-            return curr.abbrev + ':' + addr
+            return arg1 + ':' + creator
+    except:
+        pass
 
 def make_rec(erachain_addr, acc, rec, transactions):
     amount = rec.get('amount')
