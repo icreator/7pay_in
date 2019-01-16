@@ -24,12 +24,16 @@ def index():
                                       in_ = dict(
                                             name = "Currency name for view",
                                             name2 = "Currency name for URI",
+                                            system = "If exists - Token System",
+                                            token_key = "If exists - Token ID in System",
                                             may_pay = "[amount] - If exists - how many exchange may accept",
                                             min = "[amount] - If exists - minimal deposit",
                                           ),
                                       out = dict(
                                             name = "Currency name for view",
                                             name2 = "Currency name for URI",
+                                            system = "If exists - Token System",
+                                            token_key = "If exists - Token ID in System",
                                             bal = "free balance",
                                           ),
                                    )
@@ -158,6 +162,14 @@ def get_currs():
                                            'min': min,
                                           'icon':  r.currs.abbrev + '.png'}
 
+        token_id = r.xcurrs.as_token
+        if token_id:
+            token = db.tokens[token_id]
+            token_system = db.systems[token.system_id]
+            out_res['in'][r.currs.abbrev]['system'] = token_system.name2
+            out_res['out'][r.currs.abbrev]['system'] = token_system.name2
+            out_res['in'][r.currs.abbrev]['token_key'] = token.token_key
+            out_res['out'][r.currs.abbrev]['token_key'] = token.token_key
     
     return request.extension == 'html' and dict(
         h=DIV(BEAUTIFY(out_res), _class='container')) or out_res
