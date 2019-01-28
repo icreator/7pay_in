@@ -117,7 +117,7 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
                 print 'make deal_acc'
                 deal_acc_id = db.deal_accs.insert(deal_id = TO_COIN_ID, acc = addr, curr_id = curr_out.id)
                 deal_acc_addr_id = db.deal_acc_addrs.insert(deal_acc_id = deal_acc_id, addr = token_system.account, xcurr_id = xcurr.id)
-                deal_acc_addr = db.deal_acc_addrs[deal_acc_addr]
+                deal_acc_addr = db.deal_acc_addrs[deal_acc_addr_id]
             else:
                 deal_acc_addr = db((db.deal_acc_addrs.deal_acc_id==deal_acc.id)
                                    & (db.deal_acc_addrs.xcurr_id==xcurr.id)).select().first()
@@ -239,27 +239,72 @@ def parse_mess(db, mess, creator):
     if not mess:
         return None
     
-    args = mess.strip().split(':')
-    #print args
+    args = mess.strip().split('\n')[0].split(':')
+    print mess, args
+    
     import db_common
-    curr_out, xcurr_out, e = db_common.get_currs_by_abbrev(db, args[0].strip())
-    if xcurr_out:
+    
+    arg1 = args[0].strip()
+    if len(arg1) < 20:
+        # as ABBREV
+        curr_out, xcurr_out, _ = db_common.get_currs_by_abbrev(db, arg1)
+        if xcurr_out:
+            if len(args) > 1:
+                addr = args[1].strip()
+                if addr[0] == '[':
+                    addr = addr[1:]
+                if addr[-1] == ']':
+                    addr = addr[:-1]
+                return curr_out.abbrev + ':' + addr
+            else:
+                return curr_out.abbrev + ':' + creator
+
+    # may be here only ADDRESS
+    if len(arg1) > 30:
+        from db_common import get_currs_by_addr
+        curr_out, xcurr_out, _ = get_currs_by_addr(db, arg1)
+        if xcurr_out:
+            return curr_out.abbrev + ':' + arg1
+
+    try:
+        token_id = int(arg1)
         if len(args) > 1:
             addr = args[1].strip()
-            return curr_out.abbrev + ':' + addr
+            if addr[0] == '[':
+                addr = addr[1:]
+            if addr[-1] == ']':
+                addr = addr[:-1]
+            return arg1 + ':' + addr
         else:
-            token_key = xcurr_out.as_token
-            if token_key:
-                token = db.tokens[token_key]
-                token_system = db.systems[token.system_id]
-                return curr_out.abbrev + ':' + creator
+            return arg1 + ':' + creator
+    except:
+        pass
+
+def make_rec(erachain_addr, acc, rec, transactions):
+    amount = rec.get('amount')
+    action_key = rec.get('action_key')
+    if not amount or amount < 0 or not action_key or action_key != 1:
+        return
+    type = rec.get('type')
+    if not type or type != 31:
+        return
+
+    if not acc:
+        acc = 'refuse:' + rec['creator']
     else:
-        # may be here only ADDRESS
-        addr = args[0].strip()
-        from db_common import get_currs_by_addr
-        curr, xcurr, _ = get_currs_by_addr(db, addr)
-        if xcurr:
-            return curr.abbrev + ':' + addr
+        acc = ('%d' % rec['asset']) + '>' + acc
+            
+    #print rec
+    transactions.append(dict(
+        amo = amount,
+        txid=rec['signature'],
+        vout= '0', ### not need for SYSTEM_TOKENS - rec['sequence'], 
+        time = rec['timestamp'] * 0.001,
+        confs = rec['confirmations'],
+        addr = erachain_addr,
+        acc = acc
+            )
+        )
 
 
 def get_incomed(db, token_system, from_block_in=None):
@@ -303,11 +348,7 @@ def get_incomed(db, token_system, from_block_in=None):
     print tab, curr_block
     transactions = []
     for rec in tab:
-        amount = rec.get('amount')
-        action_key = rec.get('action_key')
-        if not amount or amount < 0 or not action_key or action_key != 1:
-            continue
-
+    
         acc = parse_mess(db, rec.get('head'), rec.get('creator'))
         if not acc:
             acc = parse_mess(db, rec.get('data'), rec.get('creator'))
@@ -315,23 +356,46 @@ def get_incomed(db, token_system, from_block_in=None):
             acc = parse_mess(db, rec.get('title'), rec.get('creator'))
         if not acc:
             acc = parse_mess(db, rec.get('message'), rec.get('creator'))
-            
         if not acc:
-            acc = 'refuse:' + rec['creator']
-        else:
-            acc = ('%d' % rec['asset']) + '>' + acc
-                
-        #print rec
-        transactions.append(dict(
-            amo = amount,
-            txid=rec['signature'],
-            vout= '0', ### not need for SYSTEM_TOKENS - rec['sequence'], 
-            time = rec['timestamp'] * 0.001,
-            confs = rec['confirmations'],
-            addr = erachain_addr,
-            acc = acc
-                )
-            )
+            continue
+        
+        # make record INCOME from Erachain TRANSACTION 
+        make_rec(erachain_addr, acc, rec, transactions)
+        
+        lines = rec.get('message', rec.get('data'))
+        if lines:
+            lines = lines.strip().split('\n')
+            
+        if lines and len(lines) > 1:
+            for line in lines:
+                #try:
+                if True:
+                    command = line.split(':')
+                    if len(command) > 1:
+                        if command[0].strip().lower() == 'add':
+                            ## ADD transactions without payments details to that payment
+                            ## need 
+                            for txid in command[1].strip().split(' '):
+                                # see this TX in DB and set DETAILS
+                                pay_in = db(db.pay_ins.txid == txid).select().first()
+                                if pay_in:
+                                    # already assigned
+                                    continue
+                                
+                                recAdded = rpc_erachain.get_tx_info(token_system, txid.strip())
+                                if not recAdded or 'creator' not in recAdded or recAdded['creator'] != rec['creator']:
+                                    # set payment details only for this creator records
+                                    continue
+
+                                # make record INCOME from Erachain TRANSACTION 
+                                make_rec(erachain_addr, acc, recAdded, transactions)
+
+                                
+                #except Exception as e:
+                else:
+                    mess = 'COMMAND: %s - %s' % (line, e)
+                    log(db, mess)
+
 
     return transactions, curr_block
 

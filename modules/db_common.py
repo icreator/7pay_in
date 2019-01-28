@@ -24,13 +24,15 @@ def get_currs_by_abbrev(db, abbrev):
     return curr, xcurr, ecurr
 
 def get_currs_by_addr(db, addr, abbrev_only=None):
-    if not addr or len(addr)<30 or len(addr)>36: return None, None, None
+    if not addr or len(addr)<30 or len(addr)>46: return None, None, None
     abbrev = None
     ch = addr[0:1]
     if ch == '1' or ch == '3': abbrev = 'BTC'
+    elif ch == '7': abbrev = 'ERA'
+    elif ch == 'L': abbrev = 'LTC'
+    elif ch == 'X': abbrev = 'DASH'
     elif ch == 'C': abbrev = 'CLR'
     elif ch in 'D9A': abbrev = 'DOGE'
-    elif ch == 'L': abbrev = 'LTC'
     elif ch == '4': abbrev = 'NVC'
     elif ch == 'P': abbrev = 'PPC'
     else:

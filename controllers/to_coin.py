@@ -212,7 +212,7 @@ def get_uri_in():
     _, url_uri = common.uri_make( curr_in.name2, addr_in, {'amount':volume_in, 'label': db_client.make_x_acc_label(deal, addr_out, curr_out_abbrev)})
 
     if token_system_in:
-        addr_out_full = (token_system_out and ('%d' % token_out.token_key) or curr_out_abbrev) + ':' + addr_out
+        addr_out_full = curr_out_abbrev + ':' + addr_out
     else:
         addr_out_full = addr_out
 

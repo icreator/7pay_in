@@ -10,6 +10,9 @@ import db_common
 import db_client
 import serv_to_buy
 
+## ALLOW API from not local
+response.headers['Access-Control-Allow-Origin'] = '*'
+
 def help():
     redirect(URL('index'))
 
@@ -271,34 +274,68 @@ def curr_get_info():
     
     return res
 
-# http://127.0.0.1:8000/shop/api/validate_addr.json/14qZ3c9WGGBZrftMUhDTnrQMzwafYwNiLt
+# http://127.0.0.1:8000/shop/api/validate_addr.json/BTC/14qZ3c9WGGBZrftMUhDTnrQMzwafYwNiLt
 def validate_addr():
     import time
     time.sleep(1)
-    addr = len(request.args)>0 and request.args[0] or request.vars.get('addr')
+    
+    xcurr = None
+    curr_abbrev = request.vars.get('curr')
+    addr = request.vars.get('addr')
+    if len(request.args) == 1:
+        addr = request.args[0]
+    if len(request.args) == 2:
+        curr_abbrev = request.args[0]
+        addr = addr or request.args[1]
+        
     if not addr:
-        return {'error':"need addr: /validate_addr.json/[addr]"}
-    from db_common import get_currs_by_addr
-    curr, xcurr, _ = get_currs_by_addr(db, addr)
-    if not xcurr:
-        return {"error": "invalid curr"}
-    from crypto_client import conn
-    try:
-        conn = conn(curr, xcurr)
-    except:
-        conn = None
-    if not conn:
-        return {"error": "not connected to wallet [%s]" % curr.abbrev}
-    
-    valid = conn.validateaddress(addr)
-    
-    #import crypto_client
-    #if crypto_client.is_not_valid_addr(conn, addr):
-    #    return { 'error': 'address not valid for - ' + curr.abbrev}
+        return {'error':'need addr or curr_abbrev, example: /validate_addr.json/[addr] or /validate_addr.json/[curr_abbrev]/[addr]'}
+        
+    if addr and not curr_abbrev:
+        from db_common import get_currs_by_addr
+        curr, xcurr, _ = get_currs_by_addr(db, addr)
 
-    if not valid.get('isvalid'):
-        return {"error": "invalid for [%s]" % curr.abbrev, 'mess': '%s' % valid}
-    return { 'curr': curr.abbrev, 'ismine': valid.get('ismine'), 'mess': '%s' % valid }
+    if curr_abbrev:
+        from db_common import get_currs_by_abbrev
+        curr, xcurr, _ = get_currs_by_abbrev(db, curr_abbrev)
+        
+    
+    if not xcurr:
+        return {"error": "invalid curr_abbrev"}
+    
+    token_system_out = None
+    token_key = xcurr.as_token
+    if token_key:
+        token = db.tokens[token_key]
+        token_system = db.systems[token.system_id]
+
+        import rpc_erachain
+        curr_block = rpc_erachain.get_info(token_system.connect_url)
+        if type(curr_block) != type(1):
+            return {'error':'Connection to [%s] is lost, try later ' % curr.name}
+        if rpc_erachain.is_not_valid_addr(token_system.connect_url, addr):
+            return {'error':'address not valid for ' + curr.name + ' - ' + addr}
+
+        return { 'curr': curr.abbrev, 'ismine': token_system.account == addr}
+    else:
+    
+        from crypto_client import conn
+        try:
+            conn = conn(curr, xcurr)
+        except:
+            conn = None
+        if not conn:
+            return {'error':'Connection to [%s] is lost, try later ' % curr.name}
+        
+        valid = conn.validateaddress(addr)
+        
+        #import crypto_client
+        #if crypto_client.is_not_valid_addr(conn, addr):
+        #    return { 'error': 'address not valid for - ' + curr.abbrev}
+    
+        if not valid.get('isvalid'):
+            return {"error": "invalid for [%s]" % curr.abbrev, 'mess': '%s' % valid}
+        return { 'curr': curr.abbrev, 'ismine': valid.get('ismine'), 'mess': '%s' % valid }
 
 @cache.action(time_expire=time_exp*10, cache_model=cache.disk)
 def get_rates():
