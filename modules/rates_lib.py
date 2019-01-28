@@ -403,10 +403,13 @@ def get_rate_for_api(db, curr_id, curr_out_id, vol_in, deal = None, dealer_deal 
           )
 
     if get_currs:
-       out_res['curr_in_rec'] = curr_in
-       out_res['curr_out_rec'] = curr_out
+        out_res['curr_in_rec'] = curr_in
+        out_res['curr_out_rec'] = curr_out
 
+    #print '\n'
+    #print 'get_rate_for_api'
     pr_b, pr_s, pr_avg = get_average_rate_bsa(db, curr_in.id, curr_out.id, None)
+    #print 'get_rate_for_api', curr_in.abbrev, '>>', curr_out.abbrev, '::', pr_avg
     if pr_avg:
         _, _, base_rate = get_rate(db, curr_in, curr_out, vol_in)
     else:
@@ -426,7 +429,97 @@ def get_rate_for_api(db, curr_id, curr_out_id, vol_in, deal = None, dealer_deal 
         out_res['rate_out'] = rate_out
         out_res['base_rate'] = base_rate
     else:
-       out_res["wrong"] = "rate not found"
+        out_res["wrong"] = "rate not found"
+
+    if get_limits:
+        lim_bal, may_pay = db_client.is_limited_ball(curr_in)
+        free_bal = db_client.curr_free_bal(curr_out)
+
+        out_res['lim_bal'] = lim_bal
+        out_res['may_pay'] = may_pay
+        out_res['free_bal'] = float(free_bal)
+
+
+    return out_res
+
+# get_rate_out/curr_in_id/curr_out_id/vol_out?get_limits=1
+def get_rate_for_api_out(db, curr_id, curr_out_id, vol_out, deal = None, dealer_deal = None, get_limits = None, get_currs = None):
+    import common
+
+    if not curr_id:
+        return mess('curr in id...')
+    try:
+        curr_id = int(curr_id)
+        curr_in = db.currs[ curr_id ]
+    except:
+        curr_in = db(db.currs.abbrev == curr_id).select().first()
+    if not curr_in:
+        return mess('curr in id...')
+    curr_id = curr_in.id
+
+    if not curr_out_id:
+        return mess('curr out id...')
+    try:
+        curr_out_id = int(curr_out_id)
+        curr_out = db.currs[ curr_out_id ]
+    except:
+        curr_out = db(db.currs.abbrev == curr_out_id).select().first()
+    if not curr_out:
+        return mess('curr out id...')
+    curr_out_id = curr_out.id
+    
+    try:
+        vol_out = float(vol_out)
+    except:
+        return mess('vol digs...')
+    
+    #xcurr_in = db(db.xcurrs.curr_id == curr_id).select().first()
+    #if not xcurr_in: return mess('xcurr...')
+
+    #xcurr_out = db(db.xcurrs.curr_id == curr_out.id).select().first()
+    #if not xcurr_out: return mess('xcurr out...')
+    
+    curr_out_abbrev = curr_out.abbrev
+    
+    out_res = dict(
+           volume_out = vol_out,
+           curr_in = curr_in.abbrev,
+           curr_out = curr_out.abbrev
+          )
+
+    if get_currs:
+        out_res['curr_in_rec'] = curr_in
+        out_res['curr_out_rec'] = curr_out
+
+    pr_b, pr_s, pr_avg = get_average_rate_bsa(db, curr_in.id, curr_out.id, None)
+    if pr_avg:
+        vol_in = vol_out / pr_b
+        amo_out, _, base_rate = get_rate(db, curr_in, curr_out, vol_in)
+    else:
+        base_rate = None
+
+    if base_rate:
+
+        is_order = False
+        deal = deal or db.deals[current.TO_COIN_ID]
+        
+        xcurr_out = db(db.xcurrs.curr_id == curr_out_id).select().first()
+        if not xcurr_out: return mess('xcurr...')
+
+        txfee = float(xcurr_out.txfee or 0.0001)
+        vol_out += txfee
+
+        vol_in, mess_in = db_client.calc_fees_back(db, deal, dealer_deal, curr_in, curr_out, vol_out,
+                                           base_rate, is_order=0, note=0, only_tax=0)
+        ## vol_out - is Decimal
+        vol_in = common.rnd_8(vol_in)
+        rate_in = vol_out / vol_in
+
+        out_res['volume_in'] = vol_in
+        out_res['rate_in'] = rate_in
+        out_res['base_rate'] = base_rate
+    else:
+        out_res["wrong"] = "rate not found"
 
     if get_limits:
         lim_bal, may_pay = db_client.is_limited_ball(curr_in)
