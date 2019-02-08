@@ -157,7 +157,7 @@ def make_edealer_payment(db, geted_pays,  curr_in, xcurr, curr_out, ecurr, vol_i
         for pay_in in pay_ins_recs:
             ## None pay_in.payout_id = pay_out_id
             if pay_in.amount == vol_in:
-                volume_out_it = volume_out
+                volume_out_it = round(float(volume_out), 8)
             else:
                 volume_out_it = round(float(volume_out * pay_in.amount / vol_in),8)
             pay_in.status = 'added'

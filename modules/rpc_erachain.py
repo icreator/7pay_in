@@ -110,7 +110,7 @@ def get_transactions(rpc_url, addr, from_block=2, conf=2):
     
     ## TODO + confirmed HARD
     while i + conf <= height:
-        if len(result) > 100 or i - from_block > 3000:
+        if len(result) > 100 or i - from_block > 30000:
             break
 
         i += 1

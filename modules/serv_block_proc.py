@@ -37,7 +37,7 @@ def log_commit(db, mess):
 
 # запуск пробный из тулсов:
 #  /tools/block_proc/CLR
-def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
+def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
     # сюда приходят все одиночные входы
     # поидее надо их всех запомнить
     token_system = None
@@ -220,6 +220,8 @@ def b_p_db_update( db, conn, curr, xcurr, tab, curr_block):
 
             token_xcurr.from_block = curr_block
             token_xcurr.update_record()
+            print token_curr.abbrev, 'set CURRENT_BLOCK:', token_xcurr.from_block
+            
         token_system.from_block = curr_block
         token_system.update_record()
     else:
@@ -327,10 +329,6 @@ def get_incomed(db, token_system, from_block_in=None):
             return tab, from_block # если переиндексация то возможно что и меньше
         print from_block, '-->', curr_block, erachain_addr
         tab, curr_block = rpc_erachain.get_transactions(erachain_rpc, erachain_addr, from_block, token_system.conf)
-        if type(tab) == type({}):
-            # ошибка
-            log(db, 'listunspent %s' % l_Unsp)
-            return tab, None
 
     else:
         # если нет еще номера обработанного блока
@@ -635,6 +633,7 @@ def run_once(db, abbrev):
 
         from_block_in = None # 68600
         tab, curr_block = get_incomed(db, token_system, from_block_in)
+                
         #print 'tab:   ',tab
         ##return
         b_p_db_update(db, None, curr, xcurr, tab, curr_block)
@@ -690,7 +689,7 @@ def run_once(db, abbrev):
         ss = ss + '%s<br>' % mess
         log_commit(db, mess)
 
-    if conn:
+    if conn or token_key:
         try:
         #if True:
             # если есть отвергнутиые платежи то вернем их
