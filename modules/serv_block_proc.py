@@ -216,11 +216,11 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
                 token_curr = db.currs[token_xcurr.curr_id]
                 token_curr.balance = balance
                 token_curr.update_record()
-                #print token_curr.balance
+                print token_curr.abbrev, 'set BAL:', token_curr.balance
 
             token_xcurr.from_block = curr_block
             token_xcurr.update_record()
-            print token_curr.abbrev, 'set CURRENT_BLOCK:', token_xcurr.from_block
+            print 'set CURRENT_BLOCK:', token_xcurr.from_block
             
         token_system.from_block = curr_block
         token_system.update_record()
