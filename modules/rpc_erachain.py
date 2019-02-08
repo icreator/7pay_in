@@ -106,6 +106,11 @@ def get_transactions(rpc_url, addr, from_block=2, conf=2):
     result = []
 
     height = rpc_request(rpc_url + "/blocks/height")
+    try:
+        height = int(height)
+    except Exception as e:
+        return result, None
+
     i = from_block
     
     ## TODO + confirmed HARD

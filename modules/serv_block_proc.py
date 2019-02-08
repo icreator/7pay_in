@@ -330,6 +330,9 @@ def get_incomed(db, token_system, from_block_in=None):
         print from_block, '-->', curr_block, erachain_addr
         tab, curr_block = rpc_erachain.get_transactions(erachain_rpc, erachain_addr, from_block, token_system.conf)
 
+        if curr_block == None:
+            return [], None
+
     else:
         # если нет еще номера обработанного блока
         # то и делать нечего - мол служба только запущена
@@ -337,11 +340,9 @@ def get_incomed(db, token_system, from_block_in=None):
         token_system.from_block = from_block = 1 # все входы со всеми подтверждениями берем
         token_system.update_record()
         tab, curr_block = rpc_erachain.get_transactions(erachain_rpc, erachain_addr, conf = token_system.conf)
-        #print type(tab), tab
-        if type(tab) == type({}):
-            # ошибка
-            log(db, 'listunspent %s' % Unsp)
-            return tab, None
+
+        if curr_block == None:
+            return [], None
     
     print tab, curr_block
     transactions = []
@@ -634,8 +635,9 @@ def run_once(db, abbrev):
         from_block_in = None # 68600
         tab, curr_block = get_incomed(db, token_system, from_block_in)
                 
-        #print 'tab:   ',tab
-        ##return
+        if curr_block == None:
+            return 'connection lost'
+        
         b_p_db_update(db, None, curr, xcurr, tab, curr_block)
     else:
         conn = crypto_client.conn(curr, xcurr)
