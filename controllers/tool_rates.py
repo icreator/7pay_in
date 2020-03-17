@@ -26,7 +26,7 @@ def get_best_rates():
     for i, r in rates.iteritems():
         #print i,r
         h += DIV(
-            db.currs[i].abbrev,' base: ',r[0],' tax: ', r[1],' rate:', r[2], '1/rate:', 1/r[2] if r[2] else 0
+            db.currs[i].abbrev,' base: ',r[0],' tax: ', r[1],' rate:', r[2], ' - 1/rate:', 1/r[2] if r[2] else 0
             )
     return dict(h=h)
 #
@@ -39,8 +39,8 @@ def get_best_price_for_volume():
         return mess
     import db_client
     import db_common
-    x, e, a_in = db_common.get_curr_by_abbrev(db,request.args[0])
-    x, e, a_out = db_common.get_curr_by_abbrev(db,request.args[1])
+    x, e, a_in = db_common.get_currs_by_abbrev(db,request.args[0])
+    x, e, a_out = db_common.get_currs_by_abbrev(db,request.args[1])
     expired = datetime.datetime.now() - datetime.timedelta(5,600)
     s_b = len(request.args)<4 or request.args[3]=='sell'
     #s_b = not 3 in request.args or request.args[3]=='sell'
@@ -63,8 +63,8 @@ def best_price():
     _in = request.args[1]
     _out = request.args[2]
     volume_in = request.args[3]
-    x,e,acurr_in = db_common.get_curr_by_abbrev(db,_in)
-    x,e,acurr_out = db_common.get_curr_by_abbrev(db,_out)
+    x,e,acurr_in = db_common.get_currs_by_abbrev(db,_in)
+    x,e,acurr_out = db_common.get_currs_by_abbrev(db,_out)
     expired = datetime.datetime.now() - datetime.timedelta(2,60)
     dealer_id = None
     d_e = None
