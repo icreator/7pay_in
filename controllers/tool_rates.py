@@ -26,7 +26,7 @@ def get_best_rates():
     for i, r in rates.iteritems():
         #print i,r
         h += DIV(
-            db.currs[i].abbrev,' base: ',r[0],' tax: ', r[1],' rate:', r[2], '1/rate:', 1/r[2] if r[2] else 0
+            db.currs[i].abbrev,' base: ',r[0],' tax: ', r[1],' rate:', r[2], ' - 1/rate:', 1/r[2] if r[2] else 0
             )
     return dict(h=h)
 #
