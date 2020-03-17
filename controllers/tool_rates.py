@@ -65,8 +65,8 @@ def best_price():
     _in = request.args[1]
     _out = request.args[2]
     volume_in = request.args[3]
-    x,e,acurr_in = db_common.get_currs_by_abbrev(db,_in)
-    x,e,acurr_out = db_common.get_currs_by_abbrev(db,_out)
+    acurr_in, x,e = db_common.get_currs_by_abbrev(db,_in)
+    acurr_out, x,e = db_common.get_currs_by_abbrev(db,_out)
     expired = datetime.datetime.now() - datetime.timedelta(2,60)
     dealer_id = None
     d_e = None
