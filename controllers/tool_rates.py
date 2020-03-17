@@ -1,6 +1,8 @@
 # coding: utf8
 
 import rates_lib
+import datetime
+
 session.forget(response)
 
 if not IS_LOCAL: raise HTTP(200, T('ERROR'))
