@@ -43,7 +43,7 @@ def rpc_request(pars, vars=None, password=None, test=None):
         from gluon import current
         # или любая ошибка - повтор запроса - там должно выдать ОК
         #print 'YmToConfirm while EXEPTION:', e
-        log(current.db, 'rpc ' + pars + ' EXEPTION: %s' % e)
+        log(current.db, 'rpc ' + pars + ' EXCEPTION: %s' % e)
         return e
 
     #time.sleep(1)
@@ -120,16 +120,16 @@ def get_transactions(rpc_url, addr, from_block=2, conf=2):
 
         i += 1
         recs_count = 0
+        url_get = rpc_url + '/transactions/incoming/' + ("%d" % i) + '/' + addr + '/decrypt/%s' % PASSWORD
 
         try:
-            recs = rpc_request(rpc_url + '/transactions/incoming/' + ("%d" % i) + '/' + addr
-                               + '/decrypt/%s' % PASSWORD)
+            recs = rpc_request(url_get)
             recs_count = len(recs)
         except Exception as e:
             print e
             print recs
             from gluon import current
-            log(current.db, 'get_transactions EXEPTION: %s - height: %d - %s' % (e, i, recs))
+            log(current.db, 'get_transactions %s EXCEPTION: %s - %s' % (url_get, e, recs))
             return result, i - 1
 
 
