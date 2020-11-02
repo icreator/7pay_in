@@ -128,6 +128,8 @@ def get_transactions(rpc_url, addr, from_block=2, conf=2):
         except Exception as e:
             print e
             print recs
+            from gluon import current
+            log(current.db, 'get_transactions EXEPTION: %s - height: %d - %s' % (e, i, recs))
             return result, i - 1
 
 
