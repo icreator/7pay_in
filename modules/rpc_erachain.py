@@ -119,14 +119,19 @@ def get_transactions(rpc_url, addr, from_block=2, conf=2):
             break
 
         i += 1
+        recs_count = 0
+
         try:
             recs = rpc_request(rpc_url + '/transactions/incoming/' + ("%d" % i) + '/' + addr
-                              + '/decrypt/%s' % PASSWORD)
+                               + '/decrypt/%s' % PASSWORD)
+            recs_count = len(recs)
         except Exception as e:
             print e
+            print recs
             return result, i - 1
-        
-        if len(recs) > 0:
+
+
+        if recs_count > 0:
             print 'erachain incomes - height: ', i, ' recs:', len(recs)
         else:
             continue
