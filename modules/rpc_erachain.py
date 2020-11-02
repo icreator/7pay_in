@@ -160,9 +160,9 @@ def get_transactions(rpc_url, addr, from_block=2, conf=2):
 
 def send(db, curr, xcurr, addr, amo, token_system = None, token = None, title = None, mess = None):
     
-    if token == None:
+    if token is None:
         token = db.tokens[xcurr.as_token]
-    if token_system == None:
+    if token_system is None:
         token_system = db.systems[token.system_id]
         
     amo = round(float(amo),8)
