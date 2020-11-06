@@ -36,7 +36,8 @@ def not_is_local(vvv=None):
         return True
 
 # запустим сразу защиту от внешних вызов
-not_is_local(True)
+if False:
+    not_is_local(True)
 # тут только то что на локалке
 
 
@@ -49,13 +50,65 @@ def index():
 def repopulate_db():
 
     #########################################
+    if db(db.exchgs).isempty():
+        try:
+            db.exchgs.truncate('RESTART IDENTITY CASCADE')
+        except Exception as e:
+            return e
+            pass
+
+    if db(db.exchg_taxs).isempty():
+        try:
+            db.exchg_taxs.truncate('RESTART IDENTITY CASCADE')
+        except Exception as e:
+            return e
+
+    if db(db.exchg_pair_bases).isempty():
+        try:
+            db.exchg_pair_bases.truncate('RESTART IDENTITY CASCADE')
+        except Exception as e:
+            return e
+            pass
+
+    if db(db.dealers).isempty():
+        try:
+            db.dealers.truncate('RESTART IDENTITY CASCADE')
+            #db.dealers_accs.truncate('RESTART IDENTITY CASCADE)
+            #db.clients_ewallets.truncate('RESTART IDENTITY CASCADE)
+            #db.dealers_accs_trans.truncate('RESTART IDENTITY CASCADE)
+            #db.dealer_deals.truncate('RESTART IDENTITY CASCADE)
+            #db.pay_outs.truncate('RESTART IDENTITY CASCADE)
+        except Exception as e:
+            return e
+            pass
+
+    if db(db.systems).isempty():
+        try:
+            db.systems.truncate('RESTART IDENTITY CASCADE')
+        except Exception as e:
+            return e
+
+    if db(db.deals_cat).isempty():
+        try:
+            db.deals_cat.truncate('RESTART IDENTITY CASCADE')
+        except Exception as e:
+            return e
+            pass
+
+    if db(db.deals).isempty():
+        try:
+            db.deals.truncate('RESTART IDENTITY CASCADE')
+        except Exception as e:
+            return e
+            pass
+
     if db(db.currs).isempty():
         try:
-            db.ecurrs.truncate()
-            db.xcurrs.truncate()
-            db.currs.truncate()
-        except:
+            db.currs.truncate('RESTART IDENTITY CASCADE')
+        except Exception as e:
+            return e
             pass
+
         xpass = 'login:password'
         for r in [
             ['USD', 'US dollar', 'usd', True], #1
@@ -102,11 +155,6 @@ def repopulate_db():
 
     #### TOKENS ####
     if db(db.systems).isempty():
-        try:
-            db.systems.truncate()
-            db.tokens.truncate()
-        except:
-            pass
 
         system_id = db.systems.insert(name = 'Erachain', name2 = 'erachain', first_char = '7',
                                       connect_url = 'http://127.0.0.1:9068', account = '7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7',
@@ -123,22 +171,13 @@ def repopulate_db():
 
 
     if db(db.exchg_taxs).isempty():
-        try:
-            db.exchg_taxs.truncate()
-        except:
-            pass
-
         db.exchg_taxs.insert( curr1_id = 3, curr2_id = 2, tax = 0)
         db.exchg_taxs.insert( curr1_id = 3, curr2_id = 1, tax = 0.5)
         db.exchg_taxs.insert( curr1_id = 4, curr2_id = 3, tax = 1)
         db.exchg_taxs.insert( curr1_id = 8, curr2_id = 3, tax = 1)
 
-    if db(db.exchg_pair_bases).isempty():
-        try:
-            db.exchg_pair_bases.truncate()
-        except:
-            pass
 
+    if db(db.exchg_pair_bases).isempty():
         for r in [
             [1, 2, 0, 100, 0.1],
             [1, 3, 0, 100, 0.1],
@@ -171,8 +210,6 @@ def repopulate_db():
             db.exchg_pair_bases.insert(curr1_id = r[0], curr2_id = r[1], hard_price = r[2], base_vol = r[3], base_perc = r[4])
 
 
-
-
     #current.CURR_RUB = CURR_RUB = db.currs[ 2 ]
     ##current.CURR_RUB = CURR_RUB = db(db.currs.abbrev == 'RUB').select().first()
 
@@ -180,11 +217,6 @@ def repopulate_db():
         raise HTTP(500, 'currency RUB not found in db1.py')
 
     if db(db.deals_cat).isempty():
-        try:
-            db.deals_cat.truncate()
-        except:
-            pass
-
         db.deals_cat.insert(name='Other')
         db.deals_cat.insert(name='Internet')
         db.deals_cat.insert(name='Games')
@@ -192,13 +224,6 @@ def repopulate_db():
         db.deals_cat.insert(name='Municipal services')
 
     if db(db.deals).isempty():
-        try:
-            db.deals.truncate()
-            db.deal_errs.truncate()
-            db.dealer_deals.truncate()
-        except:
-            pass
-
         db.deals.insert(
             fee_curr_id= CURR_RUB_ID, name = 'BUY', name2 = 'to BUY',
             used=False,  not_gifted=True,
@@ -221,16 +246,6 @@ def repopulate_db():
                          fee=3,  tax=0.2,  fee_min=0,  fee_max=0)
 
     if db(db.dealers).isempty():
-        try:
-            db.dealers.truncate()
-            db.dealers_accs.truncate()
-            db.clients_ewallets.truncate()
-            db.dealers_accs_trans.truncate()
-            db.dealer_deals.truncate()
-            db.pay_outs.truncate()
-        except:
-            pass
-
         dealer_id = db.dealers.insert(
             name = 'Yandex',
             used=True,
@@ -248,14 +263,6 @@ def repopulate_db():
 
 
     if db(db.exchgs).isempty():
-        try:
-            db.exchgs.truncate()
-            db.exchg_limits.truncate()
-            db.exchg_pairs.truncate()
-            db.fees.truncate()
-        except:
-            pass
-
         xpass = 'login:password'
         for r in [
             ['WEX', 'wex.nz', 'btc-e_3', '', True, 0.5, 0.0, [[1,""], [2, "rur"], [3,""], [4,""], [5,""], [6,"dsh"]],
@@ -284,3 +291,5 @@ def repopulate_db():
         db.fees.insert(exchg_id = 2, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
         db.fees.insert(exchg_id = 3, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
         db.fees.insert(exchg_id = 4, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
+
+    return "Repopulated"
