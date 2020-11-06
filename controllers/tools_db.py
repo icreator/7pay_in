@@ -4,6 +4,7 @@
 
 if False:
     from gluon import *
+    import db
     request = current.request
     response = current.response
     session = current.session
