@@ -2,6 +2,10 @@
 
 TXID_LEN = 100
 
+if False:
+    ## for off errors in IDEA
+    pass
+
 # если ошибка то задаем migrate=False,
 # fake_migrate = True
 # либо если надо можифицировать какую таблицу, то остальным
@@ -756,7 +760,9 @@ if db(db.currs).isempty():
                  None,
             ],
             ]:
+        print r[0], r[1], r[2], r[3]
         curr_id = db.currs.insert( abbrev = r[0], name = r[1], name2 = r[2], used=r[3])
+        db.currs.update_record()
         if len(r)>4:
             db.xcurrs.insert(curr_id = curr_id, first_char = r[4][0], connect_url = r[4][1],
                              block_time=r[4][2], txfee = r[4][3], conf = r[4][4], conf_gen = r[4][5])

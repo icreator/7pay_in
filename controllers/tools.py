@@ -1,5 +1,13 @@
 # coding: utf8
 
+if False:
+    from gluon import *
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 ##from __future__ import print_function
 
 import socket
