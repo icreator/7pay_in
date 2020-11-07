@@ -61,11 +61,11 @@ def repopulate_db():
 
     if db(db.dealers).isempty():
         db.dealers.truncate('RESTART IDENTITY CASCADE')
-        #db.dealers_accs.truncate('RESTART IDENTITY CASCADE)
-        #db.clients_ewallets.truncate('RESTART IDENTITY CASCADE)
-        #db.dealers_accs_trans.truncate('RESTART IDENTITY CASCADE)
-        #db.dealer_deals.truncate('RESTART IDENTITY CASCADE)
-        #db.pay_outs.truncate('RESTART IDENTITY CASCADE)
+        db.dealers_accs.truncate('RESTART IDENTITY CASCADE')
+        db.clients_ewallets.truncate('RESTART IDENTITY CASCADE')
+        db.dealers_accs_trans.truncate('RESTART IDENTITY CASCADE')
+        db.dealer_deals.truncate('RESTART IDENTITY CASCADE')
+        db.pay_outs.truncate('RESTART IDENTITY CASCADE')
 
     if db(db.systems).isempty():
         db.systems.truncate('RESTART IDENTITY CASCADE')
@@ -99,35 +99,18 @@ def repopulate_db():
              ['', 'http://%s@127.0.0.1:13332' % xpass, 333, 0.005, 3, 101, 0],
              None,
              ],
-            ['C01', 'Coin01', 'coin01', True, #7
-             ['01', 'http://%s@127.0.0.1:11111' % xpass, 60, 0.1, 3, 101, 0],
+            ['ZEN', 'Horizen', 'horizen', True, #7
+             ['Z', 'http://%s@127.0.0.1:11111' % xpass, 300, 0.1, 3, 101, 0],
              None,
              ],
-            ['NVC', 'Novacoin', 'novacoin', True, #8
+            ['NVC', 'Novacoin', 'novacoin', False, #8 - False - if not used on service
              ['4', 'http://%s@127.0.0.1:11332' % xpass, 450, 0.1, 3, 120, 0],
              None,
              ],
-            ['ERA', 'ERA', 'ERA', True, # Erachain ERA
-             ['', 'erachain ERA' % xpass, 0, 0, 2, 0, 1],
-             None,
-             ],
-            ['COMPU', 'COMPU', 'COMPU', True, # Erachain COMPU
-             ['', 'erachain COMPU' % xpass, 0, 0, 2, 0, 2],
-             None,
-             ],
-            ['@BTC', 'ERA.BTC', 'era.btc', True, # Erachain BTC id 12
-             ['', 'era-12' % xpass, 0, 0, 2, 0, 3],
-             [1,1,1], # rates
-             ],
-            ['@1069', 'ERA.Coin1069', 'era.coin-1069', True, # Erachain coin on id=1001 for example http://erachain.org:9047/index/blockexplorer.html?asset=1069&lang=en
-             ['', 'era-69' % xpass, 0, 0, 2, 0, 4],
-             None,
-             ],
+            # The Erachain tiokens will set below
         ]:
 
-            print r[0], r[1], r[2], r[3]
-
-            curr_id = db.currs.insert( abbrev = r[0], name = r[1], name2 = r[2], used=r[3])
+            curr_id = db.currs.insert(abbrev = r[0], name = r[1], name2 = r[2], used=r[3])
 
             if len(r)>4:
                 db.xcurrs.insert(curr_id = curr_id, first_char = r[4][0], connect_url = r[4][1],
@@ -136,25 +119,26 @@ def repopulate_db():
             else:
                 db.ecurrs.insert(curr_id = curr_id)
 
-            ##DAL.distributed_transaction_commit(db)
-            db.commit()
-
-
     #### TOKENS ####
     if db(db.systems).isempty():
-
+        # Set Erachain tokens and stablecoins
+        # see http://erachain.org:9047/index/blockexplorer.html?assets=&lang=en&start=25
         system_id = db.systems.insert(name = 'Erachain', name2 = 'erachain', first_char = '7',
-                                      connect_url = 'http://127.0.0.1:9068', account = '7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7',
-                                      block_time = 288, conf = 2, conf_gen = 0, from_block = 30000)
+                                      connect_url = 'http://127.0.0.1:9048', # for Testnet use http://127.0.0.1:9068
+                                      account = '7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7',
+                                      block_time = 30, conf = 1, conf_gen = 0,
+                                      from_block = 1000000 # for Testnet use 0
+                                      )
         for asset in [
-            [1, 'ERA'], [2, 'COMPU'],
+            [1, 'ERA'], [2, 'COMPU'], [12, '@BTC'], # @BTC etc is stablecoins
+            [95, '@USD'], [92, '@RUB'],  [14, '@ETH'],  [16, '@ZEN'],
+            [1064, 'WWP'] # examole for asset http://erachain.org:9047/index/blockexplorer.html?asset=1064&lang=en
         ]:
             token_id = db.tokens.insert(system_id = system_id, token_key = asset[0], name = asset[1])
             curr_id = db.currs.insert( abbrev = asset[1], name = asset[1], name2 = asset[1], used=True)
             db.xcurrs.insert(curr_id = curr_id, connect_url = 'erachain ' + asset[1],
                              as_token = token_id,
                              block_time=0, txfee = 0, conf = 0, conf_gen = 0)
-
 
 
     if db(db.exchg_taxs).isempty():
@@ -165,40 +149,49 @@ def repopulate_db():
 
 
     if db(db.exchg_pair_bases).isempty():
+        # set directions of exchanges and HARD PRICE for direction
         for r in [
-            [1, 2, 0, 100, 0.1],
-            [1, 3, 0, 100, 0.1],
-            [1, 4, 0, 100, 0.1],
-            [1, 5, 0, 100, 0.1],
-            [1, 6, 0, 100, 0.1],
-            [1, 7, 0, 100, 0.1],
-            [1, 8, 0, 100, 0.1],
-            [2, 1, 0, 10000, 0.1],
-            [2, 3, 0, 10000, 0.1],
-            [2, 4, 0, 10000, 0.1],
-            [2, 5, 0, 10000, 0.1],
-            [2, 6, 0, 10000, 0.1],
-            [2, 7, 0, 10000, 0.1],
-            [2, 8, 0, 10000, 0.1],
-            [3, 1, 0, 1, 0.1],
-            [3, 2, 0, 1, 0.1],
-            [3, 4, 0, 1, 0.1],
-            [3, 5, 0, 1, 0.1],
-            [3, 6, 0, 1, 0.1],
-            [3, 7, 0, 1, 0.1],
-            [3, 8, 0, 1, 0.1],
-            [4, 3, 0, 333, 0.1],
-            [5, 3, 0, 3333, 0.1],
-            [6, 3, 0, 3333, 0.1],
-            [7, 3, 0, 33, 0.1],
-            [8, 3, 0, 333, 0.1],
-            [9, 10, 0.001, 1, 0.1],
+            ['USD', 'RUB', 0, 100, 0.1],
+            ['USD', 'BTC', 0, 100, 0.1],
+            ['USD', 4, 0, 100, 0.1],
+            ['USD', 5, 0, 100, 0.1],
+            ['USD', 6, 0, 100, 0.1],
+            ['USD', 7, 0, 100, 0.1],
+            ['USD', 8, 0, 100, 0.1],
+            ['RUB', 'USD', 0, 10000, 0.1],
+            ['RUB', 'BTC', 0, 10000, 0.1],
+            ['RUB', 4, 0, 10000, 0.1],
+            ['RUB', 5, 0, 10000, 0.1],
+            ['RUB', 6, 0, 10000, 0.1],
+            ['RUB', 7, 0, 10000, 0.1],
+            ['RUB', 8, 0, 10000, 0.1],
+            ['BTC', 'USD', 0, 1, 0.1],
+            ['BTC', 2, 0, 1, 0.1],
+            ['BTC', 4, 0, 1, 0.1],
+            ['BTC', 5, 0, 1, 0.1],
+            ['BTC', 6, 0, 1, 0.1],
+            ['BTC', 7, 0, 1, 0.1],
+            ['BTC', 8, 0, 1, 0.1],
+            ['LTC', 'BTC', 0, 333, 0.1],
+            ['DOGE', 'BTC', 0, 3333, 0.1],
+            ['DASH', 'BTC', 0, 3333, 0.1],
+            ['ZEN', 'BTC', 0, 33, 0.1],
+            ['NVC', 'BTC', 0, 333, 0.1],
+            ['ERA', 'COMPU', 0.001, 1, 0.1],
+            ['ERA', 'COMPU', 0.001, 1, 0.1],
+            ['BTC', '@BTC', 1, 10, 0.1],
+            ['@BTC', 'BTC', 1, 10, 0.1],
+            ['ZEN', '@ZEN', 1, 100, 0.1],
+            ['@ZEN', 'ZEN', 1, 100, 0.1],
+            ['USD', '@USD', 1, 1000, 0.1],
+            ['@USD', 'USD', 1, 1000, 0.1],
+            ['RUB', '@RUB', 1, 10000, 0.1],
+            ['@RUB', 'RUB', 1, 10000, 0.1],
         ]:
-            db.exchg_pair_bases.insert(curr1_id = r[0], curr2_id = r[1], hard_price = r[2], base_vol = r[3], base_perc = r[4])
+            curr1 = db(db.currs.abbrev == r[0]).select().first()
+            curr2 = db(db.currs.abbrev == r[1]).select().first()
+            db.exchg_pair_bases.insert(curr1_id = curr1.id, curr2_id = curr2, hard_price = r[2], base_vol = r[3], base_perc = r[4])
 
-
-    #current.CURR_RUB = CURR_RUB = db.currs[ 2 ]
-    ##current.CURR_RUB = CURR_RUB = db(db.currs.abbrev == 'RUB').select().first()
 
     if not CURR_RUB_ID:
         raise HTTP(500, 'currency RUB not found in db1.py')
@@ -250,16 +243,18 @@ def repopulate_db():
 
 
     if db(db.exchgs).isempty():
+        # SET Exhanges pairs roe API calls
         xpass = 'login:password'
         for r in [
-            ['WEX', 'wex.nz', 'btc-e_3', '', True, 0.5, 0.0, [[1,""], [2, "rur"], [3,""], [4,""], [5,""], [6,"dsh"]],
-             [[1, 2, True,''], [3, 1, True,''], [3, 2, True,''], [4, 1, True,''], [4, 2, True,''], [4, 3, True,''],
-              [5, 3, True,''], [6, 3, True,''], [7, 3, True,''], [8, 3, True,'']]
+            ['WEX', 'wex.nz', 'btc-e_3', '', Faelse, # not used now
+             0.5, 0.0, [['USD',""], ['RUB', "rur"], ['BTC',""], ['LTC',""], ['DOGE',""], ['DASH',"dsh"]],
+             [['USD', 'RUB', True,''], ['BTC', 'USD', True,''], ['BTC', 'RUB', True,''], ['LTC', 'BTC', True,''], ['LTC', 'RUB', True,''], ['LTC', 'BTC', True,''],
+              ['DOGE', 'BTC', True,''], ['DASH', 'BTC', True,''], ['ZEN', 'BTC', True,''], ['NVC', 'BTC', True,'']]
              ],
-            ['Livecoin', 'api.livecoin.net', 'livecoin', 'exchange/ticker', True, 0.2, 0.0, [[1,""], [2, ""], [3,""], [4,""], [5,""], [6,""]]],
-            ['Cryptsy', 'cryptsy.com', 'cryptsy', '', False, 1, 0.0, [[5,"DOGE"]]],
+            ['Livecoin', 'api.livecoin.net', 'livecoin', 'exchange/ticker', True, 0.2, 0.0, [['USD',""], ['RUB', ""], ['BTC',""], ['LTC',""], ['DOGE',""], ['DASH',""]]],
+            ['Cryptsy', 'cryptsy.com', 'cryptsy', '', False, 1, 0.0, [['DOGE',"DOGE"]]],
             ['Poloniex.com', 'poloniex.com', 'poloniex', '', True, 0.2, 0, [],
-             [[3, 5, True,'BTC_DOGE'], [3, 6, True,'BTC_DASH']]
+             [['BTC', 'DOGE', True,'BTC_DOGE'], ['BTC', 'DASH', True,'BTC_DASH']]
              ]
         ]:
 
@@ -269,14 +264,16 @@ def repopulate_db():
                                         )
             if len(r)>7:
                 for ticker in r[7]:
-                    db.exchg_limits.insert(exchg_id = exchg_id, curr_id = ticker[0], ticker = ticker[1])
-            if len(r)>8:
-                for pair in r[8]:
-                    db.exchg_pairs.insert(exchg_id = exchg_id, curr1_id = pair[0], curr2_id = pair[1], used = pair[2], ticker = pair[3])
+                    curr = db(db.currs.abbrev == ticker[0]).select().first()
+                    db.exchg_limits.insert(exchg_id = exchg_id, curr_id = curr.id, ticker = ticker[1])
 
-        db.fees.insert(exchg_id = 1, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
-        db.fees.insert(exchg_id = 2, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
-        db.fees.insert(exchg_id = 3, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
-        db.fees.insert(exchg_id = 4, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
+                if len(r)>8:
+                    for pair in r[8]:
+                        curr1 = db(db.currs.abbrev == pair[0]).select().first()
+                        curr2 = db(db.currs.abbrev == pair[1]).select().first()
+                        db.exchg_pairs.insert(exchg_id = exchg_id, curr1_id = curr1.id, curr2_id = curr2.id, used = pair[2], ticker = pair[3])
+
+        for exhange in db(db.exchgs).select():
+            db.fees.insert(exchg_id = exhange.id, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
 
     return "Repopulated"
