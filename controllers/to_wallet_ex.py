@@ -313,7 +313,7 @@ def index():
                  & (db.dealers.used == True)
                  & (db.dealer_deals.dealer_id == db.dealers.id)
                  & (db.dealer_deals.deal_id == deal.id)
-                 ).select(groupby=db.dealers_accs.dealer_id):
+                ).select(db.dealers.ALL, groupby=db.dealers.id):
             
             min = 10
             dealer_acc = ed_common.sel_acc_max(db, r.dealers, ecurr_out, 0, True)
