@@ -47,7 +47,7 @@ def index():
     return dict(message="repopulate_db")
 
 
-def repopulate_db():
+def init_db_records():
 
     #########################################
     if db(db.exchgs).isempty():
@@ -61,11 +61,6 @@ def repopulate_db():
 
     if db(db.dealers).isempty():
         db.dealers.truncate('RESTART IDENTITY CASCADE')
-        db.dealers_accs.truncate('RESTART IDENTITY CASCADE')
-        db.clients_ewallets.truncate('RESTART IDENTITY CASCADE')
-        db.dealers_accs_trans.truncate('RESTART IDENTITY CASCADE')
-        db.dealer_deals.truncate('RESTART IDENTITY CASCADE')
-        db.pay_outs.truncate('RESTART IDENTITY CASCADE')
 
     if db(db.systems).isempty():
         db.systems.truncate('RESTART IDENTITY CASCADE')
@@ -153,32 +148,33 @@ def repopulate_db():
         for r in [
             ['USD', 'RUB', 0, 100, 0.1],
             ['USD', 'BTC', 0, 100, 0.1],
-            ['USD', 4, 0, 100, 0.1],
-            ['USD', 5, 0, 100, 0.1],
-            ['USD', 6, 0, 100, 0.1],
-            ['USD', 7, 0, 100, 0.1],
-            ['USD', 8, 0, 100, 0.1],
+            ['USD', 'LTC', 0, 100, 0.1],
+            ['USD', 'DOGE', 0, 100, 0.1],
+            ['USD', 'DASH', 0, 100, 0.1],
+            ['USD', 'ZEN', 0, 100, 0.1],
+            ['USD', 'NVC', 0, 100, 0.1],
             ['RUB', 'USD', 0, 10000, 0.1],
             ['RUB', 'BTC', 0, 10000, 0.1],
-            ['RUB', 4, 0, 10000, 0.1],
-            ['RUB', 5, 0, 10000, 0.1],
-            ['RUB', 6, 0, 10000, 0.1],
-            ['RUB', 7, 0, 10000, 0.1],
-            ['RUB', 8, 0, 10000, 0.1],
+            ['RUB', 'LTC', 0, 10000, 0.1],
+            ['RUB', 'DOGE', 0, 10000, 0.1],
+            ['RUB', 'DASH', 0, 10000, 0.1],
+            ['RUB', 'ZEN', 0, 10000, 0.1],
+            ['RUB', 'NVC', 0, 10000, 0.1],
             ['BTC', 'USD', 0, 1, 0.1],
-            ['BTC', 2, 0, 1, 0.1],
-            ['BTC', 4, 0, 1, 0.1],
-            ['BTC', 5, 0, 1, 0.1],
-            ['BTC', 6, 0, 1, 0.1],
-            ['BTC', 7, 0, 1, 0.1],
-            ['BTC', 8, 0, 1, 0.1],
+            ['BTC', 'RUB', 0, 1, 0.1],
+            ['BTC', 'LTC', 0, 1, 0.1],
+            ['BTC', 'DOGE', 0, 1, 0.1],
+            ['BTC', 'DASH', 0, 1, 0.1],
+            ['BTC', 'ZEN', 0, 1, 0.1],
+            ['BTC', 'NVC', 0, 1, 0.1],
             ['LTC', 'BTC', 0, 333, 0.1],
             ['DOGE', 'BTC', 0, 3333, 0.1],
             ['DASH', 'BTC', 0, 3333, 0.1],
             ['ZEN', 'BTC', 0, 33, 0.1],
             ['NVC', 'BTC', 0, 333, 0.1],
-            ['ERA', 'COMPU', 0.001, 1, 0.1],
-            ['ERA', 'COMPU', 0.001, 1, 0.1],
+            ['ERA', 'COMPU', 0.001, 100, 0.1],
+            ['ERA', 'USD', 0.5, 100, 0.1],
+            ['COMPU', 'USD', 100, 1, 0.1],
             ['BTC', '@BTC', 1, 10, 0.1],
             ['@BTC', 'BTC', 1, 10, 0.1],
             ['ZEN', '@ZEN', 1, 100, 0.1],
@@ -189,7 +185,11 @@ def repopulate_db():
             ['@RUB', 'RUB', 1, 10000, 0.1],
         ]:
             curr1 = db(db.currs.abbrev == r[0]).select().first()
+            if not curr1:
+                return 'exchg_pair_bases - not found', r[0]
             curr2 = db(db.currs.abbrev == r[1]).select().first()
+            if not curr2:
+                return 'exchg_pair_bases - not found', r[1]
             db.exchg_pair_bases.insert(curr1_id = curr1.id, curr2_id = curr2, hard_price = r[2], base_vol = r[3], base_perc = r[4])
 
 
@@ -225,6 +225,7 @@ def repopulate_db():
                          MIN_pay=10,  MAX_pay=2777,
                          fee=3,  tax=0.2,  fee_min=0,  fee_max=0)
 
+    dealer_id = None
     if db(db.dealers).isempty():
         dealer_id = db.dealers.insert(
             name = 'Yandex',
@@ -240,13 +241,15 @@ def repopulate_db():
         db.dealer_deals.insert(dealer_id = dealer_id, deal_id = TO_WALLET_ID, used = False, scid = 'p2p',
                                p2p = True, tax = 0.5,
                                template_ = '["not_mod", { "n": "p2p"}]')
+    else:
+        dealer_id = db.dealers[1].id
 
 
     if db(db.exchgs).isempty():
         # SET Exhanges pairs roe API calls
         xpass = 'login:password'
         for r in [
-            ['WEX', 'wex.nz', 'btc-e_3', '', Faelse, # not used now
+            ['WEX', 'wex.nz', 'btc-e_3', '', False, # not used now
              0.5, 0.0, [['USD',""], ['RUB', "rur"], ['BTC',""], ['LTC',""], ['DOGE',""], ['DASH',"dsh"]],
              [['USD', 'RUB', True,''], ['BTC', 'USD', True,''], ['BTC', 'RUB', True,''], ['LTC', 'BTC', True,''], ['LTC', 'RUB', True,''], ['LTC', 'BTC', True,''],
               ['DOGE', 'BTC', True,''], ['DASH', 'BTC', True,''], ['ZEN', 'BTC', True,''], ['NVC', 'BTC', True,'']]
@@ -265,15 +268,21 @@ def repopulate_db():
             if len(r)>7:
                 for ticker in r[7]:
                     curr = db(db.currs.abbrev == ticker[0]).select().first()
+                    if not curr:
+                        return 'exchg_limits - not found', ticker[0]
                     db.exchg_limits.insert(exchg_id = exchg_id, curr_id = curr.id, ticker = ticker[1])
 
                 if len(r)>8:
                     for pair in r[8]:
                         curr1 = db(db.currs.abbrev == pair[0]).select().first()
+                        if not curr1:
+                            return 'exchg_pairs - not found', pair[0]
                         curr2 = db(db.currs.abbrev == pair[1]).select().first()
+                        if not curr2:
+                            return 'exchg_pairs - not found', pair[1]
                         db.exchg_pairs.insert(exchg_id = exchg_id, curr1_id = curr1.id, curr2_id = curr2.id, used = pair[2], ticker = pair[3])
 
         for exhange in db(db.exchgs).select():
             db.fees.insert(exchg_id = exhange.id, dealer_id = dealer_id, fee_ed = 1, fee_de = 0)
 
-    return "Repopulated"
+    return "Initiated"
