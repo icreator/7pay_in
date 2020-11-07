@@ -51,90 +51,76 @@ def repopulate_db():
 
     #########################################
     if db(db.exchgs).isempty():
-        try:
-            db.exchgs.truncate('RESTART IDENTITY CASCADE')
-        except Exception as e:
-            return e
-            pass
+        db.exchgs.truncate('RESTART IDENTITY CASCADE')
 
     if db(db.exchg_taxs).isempty():
-        try:
-            db.exchg_taxs.truncate('RESTART IDENTITY CASCADE')
-        except Exception as e:
-            return e
+        db.exchg_taxs.truncate('RESTART IDENTITY CASCADE')
 
     if db(db.exchg_pair_bases).isempty():
-        try:
-            db.exchg_pair_bases.truncate('RESTART IDENTITY CASCADE')
-        except Exception as e:
-            return e
-            pass
+        db.exchg_pair_bases.truncate('RESTART IDENTITY CASCADE')
 
     if db(db.dealers).isempty():
-        try:
-            db.dealers.truncate('RESTART IDENTITY CASCADE')
-            #db.dealers_accs.truncate('RESTART IDENTITY CASCADE)
-            #db.clients_ewallets.truncate('RESTART IDENTITY CASCADE)
-            #db.dealers_accs_trans.truncate('RESTART IDENTITY CASCADE)
-            #db.dealer_deals.truncate('RESTART IDENTITY CASCADE)
-            #db.pay_outs.truncate('RESTART IDENTITY CASCADE)
-        except Exception as e:
-            return e
-            pass
+        db.dealers.truncate('RESTART IDENTITY CASCADE')
+        #db.dealers_accs.truncate('RESTART IDENTITY CASCADE)
+        #db.clients_ewallets.truncate('RESTART IDENTITY CASCADE)
+        #db.dealers_accs_trans.truncate('RESTART IDENTITY CASCADE)
+        #db.dealer_deals.truncate('RESTART IDENTITY CASCADE)
+        #db.pay_outs.truncate('RESTART IDENTITY CASCADE)
 
     if db(db.systems).isempty():
-        try:
-            db.systems.truncate('RESTART IDENTITY CASCADE')
-        except Exception as e:
-            return e
+        db.systems.truncate('RESTART IDENTITY CASCADE')
 
     if db(db.deals_cat).isempty():
-        try:
-            db.deals_cat.truncate('RESTART IDENTITY CASCADE')
-        except Exception as e:
-            return e
-            pass
+        db.deals_cat.truncate('RESTART IDENTITY CASCADE')
 
     if db(db.deals).isempty():
-        try:
-            db.deals.truncate('RESTART IDENTITY CASCADE')
-        except Exception as e:
-            return e
-            pass
+        db.deals.truncate('RESTART IDENTITY CASCADE')
 
     if db(db.currs).isempty():
-        try:
-            db.currs.truncate('RESTART IDENTITY CASCADE')
-        except Exception as e:
-            return e
-            pass
+        db.currs.truncate('RESTART IDENTITY CASCADE')
 
         xpass = 'login:password'
         for r in [
             ['USD', 'US dollar', 'usd', True], #1
             ['RUB', 'Ruble', 'ruble', True], #2
             ['BTC', 'Bitcoin', 'bitcoin', True, #3
-             ['13', 'http://%s@127.0.0.1:8332' % xpass, 600, 0.0007000, 1, 101, -1],
+             ['13', 'http://%s@127.0.0.1:8332' % xpass, 600, 0.0007000, 1, 101, 0],
              None,
              ],
             ['LTC', 'Litecoin', 'litecoin', True, #4
-             ['L', 'http://%s@127.0.0.1:9332' % xpass, 150, 0.005, 3, 120, -1],
+             ['L', 'http://%s@127.0.0.1:9332' % xpass, 150, 0.005, 3, 120, 0],
              None,
              ],
             ['DOGE', 'DOGE', 'doge', True, #5
-             ['D9A', 'http://%s@127.0.0.1:9432' % xpass, 30, 0.1, 5, 101, -1],
+             ['D9A', 'http://%s@127.0.0.1:9432' % xpass, 30, 0.1, 5, 101, 0],
              None,
              ],
             ['DASH', 'DASH', 'dash', True, #6
-             ['', 'http://%s@127.0.0.1:13332' % xpass, 333, 0.005, 3, 101, -1],
+             ['', 'http://%s@127.0.0.1:13332' % xpass, 333, 0.005, 3, 101, 0],
              None,
              ],
-            ['EMC', 'Emercoin', 'emercoin', True, #7
-             ['EM', 'http://%s@127.0.0.1:14332' % xpass, 550, 0.1, 3, 101, -1],
+            ['C01', 'Coin01', 'coin01', True, #7
+             ['01', 'http://%s@127.0.0.1:11111' % xpass, 60, 0.1, 3, 101, 0],
              None,
              ],
             ['NVC', 'Novacoin', 'novacoin', True, #8
-             ['4', 'http://%s@127.0.0.1:11332' % xpass, 450, 0.1, 3, 120, -1],
+             ['4', 'http://%s@127.0.0.1:11332' % xpass, 450, 0.1, 3, 120, 0],
+             None,
+             ],
+            ['ERA', 'ERA', 'ERA', True, # Erachain ERA
+             ['', 'erachain ERA' % xpass, 0, 0, 2, 0, 1],
+             None,
+             ],
+            ['COMPU', 'COMPU', 'COMPU', True, # Erachain COMPU
+             ['', 'erachain COMPU' % xpass, 0, 0, 2, 0, 2],
+             None,
+             ],
+            ['@BTC', 'ERA.BTC', 'era.btc', True, # Erachain BTC id 12
+             ['', 'era-12' % xpass, 0, 0, 2, 0, 3],
+             [1,1,1], # rates
+             ],
+            ['@1069', 'ERA.Coin1069', 'era.coin-1069', True, # Erachain coin on id=1001 for example http://erachain.org:9047/index/blockexplorer.html?asset=1069&lang=en
+             ['', 'era-69' % xpass, 0, 0, 2, 0, 4],
              None,
              ],
         ]:
@@ -145,7 +131,8 @@ def repopulate_db():
 
             if len(r)>4:
                 db.xcurrs.insert(curr_id = curr_id, first_char = r[4][0], connect_url = r[4][1],
-                                 block_time=r[4][2], txfee = r[4][3], conf = r[4][4], conf_gen = r[4][5])
+                                 block_time=r[4][2], txfee = r[4][3], conf = r[4][4], conf_gen = r[4][5],
+                                 as_token=r[4][6])
             else:
                 db.ecurrs.insert(curr_id = curr_id)
 
