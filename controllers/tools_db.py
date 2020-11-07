@@ -251,15 +251,18 @@ def init_db_records():
         for r in [
             ['WEX', 'wex.nz', 'btc-e_3', '', False, # not used now
              0.5, 0.0, [['USD',""], ['RUB', "rur"], ['BTC',""], ['LTC',""], ['DOGE',""], ['DASH',"dsh"]],
-             [['USD', 'RUB', False,''], ['BTC', 'USD', False,''], ['BTC', 'RUB', False,''], ['LTC', 'BTC', False,''], ['LTC', 'RUB', True,''], ['LTC', 'BTC', False,''],
-              ['DOGE', 'BTC', False,''], ['DASH', 'BTC', False,''], ['ZEN', 'BTC', False,''], ['NVC', 'BTC', True,'']]
+             [['USD', 'RUB', False, ''], ['BTC', 'USD', False, ''], ['BTC', 'RUB', False, ''], ['LTC', 'BTC', False, ''],
+              ['LTC', 'RUB', True, ''], ['LTC', 'BTC', False, ''],
+              ['DOGE', 'BTC', False, ''], ['DASH', 'BTC', False, ''], ['ZEN', 'BTC', False, ''], ['NVC', 'BTC', True, '']]
              ],
-            ['Livecoin', 'api.livecoin.net', 'livecoin', 'exchange/ticker', True, 0.2, 0.0, [['USD',""], ['RUB', ""], ['BTC',""], ['LTC',""], ['DOGE',""], ['DASH',""]],
-             [['BTC', 'RUB', True,''], ['USD', 'RUB', True,'']]
+            ['Livecoin', 'api.livecoin.net', 'livecoin', 'exchange/ticker', True, 0.2, 0.0,
+             [['USD', ""], ['RUB', ""], ['BTC', ""], ['LTC', ""], ['DOGE', ""], ['DASH', ""]],
+             [['BTC', 'RUB', True, ''], ['USD', 'RUB', True, '']]
              ],
-            ['Cryptsy', 'cryptsy.com', 'cryptsy', '', False, 1, 0.0, [['DOGE',"DOGE"]]],
+            ['Cryptsy', 'cryptsy.com', 'cryptsy', '', False, 1, 0.0, [['DOGE', "DOGE"]]],
             ['Poloniex.com', 'poloniex.com', 'poloniex', '', True, 0.2, 0, [],
-             [['USD', 'BTC', True,'USDT_BTC'], ['BTC', 'LTC', True,'BTC_LTC'], ['BTC', 'DOGE', True,'BTC_DOGE'], ['BTC', 'DASH', True,'BTC_DASH']]
+             [['USD', 'BTC', True, 'USDT_BTC'], ['BTC', 'LTC', True, 'BTC_LTC'], ['BTC', 'DOGE', True, 'BTC_DOGE'],
+              ['BTC', 'DASH', True, 'BTC_DASH']]
              ]
         ]:
 
