@@ -143,8 +143,9 @@ def get():
     deal = db.deals[deal_id]
     vol = (deal.MIN_pay or 100) * 2
     dealer, dealer_acc, dealer_deal = ed_common.select_ed_acc(db, deal, ecurr_out, vol, True)
+    if not dealer:
+        return mess('ERROR: not found dealer for "%s"' % deal.name)
     dealer_acc = ed_common.sel_acc_max_for_balance(db, dealer, ecurr_out, vol, unlim=True)
-    if not dealer: return mess('ERROR: not found dealer for "%s"' % deal.name)
 
     MIN = db_common.gMIN(deal, dealer)
     #MAX = deal.MAX_ or 777
@@ -409,9 +410,9 @@ def index():
 
     vol = (deal.MIN_pay or 100) * 2
     dealer, dealer_acc, dealer_deal = ed_common.select_ed_acc(db, deal, ecurr_out, vol, True)
-    dealer_acc = ed_common.sel_acc_max_for_balance(db, dealer, ecurr_out, vol, unlim=True)
     if not dealer:
         raise HTTP(200, T('ERROR: not found dealer for "%s"') % deal.name)
+    dealer_acc = ed_common.sel_acc_max_for_balance(db, dealer, ecurr_out, vol, unlim=True)
 
     #print dealer.info
     dealer_info = dealer.info and json.loads(dealer.info)

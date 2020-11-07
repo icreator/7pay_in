@@ -11,11 +11,11 @@ else:
 
 def ua(h, url, cls='col-sm-4',
        clsA='ll-blue-bgc'):
-       #clsA='gray-bgc'):
+    #clsA='gray-bgc'):
     return DIV(A(h, _class='block col-center button btn10 ' + clsA,
-                #_style='background-color:%s;' % SKIN['bg-clr-ftr-mnu']
+                 #_style='background-color:%s;' % SKIN['bg-clr-ftr-mnu']
                  _href=url,
-                )
+                 )
                , _class=cls)
 
 class Jammer():
@@ -27,17 +27,17 @@ def jam():
 def consult():
     h = CAT(
         DIV(
-        H1('Консультируем бизнес и инвесторов по bitcoin и blockchain'),
-        H2('Как использовать биткоин в международных платежах и бизнесе'),
-        P('Осуществляем консультации для бизнеса по использованию биткоин платежей и по использованию блокчейн-технологий. Правовое регулирование и применение бухгалтерского учёта для биткоинов. Например:'),
-        H3('Как купить биткоин по безналу'),
-        H3('Как продать биткоины за безнал'),
-        H2('Биткоин-стартапы и блокчейн-стартапы для инвесторов'),
-        P('Для инвесторов проведём предварительную экспертизу по биткоин-стартапу или блокчейн-стартапу.',),
-        P('Свяжитесь', ' ', A(B('с нами'), _href=URL('default','contacts'))),
+            H1('Консультируем бизнес и инвесторов по bitcoin и blockchain'),
+            H2('Как использовать биткоин в международных платежах и бизнесе'),
+            P('Осуществляем консультации для бизнеса по использованию биткоин платежей и по использованию блокчейн-технологий. Правовое регулирование и применение бухгалтерского учёта для биткоинов. Например:'),
+            H3('Как купить биткоин по безналу'),
+            H3('Как продать биткоины за безнал'),
+            H2('Биткоин-стартапы и блокчейн-стартапы для инвесторов'),
+            P('Для инвесторов проведём предварительную экспертизу по биткоин-стартапу или блокчейн-стартапу.',),
+            P('Свяжитесь', ' ', A(B('с нами'), _href=URL('default','contacts'))),
             _style='padding:10px 10%;',
             _class='container'),
-        )
+    )
     return dict(h=h)
 
 def up():
@@ -45,9 +45,9 @@ def up():
         DIV(
             H1('Глобальный инновационный проект',':'),
             P(
-               A('Блокчейн для бизнеса, государства и жизни',
-              _href='http://datachains.world', _target='_blank'),
-              ' - ', 'приглашаем инвесторов и сторонников'),
+                A('Блокчейн для бизнеса, государства и жизни',
+                  _href='http://datachains.world', _target='_blank'),
+                ' - ', 'приглашаем инвесторов и сторонников'),
             BR(),
             H1('Биткоин-бизнес, стартапы в биткоин экономике:'),
             P('Ищем инвестиции или предпринимателей для развития биткоин стартапов в международный бизнес'),
@@ -55,20 +55,20 @@ def up():
                 LI(B(DOMEN), ' - оплата услуг биткоинами, обмен и продажа криптовалют'),
                 LI(B('LITE.cash'), ' - платежный шлюз для приёма криптовалют на сайтах'),
                 LI(B('WAGERS.win'), ' - служба по созданию своих споров и пари со ставками в биткоинах'),
-                ),
+            ),
             P('Описание смотрите в ',A('бизнес-концепции',
-              _href='https://docs.google.com/document/d/1OyDbOruXBc7rpJAhWVf3Jv5-sEVWX5gGR0f1byT1faI/edit?usp=sharing', _target='_blank')),
+                                       _href='https://docs.google.com/document/d/1OyDbOruXBc7rpJAhWVf3Jv5-sEVWX5gGR0f1byT1faI/edit?usp=sharing', _target='_blank')),
             _style='padding:10px 10%;',
             _class='container'),
-        )
+    )
     return dict(h=h)
 
 def subscribe():
     form = SQLFORM(db.news_descrs, fields = ['email'],
-        submit_button = T('Подписаться'),
-        labels = {'email': T('Ваш емэйл')  },
-        formstyle='divs',
-        )
+                   submit_button = T('Подписаться'),
+                   labels = {'email': T('Ваш емэйл')  },
+                   formstyle='divs',
+                   )
     if form.accepts(request.vars, session):
         response.flash = T('Вы подписаны')
     elif form.errors:
@@ -84,9 +84,9 @@ def to_many():
         P(T('Если Вам надо делать выплаты на много различных счетов по заранее заданным множителям или долям, то лучше всего это сделать с помощью “разделяющего счёта” - все поступившие на него платежи будут автоматически разделены на заданные доли и выплачены на соответствующие счета. Такой разделяющий или зарплатный счёт создаётся один раз на сервисе LITE.cash и потом все поступления на него автоматически распределяются между получателям на ихние кошельки криптовалют')),
         P(
             A('LITE.cash divided payouts', _href='http://lite.cash/bs3b/more/divided_payments', _target='_blabk')
-         ),
+        ),
         _class='container'),
-        )
+    )
     return dict(h=h)
 
 #@cache.action(time_expire=CACHE_EXP_TIME, cache_model=cache.ram, public=True, lang=True)
@@ -103,11 +103,11 @@ def crypto_trans():
         _id="top_line")
     h = CAT()
     h += DIV(H1(T('ПРИВЕТ')),
-            ua(T('Купить'),URL('to_buy', 'index')),
-            ua(T('Оплатить'),URL('deal', 'index')),
-            ua(T('Обменять'),URL('to_wallet', 'index')),
-            ua(T('Начало'),URL('default', 'index'),'col-sm-12'),
-            _class='row')
+             ua(T('Купить'),URL('to_buy', 'index')),
+             ua(T('Оплатить'),URL('deal', 'index')),
+             ua(T('Обменять'),URL('to_wallet', 'index')),
+             ua(T('Начало'),URL('default', 'index'),'col-sm-12'),
+             _class='row')
     return dict(h = h)
 
 #@cache.action(time_expire=CACHE_EXP_TIME, cache_model=cache.ram, public=True, lang=True)
@@ -121,11 +121,11 @@ def crypto():
     response.subtitle = ' '
     h = CAT()
     h += DIV(
-            ua(T('Купить'),URL('to_buy', 'index')),
-            ua(T('Оплатить'),URL('deal', 'index')),
-            ua(T('Обменять'),URL('to_wallet', 'index')),
-            ua(T('Начало'),URL('default', 'index'),'col-sm-12'),
-            _class='row')
+        ua(T('Купить'),URL('to_buy', 'index')),
+        ua(T('Оплатить'),URL('deal', 'index')),
+        ua(T('Обменять'),URL('to_wallet', 'index')),
+        ua(T('Начало'),URL('default', 'index'),'col-sm-12'),
+        _class='row')
     return dict(h = h, ua = ua(T('Да, мне интересно попробовать криптовалюту'), URL('crypto_go'), 'col-sm-10'))
 
 #@cache.action(time_expire=CACHE_EXP_TIME, cache_model=cache.ram, public=True, lang=True)
@@ -139,11 +139,11 @@ def crypto_go():
 
     h = CAT()
     h += DIV(
-            ua(T('Купить'),URL('to_buy', 'index')),
-            ua(T('Оплатить'),URL('deal', 'index')),
-            ua(T('Обменять'),URL('to_wallet', 'index')),
-            ua(T('Начало'),URL('default', 'index'),'col-sm-12'),
-            _class='row')
+        ua(T('Купить'),URL('to_buy', 'index')),
+        ua(T('Оплатить'),URL('deal', 'index')),
+        ua(T('Обменять'),URL('to_wallet', 'index')),
+        ua(T('Начало'),URL('default', 'index'),'col-sm-12'),
+        _class='row')
     return dict(h = h)
 
 #@cache.action(time_expire=CACHE_EXP_TIME, cache_model=cache.disk, vars=False, public=False, lang=True)
@@ -152,8 +152,12 @@ def contacts():
     response.title=T('CONTACTS')
     response.not_show_func = True
     h = CAT(
-        H3('HI-TECH SERVICES LIMITED'),
-        T('email'),': ', 'fsinfo@cytanet.com.cy', BR(),
+        H3('ICREATOR'),
+        DIV(
+            ua(T('GitLab'), 'https://gitlab.com/users/d.ermolaev'),
+            ua(T('Source Code'), 'https://github.com/icreator/7pay_in'),
+            ua(T('Icreator Site'), 'http://icreator.site/'),
+        )
     )
     return dict(h =h)
 
@@ -184,8 +188,8 @@ def index():
 
     h = CAT(
         CAT(DIV(H1('Отличия нашего сервиса', _class='center'), _style='color:steelblue;background-color:gainsboro;',
-            _class='row m-0'
-            ) if 'short' in request.vars else DIV(
+                _class='row m-0'
+                ) if 'short' in request.vars else DIV(
             DIV(
                 H1(T('Биткоины купить и потратить'), _class='wb-headline wb-white wb-mt-0 '),
                 H1(T('Oплатить биткоинами услуги'), _class='wb-headline wb-white wb-mt-0 '),
@@ -200,28 +204,28 @@ def index():
         )), # if False else '',
 
         DIV(
-        DIV(CENTER(H1(T('Наши преимущества'))),
-        DIV(
-            TAG.center(
-                H2(T('Надежность')),
-                P(T('Наш сервис работает с 2013 года и зарекомендовал себя с хорошей стороны. Отзывы можно посмотреть на независимом форуме о криптовалютах')),
-                A(T('Посмотреть отзывы и обсуждения'), _href='https://bitcointalk.org/index.php?topic=307648.0', _target='_blank',
-                   _class='button blue-bgc'), # lightblue-bgc
-                _style='padding: 30px;',
-                _class='col-sm-6'),
-            TAG.center(
-                H2(T('Открытость')),
-                P(T('Вы можете посмотреть свои платежи по адресу криптовалюты, а так же недавние платежи других пользователей нашего сервиса в обезличенном виде')),
-                  A(T('Посмотреть платежи'), _class='button blue-bgc', _href=URL('where','index'),
-                   ),
-                _style='padding: 30px;',
-                _class='col-sm-6'),
-            _class='row m-0'),
-            DIV(
-                P(T('Количество обработанных транзакций за время работы нашей службы') + ': ', ', '.join(stats)),
-                H2(T('Нам доверяют уже %s+ человек со всего мира') % (users + 500), _class='center'),
-            _class='row m-0'),
-            _class='container'),
+            DIV(CENTER(H1(T('Наши преимущества'))),
+                DIV(
+                    TAG.center(
+                        H2(T('Надежность')),
+                        P(T('Наш сервис работает с 2013 года и зарекомендовал себя с хорошей стороны. Отзывы можно посмотреть на независимом форуме о криптовалютах')),
+                        A(T('Посмотреть отзывы и обсуждения'), _href='https://bitcointalk.org/index.php?topic=307648.0', _target='_blank',
+                          _class='button blue-bgc'), # lightblue-bgc
+                        _style='padding: 30px;',
+                        _class='col-sm-6'),
+                    TAG.center(
+                        H2(T('Открытость')),
+                        P(T('Вы можете посмотреть свои платежи по адресу криптовалюты, а так же недавние платежи других пользователей нашего сервиса в обезличенном виде')),
+                        A(T('Посмотреть платежи'), _class='button blue-bgc', _href=URL('where','index'),
+                          ),
+                        _style='padding: 30px;',
+                        _class='col-sm-6'),
+                    _class='row m-0'),
+                DIV(
+                    P(T('Количество обработанных транзакций за время работы нашей службы') + ': ', ', '.join(stats)),
+                    H2(T('Нам доверяют уже %s+ человек со всего мира') % (users + 500), _class='center'),
+                    _class='row m-0'),
+                _class='container'),
             _style='background-color:#00188F; color:#ddd;padding-bottom:30px;',
             _class='row m-0'),
 
@@ -229,60 +233,60 @@ def index():
             DIV(
                 H2(T('Защита персональных данных'), _class='blue-c'),
                 UL([T('Наш сервис не требует регистраций'), T('Мы не запрашиваем паролей'), T('Ваши средства не хранятся у нас'),
-                   T('Ваши платежи обезличены и анонимны')]),
+                    T('Ваши платежи обезличены и анонимны')]),
                 _class='col-sm-6'),
             _style='color:#666;' + (not IS_LOCAL and 'background-image: url(' + URL('static','images/bg-p/lifestyle_girl_tablet_1x.jpg') + ');' or ''),
             _class='row m-0 wb-img-2bbg'),
         DIV(
-        DIV(
+            DIV(
                 H1(
                     T('Пресса о нас'),
                     _class="center"),
                 DIV(
                     DIV(
                         IMG(_src=URL('static','images/logos/coinTelegram.png'), _width=60),' ',SPAN('The Cointelegraph',
-                             _style='font-size: 24px; margin: 0; text-transform: uppercase; letter-spacing: 0.12em; color: #ffcd04;font-weight: 700; padding-bottom: 3px;'),
+                                                                                                    _style='font-size: 24px; margin: 0; text-transform: uppercase; letter-spacing: 0.12em; color: #ffcd04;font-weight: 700; padding-bottom: 3px;'),
                         H3(UL(A('Russians Can Pay Internet and Phone Bills with Bitcoin without Fees',
-                          _href='http://cointelegraph.com/news/116026/russians-can-pay-internet-and-phone-bills-with-bitcoin-without-fees' ,
-                          _target='_blank',
-                          _class='lite'),
-                          )),
+                                _href='http://cointelegraph.com/news/116026/russians-can-pay-internet-and-phone-bills-with-bitcoin-without-fees' ,
+                                _target='_blank',
+                                _class='lite'),
+                              )),
                         H3(UL(A('EmerCoin Fever Quickly Making a Name Among Fintech Projects',
-                          _href='http://cointelegraph.com/news/emercoin-fever-quickly-making-a-name-among-fintech-projects' ,
-                          _target='_blank',
-                          _class='lite'),
-                          )),
+                                _href='http://cointelegraph.com/news/emercoin-fever-quickly-making-a-name-among-fintech-projects' ,
+                                _target='_blank',
+                                _class='lite'),
+                              )),
                         _class='col-sm-6'),
                     DIV(
                         IMG(_src=URL('static','images/logos/forklog.png'), _width=200),' ',
                         H3(UL(A('Bitcoin Conquers Official Moscow',
-                          _href='http://forklog.net/bitcoin-conquers-official-moscow/' ,
-                          _target='_blank',
-                          _class='lite'),
-                          A('Как биткоин покоряет официальную Москву',
-                              _href='http://forklog.com/kak-bitkoin-pokoryaet-ofitsialnuyu-moskvu/',
-                              _target='_blank',
-                              _class='lite'),
-                          )),
+                                _href='http://forklog.net/bitcoin-conquers-official-moscow/' ,
+                                _target='_blank',
+                                _class='lite'),
+                              A('Как биткоин покоряет официальную Москву',
+                                _href='http://forklog.com/kak-bitkoin-pokoryaet-ofitsialnuyu-moskvu/',
+                                _target='_blank',
+                                _class='lite'),
+                              )),
                         _class='col-sm-6'),
                     _class='row', _style='margin-top:20px;'),
                 DIV(
                     DIV(
                         IMG(_src=URL('static','images/logos/slon.svg'), _width=200),' ',
                         H3(A('Московский Bit: кто зарабатывает на биткоинах в России?',
-                            _href='https://slon.ru/economics/moskovskiy_bit_kto_zarabatyvaet_na_bitkoinakh_v_rossii-1077043.xhtml' ,
-                            _target='_blank',
-                            _class='lite'),
-                          ' ','Здесь сайт еще со старым интерфейсом, но его можно узнать по логотипу "7Pay.in"',
-                          ),
+                             _href='https://slon.ru/economics/moskovskiy_bit_kto_zarabatyvaet_na_bitkoinakh_v_rossii-1077043.xhtml' ,
+                             _target='_blank',
+                             _class='lite'),
+                           ' ','Здесь сайт еще со старым интерфейсом, но его можно узнать по логотипу "7Pay.in"',
+                           ),
                         _class='col-sm-6'),
                     DIV(
                         IMG(_src=URL('static','images/logos/tvrain.png'), _width=200),' ',
                         H3(A('Московский бит. Краткий путеводитель по криптовалютам в России',
-                              _href='https://tvrain.ru/teleshow/reportazh/moskovskij_bit_kratkij_putevoditel_po_kriptovaljutam_v_rossii-366325/',
-                              _target='_blank',
-                              _class='lite'),
-                          ),
+                             _href='https://tvrain.ru/teleshow/reportazh/moskovskij_bit_kratkij_putevoditel_po_kriptovaljutam_v_rossii-366325/',
+                             _target='_blank',
+                             _class='lite'),
+                           ),
                         _class='col-sm-6'),
                     _class='row', _style='margin-top:20px;'),
                 DIV(
@@ -291,7 +295,7 @@ def index():
                     DIV(
                         _class='col-sm-6'),
                     _class='row', _style='margin-top:20px;'),
-            _class='container'),
+                _class='container'),
             _style='background-color:#00188F; color:#ddd;padding-bottom:30px;',
             _class='row m-0 bg-info'),
         DIV(
@@ -302,34 +306,34 @@ def index():
             _style='color:#666;' + (not IS_LOCAL and 'background-image: url(' + URL('static','images/bg-p/lifestyle_guy_computer_1x-2.jpg') + ');' or ''),
             _class='row m-0 wb-img-2bbg'),
         DIV(
-        DIV(
-            #TAG.center(
-            #    P('Так же Вы можете купить биткоины лайткоины догикоины на нашем сайте', _class='blue-c'),
-            #    A(H1(T('Купить биткоины')), _href=URL('to_buy','index'),
-            #     _class='block button blue-bgc'),
-            #    _style='padding:10px;',
-            #    _class='col-sm-6'),
-            #TAG.center(
-            #    P('Быстро оплатить биткоинами услуги ЖКХ, за свет, интернет, игры, телефон', _class='blue-c'),
-            #    A(H1(T('Оплатить биткоинами')), _href=URL('deal','index'),
-            #     _class='block button blue-bgc'),
-            #    _style='padding:10px;',
-            #    _class='col-sm-6'),
-            _class='container'),
+            DIV(
+                #TAG.center(
+                #    P('Так же Вы можете купить биткоины лайткоины догикоины на нашем сайте', _class='blue-c'),
+                #    A(H1(T('Купить биткоины')), _href=URL('to_buy','index'),
+                #     _class='block button blue-bgc'),
+                #    _style='padding:10px;',
+                #    _class='col-sm-6'),
+                #TAG.center(
+                #    P('Быстро оплатить биткоинами услуги ЖКХ, за свет, интернет, игры, телефон', _class='blue-c'),
+                #    A(H1(T('Оплатить биткоинами')), _href=URL('deal','index'),
+                #     _class='block button blue-bgc'),
+                #    _style='padding:10px;',
+                #    _class='col-sm-6'),
+                _class='container'),
             _style='background-color:currentColor;color:#ddd;',
             _class='row m-0 bg-info'),
         DIV(
-        DIV(
-            #TAG.center(
-            #    P('Или Вы можете оплатить сотовый телефон и мобильный интернет', _class='blue-c'),
-            #    A(H1(T('Пополнить сотовый телефон биткоинами')), _href=URL('to_phone','index'),
-            #     _class='block button blue-bgc'),
-            #    P('Так же Вы можете получить от нас консультацию об использовании биткоинов в бизнесе', _class='blue-c'),
-            #    A(H1(T('Консультация для бизнеса и инвесторов о биткоинах')), _href=URL('default','consult'),
-            #     _class='block button blue-bgc'),
-            #    _style='padding:10px;',
-            #    _class='col-sm-12'),
-            _class='container'),
+            DIV(
+                #TAG.center(
+                #    P('Или Вы можете оплатить сотовый телефон и мобильный интернет', _class='blue-c'),
+                #    A(H1(T('Пополнить сотовый телефон биткоинами')), _href=URL('to_phone','index'),
+                #     _class='block button blue-bgc'),
+                #    P('Так же Вы можете получить от нас консультацию об использовании биткоинов в бизнесе', _class='blue-c'),
+                #    A(H1(T('Консультация для бизнеса и инвесторов о биткоинах')), _href=URL('default','consult'),
+                #     _class='block button blue-bgc'),
+                #    _style='padding:10px;',
+                #    _class='col-sm-12'),
+                _class='container'),
             #_style='background-color:currentColor;color:#ddd;',
             _class='row m-0 bg-info'),
     )
@@ -364,7 +368,7 @@ def e_gold():
     #rate2 = avg2 and round(float(avg2 or 0), 2) or -1
 
     return dict(title=title, subtitle=subtitle,
-               rate = rate, rate2 = rate2 )
+                rate = rate, rate2 = rate2 )
 
 #@cache.action(time_expire=CACHE_EXP_TIME, cache_model=cache.ram, public=True, lang=True)
 def halava():
