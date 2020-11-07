@@ -583,13 +583,13 @@ def make_edealer_free_payment(db,
     #################################################
 
 
-# обработать все сотавшиеся платежи
+# обработать все оставшиеся платежи
 def proc_free_payments(db, curr_in, xcurr, used_pays):
     # сначала найдем группы по аккаунту - валюте
     for grp in db((db.pay_ins_stack.ref_==db.pay_ins.id)
         & (db.pay_ins.ref_ == db.deal_acc_addrs.id )
         & (db.deal_acc_addrs.xcurr_id == xcurr.id)
-        ).select(groupby=(db.deal_acc_addrs.id)):
+        ).select(db.deal_acc_addrs.ALL, groupby=(db.deal_acc_addrs.id)):
         #print grp #.payments.xcurr_id, grp.payments.account
         #continue
         # теперь для группы

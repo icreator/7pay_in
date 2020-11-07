@@ -337,11 +337,11 @@ def index():
     #print ecurr_in_id
     inp_dealers = []
     for r in db(
-             (db.dealers_accs.ecurr_id==ecurr_in_id)
-             & (db.dealers_accs.used == True)
-             & (db.dealers.id == db.dealers_accs.dealer_id)
-             & (db.dealers.used == True)
-             ).select(groupby=db.dealers_accs.dealer_id):
+            (db.dealers.id == db.dealers_accs.dealer_id)
+            & (db.dealers_accs.ecurr_id==ecurr_in_id)
+            & (db.dealers_accs.used == True)
+            & (db.dealers.used == True)
+    ).select(db.dealers.ALL, groupby=db.dealers.id):
         MIN = db_common.gMIN(deal, r.dealers)
         ##MAX = db_common.gMAX(deal, r.dealers)
         inp_dealers.append([r.dealers.id, '%s [%s] %s...%s' % (r.dealers.name, curr_in.abbrev, MIN, MAX)])

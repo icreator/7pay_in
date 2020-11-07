@@ -167,7 +167,8 @@ def index():
     stats = []
     sum_ = db.currs_stats.count_.sum()
     recs = db(
-           db.currs.id == db.currs_stats.curr_id).select(sum_, db.currs.ALL, groupby=db.currs_stats.curr_id, orderby=~sum_)
+        ## db.currs.id == db.currs_stats.curr_id).select(sum_, db.currs.ALL, groupby=db.currs_stats.curr_id, orderby=~sum_) ## on mySQL work
+        db.currs.id == db.currs_stats.curr_id).select(sum_, db.currs.ALL, groupby=db.currs.id, orderby=~sum_) ## good on PostgreSQL
     for r in recs:
         #print r._extra
         #print r._extra['SUM("currs_stats"."count_")']
