@@ -121,6 +121,7 @@ def init_db_records():
         system_id = db.systems.insert(name = 'Erachain', name2 = 'erachain', first_char = '7',
                                       connect_url = 'http://127.0.0.1:9048', # for Testnet use http://127.0.0.1:9068
                                       account = '7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7',
+                                      password='123456789',
                                       block_time = 30, conf = 1, conf_gen = 0,
                                       from_block = 1000000 # for Testnet use 0
                                       )
