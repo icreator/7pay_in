@@ -301,6 +301,42 @@ db.define_table('deals',
                 format='%(name)s',
                 )
 
+# for copy from external DBs by 'import by CSV' of web2py
+db.define_table('deals_tmp',
+                Field('cat_id', db.deals_cat, ondelete='CASCADE', default = 1),
+                #Field('curr_id', 'integer', comment='NOT USED now! GEt curr in DEAL_ACC'), # db.currs
+                Field('fee_curr_id', db.currs, comment='curr for calc FEE'),
+                Field('name', length=100,  unique=True), # for URL and LABELs
+                Field('name2', length=100, comment='english-name for URL and label'),
+                #Field('name_like', length=200, comment='name for .like() - eng + rus + ..'),
+                Field('show_text', 'text'),
+                # дело по телефонам отключим - оно отдельно - хотя можно потом и тут же делать тоже
+                Field('wants', 'integer', default=1),
+                Field('used', 'boolean', default=False, comment='used by site'),
+                Field('is_shop', 'boolean', default=False, comment='as shop'),
+                Field('not_gifted', 'boolean', default=False, comment='not gifts for this deal'), # нельзя использовать подарки для этого дела
+                Field('url', length=60, unique=False, comment='url to shop'), #
+                # если задана ссылка ответ - значит это наш клиент
+                Field('my_client', 'boolean', default=False, comment='=True if not made autopayouts - its my client!'), # нельзя использовать подарки для этого дела
+                Field('icon', 'upload'),
+                Field('img', length=50), # src="/i/shop/ufanet.gif" - ссылка на картинку у диллера
+                # тут шаблон по которму собираем имя аккаунта
+                # для мосэнерго [12345 123 12 199 6]
+                Field('template_', 'text'),
+                Field('calcs_', 'json'),
+                ## MIN_pay + MAX_pay - Только для фиата выставляются потому точно малая
+                Field('MIN_pay', 'decimal(6,2)', default = 13, comment='для фиата только действует'), # минимум который можно платить
+                # если превышает то берем пропорциональный оброк при оплате
+                Field('MAX_pay', 'decimal(13,2)', default = 1777, comment='для фиата только действует'), # максимум который можно платить за раз
+                Field('fee', 'decimal(14,8)', default = 0, comment='Оброк мне за это дело'),
+                Field('tax', 'decimal(4,2)', default = 1, comment='% подать мне за это дело'),
+                Field('fee_min', 'decimal(14,8)', default = 1, comment='limit tax down'),
+                Field('fee_max', 'decimal(14,8)', default = 100, comment='limit tax up'),
+                Field('average_', 'decimal(16,8)', default = 0, comment='average OUTcome'),
+                Field('count_', 'integer', default = 0), # used
+                format='%(name)s',
+                )
+
 
 # ошибки при вводе данных пользователя - может данные поменялись?
 db.define_table('deal_errs',
