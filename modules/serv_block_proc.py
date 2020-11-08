@@ -328,7 +328,7 @@ def get_incomed(db, token_system, from_block_in=None):
             print 'not curr_block > from_block', curr_block, from_block
             return tab, from_block # если переиндексация то возможно что и меньше
         print from_block, '-->', curr_block, erachain_addr
-        tab, curr_block = rpc_erachain.get_transactions(erachain_rpc, erachain_addr, from_block, token_system.conf)
+        tab, curr_block = rpc_erachain.get_transactions(token_system, erachain_rpc, erachain_addr, from_block, token_system.conf)
 
         if curr_block == None:
             return [], None
@@ -339,7 +339,7 @@ def get_incomed(db, token_system, from_block_in=None):
         # на нее нет еще переводоов, хотя можно наоборот взять все входы
         token_system.from_block = from_block = 1 # все входы со всеми подтверждениями берем
         token_system.update_record()
-        tab, curr_block = rpc_erachain.get_transactions(erachain_rpc, erachain_addr, conf = token_system.conf)
+        tab, curr_block = rpc_erachain.get_transactions(token_system, erachain_rpc, erachain_addr, conf = token_system.conf)
 
         if curr_block == None:
             return [], None

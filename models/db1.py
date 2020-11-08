@@ -53,6 +53,7 @@ db.define_table('systems',
                 Field('first_char', length=5, readable=False, comment='insert in db.common.get_currs_by_addr !!!'), # для быстрого поиска крипты по адресу
                 Field('connect_url', length=99, default='http://user:pass@localhost:3333', unique=True),
                 Field('account', length=99, default='7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7', comment='address for incoming payments'),
+                Field('password', length=99),
                 Field('block_time', 'integer', comment='in sec. BTC = 600sec'),
                 Field('txfee', 'decimal(10,8)', default = Decimal('0.0001'), comment='For one pay_out transaction. Payed to web'),
                 Field('conf', 'integer', default = 3, comment='confirmations for accept'),
