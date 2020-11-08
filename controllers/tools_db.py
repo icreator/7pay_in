@@ -94,8 +94,11 @@ def deals_from_tmp():
     if True:
         return 'stoppper - open me'
 
+
     db.deals.truncate('RESTART IDENTITY CASCADE') # restart autoincrement ID
 
+
+    #if True: return 'stoppper - open me'
 
     for rec in db(db.deals_tmp).select():
 
