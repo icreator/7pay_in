@@ -77,22 +77,22 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
             except Exception as e:
                 log(db, 'income TOKEN not (int) ' + acc)
                 continue
-            
+
             # INCOMED CURR - replace with CALCULATED
             xcurr = db_common.get_xcurr_by_system_token(db, token_system, token_key_in)
             curr = xcurr and db.currs[xcurr.curr_id]
             if not curr:
                 log(db, 'income xCURR not found ' + acc)
                 continue
-            
+
             print 'curr_in foe ERA_SYSTEM: ', curr.abbrev
 
-                
+
             out_tab = acc_tab[1].split(':')
             if len(out_tab) < 2:
                 log(db, 'AS TOKEN not found out_tab ' + acc)
                 continue
-            
+
             curr_out_name = out_tab[0]
             addr = out_tab[1]
             try:
@@ -106,13 +106,13 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
                 token_system_out = False
                 curr_out, xcurr_out, e = db_common.get_currs_by_abbrev(db, curr_out_name)
                 print 'as COIN curr_out: ', curr_out.abbrev
-            
+
             if not curr_out:
                 log(db, 'AS TOKEN not found curr_out ' + acc)
                 continue
-                
+
             deal_acc = db((db.deal_accs.acc==addr)
-                & (db.deal_accs.curr_id==curr_out.id)).select().first()
+                          & (db.deal_accs.curr_id==curr_out.id)).select().first()
             if not deal_acc:
                 print 'make deal_acc'
                 deal_acc_id = db.deal_accs.insert(deal_id = TO_COIN_ID, acc = addr, curr_id = curr_out.id)
@@ -128,10 +128,10 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
                 else:
                     deal_acc_addr_id = deal_acc_addr.id
 
-            
+
         else:
             deal_acc_addr = db((db.deal_acc_addrs.addr==addr)
-                & (db.deal_acc_addrs.xcurr_id==xcurr.id)).select().first()
+                               & (db.deal_acc_addrs.xcurr_id==xcurr.id)).select().first()
 
             # TODO
             if not deal_acc_addr:
@@ -149,7 +149,7 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
                 else:
                     print 'UNKNOWN deal:', rec
                     continue
-        
+
 
         # теперь в таблице от unspent без повторов - так как там блок каждый раз новый
         if token_system:
@@ -175,10 +175,10 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
         created_on = datetime.datetime.fromtimestamp(time)
 
         pay_id = db.pay_ins.insert( ref_ = deal_acc_addr.id,
-            amount = amo, confs=confs,
-            txid=txid, vout=vout,
-            created_on = created_on
-            )
+                                    amount = amo, confs=confs,
+                                    txid=txid, vout=vout,
+                                    created_on = created_on
+                                    )
         #print rec['time']
         # закатаем записи в стек чтобы быстро разообрать платежи по ордерам
         db.pay_ins_stack.insert(ref_=pay_id)
@@ -200,7 +200,7 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
 
         balances = rpc_erachain.get_balances(erachain_rpc, erachain_addr)
         ##return '%s' % balances
-    
+
         for token_rec in db(db.tokens.system_id == token_system.id).select():
             token_xcurr = db(db.xcurrs.as_token == token_rec.id).select().first()
             #print token_rec
@@ -210,18 +210,15 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
                 if balance:
                     balance = Decimal(balance[0][1])
             else:
-                balance = None
+                balance = Decimal(0)
 
-            if balance:
-                token_curr = db.currs[token_xcurr.curr_id]
-                token_curr.balance = balance
-                token_curr.update_record()
-                #print token_curr.balance
+            token_curr = db.currs[token_xcurr.curr_id]
+            token_curr.balance = balance
+            token_curr.update_record()
 
             token_xcurr.from_block = curr_block
             token_xcurr.update_record()
-            print token_curr.abbrev, 'set CURRENT_BLOCK:', token_xcurr.from_block
-            
+
         token_system.from_block = curr_block
         token_system.update_record()
     else:
@@ -237,15 +234,15 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
     db.commit()
 
 def parse_mess(db, mess, creator):
-    
+
     if not mess:
         return None
-    
+
     args = mess.strip().split('\n')[0].split(':')
     print mess, args
-    
+
     import db_common
-    
+
     arg1 = args[0].strip()
     if len(arg1) < 20:
         # as ABBREV
@@ -295,7 +292,7 @@ def make_rec(erachain_addr, acc, rec, transactions):
         acc = 'refuse:' + rec['creator']
     else:
         acc = ('%d' % rec['asset']) + '>' + acc
-            
+
     #print rec
     transactions.append(dict(
         amo = amount,
@@ -305,12 +302,12 @@ def make_rec(erachain_addr, acc, rec, transactions):
         confs = rec['confirmations'],
         addr = erachain_addr,
         acc = acc
-            )
-        )
+    )
+    )
 
 
 def get_incomed(db, token_system, from_block_in=None):
-    
+
     erachain_addr = token_system.account
     erachain_rpc = token_system.connect_url
 
@@ -343,11 +340,11 @@ def get_incomed(db, token_system, from_block_in=None):
 
         if curr_block == None:
             return [], None
-    
+
     print tab, curr_block
     transactions = []
     for rec in tab:
-    
+
         acc = parse_mess(db, rec.get('head'), rec.get('creator'))
         if not acc:
             acc = parse_mess(db, rec.get('data'), rec.get('creator'))
@@ -357,14 +354,14 @@ def get_incomed(db, token_system, from_block_in=None):
             acc = parse_mess(db, rec.get('message'), rec.get('creator'))
         if not acc:
             continue
-        
+
         # make record INCOME from Erachain TRANSACTION 
         make_rec(erachain_addr, acc, rec, transactions)
-        
+
         lines = rec.get('message', rec.get('data'))
         if lines:
             lines = lines.strip().split('\n')
-            
+
         if lines and len(lines) > 1:
             for line in lines:
                 #try:
@@ -380,7 +377,7 @@ def get_incomed(db, token_system, from_block_in=None):
                                 if pay_in:
                                     # already assigned
                                     continue
-                                
+
                                 recAdded = rpc_erachain.get_tx_info(token_system, txid.strip())
                                 if not recAdded or 'creator' not in recAdded or recAdded['creator'] != rec['creator']:
                                     # set payment details only for this creator records
@@ -389,7 +386,7 @@ def get_incomed(db, token_system, from_block_in=None):
                                 # make record INCOME from Erachain TRANSACTION 
                                 make_rec(erachain_addr, acc, recAdded, transactions)
 
-                                
+
                 #except Exception as e:
                 else:
                     mess = 'COMMAND: %s - %s' % (line, e)
@@ -463,7 +460,7 @@ def b_p_proc_unspent( db, conn, curr, xcurr, addr_in=None, from_block_in=None ):
 
         acc = r.get(u'account')
         if acc and acc == '.main.': continue # свои проводки не проверяем
-            
+
         amo = r[u'amount']
         #print '\n\n',amo, r
         #continue
@@ -509,11 +506,11 @@ def b_p_proc_unspent( db, conn, curr, xcurr, addr_in=None, from_block_in=None ):
 
         sumUnsp = sumUnsp and sumUnsp + amo or amo
         tab.append({'acc': acc, 'amo': amo,
-            'confs': r[u'confirmations'],
-            # запомним данные для поиска потом
-            'txid':txid, 'vout': vout,
-            'addr': addr,
-            'time':ti[u'time']})
+                    'confs': r[u'confirmations'],
+                    # запомним данные для поиска потом
+                    'txid':txid, 'vout': vout,
+                    'addr': addr,
+                    'time':ti[u'time']})
 
     sumUnsp = sumUnsp or 0
     sumChange = sumChange or 0
@@ -548,7 +545,7 @@ def send_back(conn, token_system, curr, xcurr, txid, amount, to_addr=None):
                 pass
             return txid
 
-        
+
         txid = conn.sendtoaddress(sender_addr, amo )
         try:
             # может быть ошибка прри конвертации в ASCII
@@ -564,9 +561,9 @@ def send_back(conn, token_system, curr, xcurr, txid, amount, to_addr=None):
 def return_refused(db, curr, xcurr, conn, token_system):
     # возвраты
     for r in db((db.pay_ins_stack.ref_ == db.pay_ins.id)
-                 & (db.pay_ins.ref_ == db.deal_acc_addrs.id)
-                 & (db.deal_acc_addrs.xcurr_id == xcurr.id)
-                 ).select():
+                & (db.pay_ins.ref_ == db.deal_acc_addrs.id)
+                & (db.deal_acc_addrs.xcurr_id == xcurr.id)
+                ).select():
         #print r
         ##STATUS_REFUSED = {'technical_error', 'payment_refused', 'currency_unused', 'refuse'}
         ##if r.pay_ins.status in db_common.STATUS_REFUSED or r.pay_ins_stack.to_refuse:
@@ -575,7 +572,7 @@ def return_refused(db, curr, xcurr, conn, token_system):
             # причем если адрес возврата уже задан в записи то возьмем его
             if True:
                 txid = send_back(conn, token_system, curr, xcurr,  r.pay_ins.txid,
-                     r.pay_ins.amount, r.deal_acc_addrs.addr_return)
+                                 r.pay_ins.amount, r.deal_acc_addrs.addr_return)
             else:
                 txid='probe1'
             #print txid
@@ -625,7 +622,7 @@ def run_once(db, abbrev):
         print mess
         return ss
     tab = e = conn = None
-    
+
     token_system = None
     token_key = xcurr.as_token #
     if token_key:
@@ -634,12 +631,12 @@ def run_once(db, abbrev):
 
         from_block_in = None # 68600
         tab, curr_block = get_incomed(db, token_system, from_block_in)
-        
+
         if curr_block == None:
             return 'connection lost'
 
         b_p_db_update(db, None, curr, xcurr, tab, curr_block)
-                
+
     else:
         conn = crypto_client.conn(curr, xcurr)
         if conn:
@@ -652,7 +649,7 @@ def run_once(db, abbrev):
                 #return
                 b_p_db_update(db, conn, curr, xcurr, tab, curr_block)
             else:
-            #except Exception as e:
+                #except Exception as e:
                 db.rollback()
                 mess = 'b_p_proc_unspent ERROR: %s' % e
                 ss = ss + '%s<br>' % mess
@@ -694,7 +691,7 @@ def run_once(db, abbrev):
 
     if conn or token_key:
         try:
-        #if True:
+            #if True:
             # если есть отвергнутиые платежи то вернем их
             return_refused(db, curr, xcurr, conn, token_system)
             db.commit()
@@ -711,7 +708,7 @@ def run_once(db, abbrev):
                 serv_to_buy.proc_ecurr(db, curr, xcurr, conn)
                 db.commit()
             else:
-            #except Exception as e:
+                #except Exception as e:
                 db.rollback()
                 mess = 'serv_to_buy.proc_ecurr: %s' % e
                 ss = ss + '%s<br>' % mess
