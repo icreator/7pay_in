@@ -1,5 +1,13 @@
 # coding: utf8
 
+if False:
+    from gluon import *
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 ##from __future__ import print_function
 
 import socket
@@ -215,8 +223,8 @@ def get_best_price_for_volume():
         return mess
     import db_client
     import db_common
-    x, e, a_in = db_common.get_currs_by_abbrev(db,request.args[0])
-    x, e, a_out = db_common.get_currs_by_abbrev(db,request.args[1])
+    a_in, x, e = db_common.get_currs_by_abbrev(db,request.args[0])
+    a_out, x, e = db_common.get_currs_by_abbrev(db,request.args[1])
     expired = datetime.datetime.now() - datetime.timedelta(5,600)
     s_b = len(request.args)<4 or request.args[3]=='sell'
     #s_b = not 3 in request.args or request.args[3]=='sell'

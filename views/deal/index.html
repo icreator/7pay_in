@@ -15,7 +15,7 @@
                 <select class="blue-c" name="cat"
                        style="padding:5px; margin-right:25px;">
                     <option value=''>ВСЕ</option>
-                    {{for r in db(db.deals_cat).select(groupby=db.deals_cat.name):}}
+                    {{for r in db(db.deals_cat).select():}}
                     <option value={{=r.id}}>{{=r.name}}</option>
                     {{pass}}
                 </select><br>
