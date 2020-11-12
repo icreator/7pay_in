@@ -7,8 +7,6 @@ import urllib2
 from gluon.contrib import simplejson as json
 import time
 
-PASSWORD = '1'
-
 def log(db, mess):
     print 'rpc_erachain - ', mess
     db.logs.insert(mess='YD: %s' % mess)
@@ -17,7 +15,7 @@ def log_commit(db, mess):
     db.commit()
 
 
-def rpc_request(pars, vars=None, password=None, test=None):
+def rpc_request(pars, vars=None, test=None):
 
     if test:
         vars['test_payment'] = True
@@ -43,7 +41,7 @@ def rpc_request(pars, vars=None, password=None, test=None):
         from gluon import current
         # или любая ошибка - повтор запроса - там должно выдать ОК
         #print 'YmToConfirm while EXEPTION:', e
-        log(current.db, 'rpc ' + pars + ' EXEPTION: %s' % e)
+        log(current.db, 'rpc ' + pars + ' EXCEPTION: %s' % e)
         return e
 
     #time.sleep(1)
@@ -101,7 +99,7 @@ def get_tx_info(token_system, txid):
     recs = rpc_request(token_system.connect_url + '/transactions/signature/' + txid)
     return recs
 
-def get_transactions(rpc_url, addr, from_block=2, conf=2):
+def get_transactions(token_system, rpc_url, addr, from_block=2, conf=2):
     
     result = []
 
@@ -119,14 +117,21 @@ def get_transactions(rpc_url, addr, from_block=2, conf=2):
             break
 
         i += 1
+        recs_count = 0
+        url_get = rpc_url + '/transactions/incoming/' + ("%d" % i) + '/' + addr + '/decrypt/%s' % token_system.password
+
         try:
-            recs = rpc_request(rpc_url + '/transactions/incoming/' + ("%d" % i) + '/' + addr
-                              + '/decrypt/%s' % PASSWORD)
+            recs = rpc_request(url_get)
+            recs_count = len(recs)
         except Exception as e:
             print e
+            print recs
+            from gluon import current
+            log(current.db, 'get_transactions %s EXCEPTION: %s - %s' % (url_get, e, recs))
             return result, i - 1
-        
-        if len(recs) > 0:
+
+
+        if recs_count > 0:
             print 'erachain incomes - height: ', i, ' recs:', len(recs)
         else:
             continue
@@ -151,11 +156,11 @@ def get_transactions(rpc_url, addr, from_block=2, conf=2):
     return result, i
 
 
-def send(db, curr, xcurr, addr, amo, token_system = None, token = None, title = None, mess = None):
+def send(db, curr, xcurr, addr, amo, token_system=None, token=None, title=None, mess=None):
     
-    if token == None:
+    if token is None:
         token = db.tokens[xcurr.as_token]
-    if token_system == None:
+    if token_system is None:
         token_system = db.systems[token.system_id]
         
     amo = round(float(amo),8)
@@ -187,11 +192,11 @@ def send(db, curr, xcurr, addr, amo, token_system = None, token = None, title = 
                 pars = "r_send/%s/%s?assetKey=%d&amount=%f&title=%s%s&encrypt=true&password=%s" % (token_system.account, addr,
                                    token.token_key, amo_to_pay,
                                    title or 'face2face.cash', mess and ('&message='+mess) or '',
-                                   PASSWORD)
+                                   token_system.password)
                 print pars
                 res = rpc_request(token_system.connect_url + pars)
             else:
-                pars = '/rec_payment/%d/%s/%d/%f/%s?password=%s' % (0, token_system.account, token.token_key, amo_to_pay, addr, PASSWORD )
+                pars = '/rec_payment/%d/%s/%d/%f/%s?password=%s' % (0, token_system.account, token.token_key, amo_to_pay, addr, token_system.password )
                 print pars, data
                 res = rpc_request(token_system.connect_url + pars)
             print "SENDed? ", type(res), res

@@ -34,23 +34,22 @@ if not deal: raise HTTP(200, T('ERROR: Not found deal "%s"') % deal_name)
 # найдем счет у диллера электронных денег для этого дела
 vol = (deal.MIN_pay or 100) * 2
 dealer, dealer_acc, dealer_deal = ed_common.select_ed_acc(db, deal, ecurr_out, vol)
-print dealer,'\n', dealer_acc,'\n', dealer_deal
-dealer_acc = ed_common.sel_acc_max_for_balance(db, dealer, ecurr_out, vol, unlim=False)
+if False and not dealer: raise HTTP(200,
+                                    #T('ERROR: Not found dealer for "%s". Please try in next month') % deal_name
+                                    'Просьба подождать до следующего дня или месяца - превышен лимит по данному виду операций'
+                                    )
 
-if False and not dealer: raise HTTP(200, 
-      #T('ERROR: Not found dealer for "%s". Please try in next month') % deal_name
-      'Просьба подождать до следующего дня или месяца - превышен лимит по данному виду операций'
-      )
+dealer_acc = dealer and ed_common.sel_acc_max_for_balance(db, dealer, ecurr_out, vol, unlim=False)
 if False and not dealer_acc: raise HTTP(200,
-      #T('ERROR: Not found dealer acc "%s"') % deal_name
-      'Просьба подождать до следующего дня или месяца - превышен лимит по данному виду операций'
-      )
+                                        #T('ERROR: Not found dealer acc "%s"') % deal_name
+                                        'Просьба подождать до следующего дня или месяца - превышен лимит по данному виду операций'
+                                        )
 
 
 #from decimal import *
 #getcontext().prec = 6
 
-MIN = db_common.gMIN(deal, dealer)
+MIN = dealer and db_common.gMIN(deal, dealer) or 0
 e_balance = dealer_acc and db_common.get_balance_dealer_acc( dealer_acc )
 MAX = int(deal.MAX_pay)
 if e_balance:
@@ -58,7 +57,7 @@ if e_balance:
     dealer_acc.update_record()
     e_balance = e_balance * 1
     if e_balance < MAX*2:
-         MAX = int(e_balance/3)
+        MAX = int(e_balance/3)
 free_bal = e_balance
 
 def test_vol(vol, _min=MIN, _max=MAX):
@@ -87,7 +86,7 @@ def sect(h, cls_bgc=' '):
 ## обрамим ее в контайнер
 def mess(h, cls_c='error'):
     return DIV(DIV(DIV(h, SCRIPT("$('#tag1').scroll();"), _class='col-sm-12 ' + cls_c), _class='row'),
-                   _class='container')
+               _class='container')
 def err_dict(m):
     response.view = 'views/generic.html'
     return dict(h = mess(m + ', ' + 'просьба сообщить об ошибке в службу поддержки!'))
@@ -176,7 +175,7 @@ def get():
     addr = deal_acc_addr.addr
 
     curr_in_abbrev = curr_in.abbrev
-    
+
     h = CAT()
     addr_return = deal_acc_addr.addr_return
     if addr_return:
@@ -186,25 +185,25 @@ def get():
                 B(addr_return[:5] + '...' + addr_return[-5:]),
                 _class='col-sm-12'),
             _class='row success',
-            )
+        )
     else:
         addr_ret= LOAD('aj', 'addr_ret',
-           #args=[deal_acc_addr.addr_return or 0, deal_acc_addr.id, ],
-           # лучше передавать через переменные - чтобы там по кругу они гонялись
-           # в request
-           args=[deal_acc_addr.id],
-           ajax=False, # тут без асинхронной подгрузки модуля - вместе со страницей сразу грузим модуль
-           )
+                       #args=[deal_acc_addr.addr_return or 0, deal_acc_addr.id, ],
+                       # лучше передавать через переменные - чтобы там по кругу они гонялись
+                       # в request
+                       args=[deal_acc_addr.id],
+                       ajax=False, # тут без асинхронной подгрузки модуля - вместе со страницей сразу грузим модуль
+                       )
 
     okIN = session.okPh
     h += sect(
         DIV(
             addr_ret,
             okIN and DIV(SPAN(A('Правила оплаты', _onclick='$(".okIN").show("fast");', _class='button warn right'),
-                          _class='pull-right-'), _class='col-sm-12') or '',
+                              _class='pull-right-'), _class='col-sm-12') or '',
             DIV(okIN and ' ' or H3('ПРАВИЛА ОПЛАТЫ', _class='center'),
-               P(T('При оплате необходимо соблюдать следующие правила:')),
-               UL(
+                P(T('При оплате необходимо соблюдать следующие правила:')),
+                UL(
                     T('У оплат дела [%s] существуют ограничения по суммам, поэтому если Вы хотите оплатить бОльшую сумму, то Вам нужно делать платежи небольшими суммами в эквиваленте до %s рублей на тот же адрес кошелька, который Вы получили от нашей службы для этой услуги') % (deal.name, MAX),
                     T('Желательно задать обратный адрес для возврата монет на случай если наша служба по каким-либо причинам не сможет совершить оплату по делу [%s]') % deal.name,
                     T('Если Вы не задали обратный адрес для возврата монет, то необходимо платить биткоины и другую криптовалюту только со своего кошелька, задав адреса входов, которыми Вы действительно обладаете, а не с кошельков бирж, пулов или разных онлайн-кошельков. Так как монеты, в случае если платеж будет отвергнут нашим партнёром, могут автоматически вернуться только на адрес отправителя.'),
@@ -212,7 +211,7 @@ def get():
                     T('Если Вы платите регулярно, то можете платить на тот же адрес кошелька криптовалюты, что получили ранее. Хотя желательно заходить на нашу службу для получения новостей хотябы раз в пол года или подписаться на важные новости и сообщения оставив свой емайл.'),
                     ),
                 H4(A('Понятно', _onclick='$(".okIN").hide("fast");ajax("%s")'
-                  % URL('aj','ok_to',args=['Ph']), _class='button warn'), _class='center'),
+                                         % URL('aj','ok_to',args=['Ph']), _class='button warn'), _class='center'),
                 _class='col-sm-12 okIN',
                 _style='display:%s;' % (okIN and 'none' or 'block')),
             _style='color:chocolate',
@@ -233,7 +232,7 @@ def get():
     adds_mess = XML(gifts_lib.adds_mess(deal_acc, PARTNER_MIN, T))
     if adds_mess:
         h += sect(XML(adds_mess), 'gift-bgc pb-10 pb-10')
-    
+
     volume_out = vol
     hh = CAT(H2(T('3. Оплатите по данным реквизитам'), _class='center'))
 
@@ -251,10 +250,10 @@ def get():
         is_order = True
         # сначала открутим обратную таксу
         volume_in, _mess_in = db_client.calc_fees_back(db, deal, dealer_deal, curr_in, curr_out, volume_out,
-                                           best_rate, is_order, note=0)
+                                                       best_rate, is_order, note=0)
         ## теперь таксы для человека получим и должна та же цифра выйти
         vol_out_new, tax_rep = db_client.calc_fees(db, deal, dealer_deal, curr_in, curr_out, volume_in,
-                                           best_rate, is_order, note=1)
+                                                   best_rate, is_order, note=1)
         vol_out_new = common.rnd_8(vol_out_new)
         if volume_out != vol_out_new:
             print 'to_phone error_in_fees: volume_out != vol_out_new', volume_out,  vol_out_new
@@ -267,7 +266,7 @@ def get():
             ref_ = deal_acc_addr.id,
             volume_in = volume_in,
             volume_out = volume_out,
-            )
+        )
         # теперь стек добавим, который будем удалять потом
         db.orders_stack.insert( ref_ = order_id )
 
@@ -290,7 +289,7 @@ def get():
             lim_bal_mess = P(
                 'Внимание! Для криптовалюты %s существует предел запаса и поэтому наша служба может принять только %s [%s], Просьба не превышать это ограничение' % (curr_in.name, may_pay, curr_in_abbrev), '.',
                 _style='color:black;'
-                )
+            )
         else:
             lim_bal_mess = P(
                 'ВНИМАНИЕ! Наша служба НЕ может сейчас принимать %s, так как уже достугнут предел запаса её у нас. Просьба попробовать позже, после того как запасы [%s] снизятся благодаря покупке её другими пользователями' % (curr_in.name, curr_in_abbrev),
@@ -301,33 +300,33 @@ def get():
 
     hh += DIV(
         P(
-        T('Оплата телефона'),': ', #kod, ' ',
-        ph, ' ', T('на сумму'), ' ', volume_out, ' ', curr_out_abbrev,
-        ' ', T('из доступных в службе'), ' ', free_bal
+            T('Оплата телефона'),': ', #kod, ' ',
+            ph, ' ', T('на сумму'), ' ', volume_out, ' ', curr_out_abbrev,
+            ' ', T('из доступных в службе'), ' ', free_bal
         ),
         volume_out > free_bal and P(
-                        H3(T('Сейчас средств на балансе меньше чем Вам надо'), _style='color:crimson;'),
-                        SPAN(T('Поэтому Ваш заказ будет исполнен позже'), BR(),
-                        T('когда на балансе службы появится достаточно средств'), _style='color:black;'), BR(),
-                        ) or '',
+            H3(T('Сейчас средств на балансе меньше чем Вам надо'), _style='color:crimson;'),
+            SPAN(T('Поэтому Ваш заказ будет исполнен позже'), BR(),
+                 T('когда на балансе службы появится достаточно средств'), _style='color:black;'), BR(),
+        ) or '',
         lim_bal_mess,
         DIV(CENTER(
             A(SPAN(T('Оплатить'),' ', volume_in or '', ' ',
-            IMG(_src=URL('static','images/currs/' + curr_in_abbrev + '.png'), _width=50)),
-            _class='block button blue-bgc', _style='font-size:x-large; max-width:500px; margin:0px 7px;',
-            _href=url_uri),
-                    ),
+                   IMG(_src=URL('static','images/currs/' + curr_in_abbrev + '.png'), _width=50)),
+              _class='block button blue-bgc', _style='font-size:x-large; max-width:500px; margin:0px 7px;',
+              _href=url_uri),
+        ),
             _class='row'
-            ),
+        ),
         BR(),
         DIV(
             A(T('Показать QR-код'),  _class='btn btn-info',
-               #_onclick="jQuery(this).parent().html('%s')" % IMG(_src=URL('static','images/loading.gif'), _width=64),
+              #_onclick="jQuery(this).parent().html('%s')" % IMG(_src=URL('static','images/loading.gif'), _width=64),
               _onclick="jQuery(this).parent().html('<i class=\"fa fa-spin fa-refresh\" />')",
-               callback=URL('plugins','qr', vars={'mess': url_uri}),
-               target='tag0',
-               #delete='div#tag0'
-               ),
+              callback=URL('plugins','qr', vars={'mess': url_uri}),
+              target='tag0',
+              #delete='div#tag0'
+              ),
             _id='tag0'),
         T('или'), BR(),
         T('Оплатите вручную'), ': ',
@@ -340,15 +339,15 @@ def get():
             ##LOAD('where', 'for_addr', vars={'addr': addr}, ajax=True, times=100, timeout=20000,
             ##    content=IMG(_src=URL('static','images/loading.gif'), _width=48)),
             INPUT( _type='submit',
-                _class='button blue-bgc',
-                _value=T('Подробный просмотр платежей'),
-                _size=6,
-                  ),
+                   _class='button blue-bgc',
+                   _value=T('Подробный просмотр платежей'),
+                   _size=6,
+                   ),
             _action=URL('where', 'index'), _method='post',
-            )
         )
-    
-    
+    )
+
+
     h += sect(hh, 'bg-info pb-10')
 
     h += sect(DIV(DIV(
@@ -415,7 +414,7 @@ def index():
     phone_deal7 = phone
     if phone and len(phone) == 11 and phone[0] == '7':
         phone_deal7 = phone[1:]
-        
+
     h = CAT()
     for rr in db_client.get_xcurrs_for_deal(db, 0, curr_out, deal, dealer):
         #print row
@@ -427,7 +426,7 @@ def index():
             _class = 'col sel_xcurrNRT'
         else:
             memo = CAT(SPAN(' ', T('по курсу'),  (' %8g' % rr['price']), ' ', T('нужно оплатить примерно')),' ',
-                    B(SPAN(_class='pay_vol')), ' ', rr['name'])
+                       B(SPAN(_class='pay_vol')), ' ', rr['name'])
             _class = 'col sel_xcurrRTE'
 
         # пусть клики все равно будут
@@ -443,7 +442,7 @@ def index():
                 DIV(
                     #T('Есть'), ': ', rr['bal_out'],' ',
                     IMG(_src=URL('static','images/currs/' + rr['abbrev'] + '.png'),
-                      _width=60, __height=36, _class='lst_icon', _id='lst_icon' + id),
+                        _width=60, __height=36, _class='lst_icon', _id='lst_icon' + id),
                     SPAN(rr['price'], _class='price hidden'),
                     SPAN(rr['abbrev'], _class='abbrev hidden'),
                     memo,
@@ -453,9 +452,9 @@ def index():
                     _id='btn%s' % id,
                     _class=_class,
                 ),
-              DIV(TAG.i(_class='fa fa-spin fa-spinner right wait1'),
-                  _id='cvr%s' % id, _class='col sel_xcurrCVR'),
-              _class='row sel_xcurr'),
+                DIV(TAG.i(_class='fa fa-spin fa-spinner right wait1'),
+                    _id='cvr%s' % id, _class='col sel_xcurrCVR'),
+                _class='row sel_xcurr'),
             _class='container')
         h += DIV(_id='tag%s' % id, _class='blue-c')
     xcurrs_h = h

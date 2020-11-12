@@ -1,6 +1,8 @@
 # coding: utf8
 
 import rates_lib
+import datetime
+
 session.forget(response)
 
 if not IS_LOCAL: raise HTTP(200, T('ERROR'))
@@ -39,8 +41,8 @@ def get_best_price_for_volume():
         return mess
     import db_client
     import db_common
-    x, e, a_in = db_common.get_currs_by_abbrev(db,request.args[0])
-    x, e, a_out = db_common.get_currs_by_abbrev(db,request.args[1])
+    a_in, x, e = db_common.get_currs_by_abbrev(db,request.args[0])
+    a_out, x, e = db_common.get_currs_by_abbrev(db,request.args[1])
     expired = datetime.datetime.now() - datetime.timedelta(5,600)
     s_b = len(request.args)<4 or request.args[3]=='sell'
     #s_b = not 3 in request.args or request.args[3]=='sell'
@@ -63,8 +65,8 @@ def best_price():
     _in = request.args[1]
     _out = request.args[2]
     volume_in = request.args[3]
-    x,e,acurr_in = db_common.get_currs_by_abbrev(db,_in)
-    x,e,acurr_out = db_common.get_currs_by_abbrev(db,_out)
+    acurr_in, x,e = db_common.get_currs_by_abbrev(db,_in)
+    acurr_out, x,e = db_common.get_currs_by_abbrev(db,_out)
     expired = datetime.datetime.now() - datetime.timedelta(2,60)
     dealer_id = None
     d_e = None

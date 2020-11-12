@@ -1,12 +1,21 @@
 # coding: utf8
 
-#import copy
-import datetime
-import json
-import re
-import hashlib
+if False:
+    from gluon import *
+    import db
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
 
-import common
+import datetime
+
+try:
+    import common
+except Exception as e:
+    raise HTTP(200, T('ERROR: copy ALL files from _web2py_site-packages to web2py/site-packages') + ('. %s' % e))
+
 import db_common
 import db_client
 import rates_lib
@@ -337,11 +346,11 @@ def index():
     #print ecurr_in_id
     inp_dealers = []
     for r in db(
-             (db.dealers_accs.ecurr_id==ecurr_in_id)
-             & (db.dealers_accs.used == True)
-             & (db.dealers.id == db.dealers_accs.dealer_id)
-             & (db.dealers.used == True)
-             ).select(groupby=db.dealers_accs.dealer_id):
+            (db.dealers.id == db.dealers_accs.dealer_id)
+            & (db.dealers_accs.ecurr_id==ecurr_in_id)
+            & (db.dealers_accs.used == True)
+            & (db.dealers.used == True)
+    ).select(db.dealers.ALL, groupby=db.dealers.id):
         MIN = db_common.gMIN(deal, r.dealers)
         ##MAX = db_common.gMAX(deal, r.dealers)
         inp_dealers.append([r.dealers.id, '%s [%s] %s...%s' % (r.dealers.name, curr_in.abbrev, MIN, MAX)])
