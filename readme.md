@@ -1,8 +1,11 @@
 
 ## Bitcoin & Fiat payment service
 
+see last version on GitLab https://gitlab.com/d.ermolaev/7pay_in
+
 > DEMO
 http://datachains.world/7pay_in
+
 
 #### python +  [web2py framework](http://web2py.com/books/default/chapter/29/14/other-recipes?search=eclipse#Developing-with-IDEs--WingIDE--Rad2Py--Eclipse-and-PyCharm)
 
