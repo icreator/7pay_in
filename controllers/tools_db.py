@@ -46,12 +46,74 @@ def index():
     #err(1)
     return dict(message="repopulate_db")
 
+def deals_to_tmp():
+
+    if True:
+        return 'stoppper - open me'
+
+    db.deals_tmp.truncate('RESTART IDENTITY CASCADE') # restart autoincrement ID
+
+    # First deals
+    db.deals_tmp.insert(
+        fee_curr_id= CURR_RUB_ID, name = 'BUY', name2 = 'to BUY',
+        used=False,  not_gifted=True,
+        MIN_pay=10,  MAX_pay=2777,
+        fee=3,  tax=0.2,  fee_min=0,  fee_max=0)
+    db.deals_tmp.insert(
+        fee_curr_id= CURR_RUB_ID, name = 'to COIN', name2 = 'to COIN',
+        used=False,  not_gifted=True,
+        MIN_pay=10,  MAX_pay=2777,
+        fee=3,  tax=0.2,  fee_min=0,  fee_max=0)
+    db.deals_tmp.insert(
+        fee_curr_id= CURR_RUB_ID, name = 'WALLET', name2 = 'to WALLET',
+        used=False,  not_gifted=True,
+        MIN_pay=10,  MAX_pay=2777,
+        fee=3,  tax=0.2,  fee_min=0,  fee_max=0)
+    db.deals_tmp.insert( cat_id = 1,
+                         fee_curr_id= CURR_RUB_ID, name = 'phone +7', name2 = 'to PHONE +7',
+                         used=False,  not_gifted=True,
+                         MIN_pay=10,  MAX_pay=2777,
+                         fee=3,  tax=0.2,  fee_min=0,  fee_max=0)
+    db.deals_tmp.insert( cat_id = 1,
+                         fee_curr_id= CURR_USD_ID, name = 'phone', name2 = 'to PHONE',
+                         used=False,  not_gifted=True,
+                         MIN_pay=1,  MAX_pay=2777,
+                         fee=3,  tax=0.2,  fee_min=0,  fee_max=0)
+
+    for rec in db(db.deals).select():
+        if rec.name == 'BUY' or rec.name == 'to COIN' or rec.name == 'WALLET' or rec.name == 'phone +7' or rec.name == 'phone':
+            continue
+
+        rec.fee_curr_id = CURR_RUB_ID
+        db.deals_tmp.insert(**rec)
+
+    return 'ok'
+
+def deals_from_tmp():
+
+    if True:
+        return 'stoppper - open me'
+
+
+    db.deals.truncate('RESTART IDENTITY CASCADE') # restart autoincrement ID
+
+
+    #if True: return 'stoppper - open me'
+
+    for rec in db(db.deals_tmp).select():
+
+        db.deals.insert(**rec)
+
+    return 'ok from TMP'
+
+
+
 
 def init_db_records():
 
     #########################################
     if db(db.exchgs).isempty():
-        db.exchgs.truncate('RESTART IDENTITY CASCADE')
+        db.exchgs.truncate('RESTART IDENTITY CASCADE') # restart autoincrement ID
 
     if db(db.exchg_taxs).isempty():
         db.exchg_taxs.truncate('RESTART IDENTITY CASCADE')
@@ -73,6 +135,9 @@ def init_db_records():
 
     if db(db.currs).isempty():
         db.currs.truncate('RESTART IDENTITY CASCADE')
+        db.deals_cat.truncate('RESTART IDENTITY CASCADE')
+        db.systems.truncate('RESTART IDENTITY CASCADE')
+        db.exchgs.truncate('RESTART IDENTITY CASCADE')
 
         xpass = 'login:password'
         for r in [
@@ -121,6 +186,7 @@ def init_db_records():
         system_id = db.systems.insert(name = 'Erachain', name2 = 'erachain', first_char = '7',
                                       connect_url = 'http://127.0.0.1:9048', # for Testnet use http://127.0.0.1:9068
                                       account = '7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7',
+                                      password='123456789',
                                       block_time = 30, conf = 1, conf_gen = 0,
                                       from_block = 1000000 # for Testnet use 0
                                       )
@@ -197,11 +263,18 @@ def init_db_records():
         raise HTTP(500, 'currency RUB not found in db1.py')
 
     if db(db.deals_cat).isempty():
-        db.deals_cat.insert(name='Other')
-        db.deals_cat.insert(name='Internet')
-        db.deals_cat.insert(name='Games')
-        db.deals_cat.insert(name='Social')
-        db.deals_cat.insert(name='Municipal services')
+        db.deals_cat.insert(name='Прочее') # 1 Other
+        db.deals_cat.insert(name='Игры, Онлайн игры') # 2 Games
+        db.deals_cat.insert(name='Интерент, Связь, Телефония') # 3 Internet
+        db.deals_cat.insert(name='Социальные Сети, Знакомства, Объявления') # 4 Social Network
+        db.deals_cat.insert(name='Магазины') # 5 Shops
+        db.deals_cat.insert(name='Коммунально-бытовые услуги') # 6 Municipal services
+        db.deals_cat.insert(name='Билеты в кино, театры, Развлечения') # 7 Cinema
+        db.deals_cat.insert(name='Благотворительнсть') # 8 Charity
+        db.deals_cat.insert(name='Банки, Финансы, Платежи, Штрафы') # 9 Banks, Financial
+        db.deals_cat.insert(name='Программное обеспечение') # 10 Soft
+        db.deals_cat.insert(name='Проездный билеты') # 11 Bus pass
+
 
     if db(db.deals).isempty():
         db.deals.insert(
@@ -224,6 +297,7 @@ def init_db_records():
                          used=False,  not_gifted=True,
                          MIN_pay=10,  MAX_pay=2777,
                          fee=3,  tax=0.2,  fee_min=0,  fee_max=0)
+
 
     dealer_id = None
     if db(db.dealers).isempty():
@@ -251,13 +325,18 @@ def init_db_records():
         for r in [
             ['WEX', 'wex.nz', 'btc-e_3', '', False, # not used now
              0.5, 0.0, [['USD',""], ['RUB', "rur"], ['BTC',""], ['LTC',""], ['DOGE',""], ['DASH',"dsh"]],
-             [['USD', 'RUB', True,''], ['BTC', 'USD', True,''], ['BTC', 'RUB', True,''], ['LTC', 'BTC', True,''], ['LTC', 'RUB', True,''], ['LTC', 'BTC', True,''],
-              ['DOGE', 'BTC', True,''], ['DASH', 'BTC', True,''], ['ZEN', 'BTC', True,''], ['NVC', 'BTC', True,'']]
+             [['USD', 'RUB', False, ''], ['BTC', 'USD', False, ''], ['BTC', 'RUB', False, ''], ['LTC', 'BTC', False, ''],
+              ['LTC', 'RUB', True, ''], ['LTC', 'BTC', False, ''],
+              ['DOGE', 'BTC', False, ''], ['DASH', 'BTC', False, ''], ['ZEN', 'BTC', False, ''], ['NVC', 'BTC', True, '']]
              ],
-            ['Livecoin', 'api.livecoin.net', 'livecoin', 'exchange/ticker', True, 0.2, 0.0, [['USD',""], ['RUB', ""], ['BTC',""], ['LTC',""], ['DOGE',""], ['DASH',""]]],
-            ['Cryptsy', 'cryptsy.com', 'cryptsy', '', False, 1, 0.0, [['DOGE',"DOGE"]]],
+            ['Livecoin', 'api.livecoin.net', 'livecoin', 'exchange/ticker', True, 0.2, 0.0,
+             [['USD', ""], ['RUB', ""], ['BTC', ""], ['LTC', ""], ['DOGE', ""], ['DASH', ""]],
+             [['BTC', 'RUB', True, ''], ['USD', 'RUB', True, '']]
+             ],
+            ['Cryptsy', 'cryptsy.com', 'cryptsy', '', False, 1, 0.0, [['DOGE', "DOGE"]]],
             ['Poloniex.com', 'poloniex.com', 'poloniex', '', True, 0.2, 0, [],
-             [['BTC', 'DOGE', True,'BTC_DOGE'], ['BTC', 'DASH', True,'BTC_DASH']]
+             [['USD', 'BTC', True, 'USDT_BTC'], ['BTC', 'LTC', True, 'BTC_LTC'], ['BTC', 'DOGE', True, 'BTC_DOGE'],
+              ['BTC', 'DASH', True, 'BTC_DASH']]
              ]
         ]:
 
