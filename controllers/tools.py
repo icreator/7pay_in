@@ -340,13 +340,22 @@ def inits_new_portal():
     # для всех криптовалют создадим главные аккаунты в кошельках
     for xcurr in db(db.xcurrs).select():
 
+        if xcurr.as_token:
+            # это другая система
+            continue
+
         curr = db.currs[xcurr.curr_id]
 
         try:
-            conn = crypto_client.conn(xcurr)
+            conn = crypto_client.conn(curr, xcurr)
+            if not conn:
+                msg = curr.name + " - no connection to wallet"
+                print msg
+                resp = resp + msg + '<br>'
+                continue
+
         except Exception as e:
-            print e
-            msg = curr.name + " - no connection to wallet"
+            msg = curr.name + " - no connection to wallet: " + e.message
             print msg
             resp = resp + msg + '<br>'
             continue
@@ -358,12 +367,12 @@ def inits_new_portal():
                 resp = resp + addr + ' - for ' + curr.name + '<br>'
             except Exception as e:
                 print e
-                msg = curr.name + " - no made .main. account, error: " + e
+                msg = curr.name + " - no made .main. account, error: " + e.message # e.args
                 print msg
                 resp = resp + msg + '<br>'
                 continue
         else:
-            resp = resp + xcur.id + ' - protocol is not "btc", ignored<br>'
+            resp = resp + curr.name + ' - protocol is not "btc", ignored<br>'
 
 
     return resp
