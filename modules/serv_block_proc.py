@@ -143,7 +143,7 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
                 elif conn or token_system:
                     print 'unknown [%s] address %s for account:"%s"' % (curr.abbrev, addr, acc)
                     # если не найдено в делах то запомним в неизвестных
-                    send_back(conn, token_system, curr, xcurr, txid,  amo)
+                    send_back(db, conn, token_system, curr, xcurr, txid,  amo)
                     print 'to return -> txid', txid
                     continue
                 else:
@@ -168,7 +168,7 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
                 # переводы на этоот адрес запрещены - тоже вернем его
                 print 'UNUSED [%s] address %s for account:"%s"' % (curr.abbrev, addr, acc)
                 # если не найдено в делах то запомним в неизвестных
-                send_back(conn, token_system, curr, xcurr, txid,  amo, addr_ret)
+                send_back(db, conn, token_system, curr, xcurr, txid,  amo, addr_ret)
                 print 'to return -> txid', txid
                 continue
 
@@ -518,8 +518,10 @@ def b_p_proc_unspent( db, conn, curr, xcurr, addr_in=None, from_block_in=None ):
     #print '\n\nsumUnsp:',sumUnsp, '  sumChange:',sumChange, ' SUM:',sumFull
     return tab, curr_block
 
-def send_back(conn, token_system, curr, xcurr, txid, amount, to_addr=None):
+def send_back(db, conn, token_system, curr, xcurr, txid, amount, to_addr=None):
     # такой платеж возвращаем
+    if True:
+        return 'backWard denied by service'
 
     sender_addr = to_addr or crypto_client.sender_addr(conn, token_system, txid)
     print 'return to sender_addr:', sender_addr
@@ -571,7 +573,7 @@ def return_refused(db, curr, xcurr, conn, token_system):
             # такой платеж возвращаем
             # причем если адрес возврата уже задан в записи то возьмем его
             if True:
-                txid = send_back(conn, token_system, curr, xcurr,  r.pay_ins.txid,
+                txid = send_back(db, conn, token_system, curr, xcurr,  r.pay_ins.txid,
                                  r.pay_ins.amount, r.deal_acc_addrs.addr_return)
             else:
                 txid='probe1'
