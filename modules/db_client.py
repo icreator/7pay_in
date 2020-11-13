@@ -52,7 +52,7 @@ def get_deal_acc_id(db, deal, acc, curr_out, price=None):
     if deal_acc:
         deal_acc_id = deal_acc.id
     else:
-        time.sleep(2)
+        time.sleep(1)
         deal_acc_id = db.deal_accs.insert(deal_id = deal.id, acc = acc, curr_id = curr_out.id, price = price)
         ##print 'insert new - deal_acc_id:', deal_acc_id
     return deal_acc_id
@@ -86,11 +86,9 @@ def get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr, xcurr, x_acc_label):
 
         if xcurr.protocol == 'zen':
             ## in Horizen Account is removed
-            addr = crypto_client.get_xaddress_by_label(conn, x_acc_label)
-
+            addr = conn.getnewaddress()
 
         else:
-
             # http://docs.python.org/2/library/codecs.html?highlight=decoding
             x_acc_label = x_acc_label.decode('utf8')
             #x_acc_label = x_acc_label.encode('koi8_r') # 'iso8859_5') # 'cp866') # 'cp1251') #'cp855')

@@ -210,11 +210,11 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system = None, token = 
 
 def get_xaddress_by_label(conn, label, protocol='btc'):
 
-    addrs = conn.getaddressesbyaccount( label )
+    addrs = conn.getaddressesbyaccount(label)
 
     if addrs:
         return addrs[0]
-    return conn.getnewaddress( label )
+    return conn.getnewaddress(label)
 
 def get_main_addr(cn):
     addr = cn.getaddressesbyaccount('.main.')
