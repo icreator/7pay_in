@@ -193,7 +193,7 @@ def init_db_records():
         for asset in [
             [1, 'ERA'], [2, 'COMPU'], [12, '@BTC'], # @BTC etc is stablecoins
             [95, '@USD'], [92, '@RUB'],  [14, '@ETH'],  [16, '@ZEN'],
-            [1064, 'WWP'] # examole for asset http://erachain.org:9047/index/blockexplorer.html?asset=1064&lang=en
+            [1064, 'WWP'] ## examole for asset http://erachain.org:9047/index/blockexplorer.html?asset=1064&lang=en
         ]:
             token_id = db.tokens.insert(system_id = system_id, token_key = asset[0], name = asset[1])
             curr_id = db.currs.insert( abbrev = asset[1], name = asset[1], name2 = asset[1], used=True)
