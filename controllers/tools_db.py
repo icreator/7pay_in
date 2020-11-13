@@ -144,40 +144,40 @@ def init_db_records():
             ['USD', 'US dollar', 'usd', True], #1
             ['RUB', 'Ruble', 'ruble', True], #2
             ['BTC', 'Bitcoin', 'bitcoin', True, #3
-             ['13', 'http://%s@127.0.0.1:8332' % xpass, 600, 0.0007000, 1, 101, 0],
+             ['13', None, 'http://%s@127.0.0.1:8332' % xpass, 600, 0.0007000, 1, 101, 0],
              None,
              ],
             ['LTC', 'Litecoin', 'litecoin', True, #4
-             ['L', 'http://%s@127.0.0.1:9332' % xpass, 150, 0.005, 3, 120, 0],
+             ['L', None, 'http://%s@127.0.0.1:9332' % xpass, 150, 0.005, 3, 120, 0],
              None,
              ],
             ['DOGE', 'DOGE', 'doge', True, #5
-             ['D9A', 'http://%s@127.0.0.1:9432' % xpass, 30, 0.1, 5, 101, 0],
+             ['D9A', None, 'http://%s@127.0.0.1:9432' % xpass, 30, 0.1, 5, 101, 0],
              None,
              ],
             ['DASH', 'DASH', 'dash', True, #6
-             ['', 'http://%s@127.0.0.1:13332' % xpass, 333, 0.005, 3, 101, 0],
+             ['', None, 'http://%s@127.0.0.1:13332' % xpass, 333, 0.005, 3, 101, 0],
              None,
              ],
             ['ZEN', 'Horizen', 'horizen', True, #7
-             ['Z', 'http://%s@127.0.0.1:11111' % xpass, 300, 0.1, 3, 101, 0],
+             ['Z', 'zen', 'http://%s@127.0.0.1:11111' % xpass, 300, 0.1, 3, 101, 0],
              None,
              ],
             ['NVC', 'Novacoin', 'novacoin', False, #8 - False - if not used on service
-             ['4', 'http://%s@127.0.0.1:11332' % xpass, 450, 0.1, 3, 120, 0],
+             ['4', None, 'http://%s@127.0.0.1:11332' % xpass, 450, 0.1, 3, 120, 0],
              None,
              ],
             # The Erachain tiokens will set below
         ]:
 
-            curr_id = db.currs.insert(abbrev = r[0], name = r[1], name2 = r[2], used=r[3])
+            curr_id = db.currs.insert(abbrev=r[0], name=r[1], name2=r[2], used=r[3])
 
             if len(r)>4:
-                db.xcurrs.insert(curr_id = curr_id, first_char = r[4][0], connect_url = r[4][1],
-                                 block_time=r[4][2], txfee = r[4][3], conf = r[4][4], conf_gen = r[4][5],
-                                 as_token=r[4][6])
+                db.xcurrs.insert(curr_id=curr_id, first_char=r[4][0], protocol=r[4][1], connect_url=r[4][2],
+                                 block_time=r[4][3], txfee=r[4][4], conf=r[4][5], conf_gen=r[4][6],
+                                 as_token=r[4][7])
             else:
-                db.ecurrs.insert(curr_id = curr_id)
+                db.ecurrs.insert(curr_id=curr_id)
 
     #### TOKENS ####
     if db(db.systems).isempty():
@@ -197,9 +197,9 @@ def init_db_records():
         ]:
             token_id = db.tokens.insert(system_id = system_id, token_key = asset[0], name = asset[1])
             curr_id = db.currs.insert( abbrev = asset[1], name = asset[1], name2 = asset[1], used=True)
-            db.xcurrs.insert(curr_id = curr_id, connect_url = 'erachain ' + asset[1],
-                             as_token = token_id,
-                             block_time=0, txfee = 0, conf = 0, conf_gen = 0)
+            db.xcurrs.insert(curr_id = curr_id, protocol='era', connect_url='erachain ' + asset[1],
+                             as_token=token_id,
+                             block_time=0, txfee=0, conf=0, conf_gen=0)
 
 
     if db(db.exchg_taxs).isempty():

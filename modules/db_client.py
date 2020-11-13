@@ -35,7 +35,7 @@ def make_x_acc_label(deal, acc, curr_out_abbrev):
 def get_deal_acc_id(db, deal, acc, curr_out, price=None):
     if not acc or len(acc)<3: return
     # найдем аккаунт для данного дела или создадим
-    # если пустой аккаунт в записи то его почемуто находит ((
+    # если пустой аккаунт в записи то его почему-то находит ((
     import time
     # чтобы народ нас не ДОСИЛ - задержку
     time.sleep(0.5)
@@ -59,7 +59,7 @@ def get_deal_acc_id(db, deal, acc, curr_out, price=None):
 
 def get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr, xcurr, x_acc_label):
 
-    # найдем адрес крипты для данногоо аккаунта дела или создадим
+    # найдем адрес крипты для данного аккаунта дела или создадим
     deal_acc_addr = db((db.deal_acc_addrs.deal_acc_id==deal_acc_id)
         & (db.deal_acc_addrs.xcurr_id==xcurr.id)
         ).select().first()
@@ -80,7 +80,10 @@ def get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr, xcurr, x_acc_label):
             conn = crypto_client.conn(curr, xcurr)
         except:
             conn = None
-        if not conn: return
+
+        if not conn:
+            return
+
         # http://docs.python.org/2/library/codecs.html?highlight=decoding
         x_acc_label = x_acc_label.decode('utf8')
         #x_acc_label = x_acc_label.encode('koi8_r') # 'iso8859_5') # 'cp866') # 'cp1251') #'cp855')
@@ -90,7 +93,9 @@ def get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr, xcurr, x_acc_label):
             addr = crypto_client.get_xaddress_by_label(conn, x_acc_label)
         except:
             return
-        if not addr: return
+
+        if not addr:
+            return
 
     id = db.deal_acc_addrs.insert(
               deal_acc_id = deal_acc_id,

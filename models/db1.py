@@ -51,6 +51,7 @@ db.define_table('systems',
                 Field('name', length=25, unique=True, readable=False, comment='name of tokenized system'),
                 Field('name2', length=25, readable=False, comment='name for URI'),
                 Field('first_char', length=5, readable=False, comment='insert in db.common.get_currs_by_addr !!!'), # для быстрого поиска крипты по адресу
+                Field('protocol', length=20, readable=False, default='btc', comment='btc, zen...'), # протокол крипты - разная обработка
                 Field('connect_url', default='http://user:pass@localhost:3333', unique=True),
                 Field('account', default='7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7', comment='address for incoming payments'),
                 Field('password'),
