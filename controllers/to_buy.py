@@ -1,12 +1,21 @@
 # coding: utf8
 
-#import copy
-import datetime
-import json
-import re
-import hashlib
+if False:
+    from gluon import *
+    import db
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
 
-import common
+import datetime
+
+try:
+    import common
+except Exception as e:
+    raise HTTP(200, T('ERROR: copy ALL files from _web2py_site-packages to web2py/site-packages') + ('. %s' % e))
+
 import db_common
 import db_client
 import rates_lib
