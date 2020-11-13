@@ -332,29 +332,38 @@ def send_to_main(conn, acc_from, amo):
 
 
 # инициализация портала
-def inits_new_portal(dd):
-    return
-    db.to_phone.drop()
+def inits_new_portal():
+
+    ###db.to_phone.drop()
+
     resp = ""
-    # для всех криптовалют создадим главные аккоунты в кошельках
+    # для всех криптовалют создадим главные аккаунты в кошельках
     for xcurr in db(db.xcurrs).select():
+
+        curr = db.currs[xcurr.curr_id]
+
         try:
-            aa = crypto_client.conn(xcurr)
+            conn = crypto_client.conn(xcurr)
         except Exception as e:
             print e
-            msg = xcurr.name + " no connection to wallet"
+            msg = curr.name + " - no connection to wallet"
             print msg
             resp = resp + msg + '<br>'
             continue
 
-        try:
-            x = crypto_client.get_xaddress_by_label(xcurr,'.main.',aa)
-        except Exception as e:
-            print e
-            msg = xcurr.name + " no made .main. account"
-            print msg
-            resp = resp + msg + '<br>'
-            continue
+
+        if xcurr.protocol == 'btc':
+            try:
+                addr = crypto_client.get_xaddress_by_label(conn, '.main.')
+                resp = resp + addr + ' - for ' + curr.name + '<br>'
+            except Exception as e:
+                print e
+                msg = curr.name + " - no made .main. account, error: " + e
+                print msg
+                resp = resp + msg + '<br>'
+                continue
+        else:
+            resp = resp + xcur.id + ' - protocol is not "btc", ignored<br>'
 
 
     return resp

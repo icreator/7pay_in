@@ -51,7 +51,6 @@ db.define_table('systems',
                 Field('name', length=25, unique=True, readable=False, comment='name of tokenized system'),
                 Field('name2', length=25, readable=False, comment='name for URI'),
                 Field('first_char', length=5, readable=False, comment='insert in db.common.get_currs_by_addr !!!'), # для быстрого поиска крипты по адресу
-                Field('protocol', length=20, readable=False, default='btc', comment='btc, zen...'), # протокол крипты - разная обработка
                 Field('connect_url', default='http://user:pass@localhost:3333', unique=True),
                 Field('account', default='7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7', comment='address for incoming payments'),
                 Field('password'),
@@ -73,6 +72,7 @@ db.define_table('tokens',
 db.define_table('xcurrs',
                 Field('curr_id', db.currs, ondelete='CASCADE'),
                 Field('first_char', length=5, readable=False, comment='insert in db.common.get_currs_by_addr !!!'), # для быстрого поиска крипты по адресу
+                Field('protocol', length=20, readable=False, default='btc', comment='btc, zen...'), # протокол крипты - разная обработка
                 Field('as_token', 'integer', default=0, comment='ID in db.tokens (if its token, coin or asset)'),
                 #Field('balance', 'decimal(16,8)', default = Decimal('0.0')),
                 #Field('deposit', 'decimal(16,8)', default = Decimal('0.0')), # то что нельзя выводить или продавать - запас для меня

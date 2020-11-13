@@ -208,7 +208,7 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system = None, token = 
     bal = get_reserve(curr, xcurr, cc)
     return res, bal
 
-def get_xaddress_by_label(conn, label):
+def get_xaddress_by_label(conn, label, protocol='btc'):
 
     addrs = conn.getaddressesbyaccount( label )
 
