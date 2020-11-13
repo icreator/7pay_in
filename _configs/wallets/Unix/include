@@ -1,0 +1,47 @@
+#!/bin/sh
+
+WEB_APP='7pay_in'
+DATA_DIR=/home/uera
+WORK_DIR=$(dirname "$0")
+LOG=$WORK_DIR/`basename $0`.log
+DTFMT='+ %d-%m-%Y %T'
+TEE="tee -a $LOG"
+
+log() {
+  if [ "x$1" == "x" ]; then
+    echo | $TEE
+    return;
+  fi
+  echo | $TEE
+  echo "`date +"$DTFMT"` $1" | $TEE
+}
+
+delay() {
+  if [ "x$1" == "x" ]; then
+    count=0
+  else
+    count=$1
+    echo
+  fi
+  while [[ $count -gt 0 ]];
+  do
+    printf "\rYou have %d sec to termninate (press Ctrl-C)" $count
+    sleep 1
+    ((count--))
+  done
+  echo
+}
+
+runWallet() {
+  if [ "$1" == "REINDEX" ]; then
+    msg="Reindexing for $NAME not required."
+  else
+    msg="Process $PROC already running."
+  fi
+  count=`ps -ef | grep "$APP" | grep -v "grep" | wc -l`
+  if [ $count -ge 1 ]; then
+    log $msg
+    exit
+  fi
+ ($APP $ARGS &)
+}

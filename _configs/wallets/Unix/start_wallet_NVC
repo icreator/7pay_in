@@ -1,0 +1,22 @@
+#!/bin/sh
+
+source $(dirname "$0")/include
+
+NAME=novacoin
+APP_DIR=/opt/${NAME}
+PROC=${NAME}-qt
+APP=$APP_DIR/$PROC
+CONF=daemon.conf
+
+ARGS="-conf=$CONF"
+#ARGS="$ARGS -txindex=1"
+
+main() {
+    log "Starting $APP"
+    runWallet
+    delay 120
+    ARGS="$ARGS -reindex"
+    runWallet
+}
+
+main

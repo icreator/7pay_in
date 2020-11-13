@@ -1,0 +1,10 @@
+
+C:\web2py-m\applications\wallets--spay\DAT\Dogecoin>set cmd=getaccountaddress 
+
+C:\web2py-m\applications\wallets--spay\DAT\Dogecoin>if "getaccountaddress" == "" set cmd=getbalance 
+
+C:\web2py-m\applications\wallets--spay\DAT\Dogecoin>"C:\Program Files\Dogecoin\daemon\dogecoin-cli.exe" -conf=C:\web2py-m\applications\wallets--spay\DAT\Dogecoin\client.conf getaccountaddress ".main."    
+D9Q8yUPeDWqoe6q7ZLw18Po3GrmPF9RRHo
+
+C:\web2py-m\applications\wallets--spay\DAT\Dogecoin>pause
+Press any key to continue . . . 
