@@ -138,18 +138,22 @@ def get_transactions(token_system, rpc_url, addr, from_block=2, conf=2):
             
         incomes = []
         for rec in recs:
+            #print rec
             if rec['type'] != 31:
                 # only SEND transactions
                 continue
-            if 'action_key' not in rec or rec['action_key'] != 1:
+            if 'actionKey' not in rec or rec['actionKey'] != 1:
                 # only SEND PROPERTY action
                 continue
-            if rec.get('title', rec.get('head')) == '.main.':
+            if 'backward' in rec:
+                # skip BACKWADR
+                continue
+            if rec.get('title') == '.main.':
                 ## skip my deposit
                 continue
             
             incomes.append(rec)
-            #print 'erachain - title:', rec.get('title', rec.get('head')), 'message:', rec.get('message', rec.get('data'))
+            #print 'erachain - title:', rec.get('title'), 'message:', rec.get('message')
             
         result += incomes
     

@@ -239,7 +239,7 @@ def parse_mess(db, mess, creator):
         return None
 
     args = mess.strip().split('\n')[0].split(':')
-    print mess, args
+    print 'parse_mess:', mess, args
 
     import db_common
 
@@ -280,9 +280,9 @@ def parse_mess(db, mess, creator):
         pass
 
 def make_rec(erachain_addr, acc, rec, transactions):
-    amount = rec.get('amount')
-    action_key = rec.get('action_key')
-    if not amount or amount < 0 or not action_key or action_key != 1:
+    amount = Decimal(rec.get('amount'))
+    action_key = rec.get('actionKey')
+    if not amount or amount < 0 or not action_key or action_key != 1 or 'backward' in rec:
         return
     type = rec.get('type')
     if not type or type != 31:
@@ -345,11 +345,7 @@ def get_incomed(db, token_system, from_block_in=None):
     transactions = []
     for rec in tab:
 
-        acc = parse_mess(db, rec.get('head'), rec.get('creator'))
-        if not acc:
-            acc = parse_mess(db, rec.get('data'), rec.get('creator'))
-        if not acc:
-            acc = parse_mess(db, rec.get('title'), rec.get('creator'))
+        acc = parse_mess(db, rec.get('title'), rec.get('creator'))
         if not acc:
             acc = parse_mess(db, rec.get('message'), rec.get('creator'))
         if not acc:
@@ -358,7 +354,7 @@ def get_incomed(db, token_system, from_block_in=None):
         # make record INCOME from Erachain TRANSACTION 
         make_rec(erachain_addr, acc, rec, transactions)
 
-        lines = rec.get('message', rec.get('data'))
+        lines = rec.get('message')
         if lines:
             lines = lines.strip().split('\n')
 
