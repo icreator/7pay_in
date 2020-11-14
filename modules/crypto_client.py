@@ -124,7 +124,7 @@ def get_tx_info(conn, token_system, txid, pars=None):
     try:
         res = conn.gettransaction(txid)
     except Exception as e:
-        res = { 'error': e }
+        res = {'error': e}
         pass
     return res
 
@@ -215,26 +215,6 @@ def get_xaddress_by_label(conn, label, protocol='btc'):
     if addrs:
         return addrs[0]
     return conn.getnewaddress(label)
-
-def get_main_addr(cn):
-    addr = cn.getaddressesbyaccount('.main.')
-    if addr:
-        # берем тот что уже есть
-        addr = addr[0]
-    else:
-        # берем новый
-        addr = cn.getaccountaddress('.main.')
-    return addr
-
-def get_confirm_addr(cn):
-    addr = cn.getaddressesbyaccount('.confirm.')
-    if addr:
-        # берем тот что уже есть
-        addr = addr[0]
-    else:
-        # берем новый
-        addr = cn.getaccountaddress('.confirm.')
-    return addr
 
 # открыть те что в списке
 def unlocks(conn, tab=None):
@@ -415,7 +395,8 @@ def send_to_many(db, curr, xcurr, sends_in, tx_fee_in=None, conn_in=None):
         ### если на старый адресс пихать или даже брать новый
         # то баланс в кошельке до подтверждения блока будет в неподтвержденных!
         # тут надо использовать
-        change_addr = get_main_addr(cn)
+
+        change_addr = xcurr.main_addr
         #print change_addr, '=', my_change
         sends[change_addr] = my_change
 

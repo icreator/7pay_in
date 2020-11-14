@@ -57,11 +57,16 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
         #if len(acc)==0:
         #    # пропустим пустые а то они все будут подходить
         #    continue
+
+        if xcurr.main_addr and xcurr.main_addr == acc:
+            # пропустим поступления на наш счет - например пополнение оборотных средств
+            continue
+
         try:
             # for cyrilic - error
-            print 'b_p_db_update:',curr.abbrev, 'acc:"%s"' % acc, ' unspent:',amo, 'txid:', txid, 'vout:',vout
+            print 'b_p_db_update:',curr.abbrev, 'acc:"%s"' % acc, ' unspent:', amo, 'txid:', txid, 'vout:', vout
         except:
-            print 'b_p_db_update:',curr.abbrev, addr, ' unspent:',amo, 'txid:', txid, 'vout:',vout
+            print 'b_p_db_update:',curr.abbrev, addr, ' unspent:', amo, 'txid:', txid, 'vout:', vout
         #print datetime.datetime.fromtimestamp(rec['time'])
         #print rec, '\n'
         if token_system:
@@ -136,15 +141,12 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
             # TODO
             if not deal_acc_addr:
                 # такой адрес не в наших счетах
-                if acc == '.main.' or acc == '.confirm.':
-                    # если это приход на  главный адрес - например пополнения с обмена\
-                    # то такую проводку пропустим
-                    continue
-                elif conn or token_system:
+                if conn:
                     print 'unknown [%s] address %s for account:"%s"' % (curr.abbrev, addr, acc)
                     # если не найдено в делах то запомним в неизвестных
-                    send_back(db, conn, token_system, curr, xcurr, txid,  amo)
-                    print 'to return -> txid', txid
+                    if False:
+                        send_back(db, conn, token_system, curr, xcurr, txid,  amo)
+                    print 'skip? to return -> txid', txid
                     continue
                 else:
                     print 'UNKNOWN deal:', rec
@@ -455,7 +457,9 @@ def b_p_proc_unspent( db, conn, curr, xcurr, addr_in=None, from_block_in=None ):
         # иначе это сдача от выхода
 
         acc = r.get(u'account')
-        if acc and acc == '.main.': continue # свои проводки не проверяем
+        if acc and xcurr.main_addr and xcurr.main_addr == acc:
+            # свои проводки не проверяем
+            continue
 
         amo = r[u'amount']
         #print '\n\n',amo, r

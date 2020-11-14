@@ -313,18 +313,16 @@ def send_to_many():
     return '%s' % res
 
 
-
-def send_to_main(conn, acc_from, amo):
-    main_addr = crypto_client.get_xaddress_by_label(conn,'.main.')
-    mess = "to send %s from acc:"% amo +acc_from +" to " + main_addr
+def send_to_main(conn, xcurr, acc_from, amo):
+    mess = "to send %s from acc:"% amo +acc_from +" to " + xcurr.main_addr
     print 'try', mess
     try:
-        conn.sendfrom( acc_from, main_addr,amo)
+        conn.sendfrom( acc_from, xcurr.main_addr, amo)
     except Exception as e:
         if e.error['code']==-4:
-            # если не хватает на комисиию то уменишим сумму и повторим
+            # если не хватает на комиссию то уменьшим сумму и повторим
             print 'tax -0.01'
-            send_to_main(conn, acc_from, amo-0.01)
+            send_to_main(conn, xcurr, acc_from, amo * 0.97)
             return
         print e.error
         return e.error
@@ -364,6 +362,20 @@ def inits_new_portal():
         if xcurr.protocol == 'btc':
             try:
                 addr = crypto_client.get_xaddress_by_label(conn, '.main.')
+                xcurr.main_addr = addr
+                xcurr.update_record()
+                resp = resp + addr + ' - for ' + curr.name + '<br>'
+            except Exception as e:
+                print e
+                msg = curr.name + " - no made .main. account, error: " + e.message # e.args
+                print msg
+                resp = resp + msg + '<br>'
+                continue
+        elif xcurr.protocol == 'zen':
+            try:
+                addr = conn.listaddresses()[0]
+                xcurr.main_addr = addr
+                xcurr.update_record()
                 resp = resp + addr + ' - for ' + curr.name + '<br>'
             except Exception as e:
                 print e
@@ -372,7 +384,7 @@ def inits_new_portal():
                 resp = resp + msg + '<br>'
                 continue
         else:
-            resp = resp + curr.name + ' - protocol is not "btc", ignored<br>'
+            resp = resp + curr.name + ' - skipped<br>'
 
 
     return resp
