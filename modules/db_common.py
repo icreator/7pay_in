@@ -1,4 +1,6 @@
-﻿# http://web2py.com/examples/static/epydoc/web2py.gluon.dal-module.html
+﻿# coding: utf8
+#
+# http://web2py.com/examples/static/epydoc/web2py.gluon.dal-module.html
 
 from datetime import datetime
 from decimal import Decimal
@@ -84,12 +86,16 @@ def currs_stats_update(db, curr_id, deal_id, volume_out):
     currs_stats = db((db.currs_stats.curr_id==curr_id)
         & (db.currs_stats.deal_id==deal_id)).select().first()
     if not currs_stats:
-        db.currs_stats[0] = {
-            'curr_id': curr_id,
-            'deal_id': deal_id,
-            'average_': volume_out,
-            'count_': 1,
-            }
+        if True:
+            db.currs_stats.insert(curr_id=curr_id, deal_id=deal_id, average_=volume_out, count_=1)
+        else:
+            # on PostgreSQL rise ERROR
+            db.currs_stats[0] = {
+                'curr_id': curr_id,
+                'deal_id': deal_id,
+                'average_': volume_out,
+                'count_': 1,
+                }
     else:
         average = currs_stats.average_ or 0
         count = currs_stats.count_ or 0

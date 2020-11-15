@@ -57,11 +57,16 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
         #if len(acc)==0:
         #    # пропустим пустые а то они все будут подходить
         #    continue
+
+        if xcurr.main_addr and xcurr.main_addr == acc:
+            # пропустим поступления на наш счет - например пополнение оборотных средств
+            continue
+
         try:
             # for cyrilic - error
-            print 'b_p_db_update:',curr.abbrev, 'acc:"%s"' % acc, ' unspent:',amo, 'txid:', txid, 'vout:',vout
+            print 'b_p_db_update:',curr.abbrev, 'acc:"%s"' % acc, ' unspent:', amo, 'txid:', txid, 'vout:', vout
         except:
-            print 'b_p_db_update:',curr.abbrev, addr, ' unspent:',amo, 'txid:', txid, 'vout:',vout
+            print 'b_p_db_update:',curr.abbrev, addr, ' unspent:', amo, 'txid:', txid, 'vout:', vout
         #print datetime.datetime.fromtimestamp(rec['time'])
         #print rec, '\n'
         if token_system:
@@ -136,15 +141,12 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
             # TODO
             if not deal_acc_addr:
                 # такой адрес не в наших счетах
-                if acc == '.main.' or acc == '.confirm.':
-                    # если это приход на  главный адрес - например пополнения с обмена\
-                    # то такую проводку пропустим
-                    continue
-                elif conn or token_system:
+                if conn:
                     print 'unknown [%s] address %s for account:"%s"' % (curr.abbrev, addr, acc)
                     # если не найдено в делах то запомним в неизвестных
-                    send_back(conn, token_system, curr, xcurr, txid,  amo)
-                    print 'to return -> txid', txid
+                    if False:
+                        send_back(db, conn, token_system, curr, xcurr, txid,  amo)
+                    print 'skip? to return -> txid', txid
                     continue
                 else:
                     print 'UNKNOWN deal:', rec
@@ -168,7 +170,7 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
                 # переводы на этоот адрес запрещены - тоже вернем его
                 print 'UNUSED [%s] address %s for account:"%s"' % (curr.abbrev, addr, acc)
                 # если не найдено в делах то запомним в неизвестных
-                send_back(conn, token_system, curr, xcurr, txid,  amo, addr_ret)
+                send_back(db, conn, token_system, curr, xcurr, txid,  amo, addr_ret)
                 print 'to return -> txid', txid
                 continue
 
@@ -239,7 +241,7 @@ def parse_mess(db, mess, creator):
         return None
 
     args = mess.strip().split('\n')[0].split(':')
-    print mess, args
+    print 'parse_mess:', mess, args
 
     import db_common
 
@@ -280,9 +282,9 @@ def parse_mess(db, mess, creator):
         pass
 
 def make_rec(erachain_addr, acc, rec, transactions):
-    amount = rec.get('amount')
-    action_key = rec.get('action_key')
-    if not amount or amount < 0 or not action_key or action_key != 1:
+    amount = Decimal(rec.get('amount'))
+    action_key = rec.get('actionKey')
+    if not amount or amount < 0 or not action_key or action_key != 1 or 'backward' in rec:
         return
     type = rec.get('type')
     if not type or type != 31:
@@ -345,11 +347,7 @@ def get_incomed(db, token_system, from_block_in=None):
     transactions = []
     for rec in tab:
 
-        acc = parse_mess(db, rec.get('head'), rec.get('creator'))
-        if not acc:
-            acc = parse_mess(db, rec.get('data'), rec.get('creator'))
-        if not acc:
-            acc = parse_mess(db, rec.get('title'), rec.get('creator'))
+        acc = parse_mess(db, rec.get('title'), rec.get('creator'))
         if not acc:
             acc = parse_mess(db, rec.get('message'), rec.get('creator'))
         if not acc:
@@ -358,7 +356,7 @@ def get_incomed(db, token_system, from_block_in=None):
         # make record INCOME from Erachain TRANSACTION 
         make_rec(erachain_addr, acc, rec, transactions)
 
-        lines = rec.get('message', rec.get('data'))
+        lines = rec.get('message')
         if lines:
             lines = lines.strip().split('\n')
 
@@ -459,7 +457,9 @@ def b_p_proc_unspent( db, conn, curr, xcurr, addr_in=None, from_block_in=None ):
         # иначе это сдача от выхода
 
         acc = r.get(u'account')
-        if acc and acc == '.main.': continue # свои проводки не проверяем
+        if acc and xcurr.main_addr and xcurr.main_addr == acc:
+            # свои проводки не проверяем
+            continue
 
         amo = r[u'amount']
         #print '\n\n',amo, r
@@ -518,8 +518,10 @@ def b_p_proc_unspent( db, conn, curr, xcurr, addr_in=None, from_block_in=None ):
     #print '\n\nsumUnsp:',sumUnsp, '  sumChange:',sumChange, ' SUM:',sumFull
     return tab, curr_block
 
-def send_back(conn, token_system, curr, xcurr, txid, amount, to_addr=None):
+def send_back(db, conn, token_system, curr, xcurr, txid, amount, to_addr=None):
     # такой платеж возвращаем
+    if True:
+        return 'backWard denied by service'
 
     sender_addr = to_addr or crypto_client.sender_addr(conn, token_system, txid)
     print 'return to sender_addr:', sender_addr
@@ -571,7 +573,7 @@ def return_refused(db, curr, xcurr, conn, token_system):
             # такой платеж возвращаем
             # причем если адрес возврата уже задан в записи то возьмем его
             if True:
-                txid = send_back(conn, token_system, curr, xcurr,  r.pay_ins.txid,
+                txid = send_back(db, conn, token_system, curr, xcurr,  r.pay_ins.txid,
                                  r.pay_ins.amount, r.deal_acc_addrs.addr_return)
             else:
                 txid='probe1'
