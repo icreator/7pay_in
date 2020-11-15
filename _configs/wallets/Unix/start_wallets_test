@@ -1,0 +1,85 @@
+#!/bin/sh
+
+source $(dirname "$0")/include
+
+COMMON_ARGS="-daemon -conf=daemon.conf"
+#COMMON_ARGS="$COMMON_ARGS -txindex=1"
+
+## --- Wallet(s) backup
+#cd DAT
+#for /D %%i in (*) do ( 
+#echo %%i
+#copy %AppData%\%%i\wallet.dat %%i\
+#copy D:\blockchains\%%i\wallet.dat %%i\
+#del %AppData%\%%i\debug.*
+#del D:\blockchains\%%i\debug.*
+#)
+#cd ..
+
+copyWallets() {
+    echo "\n+++ TODO: copyWallets not implemented yet! +++\n"
+    echo -e "\nFound directories:\n"
+    for d in DAT/*; do
+        if [ -d "$d" ]; then
+            echo $(basename "$d")
+        fi
+    done
+}
+
+runWallet() {
+    if [ "x$1" != "x" ]; then
+        APP=$1
+    elif [ "x$APP" == "x" ]; then
+        log "Error starting run subroutine"
+        return
+    fi
+    count=`ps -ef | grep $APP | grep -v "grep" | wc -l`
+    if [ $count -ge 1 ]; then
+        log "$APP already running"
+        exit
+    fi
+    log "Starting $APP"
+    ($APP $ARGS &)
+}
+
+startAll() {
+    ARGS=$COMMON_ARGS
+
+#    NAME=bitcoin
+#    runWallet /opt/$NAME/bin/${NAME}d
+
+#    NAME=ERA
+#    pushd /home/uera/$NAME
+#    runWallet ./run-nogui.sh
+#    popd
+
+#    NAME=dash
+#    runWallet /opt/${NAME}core/bin/${NAME}d
+
+#    NAME=litecoin
+#    runWallet /opt/$NAME/bin/${NAME}d
+
+#    NAME=dogecoin
+#    ARGS="$COMMON_ARGS -datadir=$WORKDIR/blockhains/$NAME"
+#    runWallet /opt/$NAME/bin/${NAME}d
+
+    NAME=novacoin
+    runWallet /opt/$NAME/${NAME}d
+}
+
+main() {
+#    $WORK_DIR/clear_locks
+
+    if [ "x$1" != "xreload" ]; then
+        copyWallets
+        sleep 2s
+    fi
+    startAll
+
+    delay 60
+
+    COMMON_ARGS="$COMMON_ARGS -reindex"
+    startAll
+}
+
+main $1

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+/opt/litecoin/bin/litecoin-cli -port:9332 -rpcuser=login -rpcpassword=password info
+## /opt/litecoin/bin/litecoin-cli -conf=/DAT/Litecoin/client.conf
+
+/opt/litecoin/bin/litecoin-cli -port:9332 -rpcuser=login -rpcpassword=password listaddressgroupings
+
+
+/opt/litecoin/bin/litecoin-cli -port:9332 -rpcuser=login -rpcpassword=password setaccount LMvezU1HMjQcZutf9Tm6WnMPL9sboeLW6c "[to COIN [7DGcji2bEfBFJdnFmZMekFSuBWvJKRULe6] [ERA]"
