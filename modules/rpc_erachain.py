@@ -201,8 +201,8 @@ def send(db, curr, xcurr, addr, amo, token_system=None, token=None, title=None, 
                 print pars
                 res = rpc_request(token_system.connect_url + pars)
             else:
-                pars = '/rec_payment/%d/%s/%d/%f/%s?password=%s' % (0, token_system.account, token.token_key, amo_to_pay, addr, token_system.password )
-                print pars, data
+                pars = '/rec_payment/%d/%s/%d/%f/%s?password=%s' % (0, token_system.account, token.token_key, amo_to_pay, addr, token_system.password)
+                print pars
                 res = rpc_request(token_system.connect_url + pars)
             print "SENDed? ", type(res), res
             if type(res) == type({}):
