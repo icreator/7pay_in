@@ -313,18 +313,16 @@ def send_to_many():
     return '%s' % res
 
 
-
-def send_to_main(conn, acc_from, amo):
-    main_addr = crypto_client.get_xaddress_by_label(conn,'.main.')
-    mess = "to send %s from acc:"% amo +acc_from +" to " + main_addr
+def send_to_main(conn, xcurr, acc_from, amo):
+    mess = "to send %s from acc:"% amo +acc_from +" to " + xcurr.main_addr
     print 'try', mess
     try:
-        conn.sendfrom( acc_from, main_addr,amo)
+        conn.sendfrom( acc_from, xcurr.main_addr, amo)
     except Exception as e:
         if e.error['code']==-4:
-            # если не хватает на комисиию то уменишим сумму и повторим
+            # если не хватает на комиссию то уменьшим сумму и повторим
             print 'tax -0.01'
-            send_to_main(conn, acc_from, amo-0.01)
+            send_to_main(conn, xcurr, acc_from, amo * 0.97)
             return
         print e.error
         return e.error
@@ -332,29 +330,61 @@ def send_to_main(conn, acc_from, amo):
 
 
 # инициализация портала
-def inits_new_portal(dd):
-    return
-    db.to_phone.drop()
+def inits_new_portal():
+
+    ###db.to_phone.drop()
+
     resp = ""
-    # для всех криптовалют создадим главные аккоунты в кошельках
+    # для всех криптовалют создадим главные аккаунты в кошельках
     for xcurr in db(db.xcurrs).select():
+
+        if xcurr.as_token:
+            # это другая система
+            continue
+
+        curr = db.currs[xcurr.curr_id]
+
         try:
-            aa = crypto_client.conn(xcurr)
+            conn = crypto_client.conn(curr, xcurr)
+            if not conn:
+                msg = curr.name + " - no connection to wallet"
+                print msg
+                resp = resp + msg + '<br>'
+                continue
+
         except Exception as e:
-            print e
-            msg = xcurr.name + " no connection to wallet"
+            msg = curr.name + " - no connection to wallet: " + e.message
             print msg
             resp = resp + msg + '<br>'
             continue
 
-        try:
-            x = crypto_client.get_xaddress_by_label(xcurr,'.main.',aa)
-        except Exception as e:
-            print e
-            msg = xcurr.name + " no made .main. account"
-            print msg
-            resp = resp + msg + '<br>'
-            continue
+
+        if xcurr.protocol == 'btc':
+            try:
+                addr = crypto_client.get_xaddress_by_label(conn, '.main.')
+                xcurr.main_addr = addr
+                xcurr.update_record()
+                resp = resp + addr + ' - for ' + curr.name + '<br>'
+            except Exception as e:
+                print e
+                msg = curr.name + " - no made .main. account, error: " + e.message # e.args
+                print msg
+                resp = resp + msg + '<br>'
+                continue
+        elif xcurr.protocol == 'zen':
+            try:
+                addr = conn.listaddresses()[0]
+                xcurr.main_addr = addr
+                xcurr.update_record()
+                resp = resp + addr + ' - for ' + curr.name + '<br>'
+            except Exception as e:
+                print e
+                msg = curr.name + " - no made .main. account, error: " + e.message # e.args
+                print msg
+                resp = resp + msg + '<br>'
+                continue
+        else:
+            resp = resp + curr.name + ' - skipped<br>'
 
 
     return resp

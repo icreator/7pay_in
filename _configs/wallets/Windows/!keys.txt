@@ -1,0 +1,4 @@
+
+d0 = aa.dumpprivkey(u'Cbw1RmEwkkUkbSzoifmSH8CWnZTPEzXYd8')
+aa.importprivkey(dd,'ph:79104581474', True)
+

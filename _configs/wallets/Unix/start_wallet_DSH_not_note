@@ -1,0 +1,23 @@
+#!/bin/sh
+
+source $(dirname "$0")/include
+
+NAME=dash
+APP_DIR=/opt/${NAME}core/bin
+PROC=${NAME}-qt
+APP=$APP_DIR/$PROC
+CONF=daemon_not_note.conf
+
+ARGS="-conf=$CONF"
+# -datadir=$WORK_DIR/blockchains/$NAME"
+#ARGS="$ARGS -txindex=1"
+
+main() {
+    log "Starting $APP"
+    runWallet
+    delay 120
+    ARGS="$ARGS -reindex"
+    runWallet
+}
+
+main

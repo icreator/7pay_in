@@ -1,0 +1,28 @@
+#!/bin/sh
+
+source $(dirname "$0")/include
+
+if [ "x$1" == "x" ] ; then
+  echo -e "Currency must be specified\n"
+  exit
+fi
+
+
+LOCK=$WORK_DIR/.lock_$1
+
+if [ -f $LOCK ]; then
+  log  "$LOCK exist, exiting"
+  exit
+fi
+
+log "Notify"
+touch $LOCK
+log "Setting $LOCK"
+curl -s  http://localhost/$WEB_APP/tools/block_proc/$1/$2  --connect-timeout 60 -m 100 --no-keepalive --no-sessionid -j | $TEE
+
+if [ "$1" == "LTC-none" ] ; then
+   curl -s  http://127.0.0.1/$WEB_APP/tools/block_proc/ERA  --connect-timeout 60 -m 100 --no-keepalive --no-sessionid -j | $TEE
+fi
+
+rm -f $LOCK
+log "Removing $LOCK"

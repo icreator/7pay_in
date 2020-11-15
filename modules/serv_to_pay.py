@@ -482,7 +482,9 @@ def make_edealer_payment(db, geted_pays,  curr_in, xcurr, curr_out, ecurr, vol_i
     ####################
 
     # заплмним сатиститку для крипты по этому делу
-    if volume_out: db_common.currs_stats_update(db, curr_in.id, deal.id, volume_out)
+    if volume_out:
+        db_common.currs_stats_update(db, curr_in.id, deal.id, volume_out)
+
 
     # обновим балансы дилеров и валюты
     # поидее это в ed_common YD_ все проходит
@@ -586,67 +588,67 @@ def make_edealer_free_payment(db,
 # обработать все оставшиеся платежи
 def proc_free_payments(db, curr_in, xcurr, used_pays):
     # сначала найдем группы по аккаунту - валюте
-    for grp in db((db.pay_ins_stack.ref_==db.pay_ins.id)
-        & (db.pay_ins.ref_ == db.deal_acc_addrs.id )
-        & (db.deal_acc_addrs.xcurr_id == xcurr.id)
-        ).select(db.deal_acc_addrs.ALL, groupby=(db.deal_acc_addrs.id)):
-        #print grp #.payments.xcurr_id, grp.payments.account
-        #continue
-        # теперь для группы
-        # тут уже валюта выбрана, дело и аккаунт пользователя тоже
-        grp_deal_acc = db.deal_accs[ grp.deal_acc_addrs.deal_acc_id ]
-        ecurr = db(db.ecurrs.curr_id == grp_deal_acc.curr_id).select().first()
-        if ecurr:
-            # если на выходе фиат то проверим на превышение одного платежа
-            curr_out = db.currs[ grp_deal_acc.curr_id]
-            grp_deal = db.deals[ grp_deal_acc.deal_id ]
-            fee_curr = db.currs[ grp_deal.fee_curr_id]
-            geted_pays = [grp.pay_ins_stack.id]
-            print 'curr out:', curr_out.abbrev, ' fee_curr:', fee_curr.abbrev, 'grp_deal.MAX_pay:', grp_deal.MAX_pay
-            pr_b, pr_s, pr_avg = rates_lib.get_average_rate_bsa(db, curr_in.id, curr_out.id, None)
-            if not pr_avg:
-                print 'proc_free_payments - rates None'
-                mark_pay_ins(db, geted_pays, 'wait', 'best rate not found!')
-                # нет курса валют - пропустим
-                continue
-            pr_b, pr_s, pr_avg_fee = rates_lib.get_average_rate_bsa(db, curr_out.id, fee_curr.id, None)
-            if not pr_avg_fee:
-                print 'proc_free_payments - rates None for pr_avg_fee'
-                mark_pay_ins(db, geted_pays, 'wait', 'best rate for fee not found!')
-                # нет курса валют - пропустим
-                continue
-            rate_out = Decimal(pr_avg * pr_avg_fee)
-            print pr_avg, pr_avg_fee, rate_out
+    for row_deal_acc_addrs in db(db.deal_acc_addrs).select():
+        for grp in db((db.pay_ins_stack.ref_==db.pay_ins.id)
+            & (db.pay_ins.ref_ == row_deal_acc_addrs.id)
+            & (row_deal_acc_addrs.xcurr_id == xcurr.id)
+                ).select():
+            #print grp #.payments.xcurr_id, grp.payments.account
+            #continue
+            # теперь для группы
+            # тут уже валюта выбрана, дело и аккаунт пользователя тоже
+            grp_deal_acc = db.deal_accs[row_deal_acc_addrs.deal_acc_id]
+            ecurr = db(db.ecurrs.curr_id == grp_deal_acc.curr_id).select().first()
+            if ecurr:
+                # если на выходе фиат то проверим на превышение одного платежа
+                curr_out = db.currs[ grp_deal_acc.curr_id]
+                grp_deal = db.deals[ grp_deal_acc.deal_id ]
+                fee_curr = db.currs[ grp_deal.fee_curr_id]
+                geted_pays = [grp.pay_ins_stack.id]
+                print 'curr out:', curr_out.abbrev, ' fee_curr:', fee_curr.abbrev, 'grp_deal.MAX_pay:', grp_deal.MAX_pay
+                pr_b, pr_s, pr_avg = rates_lib.get_average_rate_bsa(db, curr_in.id, curr_out.id, None)
+                if not pr_avg:
+                    print 'proc_free_payments - rates None'
+                    mark_pay_ins(db, geted_pays, 'wait', 'best rate not found!')
+                    # нет курса валют - пропустим
+                    continue
+                pr_b, pr_s, pr_avg_fee = rates_lib.get_average_rate_bsa(db, curr_out.id, fee_curr.id, None)
+                if not pr_avg_fee:
+                    print 'proc_free_payments - rates None for pr_avg_fee'
+                    mark_pay_ins(db, geted_pays, 'wait', 'best rate for fee not found!')
+                    # нет курса валют - пропустим
+                    continue
+                rate_out = Decimal(pr_avg * pr_avg_fee)
+                print pr_avg, pr_avg_fee, rate_out
 
-        geted_pays = []
-        amo = 0
-        for pay in db((db.pay_ins_stack.ref_==db.pay_ins.id)
-              & (db.pay_ins.ref_ == db.deal_acc_addrs.id )
-              & (db.deal_acc_addrs.id == grp.deal_acc_addrs.id)
-              ).select():
-            # если он еще не обрабатывается паралельно
-            if pay.pay_ins.status in db_common.STATUS_REFUSED or pay.pay_ins_stack.to_refuse:
-                # этот вход мы отвергаем - ее выслать надо назад
-                # он будет возвращен обратно
-                continue
-            if pay.pay_ins_stack.in_proc or pay.pay_ins_stack.id in used_pays:
-                # если этот платеж уже по заказам пытались выплатиьть
-                # но у него видимо ошибка, то не платим тут
-                continue
-            print 'income:', pay.deal_acc_addrs.addr, pay.pay_ins.amount
-            amo = amo + Decimal(pay.pay_ins.amount)
-            geted_pays.append(pay.pay_ins_stack.id)
-            if ecurr and amo * rate_out > grp_deal.MAX_pay:
-                # если за раз уже много набралось и общая сумма платежа выше нормы - прекратить сборку
-                break
+            geted_pays = []
+            amo = 0
+            for pay in db((db.pay_ins_stack.ref_==db.pay_ins.id)
+                  & (db.pay_ins.ref_ == row_deal_acc_addrs.id)
+                  ).select():
+                # если он еще не обрабатывается паралельно
+                if pay.pay_ins.status in db_common.STATUS_REFUSED or pay.pay_ins_stack.to_refuse:
+                    # этот вход мы отвергаем - ее выслать надо назад
+                    # он будет возвращен обратно
+                    continue
+                if pay.pay_ins_stack.in_proc or pay.pay_ins_stack.id in used_pays:
+                    # если этот платеж уже по заказам пытались выплатиьть
+                    # но у него видимо ошибка, то не платим тут
+                    continue
+                print 'income:', row_deal_acc_addrs.addr, pay.pay_ins.amount
+                amo = amo + Decimal(pay.pay_ins.amount)
+                geted_pays.append(pay.pay_ins_stack.id)
+                if ecurr and amo * rate_out > grp_deal.MAX_pay:
+                    # если за раз уже много набралось и общая сумма платежа выше нормы - прекратить сборку
+                    break
 
-        #print amo, geted_pays
-        if amo > 0 :
-            make_edealer_free_payment(db,
-                curr_in, xcurr,
-                #grp.payments.account,
-                grp.deal_acc_addrs,
-                geted_pays, amo)
+            #print amo, geted_pays
+            if amo > 0 :
+                make_edealer_free_payment(db,
+                    curr_in, xcurr,
+                    #grp.payments.account,
+                    row_deal_acc_addrs,
+                    geted_pays, amo)
 
 
 # TODO если платеж по заказу, но была ошибка у дилепа и он не прошел

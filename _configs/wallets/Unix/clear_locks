@@ -1,0 +1,8 @@
+#!/bin/sh
+
+source $(dirname "$0")/include
+
+# Clear all locks
+log "Clear all lock(s) in $WORK_DIR"
+rm -f $WORK_DIR/.lock_* | $TEE
+
