@@ -3,6 +3,15 @@
 #if not IS_LOCAL:
 #    raise HTTP(200, 'under construct')
 
+if False:
+    from gluon import *
+    import db
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 import datetime, time
 
 import common

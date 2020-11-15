@@ -72,12 +72,14 @@ db.define_table('tokens',
 db.define_table('xcurrs',
                 Field('curr_id', db.currs, ondelete='CASCADE'),
                 Field('first_char', length=5, readable=False, comment='insert in db.common.get_currs_by_addr !!!'), # для быстрого поиска крипты по адресу
+                Field('protocol', length=20, readable=False, default='btc', comment='btc, zen...'), # протокол крипты - разная обработка
                 Field('as_token', 'integer', default=0, comment='ID in db.tokens (if its token, coin or asset)'),
                 #Field('balance', 'decimal(16,8)', default = Decimal('0.0')),
                 #Field('deposit', 'decimal(16,8)', default = Decimal('0.0')), # то что нельзя выводить или продавать - запас для меня
                 #Field('clients_deposit', 'decimal(16,8)', default = Decimal('0.0')), # то что нельзя выводить или продавать так как это баланс клиеннтов-магазинов
                 #Field('reserve', 'decimal(4,2)', default = Decimal('0.0')), # 1=100% reserve from RUBles
                 Field('connect_url', default='http://user:pass@localhost:3333', unique=True),
+                Field('main_addr', comment='Deny process incomes on it'),
                 Field('block_time', 'integer', comment='in sec. BTC = 600sec'),
                 Field('txfee', 'decimal(10,8)', default = Decimal('0.0001'), comment='For one pay_out transaction. Payed to web'),
                 Field('conf', 'integer', default = 3, comment='confirmations for accept'),
