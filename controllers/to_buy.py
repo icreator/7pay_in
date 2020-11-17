@@ -318,6 +318,9 @@ def get():
 
 def index():
 
+    if db(db.dealers).isempty():
+        return "db.dealers is empty - admin DB please"
+
     #raise HTTP(200, T('на переработке'))
     #common.page_stats(db, response['view'])
 

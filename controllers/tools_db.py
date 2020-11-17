@@ -298,6 +298,8 @@ def init_db_records():
                          MIN_pay=10,  MAX_pay=2777,
                          fee=3,  tax=0.2,  fee_min=0,  fee_max=0)
 
+        ##
+        db.currs_stats.insert(curr_id=3, deal_id=2)
 
     dealer_id = None
     if db(db.dealers).isempty():
