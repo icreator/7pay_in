@@ -47,12 +47,9 @@ def rpc_request(rpc_url, method, params=[], test=None):
 
     return r
 
-def get_info(rpc_url):
+def get_height(rpc_url):
     res = rpc_request(rpc_url, "eth_blockNumber")
-    try:
-        return int(res['result'], 16)
-    except Exception as e:
-        return res
+    return int(res['result'], 16)
 
 def is_not_valid_addr(rpc_url, addr):
     res = rpc_request(rpc_url, "eth_getBalance", [addr, "latest"])
@@ -79,11 +76,38 @@ def get_unconf_incomes(rpc_url, addr):
     recs = rpc_request(rpc_url + '/transactions/unconfirmedincomes/' + addr)
     return recs
 
+
 def get_tx_info(rpc_url, txid):
     res = rpc_request(rpc_url, "eth_getTransactionReceipt", [txid])
     return res
 
-def get_transactions(rpc_url, addr, from_block=2, conf=2):
+
+def get_block(rpc_url, block):
+
+    try:
+        res = rpc_request(rpc_url, "eth_getBlockByNumber", ['int' == type(block) and ('%#x' % block) or block, True])
+        return res
+    except Exception as e:
+        print e
+        log(current.db, 'get_transactions %s EXCEPTION: %s' % (rpc_url, e))
+        return "%s" % e
+
+
+# for precess incomes in serv_block_proc
+def parse_tx_fields(rec, block):
+    rec['amount'] = Decimal(rec['volume'][2:].decode('hex')) * Decimal('1-E18')
+    rec['message'] = rec['input'][2:].decode('hex')
+    rec['creator'] = rec['from']
+    rec['txid'] = rec['hash']
+    rec['timestamp'] = block['timestamp'][2:].decode('hex')
+    rec['block'] = block['number'][2:].decode('hex')
+
+
+def get_transactions(xcurr, from_block=2):
+
+    rpc_url = xcurr.connect_url
+    conf = xcurr.conf
+    addr = xcurr.main_addr
 
     result = []
 
@@ -115,15 +139,17 @@ def get_transactions(rpc_url, addr, from_block=2, conf=2):
 
 
         if recs_count > 0:
-            print 'erachain incomes - height: ', i, ' recs:', len(recs)
+            print 'geth incomes - height: ', i, ' recs:', len(recs)
         else:
             continue
 
         incomes = []
         for rec in recs:
-            #print rec
-            if not rec['to'] or not rec['from'] or rec['to'] != addr:
+            if rec['status'] != '0x1' or not rec['to'] or not rec['value'] or not rec['input'] or not rec['from'] or rec['to'] != addr:
                 continue
+
+            rec['timestamp'] = res['timestamp]'][2:].decode('hex')
+            rec['confirmations'] = height - i
 
             incomes.append(rec)
             print 'geth: ', rec
@@ -164,7 +190,7 @@ def send(db, curr, xcurr, toAddr, amo, mess=None):
                 "from": sender,
                 "to": toAddr,
                 "value": '%#x' % amo_to_pay,
-                #"data": '%#x' %  u'ETH from erachain.org stablecoin'.encode('utf-8'), # .hex(),
+                "data": '0x' + (u'ETH stablecoin from erachain.org'.encode("hex")),
                 "gas": '%#x' % txfee,
                 "gasPrice": '%#x' % 1E10
             }]

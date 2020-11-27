@@ -39,7 +39,7 @@ def found_unconfirmed_tokens_0(db, token_system):
     
     confs_need = token_system.conf
     import rpc_erachain
-    curr_block = rpc_erachain.get_info(token_system.connect_url)
+    curr_block = rpc_erachain.get_height(token_system.connect_url)
     if type(curr_block) != type(1):
         mess = curr.name + ': ' + T('no connection to wallet')
         #print mess
@@ -224,7 +224,7 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
         token_system = db.systems[token.system_id]
     if token_system:
         import rpc_erachain
-        curr_block = rpc_erachain.get_info(token_system.connect_url)
+        curr_block = rpc_erachain.get_height(token_system.connect_url)
         if type(curr_block) != type(1):
             mess = curr.name + ': ' + T('no connection to wallet')
             #print mess

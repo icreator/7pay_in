@@ -58,3 +58,26 @@ def send():
     res, bal = rpc_ethereum_geth.send(db, curr, xcurr, toAddress, Decimal(0.01), mess=None)
 
     return BEAUTIFY(dict(res=res, bal=bal))
+
+def block():
+    curr, xcurr, e = db_common.get_currs_by_abbrev(db, 'ETH')
+    if not xcurr:
+        return 'xcurr not found'
+
+    if request.args(0):
+        block = request.args(0)
+    else:
+        block = '0x1'
+
+    return BEAUTIFY(rpc_ethereum_geth.get_block(xcurr.connect_url, block))
+
+def enhex():
+    if request.args(0):
+        return request.args(0).encode("hex")
+    return '0x' + (u'ETH from erachain.org stablecoin'.encode("hex"))
+
+def dehex():
+    if request.args(0):
+        return request.args(0)[2:].decode("hex")
+    return u'ETH from erachain.org stablecoin'.encode("hex").decode("hex")
+

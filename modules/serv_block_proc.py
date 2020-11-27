@@ -12,8 +12,13 @@ if False:
 
 #from __future__ import print_function
 
+from db_common import get_currs_by_addr
 import datetime
 from decimal import Decimal
+import db_common
+import crypto_client
+import rpc_erachain
+import rpc_ethereum_geth
 
 # TODO
 # если валюта отключена и произошел возврат то баланс не изменяетс!!!
@@ -22,11 +27,6 @@ from gluon import current
 T = current.T
 
 TO_COIN_ID = 2
-
-import db_common
-import crypto_client
-import rpc_erachain
-import rpc_ethereum_geth
 
 #        if r.pay_ins.status in {'technical_error', 'payment_refused', 'currency_unused'}:
 
@@ -245,6 +245,7 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
     # так как вых платеж может произойти тут надо сохранить
     db.commit()
 
+
 def parse_mess(db, mess, creator):
 
     if not mess:
@@ -252,8 +253,6 @@ def parse_mess(db, mess, creator):
 
     args = mess.strip().split('\n')[0].split(':')
     print 'parse_mess:', mess, args
-
-    import db_common
 
     arg1 = args[0].strip()
     if len(arg1) < 20:
@@ -272,7 +271,6 @@ def parse_mess(db, mess, creator):
 
     # may be here only ADDRESS
     if len(arg1) > 30:
-        from db_common import get_currs_by_addr
         curr_out, xcurr_out, _ = get_currs_by_addr(db, arg1)
         if xcurr_out:
             return curr_out.abbrev + ':' + arg1
@@ -291,14 +289,9 @@ def parse_mess(db, mess, creator):
     except:
         pass
 
+
 def make_rec(erachain_addr, acc, rec, transactions):
     amount = Decimal(rec.get('amount'))
-    action_key = rec.get('actionKey')
-    if not amount or amount < 0 or not action_key or action_key != 1 or 'backward' in rec:
-        return
-    type = rec.get('type')
-    if not type or type != 31:
-        return
 
     if not acc:
         acc = 'refuse:' + rec['creator']
@@ -314,30 +307,63 @@ def make_rec(erachain_addr, acc, rec, transactions):
         confs = rec['confirmations'],
         addr = erachain_addr,
         acc = acc
+        )
     )
-    )
 
 
-def get_incomed(db, token_system, from_block_in=None):
+def parse_mess(lines, xcurr, token_system, rec, transactions):
 
-    erachain_addr = token_system.account
-    erachain_rpc = token_system.connect_url
+    if lines:
+        lines = lines.strip().split('\n')
+
+    if lines and len(lines) > 1:
+        for line in lines:
+            #try:
+            if True:
+                command = line.split(':')
+                if len(command) > 1:
+                    if command[0].strip().lower() == 'add':
+                        ## ADD transactions without payments details to that payment
+                        ## need
+                        for txid in command[1].strip().split(' '):
+                            # see this TX in DB and set DETAILS
+                            pay_in = db(db.pay_ins.txid == txid).select().first()
+                            if pay_in:
+                                # already assigned
+                                continue
+
+                            recAdded = rpc_erachain.get_tx_info(xcurr, token_system, txid.strip())
+                            if not recAdded or 'creator' not in recAdded or recAdded['creator'] != rec['creator']:
+                                # set payment details only for this creator records
+                                continue
+
+                            # make record INCOME from Erachain TRANSACTION
+                            make_rec(erachain_addr, acc, recAdded, transactions)
+
+
+            #except Exception as e:
+            else:
+                mess = 'COMMAND: %s - %s' % (line, e)
+                log(db, mess)
+
+
+def get_incomed(db, xcurr, token_system, from_block_in=None):
 
     tab = []
-    curr_block = rpc_erachain.get_info(erachain_rpc)
+    curr_block = crypto_client.get_height(xcurr, token_system)
     print curr_block
-    if type(curr_block) != type(1):
+    if type(1) != type(curr_block):
         # кошелек еще не запустился
         print 'not started else'
         return tab, from_block_in # если переиндексация то возможно что и меньше
 
-    from_block = from_block_in or token_system.from_block
+    from_block = from_block_in or token_system and token_system.from_block or xcurr.from_block
     if from_block:
         if not curr_block > from_block:
             print 'not curr_block > from_block', curr_block, from_block
             return tab, from_block # если переиндексация то возможно что и меньше
-        print from_block, '-->', curr_block, erachain_addr
-        tab, curr_block = rpc_erachain.get_transactions(token_system, erachain_rpc, erachain_addr, from_block, token_system.conf)
+        print from_block, '-->', curr_block
+        tab, curr_block = crypto_client.get_transactions(xcurr, token_system, from_block)
 
         if curr_block == None:
             return [], None
@@ -346,9 +372,14 @@ def get_incomed(db, token_system, from_block_in=None):
         # если нет еще номера обработанного блока
         # то и делать нечего - мол служба только запущена
         # на нее нет еще переводоов, хотя можно наоборот взять все входы
-        token_system.from_block = from_block = 1 # все входы со всеми подтверждениями берем
-        token_system.update_record()
-        tab, curr_block = rpc_erachain.get_transactions(token_system, erachain_rpc, erachain_addr, conf = token_system.conf)
+        if token_system:
+            token_system.from_block = from_block = 1  # все входы со всеми подтверждениями берем
+            token_system.update_record()
+        else:
+            xcurr.from_block = from_block = 1  # все входы со всеми подтверждениями берем
+            xcurr.update_record()
+
+        tab, curr_block = crypto_client.get_transactions(xcurr, token_system, from_block)
 
         if curr_block == None:
             return [], None
@@ -357,9 +388,9 @@ def get_incomed(db, token_system, from_block_in=None):
     transactions = []
     for rec in tab:
 
-        acc = parse_mess(db, rec.get('title'), rec.get('creator'))
-        if not acc:
-            acc = parse_mess(db, rec.get('message'), rec.get('creator'))
+        crypto_client.parse_tx_fields(rec)
+
+        acc = parse_mess(db, rec.get('message'), rec.get('creator'))
         if not acc:
             continue
 
@@ -386,7 +417,7 @@ def get_incomed(db, token_system, from_block_in=None):
                                     # already assigned
                                     continue
 
-                                recAdded = rpc_erachain.get_tx_info(token_system, txid.strip())
+                                recAdded = crypto_client.get_tx_info(xcurr, token_system, txid.strip())
                                 if not recAdded or 'creator' not in recAdded or recAdded['creator'] != rec['creator']:
                                     # set payment details only for this creator records
                                     continue
@@ -409,7 +440,7 @@ def get_incomed_geth(db, xcurr, from_block_in=None):
     main_addr = xcurr.main_addr
 
     tab = []
-    curr_block = rpc_ethereum_geth.get_info(rpc_url)
+    curr_block = rpc_ethereum_geth.get_height(rpc_url)
     print curr_block
     if type(curr_block) != type(1):
         # кошелек еще не запустился
@@ -431,9 +462,9 @@ def get_incomed_geth(db, xcurr, from_block_in=None):
         # если нет еще номера обработанного блока
         # то и делать нечего - мол служба только запущена
         # на нее нет еще переводоов, хотя можно наоборот взять все входы
-        token_system.from_block = from_block = 1 # все входы со всеми подтверждениями берем
-        token_system.update_record()
-        tab, curr_block = rpc_erachain.get_transactions(token_system, rpc_url, main_addr, conf = token_system.conf)
+        xcurr.from_block = from_block = 1 # все входы со всеми подтверждениями берем
+        xcurr.update_record()
+        tab, curr_block = rpc_ethereum_geth.get_transactions(rpc_url, main_addr, from_block, xcurr.conf)
 
         if curr_block == None:
             return [], None
@@ -441,50 +472,28 @@ def get_incomed_geth(db, xcurr, from_block_in=None):
     print tab, curr_block
     transactions = []
     for rec in tab:
+        try:
+            amount = Decimal(rec['volume'][2:].decode('hex')) * Decimal('1-E18')
+            acc = parse_mess(db, rec['input'][2:].decode('hex'))
 
-        acc = parse_mess(db, rec.get('title'), rec.get('creator'))
-        if not acc:
-            acc = parse_mess(db, rec.get('message'), rec.get('creator'))
-        if not acc:
-            continue
+            if not acc:
+                acc = 'refuse:' + rec['creator']
+            else:
+                acc = ('%d' % rec['asset']) + '>' + acc
 
-        # make record INCOME from Erachain TRANSACTION
-        make_rec(main_addr, acc, rec, transactions)
-
-        lines = rec.get('message')
-        if lines:
-            lines = lines.strip().split('\n')
-
-        if lines and len(lines) > 1:
-            for line in lines:
-                #try:
-                if True:
-                    command = line.split(':')
-                    if len(command) > 1:
-                        if command[0].strip().lower() == 'add':
-                            ## ADD transactions without payments details to that payment
-                            ## need
-                            for txid in command[1].strip().split(' '):
-                                # see this TX in DB and set DETAILS
-                                pay_in = db(db.pay_ins.txid == txid).select().first()
-                                if pay_in:
-                                    # already assigned
-                                    continue
-
-                                recAdded = rpc_erachain.get_tx_info(token_system, txid.strip())
-                                if not recAdded or 'creator' not in recAdded or recAdded['creator'] != rec['creator']:
-                                    # set payment details only for this creator records
-                                    continue
-
-                                # make record INCOME from Erachain TRANSACTION
-                                make_rec(main_addr, acc, recAdded, transactions)
-
-
-                #except Exception as e:
-                else:
-                    mess = 'COMMAND: %s - %s' % (line, e)
-                    log(db, mess)
-
+            #print rec
+            transactions.append(dict(
+                amo = amount,
+                txid=rec['hash'],
+                vout= '0', ### not need for SYSTEM_TOKENS - rec['sequence'],
+                time = rec['timestamp'] * 0.001,
+                confs = rec['confirmations'],
+                addr = main_addr,
+                acc = acc
+                )
+            )
+        except Exception as e:
+            pass
 
     return transactions, curr_block
 
@@ -727,7 +736,7 @@ def run_once(db, abbrev):
         token_system = db.systems[token.system_id]
 
         from_block_in = None # 68600
-        tab, curr_block = get_incomed(db, token_system, from_block_in)
+        tab, curr_block = get_incomed(db, xcurr, token_system, from_block_in)
 
         if curr_block == None:
             return 'connection lost'

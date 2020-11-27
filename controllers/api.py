@@ -249,7 +249,7 @@ def curr_get_info():
     if token_system and token_system.name == 'Erachain':
         # UESE tokenSystem
         import rpc_erachain
-        res = rpc_erachain.get_info(token_system.connect_url)
+        res = rpc_erachain.get_height(token_system.connect_url)
         res = {'height': res, 'balances': rpc_erachain.get_balances(token_system.connect_url, token_system.account),
                'from_block': token_system.from_block }
     else:
@@ -310,7 +310,7 @@ def validate_addr():
         token_system = db.systems[token.system_id]
 
         import rpc_erachain
-        curr_block = rpc_erachain.get_info(token_system.connect_url)
+        curr_block = rpc_erachain.get_height(token_system.connect_url)
         if type(curr_block) != type(1):
             return {'error':'Connection to [%s] is lost, try later ' % curr.name}
 
@@ -322,7 +322,7 @@ def validate_addr():
     elif xcurr.protocol == 'geth':
         import rpc_ethereum_geth
 
-        curr_block = rpc_ethereum_geth.get_info(xcurr.connect_url)
+        curr_block = rpc_ethereum_geth.get_height(xcurr.connect_url)
         if type(curr_block) != type(1):
             return {'error':'Connection to [%s] is lost, try later ' % curr.name}
 

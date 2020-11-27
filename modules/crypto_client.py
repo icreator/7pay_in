@@ -5,6 +5,10 @@
 import datetime
 
 from gluon import current
+
+import rpc_erachain
+import rpc_ethereum_geth
+
 T = current.T
 cache = current.cache
 #from gluon.cache import lazy_cache
@@ -22,6 +26,26 @@ def log(db, mess):
 def log_commit(db, mess):
     log(db,mess)
     db.commit()
+
+
+############ COMMON ################
+def get_height(xcurr, token_system, conn=None):
+    if xcurr.protocol == 'era':
+        return rpc_erachain.get_height(token_system.connect_url)
+    if xcurr.protocol == 'geth':
+        return rpc_ethereum_geth.get_height(xcurr.connect_url)
+
+def parse_tx_fields(xcurr, rec):
+    if xcurr.protocol == 'era':
+        return rpc_erachain.parse_tx_fields(rec)
+    if xcurr.protocol == 'geth':
+        return rpc_ethereum_geth.parse_tx_fields(rec)
+
+def get_transactions(xcurr, token_system, from_block, conn=None):
+    if xcurr.protocol == 'era':
+        return rpc_erachain.get_transactions(token_system, from_block)
+    if xcurr.protocol == 'geth':
+        return rpc_ethereum_geth.get_transactions(xcurr, from_block)
 
 ###########
 

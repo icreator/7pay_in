@@ -3,16 +3,16 @@
 
 import urllib
 import urllib2
-
 from gluon import current
-
-#import json
 from gluon.contrib import simplejson as json
 import time
+
 
 def log(db, mess):
     print 'rpc_erachain - ', mess
     db.logs.insert(mess='YD: %s' % mess)
+
+
 def log_commit(db, mess):
     log(db,mess)
     db.commit()
@@ -51,11 +51,9 @@ def rpc_request(pars, vars=None, test=None):
     return r
 
 
-def get_info(rpc_url):
+def get_height(rpc_url):
+    return rpc_request(rpc_url + "/blocks/height")
 
-    res = rpc_request(rpc_url + "/blocks/height")
-
-    return res
 
 def is_not_valid_addr(rpc_url, addr):
     res = rpc_request(rpc_url + "/addresses/validate/" + addr)
@@ -63,27 +61,38 @@ def is_not_valid_addr(rpc_url, addr):
 
 
 def get_balances(rpc_url, addr):
+    return rpc_request(rpc_url + "/addresses/assets/" + addr)
 
-    res = rpc_request(rpc_url + "/addresses/assets/" + addr)
-    #res = rpc_request(rpc_url + "/addresses/balance/" + addr)
-
-    return res
 
 def get_reserve(token_system, token):
     bals = get_balances(token_system.connect_url, token_system.account)
     return bals['%d' % token.token_key][0][1]
+
 
 ## get transactions/unconfirmedincomes/7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7
 def get_unconf_incomes(rpc_url, addr):
     recs = rpc_request(rpc_url + '/transactions/unconfirmedincomes/' + addr)
     return recs
 
+
 def get_tx_info(token_system, txid):
+    return rpc_request(token_system.connect_url + '/transactions/signature/' + txid)
 
-    recs = rpc_request(token_system.connect_url + '/transactions/signature/' + txid)
-    return recs
 
-def get_transactions(token_system, rpc_url, addr, from_block=2, conf=2):
+# for precess incomes in serv_block_proc
+def parse_tx_fields(rec):
+    if 'title' in rec:
+        rec['message'] = rec.get('title')
+
+    rec['txid'] = rec['signature']
+    rec['block'] = rec['height']
+
+
+def get_transactions(token_system, from_block=2):
+
+    rpc_url = token_system.connect_url
+    conf = token_system.conf or 2
+    addr = token_system.account
 
     result = []
 
@@ -122,7 +131,11 @@ def get_transactions(token_system, rpc_url, addr, from_block=2, conf=2):
         incomes = []
         for rec in recs:
             #print rec
+
             if rec['type'] != 31:
+                # only SEND transactions
+                continue
+            if not rec['amount']:
                 # only SEND transactions
                 continue
             if 'actionKey' not in rec or rec['actionKey'] != 1:

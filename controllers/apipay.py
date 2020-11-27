@@ -425,7 +425,7 @@ def get_uri_in():
     if request.application[:-3] != '_dvlp':
         # conflicts to call if from [ipay3_dvlp]  - wallet not in connection...
         if token_system_out:
-            curr_block = rpc_erachain.get_info(token_system_out.connect_url)
+            curr_block = rpc_erachain.get_height(token_system_out.connect_url)
             if type(curr_block) != type(1):
                 return mess('Connection to [%s] is lost, try later ' % curr_out_name)
             if rpc_erachain.is_not_valid_addr(token_system_out.connect_url, addr_out):
@@ -628,7 +628,7 @@ def get_uri():
     if request.application[:-3] != '_dvlp':
         # conflicts to call if from [ipay3_dvlp]  - wallet not in connection...
         if token_system_out:
-            curr_block = rpc_erachain.get_info(token_system_out.connect_url)
+            curr_block = rpc_erachain.get_height(token_system_out.connect_url)
             if type(curr_block) != type(1):
                 return mess('Connection to [%s] is lost, try later ' % curr_out_name)
             if rpc_erachain.is_not_valid_addr(token_system_out.connect_url, addr_out):
