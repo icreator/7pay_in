@@ -147,23 +147,27 @@ def init_db_records():
              ['13', None, 'http://%s@127.0.0.1:8332' % xpass, 600, 0.0007000, 1, 101, 0],
              None,
              ],
-            ['LTC', 'Litecoin', 'litecoin', True, #4
+            ['BTC', 'Ethereum', 'ethereum', True, #4
+             ['0', 'geth', 'localhost:4000', 60, 0.001000, 2, 101, 0],
+             None,
+             ],
+            ['LTC', 'Litecoin', 'litecoin', True, #5
              ['L', None, 'http://%s@127.0.0.1:9332' % xpass, 150, 0.005, 3, 120, 0],
              None,
              ],
-            ['DOGE', 'DOGE', 'doge', True, #5
+            ['DOGE', 'DOGE', 'doge', True, #6
              ['D9A', None, 'http://%s@127.0.0.1:9432' % xpass, 30, 0.1, 5, 101, 0],
              None,
              ],
-            ['DASH', 'DASH', 'dash', True, #6
+            ['DASH', 'DASH', 'dash', True, #7
              ['', None, 'http://%s@127.0.0.1:13332' % xpass, 333, 0.005, 3, 101, 0],
              None,
              ],
-            ['ZEN', 'Horizen', 'horizen', True, #7
+            ['ZEN', 'Horizen', 'horizen', True, #8
              ['Z', 'zen', 'http://%s@127.0.0.1:11111' % xpass, 300, 0.1, 3, 101, 0],
              None,
              ],
-            ['NVC', 'Novacoin', 'novacoin', False, #8 - False - if not used on service
+            ['NVC', 'Novacoin', 'novacoin', False, #9 - False - if not used on service
              ['4', None, 'http://%s@127.0.0.1:11332' % xpass, 450, 0.1, 3, 120, 0],
              None,
              ],
@@ -214,6 +218,7 @@ def init_db_records():
         for r in [
             ['USD', 'RUB', 0, 100, 0.1],
             ['USD', 'BTC', 0, 100, 0.1],
+            ['USD', 'ETH', 0, 100, 0.1],
             ['USD', 'LTC', 0, 100, 0.1],
             ['USD', 'DOGE', 0, 100, 0.1],
             ['USD', 'DASH', 0, 100, 0.1],
@@ -221,6 +226,7 @@ def init_db_records():
             ['USD', 'NVC', 0, 100, 0.1],
             ['RUB', 'USD', 0, 10000, 0.1],
             ['RUB', 'BTC', 0, 10000, 0.1],
+            ['RUB', 'ETH', 0, 10000, 0.1],
             ['RUB', 'LTC', 0, 10000, 0.1],
             ['RUB', 'DOGE', 0, 10000, 0.1],
             ['RUB', 'DASH', 0, 10000, 0.1],
@@ -228,6 +234,7 @@ def init_db_records():
             ['RUB', 'NVC', 0, 10000, 0.1],
             ['BTC', 'USD', 0, 1, 0.1],
             ['BTC', 'RUB', 0, 1, 0.1],
+            ['BTC', 'ETH', 0, 1, 0.1],
             ['BTC', 'LTC', 0, 1, 0.1],
             ['BTC', 'DOGE', 0, 1, 0.1],
             ['BTC', 'DASH', 0, 1, 0.1],
