@@ -590,7 +590,7 @@ db.define_table('pay_ins',
                       #requires = IS_EMPTY_OR(IS_IN_DB(db, 'deal_acc_addrs.id', '%(addr)s')),
                       ),
                 Field('amount', 'decimal(14,8)', comment='value received'),
-                Field('confs', 'integer', comment='confirmations when record maked'),
+                Field('block', 'integer', comment='block where record exist'),
                 Field('txid', length=TXID_LEN), # транзакция
                 Field('vout', 'integer'), # выход в транзакции
                 Field('created_on', 'datetime', writable=False), # сами должны вставить default=request.now),
@@ -613,7 +613,7 @@ db.define_table('pay_ins_stack',
 # их в других сервисах могут разобрать
 db.define_table('pay_ins_unused',
                 Field('amount', 'decimal(16,8)', comment='value received'),
-                Field('confs', 'integer', comment='confirmations when record maked'),
+                Field('block', 'integer', comment='block where record exist'),
                 Field('txid', length=TXID_LEN), # транзакция
                 Field('vout', 'integer'), # выход в транзакции
                 Field('created_on', 'datetime', writable=False), # сами должны вставить default=request.now),
@@ -661,7 +661,7 @@ db.define_table('xcurrs_raw_trans',
                 Field('xcurr_id', db.xcurrs, ondelete='CASCADE'),
                 Field('txid', length=TXID_LEN), # дело в котром крипта использовалась
                 Field('tx_hex', 'text'),
-                Field('confs', 'integer'),
+                Field('block', 'integer', comment='block where record exist'),
                 )
 
 ###################################################################

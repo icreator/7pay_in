@@ -472,12 +472,12 @@ def re_broadcast (db, curr, xcurr, cn=None):
 
     ok_conf = 6
     for r in db((db.xcurrs_raw_trans.xcurr_id==xcurr.id)
-                & (db.xcurrs_raw_trans.confs < ok_conf)).select():
+                & (db.xcurrs_raw_trans.block < ok_conf)).select():
 
         tx = cn.getrawtransaction (r.txid,1)
-        confs = tx.get('confirmations')
-        if confs>0:
-            r.confs = confs
+        block = tx.get('block')
+        if block>0:
+            r.block = block
             r.update_record()
             continue
         print 're_broadcast:', tx

@@ -738,7 +738,7 @@ def histoty_result(db, r):
         curr_out = dict(abbrev = curr_out.abbrev, id = curr_out.id),
         acc = r.deal_accs.acc,
         amount_in = float(pay_in.amount),
-        confitmations = pay_in.confs,
+        block = pay_in.block,
         txid = pay_in.txid,
         created = pay_in.created_on
         )

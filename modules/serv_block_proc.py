@@ -63,7 +63,7 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
         txid=rec['txid']
         vout=rec['vout']
         time = rec['time']
-        confs = rec['confs']
+        block = rec['block']
         #if len(acc)==0:
         #    # пропустим пустые а то они все будут подходить
         #    continue
@@ -187,7 +187,7 @@ def b_p_db_update(db, conn, curr, xcurr, tab, curr_block):
         created_on = datetime.datetime.fromtimestamp(time)
 
         pay_id = db.pay_ins.insert( ref_ = deal_acc_addr.id,
-                                    amount = amo, confs=confs,
+                                    amount = amo, block=block,
                                     txid=txid, vout=vout,
                                     created_on = created_on
                                     )
@@ -304,7 +304,7 @@ def make_rec(erachain_addr, acc, rec, transactions):
         txid=rec['signature'],
         vout= '0', ### not need for SYSTEM_TOKENS - rec['sequence'], 
         time = rec['timestamp'] * 0.001,
-        confs = rec['confirmations'],
+        block = rec['confirmations'],
         addr = erachain_addr,
         acc = acc
         )
@@ -487,7 +487,7 @@ def get_incomed_geth(db, xcurr, from_block_in=None):
                 txid=rec['hash'],
                 vout= '0', ### not need for SYSTEM_TOKENS - rec['sequence'],
                 time = rec['timestamp'] * 0.001,
-                confs = rec['confirmations'],
+                block = rec['block'],
                 addr = main_addr,
                 acc = acc
                 )
@@ -610,7 +610,7 @@ def b_p_proc_unspent( db, conn, curr, xcurr, addr_in=None, from_block_in=None ):
 
         sumUnsp = sumUnsp and sumUnsp + amo or amo
         tab.append({'acc': acc, 'amo': amo,
-                    'confs': r[u'confirmations'],
+                    'block': r[u'confirmations'],
                     # запомним данные для поиска потом
                     'txid':txid, 'vout': vout,
                     'addr': addr,
