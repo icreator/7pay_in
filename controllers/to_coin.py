@@ -131,7 +131,7 @@ def get_uri_in():
         print 'to_coin session error .volume_in:', type(volume_in), volume_in
     
     if token_system_in:
-        deal_acc_id, deal_acc_addr = rpc_erachain.get_deal_acc_addr(db, deal_id, curr_out, addr_out, token_system_in.account, xcurr_in)
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, token_system_in.account, xcurr_in)
         addr_in = token_system_in.account
         pass
     else:

@@ -3,6 +3,15 @@
 #if not IS_LOCAL:
 #    raise HTTP(200, 'under construct')
 
+if False:
+    from gluon import *
+    import db
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 import datetime, time
 
 import common
@@ -134,8 +143,8 @@ def get():
     curr_in_name = curr_in.name
     
     if token_system_in:
-        deal_acc_id, deal_acc_addr = rpc_erachain.get_deal_acc_addr(db, deal_id, curr_out, addr_out, token_system_in.account, xcurr_in)
-        addr_in =  token_system_in.account
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, token_system_in.account, xcurr_in)
+        addr_in = token_system_in.account
         pass
     else:
         x_acc_label = db_client.make_x_acc(deal, addr_out, curr_out_abbrev)

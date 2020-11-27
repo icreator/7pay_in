@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
+
 if False:
     from gluon import *
+    import db
     request = current.request
     response = current.response
     session = current.session
     cache = current.cache
     T = current.T
-    db = None
 
 ## if not IS_LOCAL: raise HTTP(200, 'error')
 session.forget(response)

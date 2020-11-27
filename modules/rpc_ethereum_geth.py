@@ -18,7 +18,7 @@ def log_commit(db, mess):
     log(db,mess)
     db.commit()
 
-## 123
+##
 def rpc_request(rpc_url, method, params=[], test=None):
 
     ## curl -X POST --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":83}'

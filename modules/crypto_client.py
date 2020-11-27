@@ -120,7 +120,6 @@ def get_reserve(curr, xcurr, cn=None):
     #print sum_Full
     return sum_Full
 
-
 def get_tx_info(conn, xcurr, token_system, txid):
     if xcurr.protocol == 'era':
         import rpc_erachain

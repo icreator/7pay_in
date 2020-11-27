@@ -50,24 +50,6 @@ def rpc_request(pars, vars=None, test=None):
 
     return r
 
-def get_deal_acc_addr(db, deal_id, curr_out, acc, addr, xcurr_in):
-    deal_acc = db((db.deal_accs.deal_id == deal_id)
-                  & (db.deal_accs.curr_id == curr_out.id)
-                  & (db.deal_accs.acc == acc)).select().first()
-    if not deal_acc:
-        deal_acc_id = db.deal_accs.insert(deal_id = deal_id, curr_id = curr_out.id, acc = acc)
-    else:
-        deal_acc_id = deal_acc.id
-
-    deal_acc_addr = db((db.deal_acc_addrs.addr==addr)
-                       & (db.deal_acc_addrs.xcurr_id==xcurr_in.id)).select().first()
-
-    if not deal_acc_addr:
-        deal_acc_addrs_id = db.deal_acc_addrs.insert(deal_acc_id = deal_acc_id, addr=addr, xcurr_id=xcurr_in.id)
-        deal_acc_addr = db.deal_acc_addrs[ deal_acc_addrs_id ]
-
-    return deal_acc_id, deal_acc_addr
-
 
 def get_info(rpc_url):
 

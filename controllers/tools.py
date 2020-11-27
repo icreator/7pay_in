@@ -7,6 +7,7 @@ if False:
     session = current.session
     cache = current.cache
     T = current.T
+    import db
 
 ##from __future__ import print_function
 
