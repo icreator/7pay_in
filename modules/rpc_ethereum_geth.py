@@ -5,6 +5,7 @@ import urllib
 import urllib2
 
 from gluon import current
+from decimal import Decimal
 
 #import json
 from gluon.contrib import simplejson as json
@@ -84,9 +85,8 @@ def get_balance(rpc_url, addr):
 
     return balance / (10 ^ 18)
 
-def get_reserve(rpc_url, token):
-    bals = get_balances(rpc_url, token_system.account)
-    return bals['%d' % token.token_key][0][1]
+def get_reserve(rpc_url, addr):
+    return get_balance(rpc_url, addr)
 
 ## get transactions/unconfirmedincomes/7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7
 def get_unconf_incomes(rpc_url, addr):
@@ -158,62 +158,53 @@ def get_transactions(token_system, rpc_url, addr, from_block=2, conf=2):
     return result, i
 
 
-def send(db, curr, xcurr, addr, amo, token_system=None, token=None, title=None, mess=None):
+def send(db, curr, xcurr, toAddr, amo, mess=None):
 
-    if token is None:
-        token = db.tokens[xcurr.as_token]
-    if token_system is None:
-        token_system = db.systems[token.system_id]
-
-    amo = round(float(amo),8)
-
-    if token.token_key == 2:
-        # if it is COMPU
-        txfee = round(float(token_system.txfee or 0.0001), 8)
-    else:
-        txfee = 0
+    rpc_url = xcurr.connect_url
+    sender = xcurr.main_addr
+    txfee = xcurr.txfee
 
     try:
-        reserve = get_reserve(token_system, token)
+        reserve = get_reserve(rpc_url, sender)
     except Exception as e:
-        return {'error': 'connection lost - [%s]' % curr.abbrev }, None
+        return {'error': 'connection lost - [%s]' % curr.abbrev}, None
+
+    ##return dict(txfee=txfee, amo=amo, reserve=reserve)
 
     if amo + txfee > reserve:
-        return {'error':'out off reserve:[%s]' % reserve }, None
+        return {'error': 'out off reserve:[%s]' % reserve}, None
 
     # проверим готовность базы - is lock - и запишем за одно данные
-    log_commit(db, 'try send: %s[%s] %s, fee: %s' % (amo, curr.abbrev, addr, txfee))
+    log_commit(db, 'try send: %s[%s] %s, fee: %s' % (amo, curr.abbrev, toAddr, txfee))
     if amo > txfee * 2:
-        #if True:
         try:
             ##amo_to_pay = amo - txfee - it already inserted in GET_RATE by db.currs
-            amo_to_pay = amo
-            print 'res = erachain.send(addr, amo - txfee)', amo_to_pay
-            if False: ## 4.11 version Erachain
-                # GET r_send/7GvWSpPr4Jbv683KFB5WtrCCJJa6M36QEP/79MXsjo9DEaxzu6kSvJUauLhmQrB4WogsH?message=mess&encrypt=false&password=123456789
-                pars = "r_send/%s/%s?assetKey=%d&amount=%f&title=%s%s&encrypt=true&password=%s" % (token_system.account, addr,
-                                                                                                   token.token_key, amo_to_pay,
-                                                                                                   title or 'face2face.cash', mess and ('&message='+mess) or '',
-                                                                                                   token_system.password)
-                print pars
-                res = rpc_request(token_system.connect_url + pars)
-            else:
-                pars = '/rec_payment/%d/%s/%d/%f/%s?password=%s' % (0, token_system.account, token.token_key, amo_to_pay, addr, token_system.password)
-                print pars
-                res = rpc_request(token_system.connect_url + pars)
-            print "SENDed? ", type(res), res
-            if type(res) == type({}):
-                error = res.get('error')
-            else:
+            amo_to_pay = amo # - txfee
+            print 'res = geth.send(addr, amo - txfee)', amo_to_pay
+
+            txfee = long(xcurr.txfee * Decimal(1E8)) ## and x 1+E10 by gasPrice
+            amo_to_pay = long(amo_to_pay * Decimal(1E18)) ## in WEI
+
+            params = [{
+                "from": sender,
+                "to": toAddr,
+                "value": '%#x' % amo_to_pay,
+                #"data": "0x1234",
+                "gas": '%#x' % txfee,
+                "gasPrice": '%#x' % 1E10
+            }]
+            print params
+            res = rpc_request(rpc_url, "eth_sendTransaction", params)
+            try:
+                res = res['result']
+            except Exception as e:
+                return res, None
+
+            if res == "0x0":
+                # some error
                 return {'error': ("%s" % res) + ' [%s]' % curr.abbrev }, None
 
-            if error:
-                error_message = current.CODE_UTF and str(res['message'] + ('%s' % error)).decode(current.CODE_UTF,'replace') or str(res['message'] + ('%s' % error))
-                return {'error': error_message  + ' [%s]' % curr.abbrev }, None
 
-            res = res['signature']
-
-        #else:
         except Exception as e:
             error_message = current.CODE_UTF and str(e).decode(current.CODE_UTF,'replace') or str(e)
             return {'error': error_message + ' [%s]' % curr.abbrev }, None
@@ -221,6 +212,6 @@ def send(db, curr, xcurr, addr, amo, token_system=None, token=None, title=None, 
         # тут mess для того чтобы обнулить выход и зачесть его как 0
         res = { 'mess':'< txfee', 'error':'so_small', 'error_description': '%s < txfee %s' % (amo, txfee) }
 
-    bal = get_reserve(token_system, token)
+    bal = get_reserve(rpc_url, sender)
 
     return res, bal

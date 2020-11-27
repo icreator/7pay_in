@@ -12,7 +12,7 @@ if False:
 session.forget(response)
 
 from decimal import Decimal
-import db_common, crypto_client, rpc_ethereum_geth
+import db_common, rpc_ethereum_geth
 
 def index(): return dict(message="hello from tool_xcurr.py")
 
@@ -43,3 +43,17 @@ def bal_for_addrs():
     res = rpc_ethereum_geth.get_balance(xcurr.connect_url, address)
 
     return BEAUTIFY(res)
+
+def send():
+    curr, xcurr, e = db_common.get_currs_by_abbrev(db, 'ETH')
+    if not xcurr:
+        return 'xcurr not found'
+
+    if request.args(0):
+        toAddress = request.args(0)
+    else:
+        toAddress = '0xd46e8dd67c5d32be8058bb8eb970870f07244567'
+
+    res, bal = rpc_ethereum_geth.send(db, curr, xcurr, toAddress, Decimal(11.456), mess=None)
+
+    return BEAUTIFY(dict(res=res, bal=bal))
