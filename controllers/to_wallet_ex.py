@@ -1,5 +1,14 @@
 # coding: utf8
 
+if False:
+    from gluon import *
+    import db
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 #import copy
 import datetime, time
 import re
@@ -108,20 +117,29 @@ def pay():
     if not xcurr_in:
         response.title=T("ОШИБКА")
         return dict(uri=T('Криптовалюта ') + request.vars['curr_in'] + T(' не найдена в базе данных.'), addr=None)
-    # get new or old adress for payment
-    x_acc_label = db_client.make_x_acc(deal, ph, curr_out.abbrev)
-    # найдем ранее созданный адресс для этого телефона, этой крипты и этого фиата
-    # сначала найтем аккаунт у дела
-    deal_acc_id = db_client.get_deal_acc_id(db, deal, ph, curr_out)
-    # теперь найдем кошелек для данной крипты
-    deal_acc_addr = db_client.get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr_in, xcurr_in, x_acc_label)
-    if not deal_acc_addr:
-        response.title=T("ОШИБКА")
-        return dict(uri= T(' связь с кошельком ') + curr_in.name + T(' прервана.'), addr=None)
 
-    #request.vars['deal_acc_addr']=deal_acc_addr
-    addr = deal_acc_addr.addr
-    request.vars['addr']=addr
+    if token_system_in:
+        addr_in = token_system_in.account
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
+    elif xcurr_in.protocol == 'geth':
+        addr_in = xcurr_in.main_addr
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
+    else:
+        # get new or old adress for payment
+        x_acc_label = db_client.make_x_acc(deal, ph, curr_out.abbrev)
+        # найдем ранее созданный адресс для этого телефона, этой крипты и этого фиата
+        # сначала найтем аккаунт у дела
+        deal_acc_id = db_client.get_deal_acc_id(db, deal, ph, curr_out)
+        # теперь найдем кошелек для данной крипты
+        deal_acc_addr = db_client.get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr_in, xcurr_in, x_acc_label)
+        if not deal_acc_addr:
+            response.title=T("ОШИБКА")
+            return dict(uri= T(' связь с кошельком ') + curr_in.name + T(' прервана.'), addr=None)
+
+        #request.vars['deal_acc_addr']=deal_acc_addr
+        addr_in = deal_acc_addr.addr
+
+    request.vars['addr_in']=addr_in
 
     MIN = deal.MIN_pay or dealer.pay_out_MIN or 3
     if MIN > volume_out:
@@ -185,10 +203,10 @@ def pay():
     db.orders_stack.insert( ref_ = id )
     request.vars['order'] = id
 
-    uri, qr = common.uri_make( curr_in.name2, addr, {'amount':volume_in, 'label': db_client.make_x_acc_label(deal, ph, curr_out.abbrev)})
+    uri, qr = common.uri_make( curr_in.name2, addr_in, {'amount':volume_in, 'label': db_client.make_x_acc_label(deal, ph, curr_out.abbrev)})
 
 
-    return dict(uri=uri, addr=addr, qr=qr)
+    return dict(uri=uri, addr=addr_in, qr=qr)
 
 def go2():
     dealer_id = request.args(0)

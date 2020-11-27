@@ -446,9 +446,11 @@ def get_uri_in():
     curr_in_name = curr_in.name
     
     if token_system_in:
-        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, token_system_in.account, xcurr_in)
         addr_in = token_system_in.account
-        pass
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
+    elif xcurr_in.protocol == 'geth':
+        addr_in = xcurr_in.main_addr
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
     else:
         x_acc_label = db_client.make_x_acc(deal, addr_out, curr_out_abbrev)
         deal_acc_id = db_client.get_deal_acc_id(db, deal, addr_out, curr_out)
@@ -645,11 +647,13 @@ def get_uri():
                 return mess('address not valid for - ' + curr_out_name + ' - ' + addr_out)
 
     curr_in_name = curr_in.name
-    
+
     if token_system_in:
-        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, token_system_in.account, xcurr_in)
-        addr_in =  token_system_in.account
-        pass
+        addr_in = token_system_in.account
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
+    elif xcurr_in.protocol == 'geth':
+        addr_in = xcurr_in.main_addr
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
     else:
         x_acc_label = db_client.make_x_acc(deal, addr_out, curr_out_abbrev)
         deal_acc_id = db_client.get_deal_acc_id(db, deal, addr_out, curr_out)
@@ -702,7 +706,7 @@ def get_uri():
     lim_bal, may_pay = db_client.is_limited_ball(curr_in)
 
     free_bal = db_client.curr_free_bal(curr_out)
-    if token_system_in:
+    if token_system_in or xcurr_in.protocol == 'geth':
         addr_out_full = (token_system_out and ('%d' % token_out.token_key) or curr_out.abbrev) + ':' + addr_out
     else:
         addr_out_full = addr_out

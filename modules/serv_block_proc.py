@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 # coding: utf8
 
+if False:
+    from gluon import *
+    import db
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 #from __future__ import print_function
 
 import datetime

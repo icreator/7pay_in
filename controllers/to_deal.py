@@ -3,6 +3,15 @@
 ### !!!! {"img_url":"https://money.yandex.ru/i/shop/", "shops_url":"https://money.yandex.ru/phone.xml?"}
 ### в описании дилера нужно в INFO
 
+if False:
+    from gluon import *
+    import db
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 import json
 import re
 import datetime
@@ -257,22 +266,28 @@ def get():
         shops_url = dealer_info['shops_url'] + "%s" % dealer_deal.scid
     deal_img = make_img(deal, dealer_info, shops_url)
 
+    if token_system_in:
+        addr_in = token_system_in.account
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
+    elif xcurr_in.protocol == 'geth':
+        addr_in = xcurr_in.main_addr
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
+    else:
+        # get new or old adress for payment
+        x_acc_label = db_client.make_x_acc(deal, acc, curr_out.abbrev)
+        #print x_acc_label
+        # найдем ранее созданный адресс для этого телефона, этой крипты и этого фиата
+        # сначала найтем аккаунт у дела
+        deal_acc_id = db_client.get_deal_acc_id(db, deal, acc, curr_out)
+        #print 'deal_acc_id',deal_acc_id
+        #return
+        # теперь найдем кошелек для данной крипты
+        #print x_acc_label
+        deal_acc_addr = db_client.get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr_in, xcurr_in, x_acc_label)
+        if not deal_acc_addr:
+            return mess( T(' связь с кошельком ') + curr_in.name + T(' прервана.'))
 
-    # get new or old adress for payment
-    x_acc_label = db_client.make_x_acc(deal, acc, curr_out.abbrev)
-    #print x_acc_label
-    # найдем ранее созданный адресс для этого телефона, этой крипты и этого фиата
-    # сначала найтем аккаунт у дела
-    deal_acc_id = db_client.get_deal_acc_id(db, deal, acc, curr_out)
-    #print 'deal_acc_id',deal_acc_id
-    #return
-    # теперь найдем кошелек для данной крипты
-    #print x_acc_label
-    deal_acc_addr = db_client.get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr_in, xcurr_in, x_acc_label)
-    if not deal_acc_addr:
-        return mess( T(' связь с кошельком ') + curr_in.name + T(' прервана.'))
-
-    addr = deal_acc_addr.addr
+        addr_in = deal_acc_addr.addr
 
     deal_name = deal.name
     # если есть скрытый партнерский код то его забьем пользователю
@@ -343,7 +358,7 @@ def get():
            ajax=False, # тут без асинхронной подгрузки модуля - вместе со страницей сразу грузим модуль
            )
 
-    _uri, uri_url = common.uri_make( curr_in.name2, addr, {'amount':volume_in, 'label': db_client.make_x_acc_label(deal, acc, curr_out.abbrev)})
+    _uri, uri_url = common.uri_make( curr_in.name2, addr_in, {'amount':volume_in, 'label': db_client.make_x_acc_label(deal, acc, curr_out.abbrev)})
 
     qr = DIV(DIV(DIV(P(T('Показать QR-код'), _class='btn_mc2'), _class='btn_mc1'),
         _onclick='''
@@ -375,7 +390,7 @@ def get():
                 curr_out_name = curr_out.abbrev, e_bal = e_bal,
                 deal_url=deal_url, volume_in=volume_in, volume_out=volume_out,
                 tax_rep=tax_rep, deal_img=deal_img,
-                uri_url=uri_url, addr=addr, addr_ret=addr_ret, qr=qr, curr_id=curr_id,
+                uri_url=uri_url, addr=addr_in, addr_ret=addr_ret, qr=qr, curr_id=curr_id,
                lim_bal_mess=lim_bal_mess)
 
 ################################################################

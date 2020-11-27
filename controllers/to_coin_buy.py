@@ -141,11 +141,13 @@ def get():
         print 'to_coin session error .vol:', type(vol), vol
 
     curr_in_name = curr_in.name
-    
+
     if token_system_in:
-        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, token_system_in.account, xcurr_in)
         addr_in = token_system_in.account
-        pass
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
+    elif xcurr_in.protocol == 'geth':
+        addr_in = xcurr_in.main_addr
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
     else:
         x_acc_label = db_client.make_x_acc(deal, addr_out, curr_out_abbrev)
         # найдем ранее созданный адресс для этого телефона, этой крипты и этого фиата
