@@ -35,11 +35,21 @@ def get_height(xcurr, token_system, conn=None):
     if xcurr.protocol == 'geth':
         return rpc_ethereum_geth.get_height(xcurr.connect_url)
 
+def get_assets_balances(xcurr, token_system, conn=None):
+    if xcurr.protocol == 'era':
+        return rpc_erachain.get_assets_balances(token_system)
+
+def get_balance(xcurr, conn=None):
+    if xcurr.protocol == 'geth':
+        return rpc_ethereum_geth.get_balance(xcurr)
+
+
 def parse_tx_fields(xcurr, rec):
     if xcurr.protocol == 'era':
         return rpc_erachain.parse_tx_fields(rec)
     if xcurr.protocol == 'geth':
         return rpc_ethereum_geth.parse_tx_fields(rec)
+
 
 def get_transactions(xcurr, token_system, from_block, conn=None):
     if xcurr.protocol == 'era':

@@ -99,8 +99,10 @@ def parse_tx_fields(rec, block):
     rec['message'] = rec['input'][2:].decode('hex')
     rec['creator'] = rec['from']
     rec['txid'] = rec['hash']
+    rec['vout'] = 0
     rec['timestamp'] = block['timestamp'][2:].decode('hex')
     rec['block'] = block['number'][2:].decode('hex')
+    rec['recipient'] = rec['to']
 
 
 def get_transactions(xcurr, from_block=2):

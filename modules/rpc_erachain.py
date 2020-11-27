@@ -5,6 +5,7 @@ import urllib
 import urllib2
 from gluon import current
 from gluon.contrib import simplejson as json
+from decimal import Decimal
 import time
 
 
@@ -60,12 +61,14 @@ def is_not_valid_addr(rpc_url, addr):
     return not res
 
 
-def get_balances(rpc_url, addr):
-    return rpc_request(rpc_url + "/addresses/assets/" + addr)
+# all tokens for account
+def get_assets_balances(token_system):
+    return rpc_request(token_system.connect_url + "/addresses/assets/" + token_system.account)
 
 
+# one token
 def get_reserve(token_system, token):
-    bals = get_balances(token_system.connect_url, token_system.account)
+    bals = get_assets_balances(token_system)
     return bals['%d' % token.token_key][0][1]
 
 
@@ -85,7 +88,11 @@ def parse_tx_fields(rec):
         rec['message'] = rec.get('title')
 
     rec['txid'] = rec['signature']
+    rec['vout'] = 0
     rec['block'] = rec['height']
+    rec['amount'] = Decimal(rec['amount'])
+    rec['timestamp'] = rec['timestamp'] * 0.001
+
 
 
 def get_transactions(token_system, from_block=2):
