@@ -51,6 +51,7 @@ db.define_table('systems',
                 Field('name', length=25, unique=True, readable=False, comment='name of tokenized system'),
                 Field('name2', length=25, readable=False, comment='name for URI'),
                 Field('first_char', length=5, readable=False, comment='insert in db.common.get_currs_by_addr !!!'), # для быстрого поиска крипты по адресу
+                Field('protocol', length=20, readable=False, default='geth', comment='geth, era...'), # протокол крипты - разная обработка
                 Field('connect_url', default='http://user:pass@localhost:3333', unique=True),
                 Field('account', default='7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7', comment='address for incoming payments'),
                 Field('password'),
@@ -212,7 +213,7 @@ db.define_table('dealers_accs',
                 Field('dealer_id', db.dealers, ondelete='CASCADE', label='to dealer'),
                 Field('ecurr_id', db.ecurrs, ondelete='CASCADE', label='in currency'),
                 Field('used', 'boolean', default=False, comment='used by site'),
-                Field('acc', length=50, label='ACCOUNT', required=True), #notnull=True),
+                Field('deal_acc', length=50, label='ACCOUNT', required=True), #notnull=True),
                 Field('pkey', 'text', comment='public key'),
                 Field('skey', 'text', comment='secret key'),
                 Field('expired', 'date', comment='expired date for secret key'),
@@ -227,7 +228,7 @@ db.define_table('dealers_accs',
                 Field('mon_limit', 'integer'), # номер месяца если наступило месячное ограничение выплат
                 Field('mon_limit_sum', 'integer'), # сколько в месяц уже выплотили - меньше 40 000 р
                 Field('from_dt', 'string', default = '0', comment='proc transactions from this DT'),
-                format='%(acc)s %(ecurr_id)s',
+                format='%(deal_acc)s %(ecurr_id)s',
                 )
 
 db.define_table('dealers_accs_trans',
@@ -345,7 +346,7 @@ db.define_table('deal_errs',
                 Field('deal_id', db.deals, ondelete='CASCADE'),
                 Field('dealer_id', db.dealers, ondelete='CASCADE'),
                 Field('dealer_acc', length=50),
-                Field('acc', length=50),
+                Field('deal_acc', length=50),
                 Field('count_', 'integer'),
                 Field('err', 'text'),
                 Field('updated_on', 'datetime', writable=False, default=request.now, update=request.now ),
@@ -365,12 +366,12 @@ db.define_table('deals_wants',
 '''
 # тут только персональные данные пользователя для данного дела
 # - его ИД или телефон и т.д - то что надо указать в платежке для диллера
-## for TO COUN - acc = out addres + curr_id = oute CURR
+## for TO COUN - deal_acc = out addres + curr_id = oute CURR
 db.define_table('deal_accs',
                 Field('deal_id', db.deals, ondelete='CASCADE'),
                 Field('curr_id', db.currs, ondelete='CASCADE'),
                 # phone, name, id etc
-                Field('acc', length=100, required=True), # тут все коды через пробел
+                Field('deal_acc', length=100, required=True), # тут все коды через пробел
                 Field('price', 'decimal(16,8)'), # если задано то это стоимость заказа - ее нужно всю собрать
                 Field('expire', 'integer', comment='in minits, =0 not expired'), # минут до протухания
                 #Field('ecurr_id', db.ecurrs),
@@ -391,7 +392,7 @@ db.define_table('deal_accs',
                 Field('gift_pick', 'decimal(14,8)', default=Decimal(0), comment='if >0 - not add a new gist_amo'),
                 Field('gift_payed', 'decimal(16,8)', default=Decimal(0)), # сколько денег уже подарили
                 Field('created_on', 'datetime', writable=False, default=request.now),
-                format='%(id)s %(acc)s %(curr_id)s',
+                format='%(id)s %(deal_acc)s %(curr_id)s',
                 )
 
 # для входов разных приптовалют
@@ -439,7 +440,7 @@ db.define_table('dealer_deals',
                 )
 db.define_table('dealer_deal_errs',
                 Field('dealer_deal_id', db.dealer_deals),
-                Field('acc', length=50),
+                Field('deal_acc', length=50),
                 Field('mess', 'text'),
                 )
 
@@ -505,7 +506,7 @@ db.define_table('clients_ewallets',
 # это не обмен внутри в вход извне или вывод вовне на счета клиента
 db.define_table('clients_trans',
                 Field('client_id', db.clients, ondelete='CASCADE'),
-                Field('order_id', length=100), # == deal_acc.acc или сюда номер транзакции при выводе клиенту вкатываем - чтобы повторно не вывести по ошибке
+                Field('order_id', length=100), # == deal_acc.deal_acc или сюда номер транзакции при выводе клиенту вкатываем - чтобы повторно не вывести по ошибке
                 Field('curr_out_id', db.currs, ondelete='CASCADE'),
                 Field('amo_out', 'decimal(16,8)', default=Decimal(0.0)), # если это не обмен то вход или выход может быть с 0
                 Field('curr_in_id', db.currs, ondelete='CASCADE'),
@@ -750,7 +751,7 @@ db.define_table('recl',
 ## http://127.0.0.1:8000/ipay/edealers/buys_twiced
 ## база создается по двойным выплатам
 db.define_table('buyers_credit',
-                Field('acc', length=50), # с какого счета платили
+                Field('deal_acc', length=50), # с какого счета платили
                 Field('credit', 'decimal(10,2)', default = 0, comment='то что я им выплатил лишнее двойные разы'),
                 Field('accepted', 'decimal(10,2)', default = 0, comment='то что я с них получил'),
                 Field('un_rewrite', 'boolean', comment='True - not rewrite!'),

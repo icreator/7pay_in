@@ -132,7 +132,7 @@ def qiwi_hist():
     import ed_common
     acc = db((db.dealers_accs.acc==request.args(0))
              & (db.dealers_accs.dealer_id == dealer.id)).select().first()
-    if not acc: return 'not that QIWI acc'
+    if not acc: return 'not that QIWI deal_acc'
     import ed_QIWI
     err, res = ed_QIWI.get_history(acc, request.args(1), request.args(2), request.args(3), TAG)
     if err:
@@ -151,7 +151,7 @@ def qiwi_bal():
     import ed_common
     acc = db((db.dealers_accs.acc==request.args(0))
              & (db.dealers_accs.dealer_id == dealer.id)).select().first()
-    if not acc: return 'not that QIWI acc'
+    if not acc: return 'not that QIWI deal_acc'
     
     import ed_QIWI
     err, res = ed_QIWI.get_balance(acc, TAG)
@@ -168,10 +168,10 @@ def qiwi_log():
     
     import ed_common
     #vol = 100.1
-    #acc = ed_common.sel_acc_max(db, dealer, ecurr, vol)
+    #deal_acc = ed_common.sel_acc_max(db, dealer, ecurr, vol)
     acc = db((db.dealers_accs.acc==request.args(0))
              & (db.dealers_accs.dealer_id == dealer.id)).select().first()
-    if not acc: return 'not is QIWI acc'
+    if not acc: return 'not is QIWI deal_acc'
     
     import ed_QIWI
     err, res = ed_QIWI.login(acc)

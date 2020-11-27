@@ -30,7 +30,7 @@ def addrs():
                 cnt += 1
                 res ['i%s-j%s' % (i,j) ] = r
                 j += 1
-                # r = [addr, amo, acc]
+                # r = [addr, amo, deal_acc]
                 #print r
                 if len(r) >2 :
                     cnt1 += 1

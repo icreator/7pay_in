@@ -150,7 +150,7 @@ def get():
             print 'to_wallet session error .vol:', type(vol), vol
 
     # теперь проверку на правильность кошелька для дилера электронных платежей
-    #res = ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, acc, deal.MIN_pay or dealer.pay_out_MIN or 20, False)
+    #res = ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, deal_acc, deal.MIN_pay or dealer.pay_out_MIN or 20, False)
     #res = {'error': ' TEST'}
     if False and res.get('status')!='success':
         m = 'error_description' in res and res.ger('error_description', res.get('error', 'dealer error'))
@@ -360,7 +360,7 @@ def get():
 ############################################################
 ###  pars:
 ### ed = edealer_name
-### sum + acc + mess
+### sum + deal_acc + mess
 def index():
 
     #common.page_stats(db, response['view'])
@@ -410,12 +410,12 @@ def index():
         vn = 'sum'
         if vn in request.vars:
             vars[vn] = test_vol(request.vars[vn])
-        vn = 'acc'
+        vn = 'deal_acc'
         if vn in request.vars:
             acc = request.vars[vn]
             vars[vn] = acc
             if not ed_name:
-                return err_dict(T("ОШИБКА: Не задано имя системы электронных денег для данного кошелька %s! Пример ссылки: %s?ed=yandex&sum=1500&acc=423456780345") % (acc, URL()), True)
+                return err_dict(T("ОШИБКА: Не задано имя системы электронных денег для данного кошелька %s! Пример ссылки: %s?ed=yandex&sum=1500&deal_acc=423456780345") % (acc, URL()), True)
         vn = 'mess'
         if 'mess' in request.vars:
             vars[vn] = request.vars[vn]
@@ -439,7 +439,7 @@ def index():
                       //$(this).css('z-index','0');
                       $('#tag%s').hide('fast');
                       $('#cvr%s').css('display','block'); // .css('z-index','10');
-                      ajax('%s',['vol','acc','dealer'], 'tag%s');
+                      ajax('%s',['vol','deal_acc','dealer'], 'tag%s');
                       ''' % (id, id, URL('get', args=[id]), id)
         #print rr
         h += DIV(

@@ -81,3 +81,20 @@ def dehex():
         return request.args(0)[2:].decode("hex")
     return u'ETH from erachain.org stablecoin'.encode("hex").decode("hex")
 
+def add_system():
+
+    name = 'ethereum'
+    system_id = db.systems.insert(name='Ethereum', name2=name, first_char='0x',
+                                  connect_url='http://localhost:8545',  # for Testnet use http://127.0.0.1:9068
+                                  password='123456789',
+                                  block_time=60, conf=2, conf_gen=64,
+                                  from_block=1000000  # for Testnet use 0
+                                  )
+    for asset in [
+        [1, 'ETH']
+    ]:
+        token_id = db.tokens.insert(system_id=system_id, token_key=asset[0], name=asset[1])
+        curr_id = db.currs.insert(abbrev=asset[1], name=asset[1], name2=asset[1], used=True)
+        db.xcurrs.insert(curr_id=curr_id, protocol='', connect_url=name + ' ' + asset[1],
+                         as_token=token_id,
+                         block_time=0, txfee=0, conf=0, conf_gen=0)

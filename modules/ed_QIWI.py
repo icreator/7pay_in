@@ -60,7 +60,7 @@ def login(acc):
         
     d = r.get('data')
     token = d and d.get('token')
-    #acc.update_record( pkey = token )
+    #deal_acc.update_record( pkey = token )
         
     data['loginToken'] = token
     
@@ -79,7 +79,7 @@ def login(acc):
         return 'error on second request', r
     d = r.get('data')
     token = d and d.get('token')
-    #acc.update_record( pkey = token )
+    #deal_acc.update_record( pkey = token )
         
     return None, r
 
@@ -230,7 +230,7 @@ def get_history_inputs(edlr, edlr_acc, from_dt):
         res = get_history_inputs_page( edlr, edlr_acc, pars, next_rec )
         #print 'get_history_inputs_page res:', res
         if not res or 'operations' not in res:
-            #print dealer.name, dealer_acc.acc, '- empty get_history_inputs_page = RES'
+            #print dealer.name, dealer_acc.deal_acc, '- empty get_history_inputs_page = RES'
             break
         # сложим все записи с истории
         tab = tab + res['operations']
@@ -269,7 +269,7 @@ def make_pay_pars(deal, dlr_deal, api_pars, acc, amount, pars):
         not_mod = True
         '''
         # если форму с сайта дилера взяли то и параметры там не надо распаковывать
-        acc_pars = json.loads( acc )
+        acc_pars = json.loads( deal_acc )
         # просто их добавим в общий набор параметров
         for k, v in acc_pars.iteritems():
             pars[k] = v
@@ -286,7 +286,7 @@ def make_pay_pars(deal, dlr_deal, api_pars, acc, amount, pars):
             dlr_template = PAY_PARS
 
         acc_str = acc
-        #print acc, pay_pars, pars
+        #print deal_acc, pay_pars, pars
         not_mod = None
         sum_names = dlr_template.get('_sum_names')
         #print 'dlr_template:', dlr_template

@@ -315,7 +315,7 @@ def send_to_many():
 
 
 def send_to_main(conn, xcurr, acc_from, amo):
-    mess = "to send %s from acc:"% amo +acc_from +" to " + xcurr.main_addr
+    mess = "to send %s from deal_acc:"% amo +acc_from +" to " + xcurr.main_addr
     print 'try', mess
     try:
         conn.sendfrom( acc_from, xcurr.main_addr, amo)
@@ -528,7 +528,7 @@ def pay_err_store():
 def json_try():
     ll='[\
 { "n": "reg", "l": "Код региона (77-Москва, 50-Моск.обл.)", "ln":2, "f": "%d" },\
-{ "n": "acc", "l": "Номер лицевого счета по квитанции (10 цифр)", "ln":10, "f": "%d" },\
+{ "n": "deal_acc", "l": "Номер лицевого счета по квитанции (10 цифр)", "ln":10, "f": "%d" },\
 { "n": "cod", "l": "Код платежа. (желательно 6 - корректирующий)",  "v": 6, "f": "%d" },\
 { "n": "PP", "l": "Код РР", "ln":3, "v": 199, "f": "%d" },\
 { "n": "m", "l": "Месяц", "calc": "lm", "hidden":"1" },\
@@ -546,7 +546,7 @@ def deals_used():
         #fields = ['name', 'used', 'my_client', 'wants', '_count', '_average', 'fee'],
         #fields00 = [db.deals.name, db.deals.used, db.deals.my_client, db.deals.wants, db.deals.count_,
         #     db.deals.average_, db.deals.fee,
-        #     db.deal_accs.acc, db.deal_accs.payed, db.deal_accs.payed_month, db.deal_accs.partner_sum ,db.deal_accs.gift_payed,
+        #     db.deal_accs.deal_acc, db.deal_accs.payed, db.deal_accs.payed_month, db.deal_accs.partner_sum ,db.deal_accs.gift_payed,
         #     db.deal_errs.err, db.deal_errs.count_],
         #orderby=~db.deals.wants,
         links_in_grid=False,

@@ -103,7 +103,7 @@ def make_edealer_payment(db, geted_pays,  curr_in, xcurr, curr_out, ecurr, vol_i
         desc.append({ 'txid': inp_rec.txid, 'vout': inp_rec.vout})
     # сохраним базу - чтобы все процессы видели что мы обрабатываем записи стека
     db.commit()
-    #print 'make_edealer_payment', deal_acc.acc, volume_out, curr_out.abbrev, '%s' % desc
+    #print 'make_edealer_payment', deal_acc.deal_acc, volume_out, curr_out.abbrev, '%s' % desc
     #  теперь ждем чтобы записи в базк записались
     # - так чтобы пораллельно их не обработали
     sleep(1)
@@ -251,7 +251,7 @@ def make_edealer_payment(db, geted_pays,  curr_in, xcurr, curr_out, ecurr, vol_i
                     db.commit()
                     print 'ERROR: make_edealer_payment - not balance', dealer_acc
                     return
-            #print 'make_edealer_payment', dealer.name, ':', dealer_acc.acc, 'balance:', balance
+            #print 'make_edealer_payment', dealer.name, ':', dealer_acc.deal_acc, 'balance:', balance
 
             ###############################################################
             # теперь надо посмотреть насколько превышен лимит платежа за месяц для этого аккаунта этого дела
@@ -356,7 +356,7 @@ def make_edealer_payment(db, geted_pays,  curr_in, xcurr, curr_out, ecurr, vol_i
                 else:
                     ed_common.dealer_deal_errs_add(db, dealer_deal, deal_acc.acc, '%s' % res)
 
-            # нельзя менять так как не будет возврата pay_error = pay_error + ' (%s ... %s)' % (round(volume_out_full,2), dealer_acc.acc[-5:])
+            # нельзя менять так как не будет возврата pay_error = pay_error + ' (%s ... %s)' % (round(volume_out_full,2), dealer_acc.deal_acc[-5:])
             if pay_error=='technical_error' or pay_error=='payment_refused':
                 mark_pay_ins(db, geted_pays, 'try', pay_error)
             elif 'Unknown operator for phone' in pay_error:
@@ -514,8 +514,8 @@ def make_edealer_free_payment(db,
         return
 
     if not r.acc:
-        print 'ERROR: (make_edealer_free_payment) "deal_accs.acc" = None ', curr_in.abbrev, deal_acc_addr, amo
-        mark_pay_ins(db, geted_pays, 'refuse', 'deal_accs[%s].acc=None' % deal_acc_addr.deal_acc_id)
+        print 'ERROR: (make_edealer_free_payment) "deal_accs.deal_acc" = None ', curr_in.abbrev, deal_acc_addr, amo
+        mark_pay_ins(db, geted_pays, 'refuse', 'deal_accs[%s].deal_acc=None' % deal_acc_addr.deal_acc_id)
         db.commit()
         return
     deal = db.deals[r.deal_id]
@@ -526,7 +526,7 @@ def make_edealer_free_payment(db,
         return
 
     volume_in = amo
-    #log( db, 'make free-pay for deal_acc: %s %s[%s]' % ( r.acc, volume_in, curr_in.abbrev))
+    #log( db, 'make free-pay for deal_acc: %s %s[%s]' % ( r.deal_acc, volume_in, curr_in.abbrev))
 
     curr_out = db.currs[r.curr_id]
     ecurr = dealer = dealer_acc = dealer_deal = None # у клиентов тут Ноне

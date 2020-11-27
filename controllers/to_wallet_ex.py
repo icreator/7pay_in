@@ -104,7 +104,7 @@ def pay():
 
     # теперь проверку на правильность кошелька для дилера электронных платежей
     #dealer_acc
-    # pay_test(deal, dealer, dealer_acc, dealer_deal, acc, volume_out)
+    # pay_test(deal, dealer, dealer_acc, dealer_deal, deal_acc, volume_out)
     res = ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, ph, deal.MIN_pay or dealer.pay_out_MIN or 20, False)
     if res['status']!='success':
         response.title=T("ОШИБКА")

@@ -40,7 +40,7 @@ def make_x_acc_label(deal, acc, curr_out_abbrev):
     # это имя аккаунта в кошельке клиента - чтобы ему было понятней
     return DOMEN+' -> [%s] [%s] [%s]' % (deal.name2, acc, curr_out_abbrev)
 
-# old def get_deal_acc_id_for_deal_and_acc(db, deal, acc, acurr):
+# old def get_deal_acc_id_for_deal_and_acc(db, deal, deal_acc, acurr):
 # создаем заказ длля данного дела с заданной суммой заказа
 def get_deal_acc_id(db, deal, acc, curr_out, price=None):
     if not acc or len(acc)<3: return
@@ -56,7 +56,7 @@ def get_deal_acc_id(db, deal, acc, curr_out, price=None):
             ).select():
         if len(rec.acc)<3: continue
         deal_acc = rec
-        ##print 'get_deal_acc_id found:', deal_acc.id, deal_acc.acc, curr_out.id
+        ##print 'get_deal_acc_id found:', deal_acc.id, deal_acc.deal_acc, curr_out.id
         break
 
     if deal_acc:

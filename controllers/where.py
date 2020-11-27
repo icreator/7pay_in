@@ -58,7 +58,7 @@ def list():
     #common.page_stats(db, response['view'])
     #print request.vars
     ed_op_res = None
-    ed_acc = request.vars.get('acc')
+    ed_acc = request.vars.get('deal_acc')
     if ed_acc:
         if len(ed_acc) > 13 and len(ed_acc) < 20:
             ed_op_id = request.vars.get('op_id')
@@ -79,7 +79,7 @@ def list():
             else:
                 ed_op_res = 'op_id error 1'
         else:
-            ed_op_res = 'acc error'
+            ed_op_res = 'deal_acc error'
     
         
 

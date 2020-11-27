@@ -96,7 +96,7 @@ def sel_acc_max(db, dealer, ecurr, vol, unlim=None):
              ).select():
         if not ed_acc.used: continue
 
-        #print ed_acc.acc, ed_acc.balance, ed_acc.day_limit_sum
+        #print ed_acc.deal_acc, ed_acc.balance, ed_acc.day_limit_sum
         if not unlim:
             # сбросим лимиты если надо
             limits_end(db, ed_acc)
@@ -137,7 +137,7 @@ def sel_acc_max_for_balance(db, dealer, ecurr, vol, unlim=None):
         if vol and vol > bal * koeff:
             continue
 
-        #print ed_acc.acc, ed_acc.balance, ed_acc.day_limit_sum
+        #print ed_acc.deal_acc, ed_acc.balance, ed_acc.day_limit_sum
         if not unlim:
             # сбросим лимиты если надо
             limits_end(db, ed_acc)

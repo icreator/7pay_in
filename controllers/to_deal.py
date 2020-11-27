@@ -98,7 +98,7 @@ def valid_digs(acc,l):
     if len(str) == l: return str
     return
 def validate(v):
-    acc = valid_digs(v['acc'],acc_len)
+    acc = valid_digs(v['deal_acc'],acc_len)
     if acc:
         f.vars.acc = acc
     else:
@@ -181,7 +181,7 @@ def get():
             print m
             return mess(m)
         acc = json.dumps( acc )
-        #print 'ACC:', acc
+        #print 'ACC:', deal_acc
     else:
         # проверку параметров
         # и собрем из параметров счет клиента
@@ -234,7 +234,7 @@ def get():
             print m
             return mess(m)
         acc =' '.join(acc_pars).rstrip() # и удалим пробелы справа от калькуляторов
-        #print 'ACCOUNT:',acc
+        #print 'ACCOUNT:',deal_acc
 
     if not acc or len(acc)<3:
         return mess('ОШИБКА: Аккаунт слишком короткий: %s' % acc)

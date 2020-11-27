@@ -54,7 +54,7 @@ if False and not dealer: raise HTTP(200,
 
 dealer_acc = dealer and ed_common.sel_acc_max_for_balance(db, dealer, ecurr_out, vol, unlim=False)
 if False and not dealer_acc: raise HTTP(200,
-                                        #T('ERROR: Not found dealer acc "%s"') % deal_name
+                                        #T('ERROR: Not found dealer deal_acc "%s"') % deal_name
                                         'Просьба подождать до следующего дня или месяца - превышен лимит по данному виду операций'
                                         )
 
@@ -161,7 +161,7 @@ def get():
 
     # теперь проверку на правильность телефона для дилера электронных платежей
     # dealer и dealer_acc - выбирается в начале файла
-    # pay_test(deal, dealer, dealer_acc, dealer_deal, acc, volume_out)
+    # pay_test(deal, dealer, dealer_acc, dealer_deal, deal_acc, volume_out)
     res = dealer_acc and ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, ph, vol, False)
     ##print 'PAY:',res
     if True:

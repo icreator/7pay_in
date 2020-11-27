@@ -99,7 +99,7 @@ def income_YD():
                     ))
     id_trans = operation_id != '489576667705029008' and id_trans or 0
     #print id_trans
-    ## test on acc = 410012107376992 ? operation_id=='489576667705029008'
+    ## test on deal_acc = 410012107376992 ? operation_id=='489576667705029008'
     if id_trans <0:
         # значит такая запись уже была внесена и обработана - выход
         mess =  'income_YD: id_trans = %s Ok X2' % id_trans

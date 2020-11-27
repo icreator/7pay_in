@@ -114,7 +114,7 @@ def from5(db):
         #
         acc = db((db.deal_accs.deal_id==deal.id)
                  & ( db.deal_accs.acc==rec.phone)).select().first()
-        #print acc
+        #print deal_acc
         #continue
         if acc:
             acc_id = acc.id
