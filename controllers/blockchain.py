@@ -1,5 +1,14 @@
 # coding: utf8
 
+if False:
+    from gluon import *
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+    db = None
+
 session.forget(response)
 
 from time import sleep
@@ -33,11 +42,14 @@ def tx():
     sleep(1)
 
     token_system = conn = None
-    token_key = xcurr.as_token
-    if token_key:
+    if xcurr.protocol == 'era':
+        token_key = xcurr.as_token
         token = db.tokens[token_key]
         token_system = db.systems[token.system_id]
-        res = dict(result=crypto_client.get_tx_info(conn, token_system, txid))
+        res = dict(result=crypto_client.get_tx_info(conn, xcurr, token_system, txid))
+        return res
+    elif xcurr.protocol == 'geth':
+        res = crypto_client.get_tx_info(conn, xcurr, token_system, txid)
         return res
 
     conn = crypto_client.conn(curr, xcurr)
@@ -47,7 +59,7 @@ def tx():
     try:
         res = conn.getrawtransaction(txid,1) # все выдает
     except Exception as e:
-        return { 'error': e }
+        return {'error': e}
     
     if 'hex' in res: res.pop('hex')
     txid = res.get('txid')

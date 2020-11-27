@@ -583,17 +583,14 @@ def tx_info():
     import crypto_client
 
     token_system = conn = None
-    token_key = xcurr.as_token
-    if token_key:
+    if xcurr.protocol == 'era':
+        token_key = xcurr.as_token
         token = db.tokens[token_key]
         token_system = db.systems[token.system_id]
-        res = dict(result=crypto_client.get_tx_info(conn, token_system, txid))
+        res = dict(result=crypto_client.get_tx_info(conn, xcurr, token_system, txid))
         return res
 
-    conn = crypto_client.conn(curr, xcurr)
-    if not conn:
-        return {"error": "not connected to wallet"}
-    res = crypto_client.get_tx_info(conn, txid, request.vars)
+    res = crypto_client.get_tx_info(conn, xcurr, token_system, txid)
     return res
 
 # api/tx_senders/BTC/ee4ddc65d5e3bf133922cbdd9d616f89fc9b6ed11abbe9a040dac60eb260df23

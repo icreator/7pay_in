@@ -55,6 +55,14 @@ def conn(curr, xcurr, cn=None):
     except:
         return None
 
+def conn(xcurr, cn=None):
+    try:
+        cn = cn or ServiceProxy(xcurr.connect_url, None, 60)
+        cn.getblockcount()
+        return cn
+    except:
+        return None
+
 # если нет связи то тоже запомним на небольшое время
 def conn_v11(curr, xcurr, cn=None):
     # пока не подключимся - пробуем
@@ -113,12 +121,19 @@ def get_reserve(curr, xcurr, cn=None):
     return sum_Full
 
 
-def get_tx_info(conn, token_system, txid, pars=None):
-    if token_system:
+def get_tx_info(conn, xcurr, token_system, txid):
+    if xcurr.protocol == 'era':
         import rpc_erachain
         return rpc_erachain.get_tx_info(token_system, txid)
+
+    elif xcurr.protocol == 'geth':
+        import rpc_ethereum_geth
+        return rpc_ethereum_geth.get_tx_info(xcurr.connect_url, txid)
+
     elif not conn:
-        return None
+        conn = conn(xcurr)
+        if not conn:
+            return None
 
     res = None
     try:
