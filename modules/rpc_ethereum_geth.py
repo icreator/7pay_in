@@ -193,7 +193,7 @@ def send(db, curr, xcurr, toAddr, amo, mess=None):
                 "from": sender,
                 "to": toAddr,
                 "value": '%#x' % amo_to_pay,
-                #"data": "0x1234",
+                #"data": '%#x' %  u'ETH from erachain.org stablecoin'.encode('utf-8'), # .hex(),
                 "gas": '%#x' % txfee,
                 "gasPrice": '%#x' % 1E10
             }]

@@ -55,7 +55,7 @@ def conn(curr, xcurr, cn=None):
     except:
         return None
 
-def conn(xcurr, cn=None):
+def connXcurr(xcurr, cn=None):
     try:
         cn = cn or ServiceProxy(xcurr.connect_url, None, 60)
         cn.getblockcount()
@@ -85,7 +85,7 @@ def conn_old(curr, xcurr, inttime=30):
         print 'conn except: %s %s' % ( current.CODE_UTF and str(e).decode(current.CODE_UTF,'replace') or str(e), curr.abbrev)
         ##return
     #print datetime.datetime.now() - t1
-    
+
     # если в кэше нет ничего или ошибка была то поновой без кжша возьмем
     try:
         cn = cn or ServiceProxy(xcurr.connect_url)
@@ -94,7 +94,7 @@ def conn_old(curr, xcurr, inttime=30):
         return
     #print cnj
     #print cn.getblockcount(), cn
-    
+
     try:
         cn.getblockcount()
         # это при переводах if xcurr.txfee: cn.settxfee(float(xcurr.txfee))
@@ -131,7 +131,7 @@ def get_tx_info(conn, xcurr, token_system, txid):
         return rpc_ethereum_geth.get_tx_info(xcurr.connect_url, txid)
 
     elif not conn:
-        conn = conn(xcurr)
+        conn = connXcurr(xcurr)
         if not conn:
             return None
 
@@ -163,7 +163,7 @@ def is_not_valid_addr(cc, addr):
         valid = cc.validateaddress(addr)
     except:
         return
-    
+
     if not valid.get('isvalid') or valid.get('ismine'):
         return True
 
@@ -171,7 +171,7 @@ def is_not_valid_addr(cc, addr):
 # внутри еще вычтется комиссия сети
 ### нет - комсу теперь не включаем?
 def send(db, curr, xcurr, addr, amo, conn_in=None, token_system = None, token = None):
-    
+
     if xcurr.as_token:
         if token == None:
             token = db.tokens[xcurr.as_token]
@@ -181,7 +181,7 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system = None, token = 
     if token_system:
         import rpc_erachain
         return rpc_erachain.send(db, curr, xcurr, addr, amo, token_system, token)
-    
+
     cc = conn_in or conn(curr, xcurr)
     if not cc: return {'error':'unconnect to [%s]' % curr.abbrev }, None
     try:
@@ -208,7 +208,7 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system = None, token = 
             #to_send_amo = int((amo - txfee) * 100000000) - txfee already included in get_RATE from db.currs
             to_send_amo = int(amo * 100000000)
             to_send_amo = float(to_send_amo) / 100000000.0
-            
+
             print 'res = cc.sendtoaddress(addr, amo)', to_send_amo
             res = cc.sendtoaddress(addr, to_send_amo)
             print "SENDed? ", res
@@ -251,7 +251,7 @@ def locks(conn):
 
 # найти адрес того кто выслал их
 def sender_addr(conn, token_system, tr):
-    
+
     if token_system:
         import rpc_erachain
         return rpc_erachain.get_tx_info(token_system, tr)['creator']
@@ -350,8 +350,8 @@ def get_unspents(conn, conf_from=None, vol=None, addrs=None, accs=None):
 
         sumFull = sumChange + sumGen + sumReceive
         tab.append({ 'txid':txid, 'vout':vout,
-                    'category': categ, 'amo': amo
-                    })
+                     'category': categ, 'amo': amo
+                     })
         #print '   appended... as', categ
         if vol and vol < sumFull: break
 
@@ -449,7 +449,7 @@ def re_broadcast (db, curr, xcurr, cn=None):
 
     ok_conf = 6
     for r in db((db.xcurrs_raw_trans.xcurr_id==xcurr.id)
-        & (db.xcurrs_raw_trans.confs < ok_conf)).select():
+                & (db.xcurrs_raw_trans.confs < ok_conf)).select():
 
         tx = cn.getrawtransaction (r.txid,1)
         confs = tx.get('confirmations')
