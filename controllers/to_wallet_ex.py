@@ -34,6 +34,9 @@ deal_name = 'WALLET'
 # найдем дело
 deal = db(db.deals.name==deal_name).select().first()
 if not deal: raise HTTP(200, T('ERROR: not found deal "%s"') % deal_name)
+
+deal_id = deal.id
+
 #MAX = deal.MAX
 
 def u(h, url, cls='col-sm-4', onclick=None, style=''):
@@ -118,12 +121,18 @@ def pay():
         response.title=T("ОШИБКА")
         return dict(uri=T('Криптовалюта ') + request.vars['curr_in'] + T(' не найдена в базе данных.'), addr=None)
 
+    token_system_in = None
+    token_key_in = xcurr_in.as_token
+    if token_key_in:
+        token_in = db.tokens[token_key_in]
+        token_system_in = db.systems[token_in.system_id]
+
     if token_system_in:
         addr_in = token_system_in.account
-        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, ph, addr_in, xcurr_in)
     elif xcurr_in.protocol == 'geth':
         addr_in = xcurr_in.main_addr
-        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, ph, addr_in, xcurr_in)
     else:
         # get new or old adress for payment
         x_acc_label = db_client.make_x_acc(deal, ph, curr_out.abbrev)

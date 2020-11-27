@@ -41,6 +41,9 @@ else:
     deal = db(db.deals.name==deal_name).select().first()
 
 if not deal: raise HTTP(200, T('ERROR: Not found deal "%s"') % deal_name)
+
+deal_id = deal.id
+
 # найдем счет у диллера электронных денег для этого дела
 vol = (deal.MIN_pay or 100) * 2
 dealer, dealer_acc, dealer_deal = ed_common.select_ed_acc(db, deal, ecurr_out, vol)
@@ -170,12 +173,19 @@ def get():
         return mess(T('Платежная система %s отвергла платеж, потому что: %s (... %s)') % (dealer.name, mm, dealer_acc.acc[-4:]))
 
     gift_cod = request.vars.gift_cod
+
+    token_system_in = None
+    token_key_in = xcurr_in.as_token
+    if token_key_in:
+        token_in = db.tokens[token_key_in]
+        token_system_in = db.systems[token_in.system_id]
+
     if token_system_in:
         addr_in = token_system_in.account
-        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, ph, addr_in, xcurr_in)
     elif xcurr_in.protocol == 'geth':
         addr_in = xcurr_in.main_addr
-        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, ph, addr_in, xcurr_in)
     else:
         curr_out_abbrev = curr_out.abbrev
         x_acc_label = db_client.make_x_acc(deal, ph, curr_out_abbrev)

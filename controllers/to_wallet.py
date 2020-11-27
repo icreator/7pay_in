@@ -33,6 +33,8 @@ deal_name = 'WALLET'
 deal = db(db.deals.name==deal_name).select().first()
 if not deal: raise HTTP(200, T('ERROR: not found deal "%s"') % deal_name)
 
+deal_id = deal.id
+
 # заменить все не цифры и проверить длинну
 regular_phone = re.compile("\D")
 def valid_phone(ph):
@@ -155,12 +157,18 @@ def get():
         m = T('Платежная система %s отвергла платеж, потому что: %s') % (dealer.name, m)
         return mess(m, 'warning')
 
+    token_system_in = None
+    token_key_in = xcurr_in.as_token
+    if token_key_in:
+        token_in = db.tokens[token_key_in]
+        token_system_in = db.systems[token_in.system_id]
+
     if token_system_in:
         addr_in = token_system_in.account
-        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, acc, addr_in, xcurr_in)
     elif xcurr_in.protocol == 'geth':
         addr_in = xcurr_in.main_addr
-        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, acc, addr_in, xcurr_in)
     else:
         curr_out_abbrev = curr_out.abbrev
         x_acc_label = db_client.make_x_acc(deal, acc, curr_out_abbrev)
