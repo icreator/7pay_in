@@ -83,13 +83,13 @@ def get_tx_info(rpc_url, txid):
     res = rpc_request(rpc_url, "eth_getTransactionReceipt", [txid])
     return res
 
-def get_transactions(token_system, rpc_url, addr, from_block=2, conf=2):
+def get_transactions(rpc_url, addr, from_block=2, conf=2):
 
     result = []
 
-    height = rpc_request(rpc_url + "/blocks/height")
+    res = rpc_request(rpc_url, "eth_blockNumber")
     try:
-        height = int(height)
+        height = int(res['result'], 16)
     except Exception as e:
         return result, None
 
@@ -102,15 +102,15 @@ def get_transactions(token_system, rpc_url, addr, from_block=2, conf=2):
 
         i += 1
         recs_count = 0
-        url_get = rpc_url + '/transactions/incoming/' + ("%d" % i) + '/' + addr + '/decrypt/%s' % token_system.password
 
         try:
-            recs = rpc_request(url_get)
+            res = rpc_request(rpc_url, "eth_getBlockByNumber", ['%#x' % from_block, True])
+            recs = res['result']['transactions']
             recs_count = len(recs)
         except Exception as e:
             print e
-            print recs
-            log(current.db, 'get_transactions %s EXCEPTION: %s - %s' % (url_get, e, recs))
+            print res
+            log(current.db, 'get_transactions %s EXCEPTION: %s - %s' % (rpc_url, e, res))
             return result, i - 1
 
 
@@ -122,21 +122,11 @@ def get_transactions(token_system, rpc_url, addr, from_block=2, conf=2):
         incomes = []
         for rec in recs:
             #print rec
-            if rec['type'] != 31:
-                # only SEND transactions
-                continue
-            if 'actionKey' not in rec or rec['actionKey'] != 1:
-                # only SEND PROPERTY action
-                continue
-            if 'backward' in rec:
-                # skip BACKWADR
-                continue
-            if rec.get('title') == '.main.':
-                ## skip my deposit
+            if not rec['to'] or not rec['from'] or rec['to'] != addr:
                 continue
 
             incomes.append(rec)
-            #print 'erachain - title:', rec.get('title'), 'message:', rec.get('message')
+            print 'geth: ', rec
 
         result += incomes
 

@@ -26,6 +26,7 @@ TO_COIN_ID = 2
 import db_common
 import crypto_client
 import rpc_erachain
+import rpc_ethereum_geth
 
 #        if r.pay_ins.status in {'technical_error', 'payment_refused', 'currency_unused'}:
 
@@ -402,6 +403,91 @@ def get_incomed(db, token_system, from_block_in=None):
 
     return transactions, curr_block
 
+def get_incomed_geth(db, xcurr, from_block_in=None):
+
+    rpc_url = xcurr.connect_url
+    main_addr = xcurr.main_addr
+
+    tab = []
+    curr_block = rpc_ethereum_geth.get_info(rpc_url)
+    print curr_block
+    if type(curr_block) != type(1):
+        # кошелек еще не запустился
+        print 'not started else'
+        return tab, from_block_in # если переиндексация то возможно что и меньше
+
+    from_block = from_block_in or xcurr.from_block
+    if from_block:
+        if not curr_block > from_block:
+            print 'not curr_block > from_block', curr_block, from_block
+            return tab, from_block # если переиндексация то возможно что и меньше
+        print from_block, '-->', curr_block, main_addr
+        tab, curr_block = rpc_ethereum_geth.get_transactions(rpc_url, main_addr, from_block, xcurr.conf)
+
+        if curr_block == None:
+            return [], None
+
+    else:
+        # если нет еще номера обработанного блока
+        # то и делать нечего - мол служба только запущена
+        # на нее нет еще переводоов, хотя можно наоборот взять все входы
+        token_system.from_block = from_block = 1 # все входы со всеми подтверждениями берем
+        token_system.update_record()
+        tab, curr_block = rpc_erachain.get_transactions(token_system, rpc_url, main_addr, conf = token_system.conf)
+
+        if curr_block == None:
+            return [], None
+
+    print tab, curr_block
+    transactions = []
+    for rec in tab:
+
+        acc = parse_mess(db, rec.get('title'), rec.get('creator'))
+        if not acc:
+            acc = parse_mess(db, rec.get('message'), rec.get('creator'))
+        if not acc:
+            continue
+
+        # make record INCOME from Erachain TRANSACTION
+        make_rec(main_addr, acc, rec, transactions)
+
+        lines = rec.get('message')
+        if lines:
+            lines = lines.strip().split('\n')
+
+        if lines and len(lines) > 1:
+            for line in lines:
+                #try:
+                if True:
+                    command = line.split(':')
+                    if len(command) > 1:
+                        if command[0].strip().lower() == 'add':
+                            ## ADD transactions without payments details to that payment
+                            ## need
+                            for txid in command[1].strip().split(' '):
+                                # see this TX in DB and set DETAILS
+                                pay_in = db(db.pay_ins.txid == txid).select().first()
+                                if pay_in:
+                                    # already assigned
+                                    continue
+
+                                recAdded = rpc_erachain.get_tx_info(token_system, txid.strip())
+                                if not recAdded or 'creator' not in recAdded or recAdded['creator'] != rec['creator']:
+                                    # set payment details only for this creator records
+                                    continue
+
+                                # make record INCOME from Erachain TRANSACTION
+                                make_rec(main_addr, acc, recAdded, transactions)
+
+
+                #except Exception as e:
+                else:
+                    mess = 'COMMAND: %s - %s' % (line, e)
+                    log(db, mess)
+
+
+    return transactions, curr_block
+
 # найдем все входы одиночные
 # на выходе массив по входам
 def b_p_proc_unspent( db, conn, curr, xcurr, addr_in=None, from_block_in=None ):
@@ -642,6 +728,15 @@ def run_once(db, abbrev):
 
         from_block_in = None # 68600
         tab, curr_block = get_incomed(db, token_system, from_block_in)
+
+        if curr_block == None:
+            return 'connection lost'
+
+        b_p_db_update(db, None, curr, xcurr, tab, curr_block)
+    elif xcurr.protocol == 'geth':
+
+        from_block_in = None # 68600
+        tab, curr_block = get_incomed_geth(db, token_system, from_block_in)
 
         if curr_block == None:
             return 'connection lost'
