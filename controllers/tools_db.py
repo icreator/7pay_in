@@ -148,7 +148,7 @@ def init_db_records():
              None,
              ],
             ['BTC', 'Ethereum', 'ethereum', True, #4
-             ['0', 'geth', 'localhost:4000', 60, 0.001000, 2, 101, 0],
+             ['0', 'geth', 'http://localhost:8545', 60, 0.001000, 2, 101, 0],
              None,
              ],
             ['LTC', 'Litecoin', 'litecoin', True, #5

@@ -11,8 +11,8 @@ from gluon.contrib import simplejson as json
 import time
 
 def log(db, mess):
-    print 'rpc_ethereum - ', mess
-    db.logs.insert(mess='YD: %s' % mess)
+    print 'rpc_ethereum_geth - ', mess
+    db.logs.insert(mess='GETH: %s' % mess)
 def log_commit(db, mess):
     log(db,mess)
     db.commit()
@@ -25,13 +25,12 @@ def rpc_request(rpc_url, method, params=[], test=None):
     if test:
         params['test_result'] = test
 
-    header = {'Content-Type': 'application/json'}
+    headers = {'Content-Type': 'application/json'}
 
-    if params:
-        params = urllib.urlencode(params)
-
-    data = {'method': method, 'jsonrpc': '2.0', 'params': params}
-    rq = urllib2.Request(rpc_url, data, header)
+    # json.dumps() - ' -> "
+    data = '{"method":"' + method + '", "jsonrpc": "2.0", "params":'+ ('%s' % json.dumps(params)) + ', "id":1}'
+    #return data
+    rq = urllib2.Request(rpc_url, data, headers=headers)
 
     try:
         f = urllib2.urlopen(rq)
@@ -42,8 +41,8 @@ def rpc_request(rpc_url, method, params=[], test=None):
     except Exception as e:
         # или любая ошибка - повтор запроса - там должно выдать ОК
         #print 'YmToConfirm while EXEPTION:', e
-        log(current.db, 'rpc ' + method + ' ' + params + ' EXCEPTION: %s' % e)
-        return e
+        log(current.db, 'rpc ' + method + (' %s' % params) + ' EXCEPTION: %s' % e)
+        return '%s' % e
 
     return r
 
@@ -75,9 +74,15 @@ def is_not_valid_addr(rpc_url, addr):
     return not res
 
 
-def get_balances(rpc_url, addr):
-    res = rpc_request(rpc_url, "eth_getBalance", [addr, 'latest'])
-    return res
+def get_balance(rpc_url, addr):
+    res = rpc_request(rpc_url, "eth_getBalance", [addr, "latest"])
+    try:
+        return res['result']
+        balance = int(res['result'], 16)
+    except Exception as e:
+        return res
+
+    return balance / (10 ^ 18)
 
 def get_reserve(rpc_url, token):
     bals = get_balances(rpc_url, token_system.account)

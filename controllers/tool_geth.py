@@ -8,7 +8,7 @@ if False:
     T = current.T
     db = None
 
-if not IS_LOCAL: raise HTTP(200, 'error')
+## if not IS_LOCAL: raise HTTP(200, 'error')
 session.forget(response)
 
 from decimal import Decimal
@@ -24,6 +24,7 @@ def addrs():
         return 'xcurr not found'
 
     json = rpc_ethereum_geth.rpc_request(xcurr.connect_url, 'eth_accounts')
+    #return xcurr.connect_url + (' %s' % json)
     return BEAUTIFY(json)
 
 # Test balance for Address
@@ -37,8 +38,8 @@ def bal_for_addrs():
         address = request.args(0)
     else:
         json = rpc_ethereum_geth.rpc_request(xcurr.connect_url, 'eth_accounts')
-        address = json.result[0]
+        address = json['result'][0]
 
-    res = rpc_ethereum_geth.get_balances(xcurr.connect_url, address)
+    res = rpc_ethereum_geth.get_balance(xcurr.connect_url, address)
 
     return BEAUTIFY(res)
