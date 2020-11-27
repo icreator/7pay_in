@@ -54,6 +54,6 @@ def send():
     else:
         toAddress = '0xd46e8dd67c5d32be8058bb8eb970870f07244567'
 
-    res, bal = rpc_ethereum_geth.send(db, curr, xcurr, toAddress, Decimal(11.456), mess=None)
+    res, bal = rpc_ethereum_geth.send(db, curr, xcurr, toAddress, Decimal(0.01), mess=None)
 
     return BEAUTIFY(dict(res=res, bal=bal))

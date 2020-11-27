@@ -68,17 +68,22 @@ def get_deal_acc_addr(db, deal_id, curr_out, acc, addr, xcurr_in):
 
 def get_info(rpc_url):
     res = rpc_request(rpc_url, "eth_blockNumber")
-    return res
+    try:
+        return int(res['result'], 16)
+    except Exception as e:
+        return res
 
 def is_not_valid_addr(rpc_url, addr):
-    res = rpc_request(rpc_url + "/addresses/validate/" + addr)
-    return not res
+    res = rpc_request(rpc_url, "eth_getBalance", [addr, "latest"])
+    try:
+        return res['error'] != None
+    except Exception as e:
+        return False
 
 
 def get_balance(rpc_url, addr):
     res = rpc_request(rpc_url, "eth_getBalance", [addr, "latest"])
     try:
-        return res['result']
         balance = int(res['result'], 16)
     except Exception as e:
         return res

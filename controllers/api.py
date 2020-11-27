@@ -38,7 +38,7 @@ def rates():
     else:
         deal_sel = request.args(0)
         WPnames = False
-        
+
     #print deal_sel
     if deal_sel and deal_sel.upper() == 'HELP':
         return 'rates/[deal] - deal = PH_7RUB | TO_YDRUB | IN_YDRUB | TO_COIN | None - all'
@@ -62,7 +62,7 @@ def rates():
         to_max = round(float(db_common.get_balance_dealer_acc( dealer_acc )), 8)
 
         for r in db((db.currs.id==db.xcurrs.curr_id)
-                          & (db.currs.used==True)).select():
+                    & (db.currs.used==True)).select():
             curr_in = r.currs
             # теперь курс и мзду нашу найдем
             pr_b, pr_s, rate = rates_lib.get_average_rate_bsa(db, curr_in.id, rub_curr.id, None)
@@ -77,7 +77,7 @@ def rates():
 
             is_order = True
             vol_in, tax_rep = db_client.calc_fees_back(db, deal, dealer_deal, curr_in, rub_curr, vol_out,
-                                               rate, is_order, note=0)
+                                                       rate, is_order, note=0)
             ##rate = vol_out_new / vol_in
             '''
             <rates>
@@ -93,12 +93,12 @@ def rates():
             '''
             if WPnames:
                 item = { 'from': in_abbrev, 'to': to_abbrev,
-                       'in': round(float(vol_in),8 ), 'out': vol_out,
-                       'amount': to_max }
+                         'in': round(float(vol_in),8 ), 'out': vol_out,
+                         'amount': to_max }
             else:
                 item = { 'in': in_abbrev, 'to': to_abbrev,
-                       'in_vol': round(float(vol_in),8 ), 'to_vol': vol_out,
-                       'to_max': to_max }
+                         'in_vol': round(float(vol_in),8 ), 'to_vol': vol_out,
+                         'to_max': to_max }
             if in_max: item['in_max'] = in_max
             res.append(item)
     ###############
@@ -113,7 +113,7 @@ def rates():
         #print deal.name, 'dealer:', dealer_deal
         to_max = dealer_max = round(float(db_common.get_balance_dealer_acc( dealer_acc )), 8)
         for r in db((db.currs.id==db.xcurrs.curr_id)
-                          & (db.currs.used==True)).select():
+                    & (db.currs.used==True)).select():
             curr_in = r.currs
             # теперь курс и мзду нашу найдем
             pr_b, pr_s, rate = rates_lib.get_average_rate_bsa(db, curr_in.id, rub_curr.id, None)
@@ -122,16 +122,16 @@ def rates():
             vol_out = vol_rub # в рублях
             is_order = True
             vol_in, tax_rep = db_client.calc_fees_back(db, deal, dealer_deal, curr_in, rub_curr, vol_out,
-                                               rate, is_order, note=0)
+                                                       rate, is_order, note=0)
             in_abbrev =  curr_in.abbrev
             if WPnames:
                 item = { 'from': in_abbrev, 'to': to_abbrev,
-                       'in': round(float(vol_in),8 ), 'out': vol_out,
-                       'amount': to_max }
+                         'in': round(float(vol_in),8 ), 'out': vol_out,
+                         'amount': to_max }
             else:
                 item = { 'in': in_abbrev, 'to': to_abbrev,
-                       'in_vol': round(float(vol_in),8 ), 'to_vol': vol_out,
-                       'to_max': to_max }
+                         'in_vol': round(float(vol_in),8 ), 'to_vol': vol_out,
+                         'to_max': to_max }
             ## вытащим из кеша если он там есть
             in_max = currs_in_max.get( in_abbrev )
             if in_max == None:
@@ -154,7 +154,7 @@ def rates():
         dealer_deal = None
         in_max = 57000 # у фиатного диллера одну покупку ограничим
         for r in db((db.currs.id==db.xcurrs.curr_id)
-                          & (db.currs.used==True)).select():
+                    & (db.currs.used==True)).select():
             curr_out = r.currs
             vol_in = vol_rub # в рублях
             to_abbrev = curr_out.abbrev
@@ -165,15 +165,15 @@ def rates():
             if not rate: continue
             is_order = True
             vol_out, tax_rep = db_client.calc_fees(db, deal, dealer_deal, rub_curr, curr_out, vol_in,
-                                               rate, is_order, note=0)
+                                                   rate, is_order, note=0)
             if WPnames:
                 item = { 'from': in_abbrev, 'to': to_abbrev,
-                       'in': vol_in, 'out': round(float(vol_out),8 ),
-                       'amount': to_max, 'in_max': in_max  }
+                         'in': vol_in, 'out': round(float(vol_out),8 ),
+                         'amount': to_max, 'in_max': in_max  }
             else:
                 item = { 'in': in_abbrev, 'to': to_abbrev,
-                       'in_vol': vol_in, 'to_vol': round(float(vol_out),8 ),
-                       'to_max': to_max, 'in_max': in_max }
+                         'in_vol': vol_in, 'to_vol': round(float(vol_out),8 ),
+                         'to_max': to_max, 'in_max': in_max }
             res.append(item)
 
     #########
@@ -184,7 +184,7 @@ def rates():
         else:
             deal = db(db.deals.name=='to COIN').select().first()
         for r_in in db((db.currs.id==db.xcurrs.curr_id)
-                          & (db.currs.used==True)).select():
+                       & (db.currs.used==True)).select():
             curr_in = r_in.currs
             in_abbrev = curr_in.abbrev
             vol_in = vol_rub * rates_lib.get_avr_rate_or_null(db, rub_curr.id, curr_in.id)
@@ -199,7 +199,7 @@ def rates():
                     in_max = round(float(in_max - bal), 8)
             #print curr_in.abbrev, ' to RUB', vol_in
             for r_out in db((db.currs.id==db.xcurrs.curr_id)
-                              & (db.currs.used==True)).select():
+                            & (db.currs.used==True)).select():
                 curr_out = r_out.currs
                 if curr_in.id == curr_out.id: continue
                 # теперь курс и мзду нашу найдем
@@ -212,15 +212,15 @@ def rates():
 
                 is_order = True
                 vol_out, tax_rep = db_client.calc_fees(db, deal, dealer_deal, curr_in, curr_out, vol_in,
-                                                   rate, is_order, note=0)
+                                                       rate, is_order, note=0)
             if WPnames:
                 item = { 'from': in_abbrev, 'to': to_abbrev,
-                       'in':round(float(vol_in),8), 'out': round(float(vol_out),8),
-                       'amount': to_max }
+                         'in':round(float(vol_in),8), 'out': round(float(vol_out),8),
+                         'amount': to_max }
             else:
                 item = { 'in': in_abbrev, 'to': to_abbrev,
-                           'in_vol':round(float(vol_in),8), 'to_vol': round(float(vol_out),8),
-                           'to_max': to_max }
+                         'in_vol':round(float(vol_in),8), 'to_vol': round(float(vol_out),8),
+                         'to_max': to_max }
                 if in_max: item['in_max'] = in_max
                 res.append(item)
     return request.extension == 'html' and dict(
@@ -240,7 +240,7 @@ def curr_get_info():
     curr,xcurr,e = get_currs_by_abbrev(db, curr_abbrev)
     if not xcurr:
         return {"error": "invalid curr: " + curr_abbrev }
-    
+
     token_system = None
     token_key = xcurr.as_token
     if token_key:
@@ -271,14 +271,14 @@ def curr_get_info():
         #except Exception as e:
         except Exception, e:
             return {'error': 'Connection to ' + curr_abbrev + ' wallet raise error [%s]. Try later' % e}
-    
+
     return res
 
 # http://127.0.0.1:8000/shop/api/validate_addr.json/BTC/14qZ3c9WGGBZrftMUhDTnrQMzwafYwNiLt
 def validate_addr():
     import time
     time.sleep(1)
-    
+
     xcurr = None
     curr_abbrev = request.vars.get('curr')
     addr = request.vars.get('addr')
@@ -287,10 +287,10 @@ def validate_addr():
     if len(request.args) == 2:
         curr_abbrev = request.args[0]
         addr = addr or request.args[1]
-        
+
     if not addr:
         return {'error':'need addr or curr_abbrev, example: /validate_addr.json/[addr] or /validate_addr.json/[curr_abbrev]/[addr]'}
-        
+
     if addr and not curr_abbrev:
         from db_common import get_currs_by_addr
         curr, xcurr, _ = get_currs_by_addr(db, addr)
@@ -298,11 +298,11 @@ def validate_addr():
     if curr_abbrev:
         from db_common import get_currs_by_abbrev
         curr, xcurr, _ = get_currs_by_abbrev(db, curr_abbrev)
-        
-    
+
+
     if not xcurr:
         return {"error": "invalid curr_abbrev"}
-    
+
     token_system_out = None
     token_key = xcurr.as_token
     if token_key:
@@ -313,12 +313,28 @@ def validate_addr():
         curr_block = rpc_erachain.get_info(token_system.connect_url)
         if type(curr_block) != type(1):
             return {'error':'Connection to [%s] is lost, try later ' % curr.name}
+
         if rpc_erachain.is_not_valid_addr(token_system.connect_url, addr):
             return {'error':'address not valid for ' + curr.name + ' - ' + addr}
 
         return { 'curr': curr.abbrev, 'ismine': token_system.account == addr}
+
+    elif xcurr.protocol == 'geth':
+        import rpc_ethereum_geth
+
+        curr_block = rpc_ethereum_geth.get_info(xcurr.connect_url)
+        if type(curr_block) != type(1):
+            return {'error':'Connection to [%s] is lost, try later ' % curr.name}
+
+        #return rpc_ethereum_geth.is_not_valid_addr(xcurr.connect_url, addr)
+
+        if rpc_ethereum_geth.is_not_valid_addr(xcurr.connect_url, addr):
+            return {'error':'address not valid for ' + curr.name + ' - ' + addr}
+
+        return { 'curr': curr.abbrev, 'ismine': xcurr.main_addr == addr}
+
     else:
-    
+
         from crypto_client import conn
         try:
             conn = conn(curr, xcurr)
@@ -326,13 +342,13 @@ def validate_addr():
             conn = None
         if not conn:
             return {'error':'Connection to [%s] is lost, try later ' % curr.name}
-        
+
         valid = conn.validateaddress(addr)
-        
+
         #import crypto_client
         #if crypto_client.is_not_valid_addr(conn, addr):
         #    return { 'error': 'address not valid for - ' + curr.abbrev}
-    
+
         if not valid.get('isvalid'):
             return {"error": "invalid for [%s]" % curr.abbrev, 'mess': '%s' % valid}
         return { 'curr': curr.abbrev, 'ismine': valid.get('ismine'), 'mess': '%s' % valid }
@@ -372,7 +388,7 @@ def rates3():
     rub_rates = []
     for r in rates_lib.top_line(db, curr_out, currs_list):
         rub_rates.append(r)
-    
+
     return dict( btc = btc_rates, usd = usd_rates, rub = rub_rates)
 
 # адес тут должен быть точный
@@ -431,7 +447,7 @@ def deals_does():
             # еще надо доплатить
             vvv['sum'] = price - payed
         amo_rest_url=A(T('Доплатить'), _href=URL('to_shop','index', args=[client.id],
-            vars=vvv))
+                                                 vars=vvv))
 
     import gifts_lib
     if 'to COIN' in deal.name:
@@ -451,12 +467,12 @@ def deals_does():
     where3.found_pay_ins(db, addr, pays)
     #print 'pays:', pays
     return dict( pays_unconf=pays_unconf, pays_process=pays_process, pays=pays,
-        payed_month=payed_month, MAX=MAX, addr=addr,
-        payed=payed, price=price, order_id=order_id, amo_rest_url=amo_rest_url,
-        adds_mess = adds_mess,
-        curr_in = curr_in, deal_acc = deal_acc,
-        curr_out = curr_out, deal = deal, privat = False,
-        )
+                 payed_month=payed_month, MAX=MAX, addr=addr,
+                 payed=payed, price=price, order_id=order_id, amo_rest_url=amo_rest_url,
+                 adds_mess = adds_mess,
+                 curr_in = curr_in, deal_acc = deal_acc,
+                 curr_out = curr_out, deal = deal, privat = False,
+                 )
 
     # сюда пришло значит ищес общий список
     pays_process=[]
