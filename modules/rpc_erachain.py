@@ -76,25 +76,25 @@ def get_height(rpc_url):
     return rpc_request(rpc_url + "/blocks/height")
 
 
-def is_not_valid_addr(rpc_url, addr):
-    res = rpc_request(rpc_url + "/addresses/validate/" + addr)
+def is_not_valid_addr(rpc_url, address):
+    res = rpc_request(rpc_url + "/addresses/validate/" + address)
     return not res
 
 
 # all tokens for account
-def get_assets_balances(token_system):
-    return rpc_request(token_system.connect_url + "/addresses/assets/" + token_system.account)
+def get_assets_balances(token_system, address=None):
+    return rpc_request(token_system.connect_url + "/addresses/assets/" + (address or token_system.account))
 
 
 # one token
-def get_balance(token_system, token):
-    bals = get_assets_balances(token_system)
+def get_balance(token_system, token, address=None):
+    bals = get_assets_balances(token_system, address)
     return bals['%d' % token.token_key][0][1]
 
 
 ## get transactions/unconfirmedincomes/7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7
-def get_unconf_incomes(rpc_url, addr):
-    recs = rpc_request(rpc_url + '/transactions/unconfirmedincomes/' + addr)
+def get_unconf_incomes(rpc_url, address):
+    recs = rpc_request(rpc_url + '/transactions/unconfirmedincomes/' + address)
     return recs
 
 

@@ -76,8 +76,8 @@ def get_height(rpc_url):
     return int(res['result'], 16)
 
 
-def is_not_valid_addr(rpc_url, addr):
-    res = rpc_request(rpc_url, "eth_getBalance", [addr, "latest"])
+def is_not_valid_addr(rpc_url, address):
+    res = rpc_request(rpc_url, "eth_getBalance", [address, "latest"])
     try:
         return res['error'] != None
     except Exception as e:
@@ -85,29 +85,30 @@ def is_not_valid_addr(rpc_url, addr):
 
 
 ## balances by token ID = [[0, balance]]
-def get_assets_balances(token_system):
-    balance = get_balance(token_system, 1)
+def get_assets_balances(token_system, address=None):
+    balance = get_balance(token_system, 1, address)
     return {
         '1': [[0, balance]]  # ETH
     }
 
 
-def get_balance(token_system, address, token=1):
+def get_balance(token_system, token=1, address=None):
     if token == 1:
-        res = rpc_request(token_system.connect_url, "eth_getBalance", [address, "latest"])
+        res = rpc_request(token_system.connect_url, "eth_getBalance", [address or token_system.account, "latest"])
         try:
-            balance = int(res['result'], 16)
+            balance = long(res['result'], 16)
         except Exception as e:
             return res
 
-        return balance / (10 ^ 18)
+        ##  x WEI
+        return Decimal(balance) * Decimal(1E-18)
     else:
         return 0
 
 
 ## get transactions/unconfirmedincomes/7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7
-def get_unconf_incomes(rpc_url, addr):
-    recs = rpc_request(rpc_url + '/transactions/unconfirmedincomes/' + addr)
+def get_unconf_incomes(rpc_url, address):
+    recs = rpc_request(rpc_url + '/transactions/unconfirmedincomes/' + address)
     return recs
 
 
