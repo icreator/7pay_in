@@ -41,6 +41,7 @@ def get_xcurr_by_system_token(db, token_system, token_key):
         if token_system.protocol == 'geth':
             return rpc_ethereum_geth.get_xcurr_by_system_token(db, token_system, token_key)
 
+
 def is_not_valid_addr(token_system, addr, conn=None):
     if token_system:
         if token_system.protocol == 'era':
@@ -95,6 +96,75 @@ def get_transactions(xcurr, token_system, from_block, conn=None):
             return rpc_erachain.get_transactions(token_system, from_block)
         if token_system.protocol == 'geth':
             return rpc_ethereum_geth.get_transactions(token_system, from_block)
+
+
+def get_unconf_incomes(xcurr, token_system, addr, conn=None):
+    if token_system:
+        if token_system.protocol == 'era':
+            return rpc_erachain.get_unconf_incomes(token_system.connect_url, addr)
+        if token_system.protocol == 'geth':
+            return rpc_ethereum_geth.get_unconf_incomes(token_system.connect_url, addr)
+    else:
+        pass
+
+
+def get_tx_info(xcurr, token_system, txid, conn=None):
+    if token_system:
+        if token_system.protocol == 'era':
+            return rpc_erachain.get_tx_info(token_system.connect_url, txid)
+        if token_system.protocol == 'geth':
+            return rpc_ethereum_geth.get_tx_info(token_system.connect_url, txid)
+
+    if not conn:
+        conn = connXcurr(xcurr)
+        if not conn:
+            return None
+
+    try:
+        return conn.gettransaction(txid)
+    except Exception as e:
+        return {'error': e}
+
+
+# найти адрес того кто выслал их
+def sender_addr(xcurr, token_system, txid, conn=None):
+    if token_system:
+        if token_system.protocol == 'era':
+            return rpc_erachain.get_tx_info(token_system.connect_url, txid)['creator']
+        if token_system.protocol == 'geth':
+            return rpc_ethereum_geth.get_tx_info(token_system.connect_url, txid)['from']
+
+    if not conn:
+        return None
+
+    tr_info = conn.getrawtransaction(txid, 1)
+    vins = tr_info and 'vin' in tr_info and tr_info['vin']
+    if not vins:
+        # res.append({ 'tr_info.vins': 'None'})
+        # тут может быть приход с добвтого блока - тогда тоже будет пусто!
+        print 'ERROR: sender_addr - tr_in_info:', tr_info
+        print 'RUN "crypto WALLET.exe"  -reindex -txindex'
+        return
+    vin = vins[0]
+    txid = vin['txid']
+    vout = vin['vout']
+    tr_in_info = conn.getrawtransaction(txid, 1)
+
+    if 'error' in tr_in_info:
+        print 'ERROR: sender_addr - tr_in_info:', tr_in_info
+        print 'RUN "crypto WALLET.exe"  -reindex -txindex'
+        return
+    vin = vins[0]
+    txid = vin['txid']
+    vout = vin['vout']
+    tr_in_info = conn.getrawtransaction(txid, 1)
+
+    if 'error' in tr_in_info:
+        print 'ERROR: sender_addr - tr_in_info:', tr_in_info
+        print 'RUN "crypto WALLET.exe"  -reindex -txindex'
+        return
+    sender = tr_in_info[u'vout'][vout][u'scriptPubKey'][u'addresses']
+    return sender[0]
 
 
 ###########
@@ -162,7 +232,7 @@ def conn_old(curr, xcurr, inttime=30):
         cn = cache.ram(curr.abbrev, lambda: ServiceProxy(xcurr.connect_url), time_expire=3600)
     except Exception as e:
         print 'conn except: %s %s' % (
-        current.CODE_UTF and str(e).decode(current.CODE_UTF, 'replace') or str(e), curr.abbrev)
+            current.CODE_UTF and str(e).decode(current.CODE_UTF, 'replace') or str(e), curr.abbrev)
         ##return
     # print datetime.datetime.now() - t1
 
@@ -171,7 +241,7 @@ def conn_old(curr, xcurr, inttime=30):
         cn = cn or ServiceProxy(xcurr.connect_url)
     except Exception as e:
         print 'conn except (ServiceProxy): %s %s' % (
-        current.CODE_UTF and str(e).decode(current.CODE_UTF, 'replace') or str(e), curr.abbrev)
+            current.CODE_UTF and str(e).decode(current.CODE_UTF, 'replace') or str(e), curr.abbrev)
         return
     # print cnj
     # print cn.getblockcount(), cn
@@ -183,7 +253,7 @@ def conn_old(curr, xcurr, inttime=30):
         pass
     except Exception as e:
         print 'conn except (getblockcount): %s %s' % (
-        current.CODE_UTF and str(e).decode(current.CODE_UTF, 'replace') or str(e), curr.abbrev)
+            current.CODE_UTF and str(e).decode(current.CODE_UTF, 'replace') or str(e), curr.abbrev)
         return
     return cn
 
@@ -202,29 +272,6 @@ def get_reserve(curr, xcurr, cn=None):
     tab, sum_Full = get_unspents(cn, conf)
     # print sum_Full
     return sum_Full
-
-
-def get_tx_info(conn, xcurr, token_system, txid):
-    if xcurr.protocol == 'era':
-        import rpc_erachain
-        return rpc_erachain.get_tx_info(token_system, txid)
-
-    elif xcurr.protocol == 'geth':
-        import rpc_ethereum_geth
-        return rpc_ethereum_geth.get_tx_info(xcurr.connect_url, txid)
-
-    elif not conn:
-        conn = connXcurr(xcurr)
-        if not conn:
-            return None
-
-    res = None
-    try:
-        res = conn.gettransaction(txid)
-    except Exception as e:
-        res = {'error': e}
-        pass
-    return res
 
 
 def trans_exist(conn, txid):
@@ -258,14 +305,16 @@ def is_not_valid_addr(conn, addr):
 ### нет - комсу теперь не включаем?
 def send(db, curr, xcurr, addr, amo, conn_in=None, token_system=None, token=None):
     if xcurr.as_token:
-        if token == None:
+        if token is None:
             token = db.tokens[xcurr.as_token]
-        if token_system == None:
+        if token_system is None:
             token_system = db.systems[token.system_id]
 
     if token_system:
-        import rpc_erachain
-        return rpc_erachain.send(db, curr, xcurr, addr, amo, token_system, token)
+        if token_system.protocol == 'era':
+            return rpc_erachain.send(db, curr, xcurr, addr, amo, token_system, token)
+        if token_system.protocol == 'geth':
+            return rpc_ethereum_geth.send(db, curr, xcurr, addr, amo, token_system, token)
 
     cc = conn_in or conn(curr, xcurr)
     if not cc: return {'error': 'unconnect to [%s]' % curr.abbrev}, None
@@ -334,44 +383,6 @@ def locks(conn):
     except Exception as e:
         print e,
         print e.error
-
-
-# найти адрес того кто выслал их
-def sender_addr(conn, token_system, tr):
-    if token_system:
-        import rpc_erachain
-        return rpc_erachain.get_tx_info(token_system, tr)['creator']
-    elif not conn:
-        return None
-
-    tr_info = conn.getrawtransaction(tr, 1)
-    vins = tr_info and 'vin' in tr_info and tr_info['vin']
-    if not vins:
-        # res.append({ 'tr_info.vins': 'None'})
-        # тут может быть приход с добвтого блока - тогда тоже будет пусто!
-        print 'ERROR: sender_addr - tr_in_info:', tr_in_info
-        print 'RUN "crypto WALLET.exe"  -reindex -txindex'
-        return
-    vin = vins[0]
-    txid = vin['txid']
-    vout = vin['vout']
-    tr_in_info = conn.getrawtransaction(txid, 1)
-
-    if 'error' in tr_in_info:
-        print 'ERROR: sender_addr - tr_in_info:', tr_in_info
-        print 'RUN "crypto WALLET.exe"  -reindex -txindex'
-        return
-    vin = vins[0]
-    txid = vin['txid']
-    vout = vin['vout']
-    tr_in_info = conn.getrawtransaction(txid, 1)
-
-    if 'error' in tr_in_info:
-        print 'ERROR: sender_addr - tr_in_info:', tr_in_info
-        print 'RUN "crypto WALLET.exe"  -reindex -txindex'
-        return
-    sender = tr_in_info[u'vout'][vout][u'scriptPubKey'][u'addresses']
-    return sender[0]
 
 
 # выдать неиспользованные входы - для создания транзакции вручную

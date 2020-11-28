@@ -261,7 +261,7 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
     confMax = confs_need + curr_block - from_block - 1
     #print 'confMax:', confMax
     if token_system:
-        lUnsp = rpc_erachain.get_unconf_incomes(token_system.connect_url, token_system.account)
+        lUnsp = crypto_client.get_unconf_incomes(xcurr, token_system, token_system.account)
         if type(lUnsp) != type([]):
             mess = 'ERROR: found_unconfirmed lUnsp: %s' % lUnsp
             pays.append(mess)

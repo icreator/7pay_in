@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # coding: utf8
 
-import urllib
 import urllib2
 
 from gluon import current
 from decimal import Decimal
 
-# import json
 from gluon.contrib import simplejson as json
 import time
 
@@ -68,6 +66,7 @@ def get_xcurr_by_system_token(db, token_system, token_key):
         curr_out, xcurr, _ = db_common.get_currs_by_abbrev(db, token_key)
         return xcurr
 
+
 def get_height(rpc_url):
     res = rpc_request(rpc_url, "eth_blockNumber")
     return int(res['result'], 16)
@@ -79,6 +78,7 @@ def is_not_valid_addr(rpc_url, addr):
         return res['error'] != None
     except Exception as e:
         return False
+
 
 ## balances by token ID = [[0, balance]]
 def get_assets_balances(token_system):
@@ -155,7 +155,7 @@ def get_transactions(token_system, from_block=2):
 
     ## TODO + confirmed HARD
     while i + conf <= height:
-        if len(result) > 100 or i - from_block > 30000:
+        if len(result) > 100 or i - from_block > 10000:
             break
 
         i += 1
@@ -195,13 +195,13 @@ def get_transactions(token_system, from_block=2):
     return result, i
 
 
-def send(db, curr, xcurr, toAddr, amo, mess=None):
+def send(db, curr, xcurr, toAddr, amo, token_system=None, token=None, mess=None):
     rpc_url = xcurr.connect_url
     sender = xcurr.main_addr
     txfee = xcurr.txfee
 
     try:
-        reserve = get_reserve(rpc_url, sender)
+        reserve = get_balance(token_system, sender)
     except Exception as e:
         return {'error': 'connection lost - [%s]' % curr.abbrev}, None
 
@@ -248,6 +248,6 @@ def send(db, curr, xcurr, toAddr, amo, mess=None):
         # тут mess для того чтобы обнулить выход и зачесть его как 0
         res = {'mess': '< txfee', 'error': 'so_small', 'error_description': '%s < txfee %s' % (amo, txfee)}
 
-    bal = get_reserve(rpc_url, sender)
+    bal = get_balance(token_system, sender)
 
     return res, bal

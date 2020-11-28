@@ -41,7 +41,11 @@ def bal_for_addrs():
         json = rpc_ethereum_geth.rpc_request(xcurr.connect_url, 'eth_accounts')
         address = json['result'][0]
 
-    res = rpc_ethereum_geth.get_balance(xcurr.connect_url, address)
+    token_key = xcurr.as_token
+    token = db.tokens[token_key]
+    token_system = db.systems[token.system_id]
+
+    res = rpc_ethereum_geth.get_balance(token_system, address)
 
     return BEAUTIFY(res)
 

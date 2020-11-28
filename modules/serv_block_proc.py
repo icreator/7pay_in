@@ -313,7 +313,7 @@ def parse_mess(lines, xcurr, token_system, rec, transactions):
                                 # already assigned
                                 continue
 
-                            recAdded = crypto_client.get_tx_info(xcurr, token_system, txid.strip())
+                            recAdded = crypto_client.get_tx_info(token_system, txid.strip(),, xcurr
                             crypto_client.parse_tx_fields(recAdded)
                             if not recAdded or 'creator' not in recAdded or recAdded['creator'] != rec['creator']:
                                 # set payment details only for this creator records
@@ -398,7 +398,7 @@ def get_incomed(db, xcurr, token_system, from_block_in=None):
                                     # already assigned
                                     continue
 
-                                recAdded = crypto_client.get_tx_info(xcurr, token_system, txid.strip())
+                                recAdded = crypto_client.get_tx_info(token_system, txid.strip(),, xcurr
                                 recAdded = crypto_client.parse_tx_fields(xcurr, token_system, recAdded)
 
                                 if not recAdded or 'creator' not in recAdded or recAdded['creator'] != rec['creator']:
@@ -550,7 +550,7 @@ def send_back(db, conn, token_system, curr, xcurr, txid, amount, to_addr=None):
     if True:
         return 'backWard denied by service'
 
-    sender_addr = to_addr or crypto_client.sender_addr(conn, token_system, txid)
+    sender_addr = to_addr or crypto_client.sender_addr(xcurr, token_system, txid, conn)
     print 'return to sender_addr:', sender_addr
     if not sender_addr: return
     amo = round(float(amount - xcurr.txfee * 2), 8)

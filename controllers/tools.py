@@ -588,10 +588,10 @@ def tx_info():
         token_key = xcurr.as_token
         token = db.tokens[token_key]
         token_system = db.systems[token.system_id]
-        res = dict(result=crypto_client.get_tx_info(conn, xcurr, token_system, txid))
+        res = dict(result=crypto_client.get_tx_info(xcurr, token_system, txid, conn))
         return res
 
-    res = crypto_client.get_tx_info(conn, xcurr, token_system, txid)
+    res = crypto_client.get_tx_info(xcurr, token_system, txid, conn)
     return res
 
 # api/tx_senders/BTC/ee4ddc65d5e3bf133922cbdd9d616f89fc9b6ed11abbe9a040dac60eb260df23

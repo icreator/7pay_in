@@ -94,8 +94,8 @@ def get_unconf_incomes(rpc_url, addr):
     return recs
 
 
-def get_tx_info(token_system, txid):
-    return rpc_request(token_system.connect_url + '/transactions/signature/' + txid)
+def get_tx_info(rpc_url, txid):
+    return rpc_request(rpc_url + '/transactions/signature/' + txid)
 
 
 # for precess incomes in serv_block_proc

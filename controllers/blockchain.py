@@ -46,10 +46,10 @@ def tx():
         token_key = xcurr.as_token
         token = db.tokens[token_key]
         token_system = db.systems[token.system_id]
-        res = dict(result=crypto_client.get_tx_info(conn, xcurr, token_system, txid))
+        res = dict(result=crypto_client.get_tx_info(xcurr, token_system, txid, conn))
         return res
     elif xcurr.protocol == 'geth':
-        res = crypto_client.get_tx_info(conn, xcurr, token_system, txid)
+        res = crypto_client.get_tx_info(xcurr, token_system, txid, conn)
         return res
 
     conn = crypto_client.conn(curr, xcurr)
