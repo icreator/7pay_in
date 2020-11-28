@@ -41,12 +41,28 @@ def get_xcurr_by_system_token(db, token_system, token_key):
         if token_system.protocol == 'geth':
             return rpc_ethereum_geth.get_xcurr_by_system_token(db, token_system, token_key)
 
+def is_not_valid_addr(token_system, addr, conn=None):
+    if token_system:
+        if token_system.protocol == 'era':
+            return rpc_erachain.is_not_valid_addr(token_system.connect_url, addr)
+        if token_system.protocol == 'geth':
+            return rpc_ethereum_geth.is_not_valid_addr(token_system.connect_url, addr)
+    else:
+        return is_not_valid_addr(conn, addr)
+
 
 def get_height(xcurr, token_system, conn=None):
-    if xcurr.protocol == 'era':
-        return rpc_erachain.get_height(token_system.connect_url)
-    if xcurr.protocol == 'geth':
-        return rpc_ethereum_geth.get_height(xcurr.connect_url)
+    if token_system:
+        if token_system.protocol == 'era':
+            return rpc_erachain.get_height(token_system.connect_url)
+        if token_system.protocol == 'geth':
+            return rpc_ethereum_geth.get_height(token_system.connect_url)
+    else:
+        try:
+            conn = conn or ServiceProxy(xcurr.connect_url, None, 60)
+            return conn.getblockcount()
+        except:
+            return None
 
 
 def get_assets_balances(xcurr, token_system, conn=None):
@@ -227,9 +243,9 @@ def trans_exist(conn, txid):
     return res
 
 
-def is_not_valid_addr(cc, addr):
+def is_not_valid_addr(conn, addr):
     try:
-        valid = cc.validateaddress(addr)
+        valid = conn.validateaddress(addr)
     except:
         return
 
@@ -278,7 +294,7 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system=None, token=None
             to_send_amo = int(amo * 100000000)
             to_send_amo = float(to_send_amo) / 100000000.0
 
-            print 'res = cc.sendtoaddress(addr, amo)', to_send_amo
+            print 'res = conn.sendtoaddress(addr, amo)', to_send_amo
             res = cc.sendtoaddress(addr, to_send_amo)
             print "SENDed? ", res
         # else:

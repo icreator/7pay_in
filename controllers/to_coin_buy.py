@@ -87,6 +87,8 @@ def get():
     xcurr_in = db(db.xcurrs.curr_id == curr_id).select().first()
     if not xcurr_in: return mess(T('xcurr...'))
 
+    import crypto_client
+
     #print request.vars
     curr_out = db.currs[ request.vars.curr_out ]
     xcurr_out = db(db.xcurrs.curr_id == curr_out.id).select().first()
@@ -98,28 +100,25 @@ def get():
     if token_key_in:
         token_in = db.tokens[token_key_in]
         token_system_in = db.systems[token_in.system_id]
-        import rpc_erachain
 
     token_system_out = None
     token_key_out = xcurr_out.as_token
     if token_key_out:
         token_out = db.tokens[token_key_out]
         token_system_out = db.systems[token_out.system_id]
-        import rpc_erachain
-        
+
     #print request.application[-5:]
     if request.application[:-3] != '_dvlp':
         # чето конфликт если из ipay3_dvlp вызывать то кошелек на ipay3 не коннектится
         if token_system_out:
-            curr_block = rpc_erachain.get_height(token_system_out.connect_url)
+            curr_block = crypto_client.get_height(xcurr_out, token_system_out)
             if type(curr_block) != type(1):
                 return mess(T('Connection to [%s] is lost, try later ') % curr_out_name)
-            if rpc_erachain.is_not_valid_addr(token_system_out.connect_url, addr_out):
+            if crypto_client.is_not_valid_addr(xcurr_out, token_system_out, addr_out):
                 return mess(T('address not valid for ') + curr_out_name + ' - ' + addr_out)
             
             pass
         else:
-            import crypto_client
             try:
                 cc = crypto_client.conn(curr_out, xcurr_out)
             except:

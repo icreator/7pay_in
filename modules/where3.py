@@ -32,16 +32,15 @@ def found_unconfirmed_tokens_0(db, token_system):
     
     from_block = token_system.from_block
     if not from_block:
-        mess = curr.name + ': ' + T('not last block, please wait...')
+        mess = token_system.name + ': ' + T('not last block, please wait...')
         #print mess
         pays.append(mess)
         return
     
     confs_need = token_system.conf
-    import rpc_erachain
-    curr_block = rpc_erachain.get_height(token_system.connect_url)
+    curr_block = crypto_client.get_height(None, token_system)
     if type(curr_block) != type(1):
-        mess = curr.name + ': ' + T('no connection to wallet')
+        mess = token_system.name + ': ' + T('no connection to wallet')
         #print mess
         pays.append(mess)
         return
@@ -49,7 +48,7 @@ def found_unconfirmed_tokens_0(db, token_system):
     confMax = confs_need + curr_block - from_block - 1
     #print 'confMax:', confMax
 
-    lUnsp = rpc_erachain.get_unconf_incomes(token_system.connect_url, token_system.account)
+    lUnsp = crypto_client.get_unconf_incomes(token_system, token_system.account)
     if type(lUnsp) != type([]):
           mess = 'ERROR: found_unconfirmed lUnsp: %s' % lUnsp
           pays.append(mess)
@@ -222,9 +221,9 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
     if token_key:
         token = db.tokens[token_key]
         token_system = db.systems[token.system_id]
+
     if token_system:
-        import rpc_erachain
-        curr_block = rpc_erachain.get_height(token_system.connect_url)
+        curr_block = crypto_client.get_height(xcurr, token_system)
         if type(curr_block) != type(1):
             mess = curr.name + ': ' + T('no connection to wallet')
             #print mess
