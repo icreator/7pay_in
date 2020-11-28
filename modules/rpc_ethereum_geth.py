@@ -11,6 +11,8 @@ from decimal import Decimal
 from gluon.contrib import simplejson as json
 import time
 
+import db_common
+
 
 def log(db, mess):
     print 'rpc_ethereum_geth - ', mess
@@ -51,6 +53,21 @@ def rpc_request(rpc_url, method, params=[], test=None):
     return r
 
 
+def get_xcurr_by_system_token(db, token_system, token_key):
+    try:
+        token_key = int(token_key)
+        if token_key is 1:
+            ## ETH
+            token = db((db.tokens.system_id == token_system.id)
+                       & (db.tokens.token_key == token_key)).select().first()
+            if not token:
+                return
+
+            return db(db.xcurrs.as_token == token.id).select().first()
+    except:
+        curr_out, xcurr, _ = db_common.get_currs_by_abbrev(db, token_key)
+        return xcurr
+
 def get_height(rpc_url):
     res = rpc_request(rpc_url, "eth_blockNumber")
     return int(res['result'], 16)
@@ -62,6 +79,13 @@ def is_not_valid_addr(rpc_url, addr):
         return res['error'] != None
     except Exception as e:
         return False
+
+## balances by token ID = [[0, balance]]
+def get_assets_balances(token_system):
+    balance = get_balance(token_system, 1)
+    return {
+            '1': [[0, balance]]  # ETH
+        }
 
 
 def get_balance(token_system, token):

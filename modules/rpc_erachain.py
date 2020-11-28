@@ -8,6 +8,8 @@ from gluon.contrib import simplejson as json
 from decimal import Decimal
 import time
 
+import db_common
+
 
 def log(db, mess):
     print 'rpc_erachain - ', mess
@@ -49,6 +51,21 @@ def rpc_request(pars, vars=None, test=None):
     # time.sleep(1)
 
     return r
+
+
+def get_xcurr_by_system_token(db, token_system, token_key):
+    try:
+        token_key = int(token_key)  # ASSET KEY in Erachain
+    except Exception as e:
+        curr_out, xcurr, _ = db_common.get_currs_by_abbrev(db, token_key)
+        return xcurr
+
+    token = db((db.tokens.system_id == token_system.id)
+               & (db.tokens.token_key == token_key)).select().first()
+    if not token:
+        return
+
+    return db(db.xcurrs.as_token == token.id).select().first()
 
 
 def get_height(rpc_url):

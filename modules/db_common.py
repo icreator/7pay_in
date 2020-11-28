@@ -57,15 +57,6 @@ def get_currs_by_addr(db, addr, abbrev_only=None):
 
 
 #
-def get_xcurr_by_system_token(db, token_system, token_key):
-    token = db((db.tokens.system_id == token_system.id)
-               & (db.tokens.token_key == token_key)).select().first()
-    if not token:
-        return
-
-    xcurr = db(db.xcurrs.as_token == token.id).select().first()
-
-    return xcurr
 
 
 ###################################
