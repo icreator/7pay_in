@@ -39,23 +39,28 @@ def get_assets_balances(xcurr, token_system, conn=None):
     if xcurr.protocol == 'era':
         return rpc_erachain.get_assets_balances(token_system)
 
-def get_balance(xcurr, conn=None):
-    if xcurr.protocol == 'geth':
-        return rpc_ethereum_geth.get_balance(xcurr)
+def get_balance(xcurr, token_system, token, conn=None):
+    if token_system:
+        if token_system.protocol == 'era':
+            return rpc_erachain.get_balance(token_system, token)
+        if token_system.protocol == 'geth':
+            return rpc_ethereum_geth.get_balance(token_system, token)
 
 
-def parse_tx_fields(xcurr, rec):
-    if xcurr.protocol == 'era':
-        return rpc_erachain.parse_tx_fields(rec)
-    if xcurr.protocol == 'geth':
-        return rpc_ethereum_geth.parse_tx_fields(rec)
+def parse_tx_fields(xcurr, token_system, rec):
+    if token_system:
+        if token_system.protocol == 'era':
+            return rpc_erachain.parse_tx_fields(rec)
+        if token_system.protocol == 'geth':
+            return rpc_ethereum_geth.parse_tx_fields(rec)
 
 
 def get_transactions(xcurr, token_system, from_block, conn=None):
-    if xcurr.protocol == 'era':
-        return rpc_erachain.get_transactions(token_system, from_block)
-    if xcurr.protocol == 'geth':
-        return rpc_ethereum_geth.get_transactions(xcurr, from_block)
+    if token_system:
+        if token_system.protocol == 'era':
+            return rpc_erachain.get_transactions(token_system, from_block)
+        if token_system.protocol == 'geth':
+            return rpc_ethereum_geth.get_transactions(token_system, from_block)
 
 ###########
 

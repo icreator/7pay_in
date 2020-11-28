@@ -273,7 +273,7 @@ def parse_mess(db, mess, creator):
             return curr_out.abbrev + ':' + arg1
 
     try:
-        token_id = int(arg1)
+        int(arg1) ## is INTEGER?
         if len(args) > 1:
             addr = args[1].strip()
             if addr[0] == '[':
@@ -294,16 +294,9 @@ def make_rec(deal_acc, rec, transactions):
     else:
         deal_acc = ('%d' % rec['asset']) + '>' + deal_acc
 
-    transactions.append(dict(
-        amount=rec['amount'],
-        txid=rec['txid'],
-        vout=rec['vout'],
-        timestamp=rec['timestamp'],
-        block=rec['block'],
-        recipient=rec['recipient'],
-        deal_acc=deal_acc
-        )
-    )
+    rec['deal_acc'] = deal_acc
+
+    transactions.append(rec)
 
 
 def parse_mess(lines, xcurr, token_system, rec, transactions):
@@ -384,7 +377,7 @@ def get_incomed(db, xcurr, token_system, from_block_in=None):
     transactions = []
     for rec in tab:
 
-        crypto_client.parse_tx_fields(rec)
+        rec = crypto_client.parse_tx_fields(xcurr, token_system, rec)
 
         deal_acc = parse_mess(db, rec.get('message'), rec.get('creator'))
         if not deal_acc:
@@ -414,6 +407,8 @@ def get_incomed(db, xcurr, token_system, from_block_in=None):
                                     continue
 
                                 recAdded = crypto_client.get_tx_info(xcurr, token_system, txid.strip())
+                                recAdded = crypto_client.parse_tx_fields(xcurr, token_system, recAdded)
+
                                 if not recAdded or 'creator' not in recAdded or recAdded['creator'] != rec['creator']:
                                     # set payment details only for this creator records
                                     continue
