@@ -334,7 +334,7 @@ def get_rate_out():
     volume_out - will be taken by client
 '''
 
-# get_uri_in/deal_id/curr_in_id/curr_out_id/addr/vol_in
+# get_uri_in/deal_id/curr_in_id/curr_out_id/address/vol_in
 def get_uri_in():
     import rates_lib, common
 
@@ -532,7 +532,7 @@ def get_uri_in():
     volume_out - will be taken by client
 '''
 
-# get_uri/deal_id/curr_in_id/curr_out_id/addr/vol_out
+# get_uri/deal_id/curr_in_id/curr_out_id/address/vol_out
 def get_uri():
     import rates_lib, common
 

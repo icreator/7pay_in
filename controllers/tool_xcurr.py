@@ -8,7 +8,7 @@ import db_common, crypto_client
 def index(): return dict(message="hello from tool_xcurr.py")
 
 def addrs():
-    if not request.args(0):return '/EMC/[addr]'
+    if not request.args(0):return '/EMC/[address]'
     curr, xcurr, e = db_common.get_currs_by_abbrev(db, request.args(0))
     if not xcurr: return 'xcurr not found'
     cn = crypto_client.connect(curr, xcurr)
@@ -17,7 +17,7 @@ def addrs():
     res = {}
     addr = request.args(1)
     if True or addr:
-        #res = {'addr': addr , 'res': cn.getreceivedbyaddress(addr) }
+        #res = {'address': address , 'res': cn.getreceivedbyaddress(address) }
         res1 = cn.listaddressgroupings()
         res = {}
         i = 1
@@ -30,7 +30,7 @@ def addrs():
                 cnt += 1
                 res ['i%s-j%s' % (i,j) ] = r
                 j += 1
-                # r = [addr, amo, deal_acc]
+                # r = [address, amo, deal_acc]
                 #print r
                 if len(r) >2 :
                     cnt1 += 1

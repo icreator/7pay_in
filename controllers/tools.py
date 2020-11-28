@@ -300,7 +300,7 @@ def block_proc_test():
 # http://127.0.0.1:8000/ipay8/tools/send_to_many/CLR?CGk6Q3cx7qNEzAoWx2YnMNm2xvTQKEaYun=0.1&CdYGrbTZNhgYKh5gghYY6mFWr9pmGbEedY=0.13
 # http://127.0.0.1:8000/ipay8/tools/send_to_many/LTC?Lc7nSnWdhp1RU9kCDZS8gRCV1WBAMupkYy=0.01
 # Lc7nSnWdhp1RU9kCDZS8gRCV1WBAMupkYy
-# vars: {addr=amount, ...}
+# vars: {address=amount, ...}
 def send_to_many():
     import db_common
     import crypto_client

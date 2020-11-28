@@ -161,7 +161,7 @@ def income_YD():
         curr_out, xcurr_out, e = db_common.get_currs_by_abbrev(db,"LTC")
         info =  { 'sender': 'test 44505', 'operation_id': '8755040...892034017',
             'amo': 0.013, 'curr': curr_out, 'xcurr': xcurr_out,
-            'addr': 'LYNJwquszE9dPihRDKpmzX3hZtxVkY1sv6', # оплата на сервисе 7З сотового моего
+            'address': 'LYNJwquszE9dPihRDKpmzX3hZtxVkY1sv6', # оплата на сервисе 7З сотового моего
             'ecurr_abbrev':'RUB',
             }
     elif False: # отрубим проверку на секретный код так как мы все равно лезем потом на сервис ЯД и оттуда инфо получем
@@ -212,7 +212,7 @@ def income_YD():
             return mess
 
     # { 'sender': info['sder'], 'operation_id': info['operation_id'],
-    #        'amo': info['amount'], 'xcurr': xcurr, 'addr': addr,
+    #        'amo': info['amount'], 'xcurr': xcurr, 'address': address,
     #        'ecurr_abbrev':'RUB',
     #        }
 
@@ -222,7 +222,7 @@ def income_YD():
     amo = info['amo']
     xcurr = info['xcurr']
     curr_out = info['curr']
-    addr = info['addr']
+    addr = info['address']
     ecurr_abbrev = info['ecurr_abbrev'] # входящая фитаная валюта платиежа - может быть доллар
     
     buy_id = db.buys.insert(

@@ -67,7 +67,7 @@ def err_dict(m):
 
 def bank_check():
     import time
-    addr = request.vars.get('addr')
+    addr = request.vars.get('address')
     ref = request.vars.get('ref')
     amo = request.vars.get('amo')
     if not addr: return mess('Адрес кошелька пуст') # Wallet address is empty
@@ -111,10 +111,10 @@ def bank():
     h = CAT(
         T('После того, как Вы пополнили безналичным платежом из Вашего банка Яндекс.Кошелек, предоставленный для покупки биткоинов (лайткоинов и другой криптовалюты) нашим сервисом, введите реквизиты своего платежа для того чтобы присвоить ему адрес для выплаты криптовалюты'),'.',BR(),
         T('Так же Вы можете задать адрес кошелька для платежей, у которых его забыли указать'),'.',BR(),
-        INPUT(_name='addr', _placeholder=T('Адрес кошелька...')),BR(), # Wallet address
+        INPUT(_name='address', _placeholder=T('Адрес кошелька...')),BR(), # Wallet address
         INPUT(_name='ref', _placeholder=T('Номер платежа')), # payment referrence
         INPUT(_name='amo', _placeholder=T('Сумма платежа')), #payment amount
-        BUTTON(T('Check'), _onclick='ajax("bank_check", ["addr", "ref", "amo"], "res");\
+        BUTTON(T('Check'), _onclick='ajax("bank_check", ["address", "ref", "amo"], "res");\
                $("#res").html(\'<i class="fa fa-spinner fa-spin"></i>\');'),
         DIV(_id='res'),
         #u(T('Назад на покупку биткоинов и другой криптовалюты'),
@@ -248,7 +248,7 @@ def get():
         order_id = order.id
 
     amo_in = round(amo_in*1.005, 2) # добавим таксу яндекса 0.5%
-    destination = '7pb%s' % order_id # + ' ' + T('или') +' ' + curr_out.abbrev + ' ' + addr
+    destination = '7pb%s' % order_id # + ' ' + T('или') +' ' + curr_out.abbrev + ' ' + address
     free_bal = db_client.curr_free_bal(curr_out)
     h += sect(DIV(DIV(
         H2(T('3. Оплатите по данным реквизитам покупку %s') % curr_out_name, _class='center'),
@@ -282,7 +282,7 @@ def get():
           ),
         tax_rep,
         FORM(
-            INPUT(_name='addr', _value=addr, _type='hidden'),
+            INPUT(_name='address', _value=addr, _type='hidden'),
             INPUT( _type='submit',
                 _class='button blue-bgc',
                 _value=T('Подробный просмотр платежей'),

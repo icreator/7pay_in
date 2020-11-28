@@ -22,7 +22,7 @@ def u(h, url, cls='col-sm-4'):
     return DIV(DIV(P(h, _class='btn_mc2'), _class='btn_mc1', _onclick="location.href='%s'" % url), _class='btn_mc ' + cls)
 
 def check():
-    addr = request.vars.get('addr')
+    addr = request.vars.get('address')
     ref = request.vars.get('ref')
     amo = request.vars.get('amo')
     if not addr: return T('Адрес кошелька пуст') # Wallet address is empty
@@ -62,10 +62,10 @@ def index():
     h = CAT(
         T('После того, как Вы пополнили безналичным платежом из Вашего банка Яндекс.Кошелек, предоставленный для покупки биткоинов (лайткоинов и другой криптовалюты) нашим сервисом, введите реквизиты своего платежа для того чтобы присвоить ему адрес для выплаты криптовалюты'),'.',BR(),
         T('Так же Вы можете задать адрес кошелька для платежей, у которых его забыли указать'),'.',BR(),
-        INPUT(_name='addr', _placeholder=T('Адрес кошелька...')),BR(), # Wallet address
+        INPUT(_name='address', _placeholder=T('Адрес кошелька...')),BR(), # Wallet address
         INPUT(_name='ref', _placeholder=T('Номер платежа')), # payment referrence
         INPUT(_name='amo', _placeholder=T('Сумма платежа')), #payment amount
-        BUTTON(T('Check'), _onclick='ajax("buy_bank/check", ["addr", "ref", "amo"], "res");\
+        BUTTON(T('Check'), _onclick='ajax("buy_bank/check", ["address", "ref", "amo"], "res");\
                $("#res").html(\'<i class="fa fa-spinner fa-spin"></i>\');'),
         DIV(_id='res'),
         u(T('Назад на покупку биткоинов и другой криптовалюты'),

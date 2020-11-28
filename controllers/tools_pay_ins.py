@@ -57,7 +57,7 @@ def add_pay_in_tx():
     value = vout['value']
     block = res['block']
 
-    return CAT(LABEL('block'), INPUT(_name='block', _value=block),' ', LABEL('address:'), INPUT(_name='addr', _value=addr),
+    return CAT(LABEL('block'), INPUT(_name='block', _value=block),' ', LABEL('address:'), INPUT(_name='address', _value=addr),
               ' ', LABEL('value:'), INPUT(_name='amount', _value=value),BR(),
               INPUT(_type='submit'))
 

@@ -295,7 +295,7 @@ def validate_addr():
 
     xcurr = None
     curr_abbrev = request.vars.get('curr')
-    addr = request.vars.get('addr')
+    addr = request.vars.get('address')
     if len(request.args) == 1:
         addr = request.args[0]
     if len(request.args) == 2:
@@ -304,7 +304,7 @@ def validate_addr():
 
     if not addr:
         return {
-            'error': 'need addr or curr_abbrev, example: /validate_addr.json/[addr] or /validate_addr.json/[curr_abbrev]/[addr]'}
+            'error': 'need address or curr_abbrev, example: /validate_addr.json/[address] or /validate_addr.json/[curr_abbrev]/[address]'}
 
     if addr and not curr_abbrev:
         from db_common import get_currs_by_addr
@@ -387,8 +387,8 @@ def rates3():
 # адес тут должен быть точный
 def for_addr():
     session.forget(response)
-    addr = request.vars and request.vars.get('addr')
-    # print addr
+    addr = request.vars and request.vars.get('address')
+    # print address
     if not addr or len(addr) < 24: return dict(pays=T('ошибочный адрес [%s]') % addr)
 
     pays = where1.found_buys(db, addr)

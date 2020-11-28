@@ -92,9 +92,9 @@ def get_assets_balances(token_system):
     }
 
 
-def get_balance(token_system, token):
+def get_balance(token_system, address, token=1):
     if token == 1:
-        res = rpc_request(token_system.connect_url, "eth_getBalance", [token_system.account, "latest"])
+        res = rpc_request(token_system.connect_url, "eth_getBalance", [address, "latest"])
         try:
             balance = int(res['result'], 16)
         except Exception as e:

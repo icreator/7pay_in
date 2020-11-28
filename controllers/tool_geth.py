@@ -33,25 +33,24 @@ def addrs():
     return BEAUTIFY(json)
 
 # Test balance for Address
-def bal_for_addrs():
+def bal():
 
     curr, xcurr, e = db_common.get_currs_by_abbrev(db, 'ETH')
     if not xcurr:
         return 'xcurr not found'
 
-    if request.args(0):
-        address = request.args(0)
-    else:
-        json = rpc_ethereum_geth.rpc_request(xcurr.connect_url, 'eth_accounts')
-        address = json['result'][0]
-
     token_key = xcurr.as_token
     token = db.tokens[token_key]
     token_system = db.systems[token.system_id]
 
-    res = rpc_ethereum_geth.get_balance(token_system, address)
+    if request.args(0):
+        address = request.args(0)
+    else:
+        address = token_system.account
 
-    return BEAUTIFY(res)
+    res = rpc_ethereum_geth.get_balance(token_system, token=1, address=address)
+
+    return BEAUTIFY(dict(address=address, res=res))
 
 def send():
     curr, xcurr, e = db_common.get_currs_by_abbrev(db, 'ETH')
