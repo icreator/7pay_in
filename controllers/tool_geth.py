@@ -13,9 +13,15 @@ if False:
 session.forget(response)
 
 from decimal import Decimal
+import decimal
 import db_common, rpc_ethereum_geth
 
 def index(): return dict(message="hello from tool_xcurr.py")
+
+def wei():
+    str = "0xe043da617250008"
+    decimal.getcontext().prec = 18
+    return dict(long=long(str, 16), decimal=Decimal(long(str, 16)), decimal18=Decimal(long(str, 16))*Decimal(1E-18))
 
 # get Address of wallet
 def addrs():
@@ -48,7 +54,7 @@ def bal():
     else:
         address = token_system.account
 
-    res = rpc_ethereum_geth.get_balance(token_system, token=1, address=address)
+    res = rpc_ethereum_geth.get_balance(token_system, address=address)
 
     return BEAUTIFY(dict(address=address, res=res))
 

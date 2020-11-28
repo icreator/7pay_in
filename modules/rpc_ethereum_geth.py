@@ -5,6 +5,8 @@ import urllib2
 
 from gluon import current
 from decimal import Decimal
+import decimal
+decimal.getcontext().prec = 18
 
 from gluon.contrib import simplejson as json
 import time
@@ -101,6 +103,7 @@ def get_balance(token_system, token=1, address=None):
             return res
 
         ##  x WEI
+        ##return dict(long=long(str, 16), decimal=Decimal(long(str, 16)), decimal18=Decimal(long(str, 16))*Decimal(1E-18))
         return Decimal(balance) * Decimal(1E-18)
     else:
         return 0
@@ -205,7 +208,7 @@ def send(db, curr, xcurr, toAddr, amo, token_system, token=None, mess=None, send
     txfee = token_system.txfee
 
     try:
-        balance = get_balance(token_system, sender)
+        balance = get_balance(token_system, address=sender)
         #return balance
     except Exception as e:
         return {'error': 'connection lost - [%s]' % curr.abbrev}, None
@@ -253,6 +256,6 @@ def send(db, curr, xcurr, toAddr, amo, token_system, token=None, mess=None, send
         # тут mess для того чтобы обнулить выход и зачесть его как 0
         res = {'mess': '< txfee', 'error': 'so_small', 'error_description': '%s < txfee %s' % (amo, txfee)}
 
-    bal = get_balance(token_system, sender)
+    bal = get_balance(token_system, address=sender)
 
     return res, bal

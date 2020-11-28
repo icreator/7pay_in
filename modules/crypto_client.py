@@ -80,12 +80,12 @@ def get_assets_balances(xcurr, token_system, conn=None):
             return rpc_ethereum_geth.get_assets_balances(token_system)
 
 
-def get_balance(xcurr, token_system, token, conn=None):
+def get_balance(xcurr, token_system, token, conn=None, address=None):
     if token_system:
         if token_system.protocol == 'era':
-            return rpc_erachain.get_balance(token_system, token)
+            return rpc_erachain.get_balance(token_system, token, address)
         if token_system.protocol == 'geth':
-            return rpc_ethereum_geth.get_balance(token_system, token)
+            return rpc_ethereum_geth.get_balance(token_system, token, address)
 
 
 def parse_tx_fields(xcurr, token_system, rec):
