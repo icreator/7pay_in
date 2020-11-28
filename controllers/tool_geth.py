@@ -24,7 +24,11 @@ def addrs():
     if not xcurr:
         return 'xcurr not found'
 
-    json = rpc_ethereum_geth.rpc_request(xcurr.connect_url, 'eth_accounts')
+    token_key = xcurr.as_token
+    token = db.tokens[token_key]
+    token_system = db.systems[token.system_id]
+
+    json = rpc_ethereum_geth.rpc_request(token_system.connect_url, 'eth_accounts')
     #return xcurr.connect_url + (' %s' % json)
     return BEAUTIFY(json)
 
@@ -54,12 +58,18 @@ def send():
     if not xcurr:
         return 'xcurr not found'
 
+    token_key = xcurr.as_token
+    token = db.tokens[token_key]
+    token_system = db.systems[token.system_id]
+
     if request.args(0):
         toAddress = request.args(0)
     else:
-        toAddress = '0xd46e8dd67c5d32be8058bb8eb970870f07244567'
+        ## "0x0b30671cf47976fddb755ede161bed2943a10070","0xa5f36d9e5c7699e77793cbc0cd1a6fcc52df4bb3"
+        toAddress = '0x0b30671cf47976fddb755ede161bed2943a10070' # '0xd46e8dd67c5d32be8058bb8eb970870f07244567'
 
-    res, bal = rpc_ethereum_geth.send(db, curr, xcurr, toAddress, Decimal(0.01), mess=None)
+    res, bal = rpc_ethereum_geth.send(db, curr, xcurr, toAddress, Decimal(0.01), token_system,
+                                      mess='probe:123', sender='0xa5f36d9e5c7699e77793cbc0cd1a6fcc52df4bb3')
 
     return BEAUTIFY(dict(res=res, bal=bal))
 
@@ -73,7 +83,11 @@ def block():
     else:
         block = '0x1'
 
-    return BEAUTIFY(rpc_ethereum_geth.get_block(xcurr.connect_url, block))
+    token_key = xcurr.as_token
+    token = db.tokens[token_key]
+    token_system = db.systems[token.system_id]
+
+    return BEAUTIFY(rpc_ethereum_geth.get_block(token_system.connect_url, block))
 
 def enhex():
     if request.args(0):
@@ -102,3 +116,15 @@ def add_system():
         db.xcurrs.insert(curr_id=curr_id, protocol='', connect_url=name + ' ' + asset[1],
                          as_token=token_id,
                          block_time=0, txfee=0, conf=0, conf_gen=0)
+
+def get_txs():
+    curr, xcurr, e = db_common.get_currs_by_abbrev(db, 'ETH')
+    if not xcurr:
+        return 'xcurr not found'
+
+    token_key = xcurr.as_token
+    token = db.tokens[token_key]
+    token_system = db.systems[token.system_id]
+    recs, height = rpc_ethereum_geth.get_transactions(token_system, 0)
+    return BEAUTIFY({'recs': recs, 'height': height})
+

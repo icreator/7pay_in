@@ -88,8 +88,8 @@ def is_not_valid_addr(rpc_url, addr):
 def get_assets_balances(token_system):
     balance = get_balance(token_system, 1)
     return {
-            '1': [[0, balance]]  # ETH
-        }
+        '1': [[0, balance]]  # ETH
+    }
 
 
 def get_balance(token_system, token):
@@ -183,8 +183,7 @@ def get_transactions(token_system, from_block=2):
 
         incomes = []
         for rec in recs:
-            if rec['status'] != '0x1' or not rec['to'] or not rec['value'] or not rec['input'] or not rec['from'] or \
-                    rec['to'] != addr:
+            if not rec['to'] or not rec['value'] or not rec['input'] or not rec['from'] or rec['to'] != addr:
                 continue
 
             rec['block'] = i,
@@ -199,20 +198,21 @@ def get_transactions(token_system, from_block=2):
     return result, i
 
 
-def send(db, curr, xcurr, toAddr, amo, token_system=None, token=None, mess=None):
-    rpc_url = xcurr.connect_url
-    sender = xcurr.main_addr
-    txfee = xcurr.txfee
+def send(db, curr, xcurr, toAddr, amo, token_system, token=None, mess=None, sender=None):
+    rpc_url = token_system.connect_url
+    sender = sender or token_system.main_addr
+    txfee = token_system.txfee
 
     try:
-        reserve = get_balance(token_system, sender)
+        balance = get_balance(token_system, sender)
+        #return balance
     except Exception as e:
         return {'error': 'connection lost - [%s]' % curr.abbrev}, None
 
     ##return dict(txfee=txfee, amo=amo, reserve=reserve)
 
-    if amo + txfee > reserve:
-        return {'error': 'out off reserve:[%s]' % reserve}, None
+    if amo + txfee > balance:
+        return {'error': 'out off reserve:[%s]' % balance}, None
 
     # проверим готовность базы - is lock - и запишем за одно данные
     log_commit(db, 'try send: %s[%s] %s, fee: %s' % (amo, curr.abbrev, toAddr, txfee))
@@ -222,14 +222,14 @@ def send(db, curr, xcurr, toAddr, amo, token_system=None, token=None, mess=None)
             amo_to_pay = amo  # - txfee
             print 'res = geth.send(addr, amo - txfee)', amo_to_pay
 
-            txfee = long(xcurr.txfee * Decimal(1E8))  ## and x 1+E10 by gasPrice
+            txfee = long(txfee * Decimal(1E8))  ## and x 1+E10 by gasPrice
             amo_to_pay = long(amo_to_pay * Decimal(1E18))  ## in WEI
 
             params = [{
                 "from": sender,
                 "to": toAddr,
                 "value": '%#x' % amo_to_pay,
-                "data": '0x' + (u'ETH stablecoin from erachain.org'.encode("hex")),
+                "data": '0x' + (mess.encode("hex")),
                 "gas": '%#x' % txfee,
                 "gasPrice": '%#x' % 1E10
             }]
