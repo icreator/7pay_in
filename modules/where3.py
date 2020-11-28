@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 # coding: utf8
+
 import datetime
-##import json
 
 from gluon import current, URL, XML, A
 T = current.T
 cache = current.cache
 
 import crypto_client
-import db_common
 
 def found_buys(db, buys, addr=None):
     if not addr or len(addr) < 6: return False
@@ -258,6 +257,7 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
         #print mess
         pays.append(mess)
         return
+
     confMax = confs_need + curr_block - from_block - 1
     #print 'confMax:', confMax
     if token_system:

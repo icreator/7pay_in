@@ -1,5 +1,9 @@
 # coding: utf8
 
+import where1
+from decimal import Decimal
+import db_common
+
 if False:
     from gluon import *
 
@@ -13,12 +17,6 @@ if False:
 session.forget(response)
 time_exp = IS_LOCAL and 3 or 66
 
-import datetime
-from decimal import Decimal
-
-import db_common
-import db_client
-import serv_to_buy
 
 ## ALLOW API from not local
 response.headers['Access-Control-Allow-Origin'] = '*'
@@ -393,7 +391,7 @@ def for_addr():
     # print addr
     if not addr or len(addr) < 24: return dict(pays=T('ошибочный адрес [%s]') % addr)
 
-    pays = where.found_buys(db, addr)
+    pays = where1.found_buys(db, addr)
     if len(pays) > 0:
         return dict(pays=pays)
 
@@ -402,9 +400,9 @@ def for_addr():
     curr, xcurr, _, = db_common.get_currs_by_addr(db, addr)
     # print curr, '\n', xcurr
     if not curr or not curr.used: return dict(pays=T('ошибочный адрес по первой букве [%s]') % addr)
-    where.found_unconfirmed(db, curr, xcurr, addr, pays)
+    where1.found_unconfirmed(db, curr, xcurr, addr, pays)
 
-    where.found_pay_ins(db, curr, xcurr, addr, pays, None)
+    where1.found_pay_ins(db, curr, xcurr, addr, pays, None)
     if len(pays) == 0: pays = T('Входов не найдено...')
     return dict(pays=pays)
 
