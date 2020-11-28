@@ -402,7 +402,7 @@ db.define_table('deal_acc_addrs',
                 # имя аккаунта в кошельке должно создаваться по deals.name + deal_acc_id
                 # так даже не надо имени дела - deal_acc_id уже уникальный будет
                 # Field('account', length=30, required=True),
-                Field('address', length=40, required=True), # его адрес в кошельке крипты
+                Field('addr', length=40, required=True), # его адрес в кошельке крипты
                 Field('addr_return', length=40, required=False), # если задан - авто перевод на него будет
                 Field('incomed', 'decimal(16,8)'), # сколько крипты пришло
                 Field('converted', 'decimal(16,8)'), # сколько мы уже конвертировали
