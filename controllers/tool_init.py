@@ -339,71 +339,77 @@ def inits_new_portal():
 
     import crypto_client
 
-    ###db.to_phone.drop()
 
     resp = ""
     # для всех криптовалют создадим главные аккаунты в кошельках
     for xcurr in db(db.xcurrs).select():
 
-        curr = db.currs[xcurr.curr_id]
 
         if xcurr.as_token:
-            token = db.tokens[xcurr.as_token]
-            token_system = db.systems[token.system_id]
-            height = crypto_client.get_height(xcurr, token_system)
-            if type(1) != type(height):
-                msg = curr.name + " - no connection to wallet: " + e.message
-                print msg
-                resp = resp + msg + '<br>'
+            # processed below
+            continue
+
+        curr = db.currs[xcurr.curr_id]
+        resp += curr.name + ': '
+
+        try:
+            conn = crypto_client.connect(curr, xcurr)
+            if not conn:
+                msg = " - no connection to wallet!"
+                resp += msg + '<br>'
                 continue
 
-            addr = crypto_client.get_addresses(xcurr, token_system)[0]
+        except Exception as e:
+            msg = " - no connection to wallet: %s" % e
+            resp += msg + '<br>'
+            continue
+
+        addr = None
+        if xcurr.protocol == 'btc':
+            try:
+                addr = crypto_client.get_xaddress_by_label(conn, '.main.')
+            except Exception as e:
+                msg = " - no made .main. account, error: %s" % e
+                resp += msg + '<br>'
+                continue
+
+        elif xcurr.protocol == 'zen':
+            try:
+                addr = conn.listaddresses()[0]
+            except Exception as e:
+                msg = " - no made .main. account, error: %s" % e
+                resp += msg + '<br>'
+                continue
+
+        if addr:
+            xcurr.main_addr = addr
+            xcurr.update_record()
+            resp += addr + '<br>'
+        else:
+            resp += ' - skipped<br>'
+
+    # для всех Систем криптовалют создадим главные аккаунты в кошельках
+    for token_system in db(db.systems).select():
+
+        resp += token_system.name + ': '
+
+        try:
+            height = crypto_client.get_height(None, token_system)
+            if type(1) != type(height):
+                resp += " - no connection to wallet: " + height + '<br>'
+                continue
+
+            result = crypto_client.get_addresses(None, token_system)
+            addr = result[0]
             token_system.account = addr
             token_system.update_record()
-            resp = resp + addr + ' - for ' + curr.name + '<br>'
+            resp += addr + '<br>'
 
-        else:
-            try:
-                conn = crypto_client.connect(curr, xcurr)
-                if not conn:
-                    msg = curr.name + " - no connection to wallet"
-                    print msg
-                    resp = resp + msg + '<br>'
-                    continue
-
-            except Exception as e:
-                msg = curr.name + " - no connection to wallet: " + e.message
-                print msg
-                resp = resp + msg + '<br>'
-                continue
-
-            addr = None
-            if xcurr.protocol == 'btc':
-                try:
-                    addr = crypto_client.get_xaddress_by_label(conn, '.main.')
-                except Exception as e:
-                    print e
-                    msg = curr.name + " - no made .main. account, error: " + e.message # e.args
-                    print msg
-                    resp = resp + msg + '<br>'
-                    continue
-            elif xcurr.protocol == 'zen':
-                try:
-                    addr = conn.listaddresses()[0]
-                except Exception as e:
-                    print e
-                    msg = curr.name + " - no made .main. account, error: " + e.message # e.args
-                    print msg
-                    resp = resp + msg + '<br>'
-                    continue
-
-            if addr:
-                xcurr.main_addr = addr
-                xcurr.update_record()
-                resp = resp + addr + ' - for ' + curr.name + '<br>'
-            else:
-                resp = resp + curr.name + ' - skipped<br>'
-
+        except Exception as e:
+            print e
+            msg = token_system.name + " - no made system account, error: %s" % e
+            resp += msg + '<br>'
+            continue
 
     return resp
 

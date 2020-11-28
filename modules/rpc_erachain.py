@@ -68,8 +68,9 @@ def get_xcurr_by_system_token(db, token_system, token_key):
     return db(db.xcurrs.as_token == token.id).select().first()
 
 
-def get_addresses(rpc_url):
-    return rpc_request(rpc_url + "/addresses")
+def get_addresses(token_system):
+    return rpc_request(token_system.connect_url + "/addresses?password=" + token_system.password)
+
 
 def get_height(rpc_url):
     return rpc_request(rpc_url + "/blocks/height")
