@@ -219,7 +219,7 @@ def connXcurr(xcurr, cn=None):
 
 
 # если нет связи то тоже запомним на небольшое время
-def conn_v11(curr, xcurr, cn=None):
+def conn_v11(curr, xcurr, cn=None, timeout=60):
     # пока не подключимся - пробуем
     cn = cache.ram(curr.abbrev + '_0', lambda: conn_0(curr, xcurr, timeout), time_expire=10)
     return cn

@@ -7,6 +7,7 @@ if False:
     response = current.response
     session = current.session
     cache = current.cache
+    DOMEN
     T = current.T
 
 import datetime
@@ -196,8 +197,7 @@ def get():
     if request.application[:-3] != '_dvlp':
 
         conn = None
-        if token_system_out:
-        else:
+        if not token_system_out:
             try:
                 conn = crypto_client.connect(curr_out, xcurr_out)
             except:

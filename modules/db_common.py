@@ -1,5 +1,5 @@
 ﻿# coding: utf8
-#
+
 # http://web2py.com/examples/static/epydoc/web2py.gluon.dal-module.html
 
 from datetime import datetime
