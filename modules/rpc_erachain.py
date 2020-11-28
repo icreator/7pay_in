@@ -29,7 +29,7 @@ def rpc_request(pars, vars=None, test=None):
     if vars:
         vars = urllib.urlencode(vars)
         # print 'rpc VARS:', vars
-        rq = urllib2.Request(pars, vars)
+        rq = urllib2.Request(pars + '?' + vars)
     else:
         rq = urllib2.Request(pars)
 
