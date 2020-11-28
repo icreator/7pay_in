@@ -51,6 +51,12 @@ def is_not_valid_addr(token_system, addr, conn=None):
     else:
         return is_not_valid_addr_xcurr(conn, addr)
 
+def get_addresses(xcurr, token_system, conn=None):
+    if token_system:
+        if token_system.protocol == 'era':
+            return rpc_erachain.get_addresses(token_system.connect_url)
+        if token_system.protocol == 'geth':
+            return rpc_ethereum_geth.get_addresses(token_system.connect_url)
 
 def get_height(xcurr, token_system, conn=None):
     if token_system:

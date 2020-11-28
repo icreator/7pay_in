@@ -67,6 +67,10 @@ def get_xcurr_by_system_token(db, token_system, token_key):
         return xcurr
 
 
+def get_addresses(rpc_url):
+    return rpc_request(rpc_url, "eth_accounts")['result']
+
+
 def get_height(rpc_url):
     res = rpc_request(rpc_url, "eth_blockNumber")
     return int(res['result'], 16)
