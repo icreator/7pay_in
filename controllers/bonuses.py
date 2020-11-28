@@ -75,7 +75,7 @@ def phone_add():
         session.show_bonus_late = None
         
         if False:
-            deal_acc = db((db.deal_accs.acc == ph)
+            deal_acc = db((db.deal_accs.deal_acc == ph)
                 & (db.deal_accs.deal_id == TO_PHONE7_ID)).select().first()
             if not deal_acc:
                 return
@@ -121,7 +121,7 @@ def b1_sel():
     deal_acc.update_record()
     deal = db.deals[ deal_acc.deal_id ]
     import gifts_lib
-    gifts_lib.bonus_payout(db, bonus, dis_vol, today=None, memo='[%s][%s] + %s[%s]' % (deal.name, '***'+deal_acc.acc[-3:], vol, gift_curr_abbrev))
+    gifts_lib.bonus_payout(db, bonus, dis_vol, today=None, memo='[%s][%s] + %s[%s]' % (deal.name, '***'+deal_acc.deal_acc[-3:], vol, gift_curr_abbrev))
     #redirect( #request.env.http_web2py_component_location,
     #    URL('index'), client_side=True)
     return '+%s добавлено!' % vol
@@ -138,7 +138,7 @@ def b1():
         return mess('Не хаватет бонусов, у Вас есть %s, а надо %s. Зайдите к нам позже чтобы получить еще бонусов или используйте подарочный код.' % (bonus.taken, b1_BNS_need))
 
     ## Теперь берем все дела - даже не с рублем - а там внутри пересчитаем
-    recs = db((db.deal_accs.acc == bonus.ph)
+    recs = db((db.deal_accs.deal_acc == bonus.ph)
                   & (db.deal_accs.deal_id == db.deals.id)
                   ).select()
     if not recs: return 'deals for phone not found'

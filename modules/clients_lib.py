@@ -154,7 +154,7 @@ def try_note_url(client, deal_acc):
          deal = db.deals[deal_acc.deal_id]
          note_url = deal.url or 'http://%s' % (deal.name2 or deal.name)
          note_url = note_url + '/to_shop_response/from_'+DOMEN
-    url_rersp = note_url + '?order=%s' % deal_acc.acc
+    url_rersp = note_url + '?order=%s' % deal_acc.deal_acc
     log(db, '%s' % url_rersp)
     try:
         # пошлем запрос ничего во твет не ждем

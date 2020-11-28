@@ -174,7 +174,7 @@ def make_edealer_payment(db, geted_pays,  curr_in, xcurr, curr_out, ecurr, vol_i
         print 'make_edealer_payment ist my CLIENT:', deal.id, 'client:',client
         # здесь валюта выходя есть авлюта входа для клиента - так как он
         # вообще не должен знать чем нам пользователь наш заплатил
-        clients_tran_id, client_bal = clients_lib.mem_input(db, client, deal_acc.acc, volume_out, curr_out, '%s' % desc)
+        clients_tran_id, client_bal = clients_lib.mem_input(db, client, deal_acc.deal_acc, volume_out, curr_out, '%s' % desc)
         #mark_pay_ins(db, geted_pays, 'client', 'client_trans: %s' % clients_tran_id)
         res = None
         order_id = check_order(db, order_stack_id)
@@ -312,14 +312,14 @@ def make_edealer_payment(db, geted_pays,  curr_in, xcurr, curr_out, ecurr, vol_i
                 #    'sum_taken': volume_out_full}
                 #res = {'status':'testedd', 'error':'test', 'error_description':'tst_descr', }
                 log_on = None # None - log some, False - notg, True - log all
-                res = ed_common.pay(db, deal, dealer, dealer_acc, dealer_deal, deal_acc.acc,
+                res = ed_common.pay(db, deal, dealer, dealer_acc, dealer_deal, deal_acc.deal_acc,
                             volume_out_full, log_on )
                 log( db, 'PAYed ecurr - res: %s' % res)
         else:
             # сюда пришло значит баланса хватает и это на выходе криптовалюта
             dealer_acc = None
             ## ыше уже задали xcurr_out = db(db.xcurrs.curr_id == curr_out.id).select().first()
-            res, bal = crypto_client.send(db, curr_out, xcurr_out, deal_acc.acc, volume_out_full)
+            res, bal = crypto_client.send(db, curr_out, xcurr_out, deal_acc.deal_acc, volume_out_full)
             #print bal, res
             if bal:
                 curr_out.update_record( balance = bal )
@@ -354,7 +354,7 @@ def make_edealer_payment(db, geted_pays,  curr_in, xcurr, curr_out, ecurr, vol_i
                     balance = ed_common.get_balance(dealer, dealer_acc )
                     dealer_acc.update_record(balance = balance or 0)
                 else:
-                    ed_common.dealer_deal_errs_add(db, dealer_deal, deal_acc.acc, '%s' % res)
+                    ed_common.dealer_deal_errs_add(db, dealer_deal, deal_acc.deal_acc, '%s' % res)
 
             # нельзя менять так как не будет возврата pay_error = pay_error + ' (%s ... %s)' % (round(volume_out_full,2), dealer_acc.deal_acc[-5:])
             if pay_error=='technical_error' or pay_error=='payment_refused':
@@ -513,7 +513,7 @@ def make_edealer_free_payment(db,
         db.commit()
         return
 
-    if not r.acc:
+    if not r.deal_acc:
         print 'ERROR: (make_edealer_free_payment) "deal_accs.deal_acc" = None ', curr_in.abbrev, deal_acc_addr, amo
         mark_pay_ins(db, geted_pays, 'refuse', 'deal_accs[%s].deal_acc=None' % deal_acc_addr.deal_acc_id)
         db.commit()

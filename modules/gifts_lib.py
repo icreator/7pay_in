@@ -101,7 +101,7 @@ def add_cod(db, T, deal, deal_acc, cod, use_try=None):
         mess = T('')
         return mess
 
-    acc = deal_acc.acc
+    acc = deal_acc.deal_acc
     deal_name = deal.name
 
     if deal_acc.gift and len(deal_acc.gift)> G_MIN_LEN:

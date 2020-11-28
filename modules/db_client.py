@@ -51,10 +51,10 @@ def get_deal_acc_id(db, deal, acc, curr_out, price=None):
     time.sleep(0.5)
     deal_acc = None
     for rec in db((db.deal_accs.deal_id==deal.id) # для данного дела
-            & (db.deal_accs.acc==acc) # есть такой аккаунт
+            & (db.deal_accs.deal_acc==acc) # есть такой аккаунт
             & (db.deal_accs.curr_id==curr_out.id)
             ).select():
-        if len(rec.acc)<3: continue
+        if len(rec.deal_acc)<3: continue
         deal_acc = rec
         ##print 'get_deal_acc_id found:', deal_acc.id, deal_acc.deal_acc, curr_out.id
         break
@@ -70,7 +70,7 @@ def get_deal_acc_id(db, deal, acc, curr_out, price=None):
 def get_deal_acc_addr(db, deal_id, curr_out, acc, addr, xcurr_in):
     deal_acc = db((db.deal_accs.deal_id == deal_id)
                   & (db.deal_accs.curr_id == curr_out.id)
-                  & (db.deal_accs.acc == acc)).select().first()
+                  & (db.deal_accs.deal_acc == acc)).select().first()
     if not deal_acc:
         deal_acc_id = db.deal_accs.insert(deal_id = deal_id, curr_id = curr_out.id, acc = acc)
     else:

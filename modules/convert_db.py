@@ -113,7 +113,7 @@ def from5(db):
         # найдем неимпортированные записи
         #
         acc = db((db.deal_accs.deal_id==deal.id)
-                 & ( db.deal_accs.acc==rec.phone)).select().first()
+                 & ( db.deal_accs.deal_acc==rec.phone)).select().first()
         #print deal_acc
         #continue
         if acc:

@@ -38,7 +38,7 @@ def log_commit(db, mess):
 #  закатать ошибку в базу
 def dealer_deal_errs_add(db, dealer_deal, acc, err_mess):
     dealer_deal_err = db((db.dealer_deal_errs.dealer_deal_id == dealer_deal.id)
-                 & (db.dealer_deal_errs.acc == acc)).select().first()
+                 & (db.dealer_deal_errs.deal_acc == acc)).select().first()
     if dealer_deal_err:
         dealer_deal_err.update_record( mess = err_mess )
     else:

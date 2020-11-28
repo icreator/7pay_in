@@ -726,7 +726,7 @@ def histoty_result(db, r):
     result = dict(
         curr_in = dict(abbrev = r.currs.abbrev, id = r.currs.id),
         curr_out = dict(abbrev = curr_out.abbrev, id = curr_out.id),
-        acc = r.deal_accs.acc,
+        acc = r.deal_accs.deal_acc,
         amount_in = float(pay_in.amount),
         block = pay_in.block,
         txid = pay_in.txid,
@@ -763,7 +763,7 @@ def history():
         return mess('Use ABBREV/ACCOUNT')
     
 
-    deal_acc = db((db.deal_accs.acc == acc)
+    deal_acc = db((db.deal_accs.deal_acc == acc)
           & (db.deal_accs.curr_id == db.currs.id)
           & (db.currs.abbrev == curr_out_abbrev)
           ).select().first()
@@ -891,7 +891,7 @@ def history():
         rnd = 2
     deal_acc_mess = XML(gifts_lib.adds_mess(deal_acc, PARTNER_MIN, T, rnd))
 
-    deal_acc_res = dict(id = deal_acc.id, name = deal_acc.acc,
+    deal_acc_res = dict(id = deal_acc.id, name = deal_acc.deal_acc,
             to_pay = float(deal_acc.to_pay or Decimal(0)),
             payed_month = float(not deal.is_shop and deal_acc.payed_month or Decimal(0)),
             payed = float(deal_acc.payed or Decimal(0)), price = float(deal_acc.price or Decimal(0)),

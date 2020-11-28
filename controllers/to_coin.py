@@ -90,7 +90,7 @@ def get_uri_in():
         token_in = db.tokens[token_key_in]
         token_system_in = db.systems[token_in.system_id]
 
-    token_system_out = None
+    conn = token_system_out = None
     token_key_out = xcurr_out.as_token
     if token_key_out:
         token_out = db.tokens[token_key_out]

@@ -41,7 +41,7 @@ TTT = 'lib'
 
 def login(acc):
 
-    data = dict( source='MENU', login = acc.acc, password = acc.skey )
+    data = dict( source='MENU', login = acc.deal_acc, password = acc.skey )
     if TTT == 'lib':
         h = urllib2.Request(URL + URL_LOG, urllib.urlencode(data), headers )
         r = urllib2.urlopen(h)
@@ -84,7 +84,7 @@ def login(acc):
     return None, r
 
 def get_balance(acc, TAG):
-    data = dict( source='MENU', login = acc.acc, password = acc.skey )
+    data = dict( source='MENU', login = acc.deal_acc, password = acc.skey )
     if TTT == 'lib':
         r = urllib2.Request(URL + 'settings/account/main.action')
         r = urllib2.urlopen(r)

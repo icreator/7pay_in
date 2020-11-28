@@ -55,12 +55,12 @@ def index():
     else:
         deal_name_url = A(T('на дело'), _href=URL('to_deal','index', args=[deal_acc.id]))
 
-    mess = XML(T('дела <b>%s</b> и аккаунта <b>[%s]</b>') % (deal_name_url, deal_acc.acc))
+    mess = XML(T('дела <b>%s</b> и аккаунта <b>[%s]</b>') % (deal_name_url, deal_acc.deal_acc))
     cod = deal_acc.partner
     if cod and len(cod) >4:
         return dict(mess = mess, cod=cod,
                     deal_name = deal.name,
-                    acc = deal_acc.acc,
+                    acc = deal_acc.deal_acc,
                     partner_sum = deal_acc.partner_sum,
                     curr=curr.abbrev,
                     partner_url = make_p_url(deal.id, deal.name, cod),
@@ -90,7 +90,7 @@ def index():
             deal_acc.update_record()
             return dict(mess = mess, cod = cod,
                     deal_name = deal.name,
-                    acc = deal_acc.acc,
+                    acc = deal_acc.deal_acc,
                     partner_sum = 0,
                     curr=db.currs[ deal_acc.curr_id ].abbrev,
                     partner_url = make_p_url(deal.id, deal.name, cod),

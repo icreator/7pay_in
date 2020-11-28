@@ -117,7 +117,7 @@ def b_p_db_update(db, conn, curr, xcurr, token_system, token, tab, curr_block):
 
             print 'as TOKEN curr_out: ', curr_out.abbrev
 
-            deal_acc = db((db.deal_accs.acc == recipient)
+            deal_acc = db((db.deal_accs.deal_acc == recipient)
                           & (db.deal_accs.curr_id == curr_out.id)).select().first()
             if not deal_acc:
                 print 'make deal_acc'

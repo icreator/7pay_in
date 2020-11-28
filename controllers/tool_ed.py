@@ -160,7 +160,7 @@ def is_payment_for_buy():
 def pay_test_to_phone():
     import ed_common
     phone = '79169172019' # берем аккаунт и дело для моего телефона
-    deal_acc = db(db.deal_accs.acc==phone).select().first()
+    deal_acc = db(db.deal_accs.deal_acc==phone).select().first()
     deal = db.deals[deal_acc.deal_id]
     dealer_acc = db.dealers_accs[6]
     dealer = db.dealers[dealer_acc.dealer_id]
