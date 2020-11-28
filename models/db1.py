@@ -213,7 +213,7 @@ db.define_table('dealers_accs',
                 Field('dealer_id', db.dealers, ondelete='CASCADE', label='to dealer'),
                 Field('ecurr_id', db.ecurrs, ondelete='CASCADE', label='in currency'),
                 Field('used', 'boolean', default=False, comment='used by site'),
-                Field('deal_acc', length=50, label='ACCOUNT', required=True), #notnull=True),
+                Field('acc', length=50, label='ACCOUNT', required=True), #notnull=True),
                 Field('pkey', 'text', comment='public key'),
                 Field('skey', 'text', comment='secret key'),
                 Field('expired', 'date', comment='expired date for secret key'),
@@ -228,7 +228,7 @@ db.define_table('dealers_accs',
                 Field('mon_limit', 'integer'), # номер месяца если наступило месячное ограничение выплат
                 Field('mon_limit_sum', 'integer'), # сколько в месяц уже выплотили - меньше 40 000 р
                 Field('from_dt', 'string', default = '0', comment='proc transactions from this DT'),
-                format='%(deal_acc)s %(ecurr_id)s',
+                format='%(acc)s %(ecurr_id)s',
                 )
 
 db.define_table('dealers_accs_trans',
@@ -271,7 +271,6 @@ db.define_table('deals_cat',
 # валюты входа отдельно, сначала пользователи на дело, потомвалта входа на пользователя
 db.define_table('deals',
                 Field('cat_id', db.deals_cat, ondelete='CASCADE', default = 1),
-                #Field('curr_id', 'integer', comment='NOT USED now! GEt curr in DEAL_ACC'), # db.currs
                 Field('fee_curr_id', db.currs, comment='curr for calc FEE'),
                 Field('name', length=100,  unique=True), # for URL and LABELs
                 Field('name2', length=100, comment='english-name for URL and label'),
@@ -307,7 +306,6 @@ db.define_table('deals',
 # for copy from external DBs by 'import by CSV' of web2py
 db.define_table('deals_tmp',
                 Field('cat_id', db.deals_cat, ondelete='CASCADE', default = 1),
-                #Field('curr_id', 'integer', comment='NOT USED now! GEt curr in DEAL_ACC'), # db.currs
                 Field('fee_curr_id', db.currs, comment='curr for calc FEE'),
                 Field('name', length=100,  unique=True), # for URL and LABELs
                 Field('name2', length=100, comment='english-name for URL and label'),
@@ -751,7 +749,7 @@ db.define_table('recl',
 ## http://127.0.0.1:8000/ipay/edealers/buys_twiced
 ## база создается по двойным выплатам
 db.define_table('buyers_credit',
-                Field('deal_acc', length=50), # с какого счета платили
+                Field('acc', length=50), # с какого счета платили
                 Field('credit', 'decimal(10,2)', default = 0, comment='то что я им выплатил лишнее двойные разы'),
                 Field('accepted', 'decimal(10,2)', default = 0, comment='то что я с них получил'),
                 Field('un_rewrite', 'boolean', comment='True - not rewrite!'),

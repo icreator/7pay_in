@@ -72,7 +72,7 @@ def list():
     # common.page_stats(db, response['view'])
     # print request.vars
     ed_op_res = None
-    ed_acc = request.vars.get('deal_acc')
+    ed_acc = request.vars.get('acc')
     if ed_acc:
         if len(ed_acc) > 13 and len(ed_acc) < 20:
             ed_op_id = request.vars.get('op_id')
@@ -93,7 +93,7 @@ def list():
             else:
                 ed_op_res = 'op_id error 1'
         else:
-            ed_op_res = 'deal_acc error'
+            ed_op_res = 'acc error'
 
     response.js = "$('.go-btn').removeClass('disabled');$('#go').children('i').removeClass('fa-refresh fa-spin').addClass('fa-search');"
     addr = request.args(0) or request.vars.addr

@@ -126,7 +126,7 @@ def load_YD(url_yd, my_url):
     html_in = f.read()
 
     #for 
-    #html_in = regular_digs.sub("","%s" % deal_acc)
+    #html_in = regular_digs.sub("","%s" % acc)
 
     # Tag.isSelfClosing -> Tag.is_empty_element
     #print BeautifulSoup.empty_element_tags

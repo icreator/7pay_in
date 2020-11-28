@@ -121,7 +121,7 @@ def b_p_db_update(db, conn, curr, xcurr, token_system, token, tab, curr_block):
                           & (db.deal_accs.curr_id == curr_out.id)).select().first()
             if not deal_acc:
                 print 'make deal_acc'
-                deal_acc_id = db.deal_accs.insert(deal_id=TO_COIN_ID, acc=recipient, curr_id=curr_out.id)
+                deal_acc_id = db.deal_accs.insert(deal_id=TO_COIN_ID, deal_acc=recipient, curr_id=curr_out.id)
                 deal_acc_addr_id = db.deal_acc_addrs.insert(deal_acc_id=deal_acc_id, addr=token_system.account,
                                                             xcurr_id=xcurr.id)
                 deal_acc_addr = db.deal_acc_addrs[deal_acc_addr_id]
