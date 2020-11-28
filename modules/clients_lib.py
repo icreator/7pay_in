@@ -217,7 +217,7 @@ def auto_collect(db):
         curr = db.currs[xcurr.curr_id]
         if not curr.used: continue
         print curr.abbrev
-        cn = crypto_client.conn(curr, xcurr)
+        cn = crypto_client.connect(curr, xcurr)
         if not cn: continue
         
         addrs = {}

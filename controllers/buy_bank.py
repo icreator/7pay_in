@@ -47,8 +47,8 @@ def check():
     curr, xcurr, _ = get_currs_by_addr(db, addr)
     if not xcurr:
         return T("Неверный адрес") # Invalid wallet address
-    from crypto_client import conn
-    conn = conn(curr, xcurr)
+    from crypto_client import connect
+    conn = connect(curr, xcurr)
     if not conn:
         return T("Нет связи с [%s]") % curr.abbrev # Not connected to wallet [%s]
     valid = conn.validateaddress(addr)

@@ -91,7 +91,7 @@ def bank_check():
     curr, xcurr, _ = get_currs_by_addr(db, addr)
     if not xcurr:
         return mess("Неверный адрес") # Invalid wallet address
-    conn = crypto_client.conn(curr, xcurr)
+    conn = crypto_client.connect(curr, xcurr)
     if not conn:
         return mess("Нет связи с [%s]" % curr.abbrev) # Not connected to wallet [%s]
     valid = conn.validateaddress(addr)
@@ -186,20 +186,26 @@ def get():
         print 'list session error .buyAddr:', type(addr), vol
         print 'list session error .buyVol:', type(vol), vol
 
+    token_system_out = None
+    token_key_out = xcurr_out.as_token
+    if token_key_out:
+        token_out = db.tokens[token_key_out]
+        token_system_out = db.systems[token_out.system_id]
+
     #print best_rate
     if request.application[:-3] != '_dvlp':
-        # чето конфликт если из ipay3_dvlp вызывать то кошелек на ipay3 не коннектится
-        cc = crypto_client.conn(curr_out, xcurr_out)
-        if cc:
-            if crypto_client.is_not_valid_addr(cc, addr):
-                #return mess(T('address not valid for ') + curr_out_name)
-                return mess(T('ОШИБКА') + ': ' + T('Адрес кошелька не подходит для выбранной криптовалюты %s') % curr_out_name)
-        else:
-            # ЕСЛИ НЕТ СВЯЗИ - пусть пллатит - потом связь появится
-            #return mess(T('Connection to [%s] is lost, try later ') % curr_out_name)
-            ##return mess(T('Связь с кошельком ') + curr_out_name + T(' прервана.') + ' ' + T('Пожалуйста попробуйте позже'), 'warning')
-            pass
 
+        conn = None
+        if token_system_out:
+        else:
+            try:
+                conn = crypto_client.connect(curr_out, xcurr_out)
+            except:
+                conn = None
+
+        # ЕСЛИ НЕТ СВЯЗИ - пусть платит все равно - потом связь появится
+        if conn and crypto_client.is_not_valid_addr(token_system_out, addr, conn):
+            return mess('address not valid for - ' + curr_out_name + ' - ' + addr)
 
     volume_in = vol
     is_order = True

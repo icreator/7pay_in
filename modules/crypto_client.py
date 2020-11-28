@@ -49,7 +49,7 @@ def is_not_valid_addr(token_system, addr, conn=None):
         if token_system.protocol == 'geth':
             return rpc_ethereum_geth.is_not_valid_addr(token_system.connect_url, addr)
     else:
-        return is_not_valid_addr(conn, addr)
+        return is_not_valid_addr_xcurr(conn, addr)
 
 
 def get_height(xcurr, token_system, conn=None):
@@ -194,7 +194,7 @@ def conn_0(curr, xcurr, timeout=40):
 
 
 # for bitcoin ver 12.0
-def conn(curr, xcurr, cn=None):
+def connect(curr, xcurr, cn=None):
     try:
         cn = cn or ServiceProxy(xcurr.connect_url, None, 60)
         cn.getblockcount()
@@ -261,9 +261,9 @@ def conn_old(curr, xcurr, inttime=30):
 # выдать резервы только с учкетом проверенного блока на вход -
 # так чтобы нельзя было
 # перевести еще неучтенные монеты со входов UNSPENT
-def get_reserve(curr, xcurr, cn=None):
+def get_balance_xcurr(curr, xcurr, cn=None):
     if not cn:
-        cn = conn(curr, xcurr)
+        cn = connect(curr, xcurr)
     if not cn:
         return
     curr_block = cn.getblockcount()
@@ -290,7 +290,7 @@ def trans_exist(conn, txid):
     return res
 
 
-def is_not_valid_addr(conn, addr):
+def is_not_valid_addr_xcurr(conn, addr):
     try:
         valid = conn.validateaddress(addr)
     except:
@@ -316,7 +316,7 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system=None, token=None
         if token_system.protocol == 'geth':
             return rpc_ethereum_geth.send(db, curr, xcurr, addr, amo, token_system, token)
 
-    cc = conn_in or conn(curr, xcurr)
+    cc = conn_in or connect(curr, xcurr)
     if not cc: return {'error': 'unconnect to [%s]' % curr.abbrev}, None
     try:
         valid = cc.validateaddress(addr)
@@ -330,7 +330,7 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system=None, token=None
     else:
         txfee = 0
     # reserve - то что уже учтено нами и это можно отослать дальше
-    reserve = get_reserve(curr, xcurr, cc)
+    reserve = get_balance_xcurr(curr, xcurr, cc)
     if amo + txfee > reserve:
         return {'error': 'out off reserve:[%s]' % reserve}, None
     # проверим готовность базы - is lock - и запишем за одно данные
@@ -354,7 +354,7 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system=None, token=None
         # тут mess для того чтобы обнулить выход и зачесть его как 0
         res = {'mess': '< txfee', 'error': 'so_small', 'error_description': '%s < txfee %s' % (amo, txfee)}
 
-    bal = get_reserve(curr, xcurr, cc)
+    bal = get_balance_xcurr(curr, xcurr, cc)
     return res, bal
 
 
@@ -475,7 +475,7 @@ def send_to_many(db, curr, xcurr, sends_in, tx_fee_in=None, conn_in=None):
         # хотя поидее они уже там из списка просуммированы
         sends[k] = (sends.get(k) or 0.0) + v  # converted to float
 
-    cn = conn_in or conn(curr, xcurr)
+    cn = conn_in or connect(curr, xcurr)
     if not cn:
         return {'error': 'ERROR: connection to wallet [%s] is broken' % curr.abbrev}
 
@@ -490,7 +490,7 @@ def send_to_many(db, curr, xcurr, sends_in, tx_fee_in=None, conn_in=None):
     # print transFEE
 
     # reserve - то что уже учтено нами и это можно отослать дальше
-    reserve = get_reserve(curr, xcurr, cn)
+    reserve = get_balance_xcurr(curr, xcurr, cn)
     if vol + transFEE > reserve:
         return {'error': 'out off reserve:[%s]' % reserve}, None
 
@@ -544,7 +544,7 @@ def send_to_many(db, curr, xcurr, sends_in, tx_fee_in=None, conn_in=None):
 
 def re_broadcast(db, curr, xcurr, cn=None):
     return  # поидее наш кошелек сам все делает
-    cn = cn or conn(curr, xcurr)
+    cn = cn or connect(curr, xcurr)
     if not cn: return
 
     ok_conf = 6

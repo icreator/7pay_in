@@ -268,9 +268,9 @@ def curr_get_info():
             'from_block': token_system.from_block
         }
     else:
-        from crypto_client import conn
+        from crypto_client import connect
         try:
-            conn = conn(curr, xcurr)
+            conn = connect(curr, xcurr)
             # return {'error': '%s' % conn}
         except:
             conn = None
@@ -319,41 +319,30 @@ def validate_addr():
     if not xcurr:
         return {"error": "invalid curr_abbrev"}
 
-    token_system_out = None
+    import crypto_client
+
+    conn = None
     token_key = xcurr.as_token
     if token_key:
         token = db.tokens[token_key]
         token_system = db.systems[token.system_id]
-
-        import crypto_client
-        curr_block = crypto_client.get_height(xcurr, token_system)
-        if type(1) != type(curr_block):
-            return {'error': 'Connection to [%s] is lost, try later ' % curr.name}
-
-        if crypto_client.is_not_valid_addr(token_system.connect_url, addr):
-            return {'error': 'address not valid for ' + curr.name + ' - ' + addr}
-
-        return {'curr': curr.abbrev, 'ismine': token_system.account == addr}
-
     else:
-
-        from crypto_client import conn
         try:
-            conn = conn(curr, xcurr)
+            conn = crypto_client.connect(curr, xcurr)
         except:
             conn = None
+
         if not conn:
             return {'error': 'Connection to [%s] is lost, try later ' % curr.name}
 
-        valid = conn.validateaddress(addr)
+    curr_block = crypto_client.get_height(xcurr, token_system, conn)
+    if type(1) != type(curr_block):
+        return {'error': 'Connection to [%s] is lost, try later ' % curr.name}
 
-        # import crypto_client
-        # if crypto_client.is_not_valid_addr(conn, addr):
-        #    return { 'error': 'address not valid for - ' + curr.abbrev}
+    if crypto_client.is_not_valid_addr(token_system, addr, conn):
+        return {'error': 'address not valid for ' + curr.name + ' - ' + addr}
 
-        if not valid.get('isvalid'):
-            return {"error": "invalid for [%s]" % curr.abbrev, 'mess': '%s' % valid}
-        return {'curr': curr.abbrev, 'ismine': valid.get('ismine'), 'mess': '%s' % valid}
+    return {'curr': curr.abbrev, 'ismine': token_system.account == addr}
 
 
 @cache.action(time_expire=time_exp * 10, cache_model=cache.disk)

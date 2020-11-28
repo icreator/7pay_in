@@ -228,7 +228,7 @@ def b_p_db_update(db, conn, curr, xcurr, token_system, token, tab, curr_block):
         token_system.update_record()
     else:
         # баланс берем по обработанным только блокам
-        balance = crypto_client.get_reserve(curr, xcurr, conn)  # conn.getbalance()
+        balance = crypto_client.get_balance_xcurr(curr, xcurr, conn)  # conn.getbalance()
         curr.balance = balance
         curr.update_record()
         xcurr.from_block = curr_block
@@ -669,7 +669,7 @@ def run_once(db, abbrev):
         b_p_db_update(db, None, curr, xcurr, token_system, token, tab, curr_block)
 
     else:
-        conn = crypto_client.conn(curr, xcurr)
+        conn = crypto_client.connect(curr, xcurr)
         if conn:
             # try:
             if True:

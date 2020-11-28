@@ -50,7 +50,7 @@ def found_buys(db, addr):
 def found_unconfirmed(db, curr, xcurr, addr, pays):
     privat = not addr or len(addr) < 4
     if privat: return
-    conn = crypto_client.conn(curr, xcurr)
+    conn = crypto_client.connect(curr, xcurr)
     if not conn:
         #mess = curr.name + ' ' + T('no connection to wallet')
         #print mess

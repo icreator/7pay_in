@@ -26,7 +26,7 @@ def add_pay_in_tx():
         return CAT(H2('already in PAY_INS'),BEAUTIFY(pay_in))
     
     import crypto_client
-    conn = crypto_client.conn(curr, xcurr)
+    conn = crypto_client.connect(curr, xcurr)
     if not conn:
         return 'error - not connected to wallet'
     res = None

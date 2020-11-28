@@ -105,7 +105,7 @@ def get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr, xcurr, x_acc_label):
         addr = token_system.account
     else:
         try:
-            conn = crypto_client.conn(curr, xcurr)
+            conn = crypto_client.connect(curr, xcurr)
         except:
             conn = None
 

@@ -100,22 +100,21 @@ def get_uri_in():
     if request.application[:-3] != '_dvlp' and not DEVELOP_USE:
         # чето конфликт если из ipay3_dvlp вызывать то кошелек на ipay3 не коннектится
         if token_system_out:
-            curr_block = crypto_client.get_height(curr_out, token_system_out)
-            if type(curr_block) != type(1):
+            curr_block = crypto_client.get_height(xcurr_out, token_system_out)
+            if type(1) != type(curr_block):
                 return mess(T('Connection to [%s] is lost, try later ') % curr_out_name)
-            if crypto_client.is_not_valid_addr(curr_out, token_system_out, addr_out):
-                return mess(T('address not valid for ') + curr_out_name + ' - ' + addr_out)
-            
             pass
         else:
             try:
-                cc = crypto_client.conn(curr_out, xcurr_out)
+                conn = crypto_client.connect(curr_out, xcurr_out)
             except:
-                cc = None
-            if not cc:
+                conn = None
+
+            if not conn:
                 return mess(T('Connection to [%s] is lost, try later ') % curr_out_name)
-            if crypto_client.is_not_valid_addr(cc, addr_out):
-                return mess(T('address not valid for - ') + curr_out_name + ' - ' + addr_out)
+
+        if crypto_client.is_not_valid_addr(token_system_out, addr_out, conn):
+            return mess(T('address not valid for - ') + curr_out_name + ' - ' + addr_out)
 
     try:
         session.toCoin = curr_out_abbrev

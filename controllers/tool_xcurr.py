@@ -11,7 +11,7 @@ def addrs():
     if not request.args(0):return '/EMC/[addr]'
     curr, xcurr, e = db_common.get_currs_by_abbrev(db, request.args(0))
     if not xcurr: return 'xcurr not found'
-    cn = crypto_client.conn(curr, xcurr)
+    cn = crypto_client.connect(curr, xcurr)
     if not cn: return 'xcurr not connected'
 
     res = {}
@@ -67,7 +67,7 @@ def ophrans():
     import db_common
     #import crypto_client
     curr, xcurr, e = db_common.get_currs_by_abbrev(db,request.args[0])
-    conn = crypto_client.conn(curr,xcurr)
+    conn = crypto_client.connect(curr, xcurr)
     h = CAT()
     cnt = 0
     for r in db((db.deal_acc_addrs.xcurr_id == xcurr.id)

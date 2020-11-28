@@ -76,7 +76,7 @@ def clients_auto_collect():
     import clients_lib
     clients_lib.auto_collect(db)
 
-def  get_reserve():
+def  get_balance_xcurr():
     if len(request.args) == 0:
         mess = 'len(request.args)==0'
         print mess
@@ -86,9 +86,9 @@ def  get_reserve():
     import crypto_client
     curr, xcurr, e = db_common.get_currs_by_abbrev(db,request.args[0])
     if not xcurr: return 'xcurr not found'
-    cn = crypto_client.conn(curr, xcurr)
+    cn = crypto_client.connect(curr, xcurr)
     if not cn: return 'xcurr not connected'
-    return crypto_client.get_reserve(curr, xcurr, cn) or 'None'
+    return crypto_client.get_balance_xcurr(curr, xcurr, cn) or 'None'
 
 # get_unspents(conn, conf=None, vol=None, addrs=None, accs=None):
 def get_unspents():
@@ -101,7 +101,7 @@ def get_unspents():
     import crypto_client
     curr, x, e = db_common.get_currs_by_abbrev(db,request.args[0])
     if not x: return 'xcurr not found'
-    cn = crypto_client.conn(curr,x)
+    cn = crypto_client.connect(curr, x)
     if not cn: return 'xcurr not connected'
     vol = None
     conf = len(request.args)>1 and int(request.args[1]) or None
@@ -115,7 +115,7 @@ def retrans_rawtr():
     for xcurr in db(db.xcurrs).select():
         curr = xcurr.curr_id and db.currs[xcurr.curr_id]
         if not curr: continue
-        cn = crypto_client.conn(curr,xcurr)
+        cn = crypto_client.connect(curr, xcurr)
         if not cn: continue
         crypto_client.re_broadcast(db,curr,xcurr,cn)
 
@@ -346,7 +346,7 @@ def inits_new_portal():
         curr = db.currs[xcurr.curr_id]
 
         try:
-            conn = crypto_client.conn(curr, xcurr)
+            conn = crypto_client.connect(curr, xcurr)
             if not conn:
                 msg = curr.name + " - no connection to wallet"
                 print msg
@@ -616,7 +616,7 @@ def tx_senders():
         return res
 
     import crypto_client
-    conn = crypto_client.conn(curr, xcurr)
+    conn = crypto_client.connect(curr, xcurr)
     if not conn:
         return {"error": "not connected to wallet"}
     res = dict(result=crypto_client.sender_addrs(conn, token_system, txid))

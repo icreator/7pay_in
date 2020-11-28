@@ -427,29 +427,24 @@ def get_uri_in():
         # conflicts to call if from [ipay3_dvlp]  - wallet not in connection...
         if token_system_out:
             curr_block = crypto_client.get_height(xcurr_out, token_system_out)
-            if type(curr_block) != type(1):
+            if type(1) != type(curr_block):
                 return mess('Connection to [%s] is lost, try later ' % curr_out_name)
-            if crypto_client.is_not_valid_addr(token_system_out, addr_out):
-                return mess('address not valid for ' + curr_out_name + ' - ' + addr_out)
-            
             pass
         else:
             try:
-                cc = crypto_client.conn(curr_out, xcurr_out)
+                conn = crypto_client.connect(curr_out, xcurr_out)
             except:
-                cc = None
-            if not cc:
+                conn = None
+            if not conn:
                 return mess('Connection to [%s] is lost, try later ' % curr_out_name)
-            if crypto_client.is_not_valid_addr(cc, addr_out):
-                return mess('address not valid for - ' + curr_out_name + ' - ' + addr_out)
+
+        if crypto_client.is_not_valid_addr(token_system_out, addr_out, conn):
+            return mess('address not valid for - ' + curr_out_name + ' - ' + addr_out)
 
     curr_in_name = curr_in.name
     
     if token_system_in:
         addr_in = token_system_in.account
-        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
-    elif xcurr_in.protocol == 'geth':
-        addr_in = xcurr_in.main_addr
         deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
     else:
         x_acc_label = db_client.make_x_acc(deal, addr_out, curr_out_abbrev)
@@ -630,29 +625,24 @@ def get_uri():
         # conflicts to call if from [ipay3_dvlp]  - wallet not in connection...
         if token_system_out:
             curr_block = crypto_client.get_height(xcurr_out, token_system_out)
-            if type(curr_block) != type(1):
+            if type(1) != type(curr_block):
                 return mess('Connection to [%s] is lost, try later ' % curr_out_name)
-            if crypto_client.is_not_valid_addr(xcurr_out, token_system_out, addr_out):
-                return mess('address not valid for ' + curr_out_name + ' - ' + addr_out)
-            
             pass
         else:
             try:
-                cc = crypto_client.conn(curr_out, xcurr_out)
+                conn = crypto_client.connect(curr_out, xcurr_out)
             except:
-                cc = None
-            if not cc:
+                conn = None
+            if not conn:
                 return mess('Connection to [%s] is lost, try later ' % curr_out_name)
-            if crypto_client.is_not_valid_addr(cc, addr_out):
-                return mess('address not valid for - ' + curr_out_name + ' - ' + addr_out)
+
+        if crypto_client.is_not_valid_addr(token_system_out, addr_out, conn):
+            return mess('address not valid for - ' + curr_out_name + ' - ' + addr_out)
 
     curr_in_name = curr_in.name
 
     if token_system_in:
         addr_in = token_system_in.account
-        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
-    elif xcurr_in.protocol == 'geth':
-        addr_in = xcurr_in.main_addr
         deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
     else:
         x_acc_label = db_client.make_x_acc(deal, addr_out, curr_out_abbrev)

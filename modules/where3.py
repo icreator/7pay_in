@@ -114,7 +114,7 @@ def found_unconfirmed_coins_0(db, curr, xcurr):
     
     confs_need = xcurr.conf
     
-    conn = crypto_client.conn(curr, xcurr)
+    conn = crypto_client.connect(curr, xcurr)
     if not conn:
         mess = curr.name + ': ' + T('no connection to wallet')
         #print mess
@@ -232,7 +232,7 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
         
 
     else:
-        conn = crypto_client.conn(curr, xcurr)
+        conn = crypto_client.connect(curr, xcurr)
         if not conn:
             mess = curr.name + ': ' + T('no connection to wallet')
             #print mess

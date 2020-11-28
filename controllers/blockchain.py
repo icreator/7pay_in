@@ -52,7 +52,7 @@ def tx():
         res = crypto_client.get_tx_info(xcurr, token_system, txid, conn)
         return res
 
-    conn = crypto_client.conn(curr, xcurr)
+    conn = crypto_client.connect(curr, xcurr)
     if not conn:
         return {"error": "not connected to wallet"}
     res = None
