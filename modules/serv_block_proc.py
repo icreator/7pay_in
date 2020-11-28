@@ -313,8 +313,9 @@ def parse_mess(lines, xcurr, token_system, rec, transactions):
                                 # already assigned
                                 continue
 
-                            recAdded = crypto_client.get_tx_info(token_system, txid.strip(),, xcurr
-                            crypto_client.parse_tx_fields(recAdded)
+                            recAdded = crypto_client.get_tx_info(xcurr, token_system, txid.strip())
+                            recAdded = crypto_client.parse_tx_fields(xcurr, token_system, recAdded)
+
                             if not recAdded or 'creator' not in recAdded or recAdded['creator'] != rec['creator']:
                                 # set payment details only for this creator records
                                 continue
@@ -398,7 +399,7 @@ def get_incomed(db, xcurr, token_system, from_block_in=None):
                                     # already assigned
                                     continue
 
-                                recAdded = crypto_client.get_tx_info(token_system, txid.strip(),, xcurr
+                                recAdded = crypto_client.get_tx_info(xcurr, token_system, txid.strip())
                                 recAdded = crypto_client.parse_tx_fields(xcurr, token_system, recAdded)
 
                                 if not recAdded or 'creator' not in recAdded or recAdded['creator'] != rec['creator']:
@@ -472,7 +473,7 @@ def b_p_proc_unspent(db, conn, curr, xcurr, addr_in=None, from_block_in=None):
         lUnsp = conn.listunspent(xcurr.conf)
         if type(lUnsp) == type({}):
             # ошибка
-            log(db, 'listunspent %s' % Unsp)
+            log(db, 'listunspent %s' % lUnsp)
             return tab, None
 
     for r in lUnsp:
@@ -720,7 +721,7 @@ def run_once(db, abbrev):
         ss = ss + '%s<br>' % mess
         log_commit(db, mess)
 
-    if conn or token_key:
+    if conn or token_system:
         try:
             # if True:
             # если есть отвергнутиые платежи то вернем их
@@ -747,7 +748,7 @@ def run_once(db, abbrev):
 
         try:
             # если есть транзакции не включенные еще в блок
-            crypto_client.re_broadcast(db, curr, xcurr, conn)
+            crypto_client.re_broadcast(db, curr, xcurr, token_system, conn)
             db.commit()
         except Exception as e:
             db.rollback()

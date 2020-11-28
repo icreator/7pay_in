@@ -117,7 +117,7 @@ def retrans_rawtr():
         if not curr: continue
         cn = crypto_client.connect(curr, xcurr)
         if not cn: continue
-        crypto_client.re_broadcast(db,curr,xcurr,cn)
+        crypto_client.re_broadcast(db, curr, xcurr, token_system, cn)
 
 # выдать запись из крипты или фиата
 def get_acurr_rec_xe(db, id):

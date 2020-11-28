@@ -548,7 +548,7 @@ def send_to_many(db, curr, xcurr, sends_in, tx_fee_in=None, conn_in=None):
     return {'txid': res, 'tx_hex': tx_hex, 'txfee': transFEE}
 
 
-def re_broadcast(db, curr, xcurr, cn=None):
+def re_broadcast(db, curr, xcurr, token_system, cn=None):
     return  # поидее наш кошелек сам все делает
     cn = cn or connect(curr, xcurr)
     if not cn: return
