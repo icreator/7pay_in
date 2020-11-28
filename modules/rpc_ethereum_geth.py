@@ -160,14 +160,22 @@ def get_transactions(token_system, from_block=2):
         return result, None
 
     i = from_block
+    timestamp = time.time()
+    tx_count = 0
 
     ## TODO + confirmed HARD
     while i + conf <= height:
+
         if len(result) > 100 or i - from_block > 10000:
             break
 
+        if tx_count > 10000:
+            tx_count = 0
+            if time.time() - timestamp > 10:
+                # if time of process more then 10 sec - break!
+                break
+
         i += 1
-        recs_count = 0
 
         try:
             res = rpc_request(rpc_url, "eth_getBlockByNumber", ['%#x' % i, True])
@@ -187,6 +195,9 @@ def get_transactions(token_system, from_block=2):
 
         incomes = []
         for rec in recs:
+
+            ++tx_count
+
             if not rec['to'] or not rec['value'] or not rec['input'] or rec['input'] == '0x' or not rec['from'] or rec['to'] != addr:
                 continue
 
