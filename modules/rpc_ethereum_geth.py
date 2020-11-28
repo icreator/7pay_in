@@ -6,7 +6,6 @@ import urllib2
 from gluon import current
 from decimal import Decimal
 import decimal
-decimal.getcontext().prec = 18
 
 from gluon.contrib import simplejson as json
 import time
@@ -104,6 +103,7 @@ def get_balance(token_system, token=1, address=None):
 
         ##  x WEI
         ##return dict(long=long(str, 16), decimal=Decimal(long(str, 16)), decimal18=Decimal(long(str, 16))*Decimal(1E-18))
+        decimal.getcontext().prec = 18
         return Decimal(balance) * Decimal(1E-18)
     else:
         return 0
@@ -187,12 +187,13 @@ def get_transactions(token_system, from_block=2):
 
         incomes = []
         for rec in recs:
-            if not rec['to'] or not rec['value'] or not rec['input'] or not rec['from'] or rec['to'] != addr:
+            if not rec['to'] or not rec['value'] or not rec['input'] or rec['input'] == '0x' or not rec['from'] or rec['to'] != addr:
                 continue
 
             rec['block'] = i,
-            rec['timestamp'] = block['timestamp'][2:].decode('hex')
+            rec['timestamp'] = int(block['timestamp'], 16)
             rec['confirmations'] = height - i
+            rec['message'] = rec['input'][2:].decode('hex')
 
             incomes.append(rec)
             print 'geth: ', rec
@@ -201,7 +202,7 @@ def get_transactions(token_system, from_block=2):
 
     return result, i
 
-
+## for Unlock: 	{"method": "personal_unlockAccount", "params": [string, string, number]}
 def send(db, curr, xcurr, toAddr, amo, token_system, token=None, mess=None, sender=None):
     rpc_url = token_system.connect_url
     sender = sender or token_system.main_addr
@@ -226,7 +227,7 @@ def send(db, curr, xcurr, toAddr, amo, token_system, token=None, mess=None, send
             amo_to_pay = amo  # - txfee
             print 'res = geth.send(addr, amo - txfee)', amo_to_pay
 
-            txfee = long(txfee * Decimal(1E8))  ## and x 1+E10 by gasPrice
+            txfee = long(txfee * Decimal(1E10))  ## and x 1+E10 by gasPrice
             amo_to_pay = long(amo_to_pay * Decimal(1E18))  ## in WEI
 
             params = [{
@@ -235,9 +236,12 @@ def send(db, curr, xcurr, toAddr, amo, token_system, token=None, mess=None, send
                 "value": '%#x' % amo_to_pay,
                 "data": '0x' + (mess.encode("hex")),
                 "gas": '%#x' % txfee,
-                "gasPrice": '%#x' % 1E10
+                "gasPrice": '%#x' % 1E11
             }]
             print params
+            res = rpc_request(rpc_url, "personal_unlockAccount", [sender, "123", 3])
+            if 'error' in res:
+                return res, balance
             res = rpc_request(rpc_url, "eth_sendTransaction", params)
             try:
                 res = res['result']
