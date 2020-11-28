@@ -330,67 +330,6 @@ def send_to_main(conn, xcurr, acc_from, amo):
     #print mess
 
 
-# инициализация портала
-def inits_new_portal():
-
-    ###db.to_phone.drop()
-
-    resp = ""
-    # для всех криптовалют создадим главные аккаунты в кошельках
-    for xcurr in db(db.xcurrs).select():
-
-        if xcurr.as_token:
-            # это другая система
-            continue
-
-        curr = db.currs[xcurr.curr_id]
-
-        try:
-            conn = crypto_client.connect(curr, xcurr)
-            if not conn:
-                msg = curr.name + " - no connection to wallet"
-                print msg
-                resp = resp + msg + '<br>'
-                continue
-
-        except Exception as e:
-            msg = curr.name + " - no connection to wallet: " + e.message
-            print msg
-            resp = resp + msg + '<br>'
-            continue
-
-
-        if xcurr.protocol == 'btc':
-            try:
-                addr = crypto_client.get_xaddress_by_label(conn, '.main.')
-                xcurr.main_addr = addr
-                xcurr.update_record()
-                resp = resp + addr + ' - for ' + curr.name + '<br>'
-            except Exception as e:
-                print e
-                msg = curr.name + " - no made .main. account, error: " + e.message # e.args
-                print msg
-                resp = resp + msg + '<br>'
-                continue
-        elif xcurr.protocol == 'zen':
-            try:
-                addr = conn.listaddresses()[0]
-                xcurr.main_addr = addr
-                xcurr.update_record()
-                resp = resp + addr + ' - for ' + curr.name + '<br>'
-            except Exception as e:
-                print e
-                msg = curr.name + " - no made .main. account, error: " + e.message # e.args
-                print msg
-                resp = resp + msg + '<br>'
-                continue
-        else:
-            resp = resp + curr.name + ' - skipped<br>'
-
-
-    return resp
-
-
 # попробуем вручную получить ИД-платежа и его подтвердить
 # https://sp-money.yandex.ru/check.xml?request-id=3734353838393737305f323535613763306161373966333461383833613238303266623630316132383264666535353665625f3332333937303939
 # http://127.0.0.1:8000/ipay10/tools/YmToConfirm/2/111
