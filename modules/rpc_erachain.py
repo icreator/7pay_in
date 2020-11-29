@@ -163,7 +163,7 @@ def get_transactions(token_system, from_block=2):
             if rec['type'] != 31:
                 # only SEND transactions
                 continue
-            if not rec['amount']:
+            if 'amount' not in rec:
                 # only SEND transactions
                 continue
             if 'actionKey' not in rec or rec['actionKey'] != 1:
@@ -172,7 +172,7 @@ def get_transactions(token_system, from_block=2):
             if 'backward' in rec:
                 # skip BACKWADR
                 continue
-            if rec.get('title') == '.main.':
+            if rec.get('title') is '.main.':
                 ## skip my deposit
                 continue
 

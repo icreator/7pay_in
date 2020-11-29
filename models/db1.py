@@ -344,7 +344,7 @@ db.define_table('deal_errs',
                 Field('deal_id', db.deals, ondelete='CASCADE'),
                 Field('dealer_id', db.dealers, ondelete='CASCADE'),
                 Field('dealer_acc', length=50),
-                Field('deal_acc', length=50),
+                Field('acc', length=50),
                 Field('count_', 'integer'),
                 Field('err', 'text'),
                 Field('updated_on', 'datetime', writable=False, default=request.now, update=request.now ),
@@ -364,7 +364,7 @@ db.define_table('deals_wants',
 '''
 # тут только персональные данные пользователя для данного дела
 # - его ИД или телефон и т.д - то что надо указать в платежке для диллера
-## for TO COUN - deal_acc = out addres + curr_id = oute CURR
+## for TO COUN - acc = out addres + curr_id = oute CURR
 db.define_table('deal_accs',
                 Field('deal_id', db.deals, ondelete='CASCADE'),
                 Field('curr_id', db.currs, ondelete='CASCADE'),
@@ -390,7 +390,7 @@ db.define_table('deal_accs',
                 Field('gift_pick', 'decimal(14,8)', default=Decimal(0), comment='if >0 - not add a new gist_amo'),
                 Field('gift_payed', 'decimal(16,8)', default=Decimal(0)), # сколько денег уже подарили
                 Field('created_on', 'datetime', writable=False, default=request.now),
-                format='%(id)s %(deal_acc)s %(curr_id)s',
+                format='%(id)s %(acc)s %(curr_id)s',
                 )
 
 # для входов разных приптовалют
@@ -438,7 +438,7 @@ db.define_table('dealer_deals',
                 )
 db.define_table('dealer_deal_errs',
                 Field('dealer_deal_id', db.dealer_deals),
-                Field('deal_acc', length=50),
+                Field('acc', length=50),
                 Field('mess', 'text'),
                 )
 

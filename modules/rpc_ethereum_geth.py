@@ -198,7 +198,8 @@ def get_transactions(token_system, from_block=2):
 
             ++tx_count
 
-            if not rec['to'] or not rec['value'] or not rec['input'] or rec['input'] == '0x' or not rec['from'] or rec['to'] != addr:
+            if 'to' not in rec or 'value' not in rec or 'input' not in rec or rec['input'] == '0x' \
+                    or 'from' not in rec or rec['to'] != addr:
                 continue
 
             rec['block'] = i,
