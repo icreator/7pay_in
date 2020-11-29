@@ -485,7 +485,7 @@ def deals_used():
         #fields = ['name', 'used', 'my_client', 'wants', '_count', '_average', 'fee'],
         #fields00 = [db.deals.name, db.deals.used, db.deals.my_client, db.deals.wants, db.deals.count_,
         #     db.deals.average_, db.deals.fee,
-        #     db.deal_accs.deal_acc, db.deal_accs.payed, db.deal_accs.payed_month, db.deal_accs.partner_sum ,db.deal_accs.gift_payed,
+        #     db.deal_accs.acc, db.deal_accs.payed, db.deal_accs.payed_month, db.deal_accs.partner_sum ,db.deal_accs.gift_payed,
         #     db.deal_errs.err, db.deal_errs.count_],
         #orderby=~db.deals.wants,
         links_in_grid=False,

@@ -514,8 +514,8 @@ def make_edealer_free_payment(db,
         return
 
     if not r.deal_acc:
-        print 'ERROR: (make_edealer_free_payment) "deal_accs.deal_acc" = None ', curr_in.abbrev, deal_acc_addr, amo
-        mark_pay_ins(db, geted_pays, 'refuse', 'deal_accs[%s].deal_acc=None' % deal_acc_addr.deal_acc_id)
+        print 'ERROR: (make_edealer_free_payment) "deal_accs.acc" = None ', curr_in.abbrev, deal_acc_addr, amo
+        mark_pay_ins(db, geted_pays, 'refuse', 'deal_accs[%s].acc=None' % deal_acc_addr.deal_acc_id)
         db.commit()
         return
     deal = db.deals[r.deal_id]

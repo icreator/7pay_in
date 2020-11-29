@@ -113,14 +113,14 @@ def from5(db):
         # найдем неимпортированные записи
         #
         acc = db((db.deal_accs.deal_id == deal.id)
-                 & (db.deal_accs.deal_acc == rec.phone)).select().first()
+                 & (db.deal_accs.acc == rec.phone)).select().first()
         # print deal_acc
         # continue
         if acc:
             acc_id = acc.id
         else:
             print 'insert deal_acc', rec.phone
-            acc_id = db.deal_accs.insert(deal_id=deal.id, deal_acc=rec.phone)
+            acc_id = db.deal_accs.insert(deal_id=deal.id, acc=rec.phone)
 
         acc_addr = db((db.deal_acc_addrs.deal_acc_id == acc_id)
                       & (db.deal_acc_addrs.addr == rec.wallet)

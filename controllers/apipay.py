@@ -726,7 +726,7 @@ def histoty_result(db, r):
     result = dict(
         curr_in = dict(abbrev = r.currs.abbrev, id = r.currs.id),
         curr_out = dict(abbrev = curr_out.abbrev, id = curr_out.id),
-        acc = r.deal_accs.deal_acc,
+        acc = r.deal_accs.acc,
         amount_in = float(pay_in.amount),
         block = pay_in.block,
         txid = pay_in.txid,
@@ -763,7 +763,7 @@ def history():
         return mess('Use ABBREV/ACCOUNT')
     
 
-    deal_acc = db((db.deal_accs.deal_acc == acc)
+    deal_acc = db((db.deal_accs.acc == acc)
           & (db.deal_accs.curr_id == db.currs.id)
           & (db.currs.abbrev == curr_out_abbrev)
           ).select().first()

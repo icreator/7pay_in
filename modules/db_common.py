@@ -169,7 +169,7 @@ def pay_err_store(db, dealer, dealer_acc, deal, acc, err):
              & (db.deal_errs.err == err)).select().first()
     if not rec:
         db.deal_errs.insert(dealer_id=dealer.id, dealer_acc=dealer_acc.acc,
-                            deal_id=deal.id, count_=1, deal_acc=acc, err=err)
+                            deal_id=deal.id, count_=1, acc=acc, err=err)
     else:
         rec.count_ = rec.count_ + 1
         rec.acc = acc

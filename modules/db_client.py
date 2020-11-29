@@ -49,8 +49,8 @@ def make_x_acc_label(deal, acc, curr_out_abbrev):
 
 # old def get_deal_acc_id_for_deal_and_acc(db, deal, deal_acc, acurr):
 # создаем заказ длля данного дела с заданной суммой заказа
-def get_deal_acc_id(db, deal, deal_acc, curr_out, price=None):
-    if not deal_acc or len(deal_acc) < 3: return
+def get_deal_acc_id(db, deal, acc, curr_out, price=None):
+    if not acc or len(acc) < 3: return
     # найдем аккаунт для данного дела или создадим
     # если пустой аккаунт в записи то его почему-то находит ((
     import time
@@ -58,29 +58,29 @@ def get_deal_acc_id(db, deal, deal_acc, curr_out, price=None):
     time.sleep(0.5)
     deal_acc = None
     for rec in db((db.deal_accs.deal_id == deal.id)  # для данного дела
-                  & (db.deal_accs.deal_acc == deal_acc)  # есть такой аккаунт
+                  & (db.deal_accs.acc == acc)  # есть такой аккаунт
                   & (db.deal_accs.curr_id == curr_out.id)
                   ).select():
-        if len(rec.deal_acc) < 3: continue
+        if len(rec.acc) < 3: continue
         deal_acc = rec
-        ##print 'get_deal_acc_id found:', deal_acc.id, deal_acc.deal_acc, curr_out.id
+        ##print 'get_deal_acc_id found:', deal_acc.id, deal_acc.acc, curr_out.id
         break
 
     if deal_acc:
         deal_acc_id = deal_acc.id
     else:
         time.sleep(1)
-        deal_acc_id = db.deal_accs.insert(deal_id=deal.id, deal_acc=deal_acc, curr_id=curr_out.id, price=price)
+        deal_acc_id = db.deal_accs.insert(deal_id=deal.id, acc=acc, curr_id=curr_out.id, price=price)
         ##print 'insert new - deal_acc_id:', deal_acc_id
     return deal_acc_id
 
 
-def get_deal_acc_addr(db, deal_id, curr_out, deal_acc, addr, xcurr_in):
+def get_deal_acc_addr(db, deal_id, curr_out, acc, addr, xcurr_in):
     deal_acc = db((db.deal_accs.deal_id == deal_id)
                   & (db.deal_accs.curr_id == curr_out.id)
-                  & (db.deal_accs.deal_acc == deal_acc)).select().first()
+                  & (db.deal_accs.acc == acc)).select().first()
     if not deal_acc:
-        deal_acc_id = db.deal_accs.insert(deal_id=deal_id, curr_id=curr_out.id, deal_acc=deal_acc)
+        deal_acc_id = db.deal_accs.insert(deal_id=deal_id, curr_id=curr_out.id, acc=acc)
     else:
         deal_acc_id = deal_acc.id
 

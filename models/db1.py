@@ -369,7 +369,7 @@ db.define_table('deal_accs',
                 Field('deal_id', db.deals, ondelete='CASCADE'),
                 Field('curr_id', db.currs, ondelete='CASCADE'),
                 # phone, name, id etc
-                Field('deal_acc', length=100, required=True), # тут все коды через пробел
+                Field('acc', length=100, required=True), # тут все коды через пробел
                 Field('price', 'decimal(16,8)'), # если задано то это стоимость заказа - ее нужно всю собрать
                 Field('expire', 'integer', comment='in minits, =0 not expired'), # минут до протухания
                 #Field('ecurr_id', db.ecurrs),
