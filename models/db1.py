@@ -406,7 +406,7 @@ db.define_table('deal_acc_addrs',
                 Field('addr_return', length=40, required=False), # если задан - авто перевод на него будет
                 Field('incomed', 'decimal(16,8)'), # сколько крипты пришло
                 Field('converted', 'decimal(16,8)'), # сколько мы уже конвертировали
-                format='%(id)s %(xcurr_id)s %(address)s',
+                format='%(id)s %(xcurr_id)s %(addr)s',
                 )
 
 # тут у какого дилера данное дело
@@ -487,9 +487,9 @@ db.define_table('clients_balances',
 db.define_table('clients_xwallets',
                 Field('client_id', db.clients, ondelete='CASCADE'),
                 Field('xcurr_id', db.xcurrs, ondelete='CASCADE'),
-                Field('address', length=40, required=True),
+                Field('addr', length=40, required=True),
                 Field('bal', 'decimal(16,8)'),
-                format='%(client_id)s %(xcurr_id)s %(address)s',
+                format='%(client_id)s %(xcurr_id)s %(addr)s',
                 )
 db.define_table('clients_ewallets',
                 Field('client_id', db.clients, ondelete='CASCADE'),
@@ -625,8 +625,8 @@ db.define_table('pay_ins_unused',
 # это для связи адреса крипты с номером заказа
 db.define_table('addr_orders',
                 Field('xcurr_id', db.xcurrs, ondelete='CASCADE'),
-                Field('address', length=40), #
-                format='%(id)s %(address)s',
+                Field('addr', length=40), #
+                format='%(id)s %(addr)s',
                 )
 db.define_table('buys',
                 Field('dealer_acc_id', db.dealers_accs, ondelete='CASCADE'), # какой аккаунт у дилера с заданной фиатной валютой использовался
@@ -637,7 +637,7 @@ db.define_table('buys',
                 ##Field('vars', 'string'), # если платеж не идентифицирован то сюда параметры закатаем
                 ## нет лучше вручную сделаем запрос и посмотрим ответ
                 Field('xcurr_id', db.xcurrs),
-                Field('address', length=60), #
+                Field('addr', length=60), #
                 # что с платежом - зачислен, конвертирован, оплачен диллеру/поставщику
                 Field('status', length=15), # если ошибка при выплате - сюда сообщение вкатываем
                 Field('status_mess', length=150), # если ошибка при выплате - сюда сообщение вкатываем
@@ -645,7 +645,7 @@ db.define_table('buys',
                 Field('vout', 'integer'), # выход в транзакции
                 Field('tax_mess', 'text'), # какие % и оброки взял сервис с транзакции
                 Field('amo_out', 'decimal(16,8)', comment='value payouted'),
-                format='%(id)s %(xcurr_id)s %(address)s %(amount)s %(created_on)s %(status)s',
+                format='%(id)s %(xcurr_id)s %(addr)s %(amount)s %(created_on)s %(status)s',
                 )
 # стек плаатежей которые на проплату
 db.define_table('buys_stack',
