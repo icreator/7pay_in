@@ -12,7 +12,7 @@ def ip(): return current.request.client
 
 import socket
 # vvv=True - включает секртную сессию и выдает страницу ошибки
-def not_is_local(request, vvv=None):
+def not_is_local(request, vvv=True):
     request = request or current.request
     http_host = request.env.http_host.split(':')[0]
     remote_addr = request.env.remote_addr
@@ -25,9 +25,10 @@ def not_is_local(request, vvv=None):
     except:
         hosts = (http_host, )
 
-    if (remote_addr not in hosts) and (remote_addr != "127.0.0.1"):
+    if (remote_addr not in hosts) and (remote_addr not in current.TRUST_IP):
         #and request.function != 'manage':
-        if vvv: raise HTTP(404, 'ERROR 0432')
+        if vvv:
+            raise HTTP(200, current.T('ERROR: not admin in local'))
         return True
     
 def uri_make(name, addr, pars_in, label_in=None):

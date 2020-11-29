@@ -239,12 +239,12 @@ def b_p_db_update(db, conn, curr, xcurr, token_system, token, tab, curr_block):
     db.commit()
 
 
-def parse_mess(db, mess, creator):
+def parse_line(db, mess, creator):
     if not mess:
         return None
 
     args = mess.strip().split('\n')[0].split(':')
-    print 'parse_mess:', mess, args
+    print 'parse_line:', mess, args
 
     arg1 = args[0].strip()
     if len(arg1) < 20:
@@ -321,8 +321,7 @@ def parse_mess(lines, xcurr, token_system, rec, transactions):
                                 continue
 
                             # make record INCOME from Erachain TRANSACTION
-                            make_rec(acc, recAdded, transactions)
-
+                            make_rec(deal_acc, recAdded, transactions)
 
             # except Exception as e:
             else:
@@ -372,7 +371,7 @@ def get_incomed(db, xcurr, token_system, from_block_in=None):
 
         rec = crypto_client.parse_tx_fields(xcurr, token_system, rec)
 
-        deal_acc = parse_mess(db, rec.get('message'), rec.get('creator'))
+        deal_acc = parse_line(db, rec.get('message'), rec.get('creator'))
         if not deal_acc:
             continue
 
@@ -380,40 +379,7 @@ def get_incomed(db, xcurr, token_system, from_block_in=None):
         make_rec(deal_acc, rec, transactions)
 
         lines = rec.get('message')
-        if lines:
-            lines = lines.strip().split('\n')
-
-        if lines and len(lines) > 1:
-            for line in lines:
-                # try:
-                if True:
-                    command = line.split(':')
-                    if len(command) > 1:
-                        if command[0].strip().lower() == 'add':
-                            ## ADD transactions without payments details to that payment
-                            ## need 
-                            for txid in command[1].strip().split(' '):
-                                # see this TX in DB and set DETAILS
-                                pay_in = db(db.pay_ins.txid == txid).select().first()
-                                if pay_in:
-                                    # already assigned
-                                    continue
-
-                                recAdded = crypto_client.get_tx_info(xcurr, token_system, txid.strip())
-                                recAdded = crypto_client.parse_tx_fields(xcurr, token_system, recAdded)
-
-                                if not recAdded or 'creator' not in recAdded or recAdded['creator'] != rec['creator']:
-                                    # set payment details only for this creator records
-                                    continue
-
-                                # make record INCOME from Erachain TRANSACTION 
-                                make_rec(deal_acc, recAdded, transactions)
-
-
-                # except Exception as e:
-                else:
-                    mess = 'COMMAND: %s - %s' % (line, e)
-                    log(db, mess)
+        parse_mess(lines, xcurr, token_system, rec, transactions)
 
     return transactions, curr_block
 

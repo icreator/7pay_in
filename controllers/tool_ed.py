@@ -10,8 +10,10 @@ if False:
     T = current.T
     import db
 
-if not IS_LOCAL: raise HTTP(200, 'error')
-
+import common
+# запустим сразу защиту от внешних вызов
+# тут только то что на локалке TRUST_IP in private/appconfig.ini
+common.not_is_local(request)
 
 from decimal import Decimal
 import ed_common

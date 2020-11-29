@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
-if not IS_LOCAL: raise HTTP(200, 'error')
 
 import datetime
 import ed_bal
+
+import common
+# запустим сразу защиту от внешних вызов
+# тут только то что на локалке TRUST_IP in private/appconfig.ini
+common.not_is_local(request)
 
 
 def oborots():

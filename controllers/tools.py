@@ -14,7 +14,7 @@ if False:
 import socket
 session.forget(response)
 
-# vvv=True - включает секртную сессию и выдает страницу ошибки
+# vvv=True - включает секретную сессию и выдает страницу ошибки
 def not_is_local(vvv=None):
     http_host = request.env.http_host.split(':')[0]
     remote_addr = request.env.remote_addr
@@ -35,9 +35,10 @@ def not_is_local(vvv=None):
         if vvv: raise HTTP(200, T('ERROR: not admin in local'))
         return True
 
+import common
 # запустим сразу защиту от внешних вызов
-not_is_local(True)
-# тут только то что на локалке
+# тут только то что на локалке TRUST_IP in private/appconfig.ini
+common.not_is_local(request)
 
 import sys
 import time

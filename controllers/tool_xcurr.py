@@ -1,5 +1,19 @@
 # -*- coding: utf-8 -*-
-if not IS_LOCAL: raise HTTP(200, 'error')
+
+if False:
+    from gluon import *
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+    import db
+
+import common
+# запустим сразу защиту от внешних вызов
+# тут только то что на локалке TRUST_IP in private/appconfig.ini
+common.not_is_local(request)
+
 session.forget(response)
 
 from decimal import Decimal
@@ -86,3 +100,19 @@ def ophrans():
             h += P(BEAUTIFY(res))
             h += HR()
     return dict(h=CAT(H3('counter:', cnt),h))
+
+
+# args:
+# tools_xcurr/process_from/BTC/from_block
+def process_from():
+    session.forget(response)
+    if len(request.args) == 0:
+        mess = 'len(request.args)==0'
+        print mess
+        return mess
+    import serv_block_proc
+    abbrev = request.args[0]
+    #bhash = len(request.args) > 1 and request.args[1] or None
+    print 'block_proc', abbrev
+    #return abbrev
+    return serv_block_proc.run_once(db, abbrev)

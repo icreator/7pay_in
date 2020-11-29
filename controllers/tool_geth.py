@@ -9,12 +9,16 @@ if False:
     cache = current.cache
     T = current.T
 
-## if not IS_LOCAL: raise HTTP(200, 'error')
 session.forget(response)
 
 from decimal import Decimal
 import decimal
 import db_common, rpc_ethereum_geth
+
+import common
+# запустим сразу защиту от внешних вызов
+# тут только то что на локалке TRUST_IP in private/appconfig.ini
+common.not_is_local(request)
 
 def index(): return dict(message="hello from tool_xcurr.py")
 
