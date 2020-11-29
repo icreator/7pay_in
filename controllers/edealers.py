@@ -132,7 +132,7 @@ def qiwi_hist():
     import ed_common
     acc = db((db.dealers_accs.acc==request.args(0))
              & (db.dealers_accs.dealer_id == dealer.id)).select().first()
-    if not acc: return 'not that QIWI deal_acc'
+    if not acc: return 'not that QIWI acc'
     import ed_QIWI
     err, res = ed_QIWI.get_history(acc, request.args(1), request.args(2), request.args(3), TAG)
     if err:

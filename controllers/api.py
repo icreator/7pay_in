@@ -428,7 +428,7 @@ def deals_does():
     MAX = deal.MAX_pay
     payed = deal_acc.payed or Decimal(0)
     price = deal_acc.price
-    order_id = deal_acc.deal_acc
+    order_id = deal_acc.acc
     amo_rest_url = None
     client = db(db.clients.deal_id == deal.id).select().first()
     if client:

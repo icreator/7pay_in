@@ -142,7 +142,7 @@ def found_pay_ins(db, curr_in, xcurr_in, addr, pays, amo_rest):
         deal_name = deal.name
         if not privat:
             # показать подробно мне
-            deal_name = '%s %s' % (deal.name, deal_acc.deal_acc)
+            deal_name = '%s %s' % (deal.name, deal_acc.acc)
         st = pay.pay_ins.status
         if st == 'returned':
             pay_out_info = T('Возвращен обратно')
@@ -227,7 +227,7 @@ def found_pay_ins(db, curr_in, xcurr_in, addr, pays, amo_rest):
             else:
                 pay_out_info = pay_out_info + T(' транзакция №%s - %s') % (cl_tr.id, cl_tr.desc_)
                 # to_shop/index/2?order=UUWZNTYIR&sum=0.02&curr_out=BTC
-                vvv = {'order':deal_acc.deal_acc, 'curr_out':curr_out.abbrev}
+                vvv = {'order':deal_acc.acc, 'curr_out':curr_out.abbrev}
                 if amo_rest: vvv['sum'] = amo_rest
                 dn_url = URL('to_shop','index', args=[cl_tr.client_id],
                     vars=vvv)
@@ -236,7 +236,7 @@ def found_pay_ins(db, curr_in, xcurr_in, addr, pays, amo_rest):
             order_info = T('текущий курс:%s') % round(rate,8)
         deal_name = deal.name
         if not privat:
-            deal_name = '%s %s' % (deal.name, deal_acc.deal_acc)
+            deal_name = '%s %s' % (deal.name, deal_acc.acc)
         deal_name = XML(A(deal_name, _href=dn_url))
         rec_vals = {
             T('Вход'): '%s [%s] %s' % (pay.pay_ins.amount, curr_in.abbrev, pay.pay_ins.created_on),

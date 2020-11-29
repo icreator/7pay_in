@@ -1,5 +1,17 @@
 # -*- coding: utf-8 -*-
+
+if False:
+    from gluon import *
+
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+    import db
+
 if not IS_LOCAL: raise HTTP(200, 'error')
+
 
 from decimal import Decimal
 import ed_common
@@ -24,7 +36,7 @@ def set_pars_YD(dealer):
     acc = request.vars.acc
     h = CAT(
         DIV(
-            LABEL('Account'),': ', INPUT(_name='deal_acc', _value=acc or ''), ' - если аккаунта еще нет в БД - он добавится',
+            LABEL('Account'),': ', INPUT(_name='acc', _value=acc or ''), ' - если аккаунта еще нет в БД - он добавится',
         _class='row '),
         DIV(
         LABEL('secret_response'),': ', INPUT(_name='secret_response'),' - If setted - will update [pkey] - CLIENT_ID is required too!',
@@ -62,6 +74,7 @@ def set_pars_YD(dealer):
 
         h += DIV(BEAUTIFY(ed_acc))
     return h
+
 # настроить аккаунт для работы по АПИ
 # так же можно добавить новый аккаунт
 def set_pars_api():
@@ -146,7 +159,7 @@ def get_ebalance():
 
 # 410012107376992/
 def is_payment_for_buy():
-    if len(request.args) <2: return '/deal_acc/op_id - /410012107376992/..'
+    if len(request.args) <2: return '/acc/op_id - /410012107376992/..'
     acc = request.args(0)
     dealer_acc = db(db.dealers_accs.acc==acc).select().first()
     if not dealer_acc: return 'ed_acc not founf'
@@ -200,7 +213,7 @@ def pay_test():
 
 
 def pay_test_to_deal():
-    if not request.args(0): return '/deal_id - 46 (skype) / summ?deal_acc=_'
+    if not request.args(0): return '/deal_id - 46 (skype) / summ?acc=_'
     session.forget(response)
     import db_common
     import ed_common
@@ -217,7 +230,7 @@ def pay_test_to_deal():
     
     vol = float(request.args(1) or 100)
     
-    acc = request.vars.get('deal_acc')
+    acc = request.vars.get('acc')
     res = ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, acc, vol, True, None)
     print res
     return BEAUTIFY(res)
@@ -226,7 +239,7 @@ def pay_test_to_deal():
 # http://127.0.0.1:8000/ipay/tools/pay_to_deal/Yandex/410012175232158?deal=WALLET&acc=410011949054154&sum=5
 def pay_to_deal():
     if len(request.args) == 0:
-        mess = 'andex/410012175232158?deal=WALLET&deal_acc=410011949054154&sum=5'
+        mess = 'andex/410012175232158?deal=WALLET&acc=410011949054154&sum=5'
         return mess
 
     import ed_common
@@ -235,9 +248,9 @@ def pay_to_deal():
             & (db.dealers_accs.acc==request.args[1])).select().first()
 
     deal = db(db.deals.name==request.vars['deal']).select().first()
-    acc = request.vars['deal_acc']
+    acc = request.vars['acc']
     #deal_acc = db((db.deal_accs.deal_id==deal.id)
-    #              & (db.deal_accs.acc==deal_acc)).select().first()
+    #              & (db.deal_accs.acc==acc)).select().first()
 
     dealer_deal = db(
         (db.dealer_deals.dealer_id==dealer.id)

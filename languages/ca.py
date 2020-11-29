@@ -260,7 +260,7 @@
 'ERROR: not admin in local': 'ERROR: not admin in local',
 'ERROR: Not found deal "%s"': 'ERROR: Not found deal "%s"',
 'ERROR: not found deal "%s"': 'ERROR: not found deal "%s"',
-'ERROR: Not found dealer deal_acc "%s"': 'ERROR: Not found dealer deal_acc "%s"',
+'ERROR: Not found dealer acc "%s"': 'ERROR: Not found dealer acc "%s"',
 'ERROR: not found dealer for "%s"': 'ERROR: not found dealer for "%s"',
 'ERROR: Not found dealer for "%s". Please try in next month': 'ERROR: Not found dealer for "%s". Please try in next month',
 'errors': 'errors',

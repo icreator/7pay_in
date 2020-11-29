@@ -122,7 +122,7 @@ def add_pay_in_stack():
         deal_acc = db.deal_accs[deal_acc_addrs.deal_acc_id]
         deal = db.deals[deal_acc.deal_id]
         deal_name = deal.name
-        h += DIV(deal.name, '[', deal_acc.deal_acc,'] ', pay_in.amount, ' ', pay_in.created_on )
+        h += DIV(deal.name, '[', deal_acc.acc,'] ', pay_in.amount, ' ', pay_in.created_on )
     
     return dict(h=DIV(h, _class='container'))
 

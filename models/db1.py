@@ -504,7 +504,7 @@ db.define_table('clients_ewallets',
 # это не обмен внутри в вход извне или вывод вовне на счета клиента
 db.define_table('clients_trans',
                 Field('client_id', db.clients, ondelete='CASCADE'),
-                Field('order_id', length=100), # == deal_acc.deal_acc или сюда номер транзакции при выводе клиенту вкатываем - чтобы повторно не вывести по ошибке
+                Field('order_id', length=100), # == deal_acc.acc или сюда номер транзакции при выводе клиенту вкатываем - чтобы повторно не вывести по ошибке
                 Field('curr_out_id', db.currs, ondelete='CASCADE'),
                 Field('amo_out', 'decimal(16,8)', default=Decimal(0.0)), # если это не обмен то вход или выход может быть с 0
                 Field('curr_in_id', db.currs, ondelete='CASCADE'),
