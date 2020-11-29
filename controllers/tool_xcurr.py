@@ -106,13 +106,10 @@ def ophrans():
 # tools_xcurr/process_from/BTC/from_block
 def process_from():
     session.forget(response)
-    if len(request.args) == 0:
-        mess = 'len(request.args)==0'
-        print mess
+    if len(request.args) < 2:
+        mess = 'len(request.args)==0 need: tools_xcurr/process_from/BTC/12345'
         return mess
+
     import serv_block_proc
-    abbrev = request.args[0]
-    #bhash = len(request.args) > 1 and request.args[1] or None
-    print 'block_proc', abbrev
-    #return abbrev
-    return serv_block_proc.run_once(db, abbrev)
+
+    return serv_block_proc.run_once(db, request.args[0], request.args[1])

@@ -202,7 +202,7 @@ def b_p_db_update(db, conn, curr, xcurr, token_system, token, tab, curr_block):
     # сохраним теперь инфо что эти блоки обработали
     if token_system:
 
-        tokens_balances = crypto_client.get_assets_balances(token_system)
+        tokens_balances = crypto_client.get_assets_balances(xcurr, token_system)
 
         ##return '%s' % balances
 
@@ -610,7 +610,7 @@ import serv_to_buy
 import clients_lib
 
 
-def run_once(db, abbrev):
+def run_once(db, abbrev, from_block_in = None):
     ss = ''
     curr, xcurr, e = db_common.get_currs_by_abbrev(db, abbrev)
     if not xcurr:
@@ -627,7 +627,6 @@ def run_once(db, abbrev):
 
     if token_system:
 
-        from_block_in = None  # 68600
         tab, curr_block = get_incomed(db, xcurr, token_system, from_block_in)
 
         if curr_block == None:
@@ -641,7 +640,6 @@ def run_once(db, abbrev):
             # try:
             if True:
                 addr_in = None  # '4V6CeFxAHGVTM5wYKhAbXwbXsjUW5Bazdh'
-                from_block_in = None  # 65111
                 tab, curr_block = b_p_proc_unspent(db, conn, curr, xcurr, addr_in, from_block_in)
                 # print 'tab:   ',tab
                 # return
