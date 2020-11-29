@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 
+if False:
+    from gluon import *
+    import db
+
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 import datetime
 import ed_bal
 
