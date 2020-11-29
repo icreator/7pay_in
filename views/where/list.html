@@ -69,7 +69,7 @@ def aaa(a, r=2):
         {{=IMG(_src=URL('static','images/currs/' + r[0].abbrev + '.png'), _width=30)}}
             {{if addr:}}
         -> {{=IMG(_src=URL('static','images/currs/' + curr_out.abbrev + '.png'), _width=30)}}
-            {{=deal.name}} {{=deal_acc.deal_acc}}
+            {{=deal.name}} {{=deal_acc.acc}}
             {{pass}}
                 <span class='small'>
             {{=T('Подтверждений')}}: {{=r[4]}}, {{=T('ожидаем еще')}} {{=r[5]}}
@@ -127,7 +127,7 @@ def aaa(a, r=2):
                     {{url = URL('to_deal','index', args=[deal.id])}}
                 {{pass}}
             {{if not privat:}}
-                {{=A(deal.name, ' ', deal_acc.deal_acc, _href=url)}}
+                {{=A(deal.name, ' ', deal_acc.acc, _href=url)}}
             {{else:}}
                 {{=A(deal.name, _href=url)}}
             {{pass}}
@@ -261,9 +261,9 @@ def aaa(a, r=2):
                 ->
             {{=out_txid}} <br />
 
-                {{=A(deal.name, ' ', deal_acc.deal_acc, _href=url)}}
+                {{=A(deal.name, ' ', deal_acc.acc, _href=url)}}
             {{else:}}
-                {{=A(deal.name, 'phone +' in deal.name and '(%s)' % deal_acc.deal_acc[1:5] or '', _href=url)}}
+                {{=A(deal.name, 'phone +' in deal.name and '(%s)' % deal_acc.acc[1:5] or '', _href=url)}}
             {{pass}}
              {{=out_info}}
             {{if not privat:}}
