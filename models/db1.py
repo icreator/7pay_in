@@ -402,8 +402,8 @@ db.define_table('deal_acc_addrs',
                 # имя аккаунта в кошельке должно создаваться по deals.name + deal_acc_id
                 # так даже не надо имени дела - deal_acc_id уже уникальный будет
                 # Field('account', length=30, required=True),
-                Field('addr', length=40, required=True), # его адрес в кошельке крипты
-                Field('addr_return', length=40, required=False), # если задан - авто перевод на него будет
+                Field('addr', length=60, required=True), # его адрес в кошельке крипты
+                Field('addr_return', length=60, required=False), # если задан - авто перевод на него будет
                 Field('incomed', 'decimal(16,8)'), # сколько крипты пришло
                 Field('converted', 'decimal(16,8)'), # сколько мы уже конвертировали
                 format='%(id)s %(xcurr_id)s %(addr)s',
@@ -487,7 +487,7 @@ db.define_table('clients_balances',
 db.define_table('clients_xwallets',
                 Field('client_id', db.clients, ondelete='CASCADE'),
                 Field('xcurr_id', db.xcurrs, ondelete='CASCADE'),
-                Field('addr', length=40, required=True),
+                Field('addr', length=60, required=True),
                 Field('bal', 'decimal(16,8)'),
                 format='%(client_id)s %(xcurr_id)s %(addr)s',
                 )
@@ -495,9 +495,9 @@ db.define_table('clients_ewallets',
                 Field('client_id', db.clients, ondelete='CASCADE'),
                 Field('dealer_id', db.dealers, ondelete='CASCADE'),
                 Field('ecurr_id', db.ecurrs),
-                Field('addr', length=40, required=True),
+                Field('addr', length=60, required=True),
                 Field('bal', 'decimal(16,3)', default=Decimal(0.0)),
-                format='%(client_id)s %(dealer_id)s %(ecurr_id)s %(address)s',
+                format='%(client_id)s %(dealer_id)s %(ecurr_id)s %(addr)s',
                 )
 
 # тут есливход или выход = 0 или валюта неизвестна или = входу, значит
@@ -529,8 +529,8 @@ db.define_table('persons',
                 )
 db.define_table('person_addrs',
                 Field('pers', db.persons, ondelete='CASCADE'),
-                Field('addr', length=40),
-                format='%(address)s',
+                Field('addr', length=60),
+                format='%(addr)s',
                 )
 # данные на персону - ключ - значение
 db.define_table('person_recs',
@@ -625,7 +625,7 @@ db.define_table('pay_ins_unused',
 # это для связи адреса крипты с номером заказа
 db.define_table('addr_orders',
                 Field('xcurr_id', db.xcurrs, ondelete='CASCADE'),
-                Field('addr', length=40), #
+                Field('addr', length=60), #
                 format='%(id)s %(addr)s',
                 )
 db.define_table('buys',
@@ -675,7 +675,7 @@ db.define_table('buy_partners',
 db.define_table('buy_partners_xw',
                 Field('buy_partner_id', db.buy_partners, ondelete='CASCADE'), #
                 Field('curr_id', db.currs), #
-                Field('addr', length=40), #
+                Field('addr', length=60), #
                 Field('amo', 'decimal(12,8)', label=T('Накоплено'), default = Decimal('0.0')),
                 )
 
