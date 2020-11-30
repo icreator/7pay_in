@@ -7,6 +7,7 @@ import json
 import time
 
 from gluon import current
+DOMEN = current.DOMEN
 
 if False:
     from gluon import *
@@ -17,8 +18,6 @@ if False:
     session = current.session
     cache = current.cache
     T = current.T
-
-DOMEN = 'face2face'
 
 # получить инфо о параметрах тут
 # https://money.yandex.ru/internal/mobile-api/get-showcase.xml?scid=4895

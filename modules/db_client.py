@@ -11,10 +11,9 @@ if False:
     T = current.T
 
 from gluon import current
-
+DOMEN = current.DOMEN
 T = current.T
 
-DOMEN = 'face2face'
 
 from datetime import datetime, timedelta
 from decimal import Decimal

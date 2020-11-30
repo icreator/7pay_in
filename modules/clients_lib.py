@@ -3,16 +3,14 @@
 from time import sleep
 Test = None
 
-DOMEN = 'face2face'
+from gluon import current
+DOMEN = current.DOMEN
 
 from decimal import Decimal
 import datetime
-#from gluon import *
 import urllib
-import httplib
 import json
 
-import db_common
 
 def log(db, mess):
     print mess

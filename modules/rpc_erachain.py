@@ -151,10 +151,10 @@ def get_transactions(token_system, from_block=2):
             log(current.db, 'get_transactions %s EXCEPTION: %s - %s' % (url_get, e, recs))
             return result, i - 1
 
-        if recs_count > 0:
-            print 'erachain incomes - height: ', i, ' recs:', len(recs)
-        else:
+        if recs_count == 0:
             continue
+
+        # print 'erachain incomes - height: ', i, ' recs:', len(recs)
 
         incomes = []
         for rec in recs:
@@ -213,22 +213,12 @@ def send(db, curr, xcurr, addr, amo, token_system=None, token=None, title=None, 
         try:
             ##amo_to_pay = amo - txfee - it already inserted in GET_RATE by db.currs
             amo_to_pay = amo
-            print 'res = erachain.send(addr, amo - txfee)', amo_to_pay
-            if False:  ## 4.11 version Erachain
-                # GET r_send/7GvWSpPr4Jbv683KFB5WtrCCJJa6M36QEP/79MXsjo9DEaxzu6kSvJUauLhmQrB4WogsH?message=mess&encrypt=false&password=123456789
-                pars = "r_send/%s/%s?assetKey=%d&amount=%f&title=%s%s&encrypt=true&password=%s" % (
-                    token_system.account, addr,
-                    token.token_key, amo_to_pay,
-                    title or 'face2face.cash', mess and ('&message=' + mess) or '',
-                    token_system.password)
-                print pars
-                res = rpc_request(token_system.connect_url + pars)
-            else:
-                pars = '/rec_payment/%d/%s/%d/%f/%s?password=%s' % (
-                    0, token_system.account, token.token_key, amo_to_pay, addr, token_system.password)
-                print pars
-                res = rpc_request(token_system.connect_url + pars)
-            print "SENDed? ", type(res), res
+            # print 'res = erachain.send(addr, amo - txfee)', amo_to_pay
+            pars = '/rec_payment/%d/%s/%d/%f/%s?password=%s' % (
+                0, token_system.account, token.token_key, amo_to_pay, addr, token_system.password)
+            # print pars
+            res = rpc_request(token_system.connect_url + pars)
+            # print "SENDed? ", type(res), res
             if type(res) == type({}):
                 error = res.get('error')
             else:

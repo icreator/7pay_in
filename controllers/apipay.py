@@ -323,8 +323,8 @@ def get_rate_out():
 
 # get URI for income exchanges
 # http://127.0.0.1:8000/apipay/get_uri_in/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_in]
-# http://face2face.cash/apipay/get_uri_in/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - html
-# http://face2face.cash/apipay/get_uri_in.json/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - JSON
+# http://localhost/apipay/get_uri_in/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - html
+# http://localhost/apipay/get_uri_in.json/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - JSON
 # http://127.0.0.1:8000/ipay3_free/apipay/get_uri_in/2/9/3/39b83inCcbcpTKZWQXEwTaSe5d8kVEh4vC/0.1 - not my!
 
 
@@ -522,8 +522,8 @@ def get_uri_in():
 
 # get URI for income exchanges
 # https://127.0.0.1/apipay/get_uri/[deal_id]/[curr_in_id]/[curr_out_id]/[address_out]/[amount_out]
-# http://face2face.cash/apipay/get_uri/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - html
-# http://face2face.cash/apipay/get_uri.json/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - JSON
+# http://localhost/apipay/get_uri/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - html
+# http://localhost/apipay/get_uri.json/2/3/10/7EP4bX6cauqYEa4F2CT13j8tC7LydPnNXq/33 - JSON
 # http://127.0.0.1:8000/ipay3_free/apipay/get_uri/2/9/3/39b83inCcbcpTKZWQXEwTaSe5d8kVEh4vC/0.1 - not my!
 
 ''' out parameters:
