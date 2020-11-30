@@ -71,11 +71,11 @@ def init_db_records():
             ['USD', 'US dollar', 'usd', True],  # 1
             ['RUB', 'Ruble', 'ruble', True],  # 2
             ['BTC', 'Bitcoin', 'bitcoin', True,  # 3
-             ['13', None, 'http://%s@127.0.0.1:8332' % xpass, 600, 0.0007000, 1, 101, 0],
+             ['13', None, 'http://%s@127.0.0.1:8332' % xpass, 600, 0.0001000, 1, 101, 0],
              None,
              ],
             ['LTC', 'Litecoin', 'litecoin', True,  # 4
-             ['L', None, 'http://%s@127.0.0.1:9332' % xpass, 150, 0.005, 3, 120, 0],
+             ['L', None, 'http://%s@127.0.0.1:9332' % xpass, 150, 0.0001, 3, 120, 0],
              None,
              ],
             ['DOGE', 'DOGE', 'doge', True,  # 5
@@ -87,11 +87,11 @@ def init_db_records():
              None,
              ],
             ['ZEN', 'Horizen', 'horizen', True,  # 7
-             ['Z', 'zen', 'http://%s@127.0.0.1:11111' % xpass, 300, 0.1, 3, 101, 0],
+             ['Z', 'zen', 'http://%s@127.0.0.1:11111' % xpass, 300, 0.0001, 3, 101, 0],
              None,
              ],
             ['NVC', 'Novacoin', 'novacoin', False,  # 8 - False - if not used on service
-             ['4', None, 'http://%s@127.0.0.1:11332' % xpass, 450, 0.1, 3, 120, 0],
+             ['4', None, 'http://%s@127.0.0.1:11332' % xpass, 450, 0.001, 3, 120, 0],
              None,
              ],
             # The Erachain tiokens will set below
