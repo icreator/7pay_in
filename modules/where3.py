@@ -384,10 +384,10 @@ def get_refs(db, pay):
 
 # addr если не задан то надо для всех искать свои дела и прочее
 # те что еще в обработке
-def found_pay_ins_process(db, addr, pays, deal_acc_view = None):
+def found_pay_ins_process(db, addr, pays):
     # все зачтенные за последний месяц
     #xcurr = None
-    if addr == "????" or deal_acc_view != None:
+    if addr == "????":
         privat = addr != "????"
         addr = None
     elif addr:
@@ -408,22 +408,6 @@ def found_pay_ins_process(db, addr, pays, deal_acc_view = None):
         rec_vals['pay_in_stack'] = pay.pay_ins_stack
         #print pay.pay_ins.status
         pays.append(rec_vals)
-
-# addr если не задан то надо для всех искать свои дела и прочее
-# те что еще в обработке
-def found_pay_ins_process2(db, deal_acc, pays):
-
-    # сначала выдадим все неоплоченные входы - они в стеке
-    for pay in db( (db.deal_acc_addrs.deal_acc_id == deal_acc.id)
-               & (db.pay_ins.ref_ == db.deal_acc_addrs.id)
-               & (db.pay_ins_stack.ref_ == db.pay_ins.id)
-               ).select(orderby=~db.pay_ins.created_on):
-        pay_in = pay.pay_ins
-        rec_vals = addr and dict() or get_refs(db, pay)
-        rec_vals['pay_in'] = pay_in
-        rec_vals['pay_in_stack'] = pay.pay_ins_stack
-        #print pay.pay_ins.status
-        pays.append(rec_vals)        
 
 # addr если не задан то надо для всех искать свои дела и прочее
 def found_pay_ins(db, addr, pays):

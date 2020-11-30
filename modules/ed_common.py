@@ -38,7 +38,7 @@ def log_commit(db, mess):
 #  закатать ошибку в базу
 def dealer_deal_errs_add(db, dealer_deal, acc, err_mess):
     dealer_deal_err = db((db.dealer_deal_errs.dealer_deal_id == dealer_deal.id)
-                 & (db.dealer_deal_errs.deal_acc == acc)).select().first()
+                 & (db.dealer_deal_errs.acc == acc)).select().first()
     if dealer_deal_err:
         dealer_deal_err.update_record( mess = err_mess )
     else:
@@ -96,7 +96,7 @@ def sel_acc_max(db, dealer, ecurr, vol, unlim=None):
              ).select():
         if not ed_acc.used: continue
 
-        #print ed_acc.deal_acc, ed_acc.balance, ed_acc.day_limit_sum
+        #print ed_acc.acc, ed_acc.balance, ed_acc.day_limit_sum
         if not unlim:
             # сбросим лимиты если надо
             limits_end(db, ed_acc)
@@ -137,7 +137,7 @@ def sel_acc_max_for_balance(db, dealer, ecurr, vol, unlim=None):
         if vol and vol > bal * koeff:
             continue
 
-        #print ed_acc.deal_acc, ed_acc.balance, ed_acc.day_limit_sum
+        #print ed_acc.acc, ed_acc.balance, ed_acc.day_limit_sum
         if not unlim:
             # сбросим лимиты если надо
             limits_end(db, ed_acc)

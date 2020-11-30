@@ -8,6 +8,16 @@ import time
 
 from gluon import current
 
+if False:
+    from gluon import *
+    import db
+
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 DOMEN = 'face2face'
 
 # получить инфо о параметрах тут
@@ -39,9 +49,9 @@ headers = { 'Accept': 'application/json, text/javascript, */*; q=0.01',
 TTT = 'wcl'
 TTT = 'lib'
 
-def login(acc):
+def login(edlr_acc):
 
-    data = dict( source='MENU', login = acc.deal_acc, password = acc.skey )
+    data = dict( source='MENU', login = edlr_acc.acc, password = edlr_acc.skey )
     if TTT == 'lib':
         h = urllib2.Request(URL + URL_LOG, urllib.urlencode(data), headers )
         r = urllib2.urlopen(h)
@@ -60,7 +70,7 @@ def login(acc):
         
     d = r.get('data')
     token = d and d.get('token')
-    #deal_acc.update_record( pkey = token )
+    #edlr_acc.update_record( pkey = token )
         
     data['loginToken'] = token
     
@@ -79,12 +89,12 @@ def login(acc):
         return 'error on second request', r
     d = r.get('data')
     token = d and d.get('token')
-    #deal_acc.update_record( pkey = token )
+    #edlr_acc.update_record( pkey = token )
         
     return None, r
 
-def get_balance(acc, TAG):
-    data = dict( source='MENU', login = acc.deal_acc, password = acc.skey )
+def get_balance(edlr_acc, TAG):
+    data = dict( source='MENU', login = edlr_acc.acc, password = edlr_acc.skey )
     if TTT == 'lib':
         r = urllib2.Request(URL + 'settings/account/main.action')
         r = urllib2.urlopen(r)
@@ -98,7 +108,7 @@ def get_balance(acc, TAG):
         
     return None, bal
 
-def get_history(acc, direction, from_dt, to_dt, TAG):
+def get_history(edlr_acc, direction, from_dt, to_dt, TAG):
     data = dict(
         settings='true',
         conditions = dict(directions = direction),
@@ -230,7 +240,7 @@ def get_history_inputs(edlr, edlr_acc, from_dt):
         res = get_history_inputs_page( edlr, edlr_acc, pars, next_rec )
         #print 'get_history_inputs_page res:', res
         if not res or 'operations' not in res:
-            #print dealer.name, dealer_acc.deal_acc, '- empty get_history_inputs_page = RES'
+            #print dealer.name, dealer_acc.acc, '- empty get_history_inputs_page = RES'
             break
         # сложим все записи с истории
         tab = tab + res['operations']
@@ -269,7 +279,7 @@ def make_pay_pars(deal, dlr_deal, api_pars, acc, amount, pars):
         not_mod = True
         '''
         # если форму с сайта дилера взяли то и параметры там не надо распаковывать
-        acc_pars = json.loads( deal_acc )
+        acc_pars = json.loads( acc )
         # просто их добавим в общий набор параметров
         for k, v in acc_pars.iteritems():
             pars[k] = v
@@ -286,7 +296,7 @@ def make_pay_pars(deal, dlr_deal, api_pars, acc, amount, pars):
             dlr_template = PAY_PARS
 
         acc_str = acc
-        #print deal_acc, pay_pars, pars
+        #print acc, pay_pars, pars
         not_mod = None
         sum_names = dlr_template.get('_sum_names')
         #print 'dlr_template:', dlr_template

@@ -112,4 +112,4 @@ def process_from():
 
     import serv_block_proc
 
-    return serv_block_proc.run_once(db, request.args[0], request.args[1])
+    return serv_block_proc.run_once(db, request.args[0], int(request.args[1]))
