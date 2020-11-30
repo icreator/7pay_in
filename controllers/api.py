@@ -272,6 +272,7 @@ def curr_get_info():
             # return {'error': '%s' % conn}
         except:
             conn = None
+
         if not conn:
             return {'error': 'Connection to ' + curr_abbrev + ' wallet is lost. Try later'}
         # print conn

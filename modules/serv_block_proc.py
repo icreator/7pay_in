@@ -456,7 +456,7 @@ def b_p_proc_unspent(db, conn, curr, xcurr, addr_in=None, from_block_in=None):
         # иначе это сдача от выхода
 
         acc = r.get(u'account')
-        if deal_acc and xcurr.main_addr and xcurr.main_addr == acc:
+        if acc and xcurr.main_addr and xcurr.main_addr == acc:
             # свои проводки не проверяем
             continue
 
