@@ -455,8 +455,8 @@ def b_p_proc_unspent(db, conn, curr, xcurr, addr_in=None, from_block_in=None):
         # берем только подтвержденные нами и только входы - у них нет выходов в транзакции
         # иначе это сдача от выхода
 
-        deal_acc = r.get(u'account')
-        if deal_acc and xcurr.main_addr and xcurr.main_addr == deal_acc:
+        acc = r.get(u'account')
+        if deal_acc and xcurr.main_addr and xcurr.main_addr == acc:
             # свои проводки не проверяем
             continue
 
@@ -499,13 +499,13 @@ def b_p_proc_unspent(db, conn, curr, xcurr, addr_in=None, from_block_in=None):
 
         if addr_in and addr_in != recipient:
             continue
-        if not deal_acc:
-            deal_acc = conn.getaccount(recipient)
-        # print curr.name, deal_acc, addr
+        if not acc:
+            acc = conn.getaccount(recipient)
+        # print curr.name, acc, addr
         # print curr.name, amount, txid, vout
 
         sumUnsp = sumUnsp and sumUnsp + amount or amount
-        tab.append({'deal_acc': deal_acc, 'amount': Decimal(amount),
+        tab.append({'acc': acc, 'amount': Decimal(amount),
                     'block': chain_height,
                     'confs': r[u'confirmations'],
                     # запомним данные для поиска потом
