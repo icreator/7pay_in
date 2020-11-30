@@ -2,6 +2,15 @@
 
 import time
 
+if False:
+    from gluon import *
+    import db
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 response.title=T("Купить биткоины, криптовалюту за безналичные по платежу из любого банка, который может пополнить Яндекс.Кошелек (Альфа-банк, ...). Однако пока Сбербанк не дает эту возможность")
 response.big_logo2=True
 response.logo2 = IMG(_src=URL('static','images/7P-302.png'), _width=200)
@@ -22,7 +31,7 @@ def u(h, url, cls='col-sm-4'):
     return DIV(DIV(P(h, _class='btn_mc2'), _class='btn_mc1', _onclick="location.href='%s'" % url), _class='btn_mc ' + cls)
 
 def check():
-    addr = request.vars.get('address')
+    addr = request.vars.get('addr')
     ref = request.vars.get('ref')
     amo = request.vars.get('amo')
     if not addr: return T('Адрес кошелька пуст') # Wallet address is empty
@@ -62,7 +71,7 @@ def index():
     h = CAT(
         T('После того, как Вы пополнили безналичным платежом из Вашего банка Яндекс.Кошелек, предоставленный для покупки биткоинов (лайткоинов и другой криптовалюты) нашим сервисом, введите реквизиты своего платежа для того чтобы присвоить ему адрес для выплаты криптовалюты'),'.',BR(),
         T('Так же Вы можете задать адрес кошелька для платежей, у которых его забыли указать'),'.',BR(),
-        INPUT(_name='address', _placeholder=T('Адрес кошелька...')),BR(), # Wallet address
+        INPUT(_name='addr', _placeholder=T('Адрес кошелька...')),BR(), # Wallet address
         INPUT(_name='ref', _placeholder=T('Номер платежа')), # payment referrence
         INPUT(_name='amo', _placeholder=T('Сумма платежа')), #payment amount
         BUTTON(T('Check'), _onclick='ajax("buy_bank/check", ["address", "ref", "amo"], "res");\

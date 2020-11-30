@@ -295,7 +295,7 @@ def validate_addr():
 
     xcurr = None
     curr_abbrev = request.vars.get('curr')
-    addr = request.vars.get('address')
+    addr = request.vars.get('addr')
     if len(request.args) == 1:
         addr = request.args[0]
     if len(request.args) == 2:
@@ -387,7 +387,7 @@ def rates3():
 # адес тут должен быть точный
 def for_addr():
     session.forget(response)
-    addr = request.vars and request.vars.get('address')
+    addr = request.vars and request.vars.get('addr')
     # print address
     if not addr or len(addr) < 24: return dict(pays=T('ошибочный адрес [%s]') % addr)
 

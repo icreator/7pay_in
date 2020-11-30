@@ -146,7 +146,7 @@ def get_uri_in():
         if not deal_acc_addr:
             return mess((T('Связь с сервером %s прервана') % curr_in_name) + '. ' + T('Невозможно получить адрес для платежа') + '. ' + T('Пожалуйста попробуйте позже'), 'warning')
 
-        addr_in = deal_acc_addr['address']
+        addr_in = deal_acc_addr['addr']
         
 
     okIN = session.okWt
@@ -257,7 +257,7 @@ def get_uri_in():
             LABEL(T("Получатель"),":"), " ", INPUT(_name='addr_in', _value=addr_in, _class='wallet', _readonly=''), BR(),
             CAT(LABEL(T("Назначение (вставьте в заголовок платежа или в тело сообщения, которое так же можно зашифровать)"),":"), " ", INPUT(_name='addr_out', _value=addr_out_full, _class='wallet', _readonly=''), BR()) if token_system_in else '',
             #T('Резервы службы'), ' ', B(free_bal), ' ', T('рублей'), BR(),
-            #LOAD('where', 'for_addr', vars={'address': addr_in}, ajax=True, times=100, timeout=20000,
+            #LOAD('where', 'for_addr', vars={'addr': addr_in}, ajax=True, times=100, timeout=20000,
             #    content=IMG(_src=URL('static','images/loading.gif'), _width=48)),
             INPUT( _type='submit',
                 _class='button blue-bgc',
@@ -383,7 +383,7 @@ def index():
 
     if request.vars:
         abberv = abbrev or request.vars.get('curr') or session.toCoin
-        addr = addr or request.vars.get('address') or session.toCoinAddr
+        addr = addr or request.vars.get('addr') or session.toCoinAddr
         vol = vol or request.vars.get('vol') or session.vol
 
     input_currs = []

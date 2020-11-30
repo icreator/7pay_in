@@ -67,7 +67,7 @@ def err_dict(m):
 
 def bank_check():
     import time
-    addr = request.vars.get('address')
+    addr = request.vars.get('addr')
     ref = request.vars.get('ref')
     amo = request.vars.get('amo')
     if not addr: return mess('Адрес кошелька пуст') # Wallet address is empty
@@ -111,7 +111,7 @@ def bank():
     h = CAT(
         T('После того, как Вы пополнили безналичным платежом из Вашего банка Яндекс.Кошелек, предоставленный для покупки биткоинов (лайткоинов и другой криптовалюты) нашим сервисом, введите реквизиты своего платежа для того чтобы присвоить ему адрес для выплаты криптовалюты'),'.',BR(),
         T('Так же Вы можете задать адрес кошелька для платежей, у которых его забыли указать'),'.',BR(),
-        INPUT(_name='address', _placeholder=T('Адрес кошелька...')),BR(), # Wallet address
+        INPUT(_name='addr', _placeholder=T('Адрес кошелька...')),BR(), # Wallet address
         INPUT(_name='ref', _placeholder=T('Номер платежа')), # payment referrence
         INPUT(_name='amo', _placeholder=T('Сумма платежа')), #payment amount
         BUTTON(T('Check'), _onclick='ajax("bank_check", ["address", "ref", "amo"], "res");\
@@ -282,7 +282,7 @@ def get():
           ),
         tax_rep,
         FORM(
-            INPUT(_name='address', _value=addr, _type='hidden'),
+            INPUT(_name='addr', _value=addr, _type='hidden'),
             INPUT( _type='submit',
                 _class='button blue-bgc',
                 _value=T('Подробный просмотр платежей'),

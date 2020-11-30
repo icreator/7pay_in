@@ -313,7 +313,7 @@ def get():
             LABEL(T("Получатель")), " ", INPUT(_name='addr_in', _value=addr_in, _class='wallet', _readonly=''), BR(),
             CAT(LABEL(T("Назначение (вставьте в заголовок платежа)")), " ", INPUT(_name='addr_out', _value=addr_out_full, _class='wallet', _readonly=''), BR()) if token_system_in else '',
             #T('Резервы службы'), ' ', B(free_bal), ' ', T('рублей'), BR(),
-            #LOAD('where', 'for_addr', vars={'address': addr_in}, ajax=True, times=100, timeout=20000,
+            #LOAD('where', 'for_addr', vars={'addr': addr_in}, ajax=True, times=100, timeout=20000,
             #    content=IMG(_src=URL('static','images/loading.gif'), _width=48)),
             INPUT( _type='submit',
                 _class='button blue-bgc',
@@ -383,7 +383,7 @@ def sel():
         vn = 'vol'
         if vn in request.vars:
             vars[vn] = test_vol(request.vars[vn])
-        vn = 'address'
+        vn = 'addr'
         if vn in request.vars:
             addr_out = request.vars[vn]
             vars[vn] = addr_out
@@ -407,7 +407,7 @@ def sel():
                       //$(this).css('z-index','0');
                       $('#tag%s').hide('fast');
                       $('#cvr%s').css('display','block'); // .css('z-index','10');
-                      ajax('%s',['vol','address','curr_out'], 'tag%s');
+                      ajax('%s',['vol','addr','curr_out'], 'tag%s');
                       ''' % (id, id, URL('get', args=[deal_id, id]), id)
         #print rr
         h += DIV(
@@ -467,7 +467,7 @@ def index():
 
     if request.vars:
         abberv = abbrev or request.vars.get('curr')
-        addr = addr or request.vars.get('address')
+        addr = addr or request.vars.get('addr')
         vol = vol or request.vars.get('vol')
 
     inp_currs = []

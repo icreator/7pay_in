@@ -495,7 +495,7 @@ db.define_table('clients_ewallets',
                 Field('client_id', db.clients, ondelete='CASCADE'),
                 Field('dealer_id', db.dealers, ondelete='CASCADE'),
                 Field('ecurr_id', db.ecurrs),
-                Field('address', length=40, required=True),
+                Field('addr', length=40, required=True),
                 Field('bal', 'decimal(16,3)', default=Decimal(0.0)),
                 format='%(client_id)s %(dealer_id)s %(ecurr_id)s %(address)s',
                 )
@@ -529,7 +529,7 @@ db.define_table('persons',
                 )
 db.define_table('person_addrs',
                 Field('pers', db.persons, ondelete='CASCADE'),
-                Field('address', length=40),
+                Field('addr', length=40),
                 format='%(address)s',
                 )
 # данные на персону - ключ - значение
@@ -586,7 +586,7 @@ db.define_table('pay_ins',
                 #requires = IS_EMPTY_OR(IS_IN_DB(db, 'dealers.id', '%(doc)s %(FIO)s')
                 Field('ref_',  #  кому мы ее причислили
                       db.deal_acc_addrs, ondelete='CASCADE',
-                      #requires = IS_EMPTY_OR(IS_IN_DB(db, 'deal_acc_addrs.id', '%(address)s')),
+                      #requires = IS_EMPTY_OR(IS_IN_DB(db, 'deal_acc_addrs.id', '%(addr)s')),
                       ),
                 Field('amount', 'decimal(14,8)', comment='value received'),
                 Field('block_no', 'integer', comment='block where record exist'),
@@ -675,7 +675,7 @@ db.define_table('buy_partners',
 db.define_table('buy_partners_xw',
                 Field('buy_partner_id', db.buy_partners, ondelete='CASCADE'), #
                 Field('curr_id', db.currs), #
-                Field('address', length=40), #
+                Field('addr', length=40), #
                 Field('amo', 'decimal(12,8)', label=T('Накоплено'), default = Decimal('0.0')),
                 )
 

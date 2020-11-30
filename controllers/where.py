@@ -42,7 +42,7 @@ def err_dict(m):
 # адес тут должен быть точный
 def for_addr():
     session.forget(response)
-    addr = request.vars and request.vars.get('address')
+    addr = request.vars and request.vars.get('addr')
     # print address
     if not addr or len(addr) < 24: return dict(pays=T('ошибочный адрес [%s]') % addr)
 
