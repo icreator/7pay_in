@@ -73,12 +73,14 @@ def send():
 
     if request.args(0):
         toAddress = request.args(0)
+        password = None
     else:
         ## "0x0b30671cf47976fddb755ede161bed2943a10070","0xa5f36d9e5c7699e77793cbc0cd1a6fcc52df4bb3"
         toAddress = '0x0b30671cf47976fddb755ede161bed2943a10070' # '0xd46e8dd67c5d32be8058bb8eb970870f07244567'
+        password = '123'
 
     res, bal = rpc_ethereum_geth.send(db, curr, xcurr, toAddress, Decimal(0.01), token_system,
-                                      mess='probe:123', sender='0xa5f36d9e5c7699e77793cbc0cd1a6fcc52df4bb3')
+                                      mess='probe:123', sender='0xa5f36d9e5c7699e77793cbc0cd1a6fcc52df4bb3', password=password)
 
     return BEAUTIFY(dict(res=res, bal=bal))
 

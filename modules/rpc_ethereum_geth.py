@@ -235,9 +235,9 @@ def get_transactions(token_system, from_block=2):
     return result, i
 
 ## for Unlock: 	{"method": "personal_unlockAccount", "params": [string, string, number]}
-def send(db, curr, xcurr, toAddr, amo, token_system, token=None, mess=None, sender=None):
+def send(db, curr, xcurr, toAddr, amo, token_system, token=None, mess=None, sender=None, password=None):
     rpc_url = token_system.connect_url
-    sender = sender or token_system.main_addr
+    sender = sender or token_system.account
     txfee = token_system.txfee
 
     try:
@@ -268,14 +268,20 @@ def send(db, curr, xcurr, toAddr, amo, token_system, token=None, mess=None, send
                 "from": sender,
                 "to": toAddr,
                 "value": '%#x' % amo_to_pay,
-                "data": '0x' + (mess.encode("hex")),
                 "gas": '%#x' % txfee,
                 "gasPrice": '%#x' % 1E11
             }]
+            if mess:
+                params['data'] = '0x' + (mess.encode("hex"))
+
             print params
-            res = rpc_request(rpc_url, "personal_unlockAccount", [sender, "123", 3])
-            if 'error' in res:
-                return res, balance
+
+            if password:
+                ## если это не основной счет в кошельке а сгенерированный с паролем - тонадо его UNLOCK
+                res = rpc_request(rpc_url, "personal_unlockAccount", [sender, password, 3])
+                if 'error' in res:
+                    return res, balance
+
             res = rpc_request(rpc_url, "eth_sendTransaction", params)
             try:
                 res = res['result']
