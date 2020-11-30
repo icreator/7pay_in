@@ -44,7 +44,7 @@ def rpc_request(rpc_url, method, params=[], test=None):
         # r = f.read()
         r = json.load(f)
 
-        print 'response - res:', r
+        # print 'GETH response - res:', r
     except Exception as e:
         # или любая ошибка - повтор запроса - там должно выдать ОК
         # print 'YmToConfirm while EXEPTION:', e
@@ -209,7 +209,8 @@ def get_transactions(token_system, from_block=2):
             return result, i - 1
 
         if recs_count > 0:
-            print 'geth incomes - height: ', i, ' recs:', len(recs)
+            # print 'geth incomes - height: ', i, ' recs:', len(recs)
+            pass
         else:
             continue
 
@@ -252,6 +253,7 @@ def send(db, curr, xcurr, toAddr, amo, token_system, token=None, mess=None, send
         return {'error': 'out off reserve:[%s]' % balance}, None
 
     decimal.getcontext().prec = 18  # WEI
+    amo = amo
 
     # проверим готовность базы - is lock - и запишем за одно данные
     log_commit(db, 'try send: %s[%s] %s, fee: %s' % (amo, curr.abbrev, toAddr, txfee))
@@ -259,7 +261,7 @@ def send(db, curr, xcurr, toAddr, amo, token_system, token=None, mess=None, send
         try:
             ##amo_to_pay = amo - txfee - it already inserted in GET_RATE by db.currs
             amo_to_pay = amo  # - txfee
-            print 'res = geth.send(addr, amo - txfee)', amo_to_pay
+            ## print 'res = geth.send(addr, amo - txfee)', amo_to_pay
 
             txfee = long(txfee * Decimal(1E10))  ## and x 1+E10 by gasPrice
             amo_to_pay = long(amo_to_pay * Decimal(1E18))  ## in WEI
@@ -271,10 +273,11 @@ def send(db, curr, xcurr, toAddr, amo, token_system, token=None, mess=None, send
                 "gas": '%#x' % txfee,
                 "gasPrice": '%#x' % 1E11
             }]
-            if mess:
-                params['data'] = '0x' + (mess.encode("hex"))
 
-            print params
+            if mess:
+                params[0]['data'] = '0x' + (mess.encode("hex"))
+
+            ## print 'GETH', params
 
             if password:
                 ## если это не основной счет в кошельке а сгенерированный с паролем - тонадо его UNLOCK
