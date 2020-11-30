@@ -393,7 +393,7 @@ def get_uri_in():
         return mess('error address')
 
     try:
-        if len(addr_out) < 25 or len(addr_out) > 40:
+        if len(addr_out) < 25 or len(addr_out) > 44:
             return mess('error address')
     except:
         return mess('error address')
@@ -591,7 +591,7 @@ def get_uri():
         return mess('error address')
 
     try:
-        if len(addr_out) < 25 or len(addr_out) > 40:
+        if len(addr_out) < 25 or len(addr_out) > 44:
             return mess('error address')
     except:
         return mess('error address')

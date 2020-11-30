@@ -97,7 +97,7 @@ def list():
 
     response.js = "$('.go-btn').removeClass('disabled');$('#go').children('i').removeClass('fa-refresh fa-spin').addClass('fa-search');"
     addr = request.args(0) or request.vars.addr
-    if addr and len(addr) > 40: addr = None
+    if addr and len(addr) > 44: addr = None
     try:
         session.seeAddr = addr
     except:

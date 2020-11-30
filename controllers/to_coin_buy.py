@@ -73,7 +73,7 @@ def get():
         return mess(T('ОШИБКА: Задайте кошелек'))
 
     try:
-        if len(addr_out) < 25 or len(addr_out) > 40:
+        if len(addr_out) < 25 or len(addr_out) > 44:
             ##проверка на счет - если это не емайл и не ттелефон то надо длинну и на циифры
             return mess(T('ОШИБКА: неверный кошелек'))
     except:

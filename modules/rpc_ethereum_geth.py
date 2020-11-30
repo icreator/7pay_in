@@ -12,7 +12,7 @@ import time
 
 import db_common
 
-PRECISION = 8 ## For fields in DB
+PRECISION = 18
 
 
 def log(db, mess):
@@ -106,7 +106,10 @@ def get_balance(token_system, token=1, address=None):
         ##  x WEI
         ##return dict(long=long(str, 16), decimal=Decimal(long(str, 16)), decimal18=Decimal(long(str, 16))*Decimal(1E-18))
         decimal.getcontext().prec = 18  # WEI
-        return Decimal(balance) * Decimal(1E-18)
+        balance = Decimal(balance) * Decimal(1E-18)
+        if balance > 1E7: ## in test network
+            balance = Decimal(1E7)
+        return balance
     else:
         return 0
 
@@ -148,7 +151,7 @@ def get_block(rpc_url, block):
 
 # for precess incomes in serv_block_proc
 def parse_tx_fields(rec):
-    decimal.getcontext().prec = PRECISION
+    decimal.getcontext().prec = 18
     return dict(
         creator=rec['from'],
         recipient=rec['to'],

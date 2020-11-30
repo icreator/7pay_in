@@ -412,7 +412,7 @@ def for_addr():
 #              vars=True, public=True, lang=True)
 def deals_does():
     addr = request.args(0) or request.vars.addr
-    if addr and len(addr) > 40: addr = None
+    if addr and len(addr) > 44: addr = None
 
     import where3
     pays = []
@@ -487,7 +487,7 @@ def deals_does():
 
 def deals_wait():
     addr = request.args(0) or request.vars.addr
-    if addr and len(addr) > 40: addr = None
+    if addr and len(addr) > 44: addr = None
 
     import where3
     pays = []

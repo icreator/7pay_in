@@ -16,6 +16,7 @@ if False:
 from db_common import get_currs_by_addr
 import datetime
 from decimal import Decimal
+import decimal
 import db_common
 import crypto_client
 
@@ -219,6 +220,7 @@ def b_p_db_update(db, conn, curr, xcurr, token_system, token, tab, curr_block):
 
             token_curr = db.currs[token_xcurr.curr_id]
             token_curr.balance = balance
+            ### decimal.getcontext().prec = int(db.currs.balance.type.split(',')[1][:-1])
             token_curr.update_record()
 
             token_xcurr.from_block = curr_block

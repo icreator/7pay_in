@@ -107,7 +107,7 @@ def get():
         return mess(T('ОШИБКА: Задайте кошелек'))
 
     try:
-        if len(acc) < 6 or len(acc) > 40 or not IS_EMAIL(acc) and not valid_phone(acc) and not acc.isdidit():
+        if len(acc) < 6 or len(acc) > 44 or not IS_EMAIL(acc) and not valid_phone(acc) and not acc.isdidit():
             ##проверка на счет - если это не емайл и не ттелефон то надо длинну и на циифры
             return mess(T('ОШИБКА: неверный кошелек'))
     except:
