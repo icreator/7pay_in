@@ -111,9 +111,17 @@ def get_balance(token_system, token=1, address=None):
 
 ## get transactions/unconfirmedincomes/7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7
 def get_unconf_incomes(rpc_url, address):
-    recs = rpc_request(rpc_url + '/transactions/unconfirmedincomes/' + address)
-    return recs
+    incomes = []
+    for rec in get_block(rpc_url, 'pending'):
+        if 'to' not in rec or 'value' not in rec or 'input' not in rec or rec['input'] == '0x' \
+                or 'from' not in rec or rec['to'] != address:
+            continue
 
+        rec['message'] = rec['input'][2:].decode('hex')
+
+        incomes.append(rec)
+
+    return incomes
 
 def get_tx_info(rpc_url, txid):
     res = rpc_request(rpc_url, "eth_getTransactionReceipt", [txid])
@@ -208,7 +216,7 @@ def get_transactions(token_system, from_block=2):
             rec['message'] = rec['input'][2:].decode('hex')
 
             incomes.append(rec)
-            print 'geth: ', rec
+            # print 'geth: ', rec
 
         result += incomes
 

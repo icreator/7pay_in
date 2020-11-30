@@ -775,8 +775,12 @@ def history():
     deal_acc = deal_acc.deal_accs
     deal = db.deals[deal_acc.deal_id]
 
-    from pytz import utc, timezone
-    from time import mktime
+    try:
+        from pytz import utc # , timezone
+    except:
+        return 'install pytz: sudo apt-get install python-tz'
+
+        from time import mktime
 
     import where3
 
@@ -785,7 +789,7 @@ def history():
 
     ## found income ADDRS
     ## not TOKENS system
-    for r in db((db.currs.used)
+    for r in db((db.currs.used == True)
                 & (db.currs.id == db.xcurrs.curr_id)
                 & (db.deal_acc_addrs.deal_acc_id == deal_acc.id)
                 & (db.xcurrs.id == db.deal_acc_addrs.xcurr_id)
@@ -889,7 +893,10 @@ def history():
         rnd = 8
     else:
         rnd = 2
-    deal_acc_mess = XML(gifts_lib.adds_mess(deal_acc, PARTNER_MIN, T, rnd))
+
+    from gluon import current
+
+    deal_acc_mess = XML(gifts_lib.adds_mess(deal_acc, current.PARTNER_MIN, current.T, rnd))
 
     deal_acc_res = dict(id=deal_acc.id, name=deal_acc.acc,
                         to_pay=float(deal_acc.to_pay or Decimal(0)),

@@ -137,3 +137,15 @@ def get_txs():
     recs, height = rpc_ethereum_geth.get_transactions(token_system, 0)
     return BEAUTIFY({'recs': recs, 'height': height})
 
+def get_unc_incomes():
+    curr, xcurr, e = db_common.get_currs_by_abbrev(db, 'ETH')
+    if not xcurr:
+        return 'xcurr not found'
+
+    token_key = xcurr.as_token
+    token = db.tokens[token_key]
+    token_system = db.systems[token.system_id]
+    recs = rpc_ethereum_geth.get_unconf_incomes(token_system.connect_url, token_system.account)
+    return BEAUTIFY(recs)
+
+

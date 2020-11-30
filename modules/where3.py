@@ -47,7 +47,7 @@ def found_unconfirmed_tokens_0(db, token_system):
     confMax = confs_need + curr_block - from_block - 1
     # print 'confMax:', confMax
 
-    lUnsp = crypto_client.get_unconf_incomes(token_system, token_system.account)
+    lUnsp = crypto_client.get_unconf_incomes(None, token_system, token_system.account)
     if type(lUnsp) != type([]):
         mess = 'ERROR: found_unconfirmed lUnsp: %s' % lUnsp
         pays.append(mess)
