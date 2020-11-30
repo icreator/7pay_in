@@ -12,6 +12,8 @@ import time
 
 import db_common
 
+PRECISION = 8 ## For fields in DB
+
 
 def log(db, mess):
     print 'rpc_ethereum_geth - ', mess
@@ -103,7 +105,7 @@ def get_balance(token_system, token=1, address=None):
 
         ##  x WEI
         ##return dict(long=long(str, 16), decimal=Decimal(long(str, 16)), decimal18=Decimal(long(str, 16))*Decimal(1E-18))
-        decimal.getcontext().prec = 18
+        decimal.getcontext().prec = 18  # WEI
         return Decimal(balance) * Decimal(1E-18)
     else:
         return 0
@@ -112,16 +114,22 @@ def get_balance(token_system, token=1, address=None):
 ## get transactions/unconfirmedincomes/7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7
 def get_unconf_incomes(rpc_url, address):
     incomes = []
-    for rec in get_block(rpc_url, 'pending'):
-        if 'to' not in rec or 'value' not in rec or 'input' not in rec or rec['input'] == '0x' \
-                or 'from' not in rec or rec['to'] != address:
-            continue
+    try:
+        for rec in get_block(rpc_url, 'pending'):
+            if 'to' not in rec or 'value' not in rec or 'input' not in rec or rec['input'] == '0x' \
+                    or 'from' not in rec or rec['to'] != address:
+                continue
 
-        rec['message'] = rec['input'][2:].decode('hex')
+            rec['message'] = rec['input'][2:].decode('hex')
 
-        incomes.append(rec)
+            incomes.append(rec)
 
-    return incomes
+        return incomes
+    except Exception as e:
+        print e
+        log(current.db, 'get_transactions %s EXCEPTION: %s' % (rpc_url, e))
+        return "%s" % e
+
 
 def get_tx_info(rpc_url, txid):
     res = rpc_request(rpc_url, "eth_getTransactionReceipt", [txid])
@@ -140,10 +148,11 @@ def get_block(rpc_url, block):
 
 # for precess incomes in serv_block_proc
 def parse_tx_fields(rec):
+    decimal.getcontext().prec = PRECISION
     return dict(
         creator=rec['from'],
         recipient=rec['to'],
-        amount=Decimal(rec['volume'][2:].decode('hex')) * Decimal('1-E18'),
+        amount=Decimal(int(rec['value'], 16)) * Decimal(1E-18),
         asset = 1, ## ETH one
         message=rec['input'][2:].decode('hex'),
         txid=rec['hash'],
@@ -238,6 +247,8 @@ def send(db, curr, xcurr, toAddr, amo, token_system, token=None, mess=None, send
 
     if amo + txfee > balance:
         return {'error': 'out off reserve:[%s]' % balance}, None
+
+    decimal.getcontext().prec = 18  # WEI
 
     # проверим готовность базы - is lock - и запишем за одно данные
     log_commit(db, 'try send: %s[%s] %s, fee: %s' % (amo, curr.abbrev, toAddr, txfee))
