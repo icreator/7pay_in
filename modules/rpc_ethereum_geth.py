@@ -71,43 +71,53 @@ def get_xcurr_by_system_token(db, token_system, token_key):
 
 
 def get_addresses(rpc_url):
-    return rpc_request(rpc_url, "eth_accounts")['result']
+    result = rpc_request(rpc_url, "eth_accounts")
+    try:
+        return result['result']
+    except:
+        return result
 
 
 def get_height(rpc_url):
-    res = rpc_request(rpc_url, "eth_blockNumber")
-    return int(res['result'], 16)
+    result = rpc_request(rpc_url, "eth_blockNumber")
+    try:
+        return int(result['result'], 16)
+    except:
+        return result
 
 
 def is_not_valid_addr(rpc_url, address):
-    res = rpc_request(rpc_url, "eth_getBalance", [address, "latest"])
+    result = rpc_request(rpc_url, "eth_getBalance", [address, "latest"])
     try:
-        return res['error'] != None
-    except Exception as e:
+        return result['error'] != None
+    except:
         return False
 
 
 ## balances by token ID = [[0, balance]]
 def get_assets_balances(token_system, address=None):
-    balance = get_balance(token_system, 1, address)
-    return {
-        '1': [[0, balance]]  # ETH
-    }
+    result = get_balance(token_system, 1, address)
+    try:
+        return {
+            '1': [[0, result]]  # ETH
+        }
+    except:
+        return result
 
 
 def get_balance(token_system, token=1, address=None):
     if token == 1:
-        res = rpc_request(token_system.connect_url, "eth_getBalance", [address or token_system.account, "latest"])
+        result = rpc_request(token_system.connect_url, "eth_getBalance", [address or token_system.account, "latest"])
         try:
-            balance = long(res['result'], 16)
-        except Exception as e:
-            return res
+            balance = long(result['result'], 16)
+        except:
+            return result
 
         ##  x WEI
         ##return dict(long=long(str, 16), decimal=Decimal(long(str, 16)), decimal18=Decimal(long(str, 16))*Decimal(1E-18))
         decimal.getcontext().prec = 18  # WEI
         balance = Decimal(balance) * Decimal(1E-18)
-        if balance > 1E7: ## in test network
+        if balance > 1E7:  ## in test network
             balance = Decimal(1E7)
         return balance
     else:
@@ -156,7 +166,7 @@ def parse_tx_fields(rec):
         creator=rec['from'],
         recipient=rec['to'],
         amount=Decimal(int(rec['value'], 16)) * Decimal(1E-18),
-        asset = 1, ## ETH one
+        asset=1,  ## ETH one
         message=rec['input'][2:].decode('hex'),
         txid=rec['hash'],
         vout=0,
@@ -235,6 +245,7 @@ def get_transactions(token_system, from_block=2):
 
     return result, i
 
+
 ## for Unlock: 	{"method": "personal_unlockAccount", "params": [string, string, number]}
 def send(db, curr, xcurr, toAddr, amo, token_system, token=None, mess=None, sender=None, password=None):
     rpc_url = token_system.connect_url
@@ -243,7 +254,7 @@ def send(db, curr, xcurr, toAddr, amo, token_system, token=None, mess=None, send
 
     try:
         balance = get_balance(token_system, address=sender)
-        #return balance
+        # return balance
     except Exception as e:
         return {'error': 'connection lost - [%s]' % curr.abbrev}, None
 
