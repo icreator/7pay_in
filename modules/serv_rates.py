@@ -11,6 +11,8 @@ if False:
 
 from time import sleep
 import datetime
+from threading import Thread
+
 try:
     import json
 except ImportError:
@@ -286,7 +288,11 @@ def get(db, not_local, interval=None):
         for exchg in db(db.exchgs).select():
             if not exchg.used: continue
             print(exchg.name)
-            get_from_exch(db, exchg)
+            ## get_from_exch(db, exchg)
+            threadGetRate = Thread(target=get_from_exch, args=(db, exchg))
+            threadGetRate.start()
+            pass
+
         print('\n', datetime.datetime.now())
         
         if not_local:
