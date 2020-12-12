@@ -288,9 +288,12 @@ def get(db, not_local, interval=None):
         for exchg in db(db.exchgs).select():
             if not exchg.used: continue
             print(exchg.name)
-            ## get_from_exch(db, exchg)
-            threadGetRate = Thread(target=get_from_exch, args=(db, exchg))
-            threadGetRate.start()
+            if True:
+                get_from_exch(db, exchg)
+            else:
+                # rise error - https://groups.google.com/g/web2py/c/7Dl1lUeotgk/m/GiR89Y_0BAAJ
+                threadGetRate = Thread(target=get_from_exch, args=(db, exchg))
+                threadGetRate.start()
             pass
 
         print('\n', datetime.datetime.now())
