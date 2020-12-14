@@ -97,6 +97,10 @@ def block():
 
     if request.args(0):
         block = request.args(0)
+        try:
+            block = '%#x' % int(block)
+        except:
+            pass
     else:
         block = '0x1'
 
@@ -142,7 +146,7 @@ def get_txs():
     token_key = xcurr.as_token
     token = db.tokens[token_key]
     token_system = db.systems[token.system_id]
-    recs, height = crypto_client.get_transactions(xcurr, token_system, request.args(0) or token_system.from_block)
+    recs, height = crypto_client.get_transactions(xcurr, token_system, int(request.args(0)) or token_system.from_block)
     return BEAUTIFY({'recs': recs, 'height': height})
 
 def get_unc_incomes():
