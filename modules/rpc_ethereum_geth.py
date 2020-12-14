@@ -188,15 +188,22 @@ def get_transactions(token_system, from_block=2):
     timestamp = time.time()
     tx_count = 0
 
+    ## in TestNet --rinkeby : Height always is 0
+    if not height:
+        height = from_block + 10000
+
     ## TODO + confirmed HARD
     while i + conf <= height:
+
+        # for each block too
+        tx_count += 5
 
         if len(result) > 100 or i - from_block > 10000:
             break
 
         if tx_count > 10000:
             tx_count = 0
-            if time.time() - timestamp > 10:
+            if time.time() - timestamp > 20:
                 # if time of process more then 10 sec - break!
                 break
 

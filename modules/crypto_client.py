@@ -63,7 +63,10 @@ def get_height(xcurr, token_system, conn=None):
         if token_system.protocol == 'era':
             return rpc_erachain.get_height(token_system.connect_url)
         if token_system.protocol == 'geth':
-            return rpc_ethereum_geth.get_height(token_system.connect_url)
+            res = rpc_ethereum_geth.get_height(token_system.connect_url)
+            if not res: ## ned for Testnet --rinkeby
+                return token_system.from_block + 4000
+            return res
     else:
         try:
             conn = conn or ServiceProxy(xcurr.connect_url, None, 60)

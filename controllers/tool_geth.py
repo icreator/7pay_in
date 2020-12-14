@@ -13,9 +13,10 @@ session.forget(response)
 
 from decimal import Decimal
 import decimal
-import db_common, rpc_ethereum_geth
+import db_common, crypto_client, rpc_ethereum_geth
 
 import common
+
 # запустим сразу защиту от внешних вызов
 # тут только то что на локалке TRUST_IP in private/appconfig.ini
 common.not_is_local(request)
@@ -83,8 +84,9 @@ def send():
         sender = '0xa5f36d9e5c7699e77793cbc0cd1a6fcc52df4bb3'
         password = '123'
 
+    mess = 'COMPU:7JS4ywtcqrcVpRyBxfqyToS2XBDeVrdqZL'
     res, bal = rpc_ethereum_geth.send(db, curr, xcurr, toAddress, Decimal(0.01), token_system,
-                                      mess='probe:123', sender=sender, password=password)
+                                      mess=mess, sender=sender, password=password)
 
     return BEAUTIFY(dict(res=res, bal=bal))
 
@@ -140,7 +142,7 @@ def get_txs():
     token_key = xcurr.as_token
     token = db.tokens[token_key]
     token_system = db.systems[token.system_id]
-    recs, height = rpc_ethereum_geth.get_transactions(token_system, 0)
+    recs, height = crypto_client.get_transactions(xcurr, token_system, request.args(0) or token_system.from_block)
     return BEAUTIFY({'recs': recs, 'height': height})
 
 def get_unc_incomes():
@@ -153,5 +155,3 @@ def get_unc_incomes():
     token_system = db.systems[token.system_id]
     recs = rpc_ethereum_geth.get_unconf_incomes(token_system.connect_url, token_system.account)
     return BEAUTIFY(recs)
-
-
