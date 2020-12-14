@@ -360,9 +360,16 @@ def index():
             & (db.dealers_accs.used == True)
             & (db.dealers.used == True)
     ).select(db.dealers.ALL, groupby=db.dealers.id):
-        MIN = db_common.gMIN(deal, r.dealers)
-        ##MAX = db_common.gMAX(deal, r.dealers)
-        inp_dealers.append([r.dealers.id, '%s [%s] %s...%s' % (r.dealers.name, curr_in.abbrev, MIN, MAX)])
+        try:
+            # for mySQL
+            dealer = r.dealers
+        except:
+            # for PostgreSQL
+            dealer = r
+
+        MIN = db_common.gMIN(deal, dealer)
+        ##MAX = db_common.gMAX(deal, dealer)
+        inp_dealers.append([dealer.id, '%s [%s] %s...%s' % (dealer.name, curr_in.abbrev, MIN, MAX)])
 
     #print dd
     if len(inp_dealers)==0:
