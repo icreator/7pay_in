@@ -77,7 +77,8 @@ def get_addresses(rpc_url):
     except:
         return result
 
-
+# eth.blockNumber should return the latest synced block number at all times
+# see: https://github.com/ethereum/go-ethereum/issues/14338
 def get_height(rpc_url):
     result = rpc_request(rpc_url, "eth_blockNumber")
     try:
