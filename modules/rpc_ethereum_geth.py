@@ -189,10 +189,6 @@ def get_transactions(token_system, from_block=2):
     timestamp = time.time()
     tx_count = 0
 
-    ## in TestNet --rinkeby : Height always is 0
-    if not height:
-        height = from_block + 10000
-
     ## TODO + confirmed HARD
     while i + conf <= height:
 
