@@ -88,11 +88,15 @@ def get_assets_balances(token_system, address=None):
 
 # one token
 def get_balance(token_system, token, address=None):
-    bals = get_assets_balances(token_system, address)
-    return bals['%d' % token.token_key][0][1]
+    try:
+        bals = get_assets_balances(token_system, address)
+        return bals['%d' % token.token_key][0][1]
+    except:
+        return bals
 
 
-## get transactions/unconfirmedincomes/7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7
+
+    ## get transactions/unconfirmedincomes/7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7
 def get_unconf_incomes(rpc_url, address):
     recs = rpc_request(rpc_url + '/transactions/unconfirmedincomes/' + address)
     return recs

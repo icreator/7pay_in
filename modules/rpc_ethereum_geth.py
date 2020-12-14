@@ -150,13 +150,8 @@ def get_tx_info(rpc_url, txid):
 
 
 def get_block(rpc_url, block):
-    try:
-        res = rpc_request(rpc_url, "eth_getBlockByNumber", ['int' == type(block) and ('%#x' % block) or block, True])
-        return res
-    except Exception as e:
-        print e
-        log(current.db, 'get_transactions %s EXCEPTION: %s' % (rpc_url, e))
-        return "%s" % e
+    res = rpc_request(rpc_url, "eth_getBlockByNumber", ['int' == type(block) and ('%#x' % block) or block, True])
+    return res
 
 
 # for precess incomes in serv_block_proc
