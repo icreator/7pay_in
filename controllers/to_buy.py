@@ -7,6 +7,7 @@ if False:
     response = current.response
     session = current.session
     cache = current.cache
+    DOMEN
     T = current.T
 
 import datetime
@@ -91,7 +92,7 @@ def bank_check():
     curr, xcurr, _ = get_currs_by_addr(db, addr)
     if not xcurr:
         return mess("Неверный адрес") # Invalid wallet address
-    conn = crypto_client.conn(curr, xcurr)
+    conn = crypto_client.connect(curr, xcurr)
     if not conn:
         return mess("Нет связи с [%s]" % curr.abbrev) # Not connected to wallet [%s]
     valid = conn.validateaddress(addr)
@@ -113,7 +114,7 @@ def bank():
         INPUT(_name='addr', _placeholder=T('Адрес кошелька...')),BR(), # Wallet address
         INPUT(_name='ref', _placeholder=T('Номер платежа')), # payment referrence
         INPUT(_name='amo', _placeholder=T('Сумма платежа')), #payment amount
-        BUTTON(T('Check'), _onclick='ajax("bank_check", ["addr", "ref", "amo"], "res");\
+        BUTTON(T('Check'), _onclick='ajax("bank_check", ["address", "ref", "amo"], "res");\
                $("#res").html(\'<i class="fa fa-spinner fa-spin"></i>\');'),
         DIV(_id='res'),
         #u(T('Назад на покупку биткоинов и другой криптовалюты'),
@@ -186,20 +187,25 @@ def get():
         print 'list session error .buyAddr:', type(addr), vol
         print 'list session error .buyVol:', type(vol), vol
 
+    token_system_out = None
+    token_key_out = xcurr_out.as_token
+    if token_key_out:
+        token_out = db.tokens[token_key_out]
+        token_system_out = db.systems[token_out.system_id]
+
     #print best_rate
     if request.application[:-3] != '_dvlp':
-        # чето конфликт если из ipay3_dvlp вызывать то кошелек на ipay3 не коннектится
-        cc = crypto_client.conn(curr_out, xcurr_out)
-        if cc:
-            if crypto_client.is_not_valid_addr(cc, addr):
-                #return mess(T('address not valid for ') + curr_out_name)
-                return mess(T('ОШИБКА') + ': ' + T('Адрес кошелька не подходит для выбранной криптовалюты %s') % curr_out_name)
-        else:
-            # ЕСЛИ НЕТ СВЯЗИ - пусть пллатит - потом связь появится
-            #return mess(T('Connection to [%s] is lost, try later ') % curr_out_name)
-            ##return mess(T('Связь с кошельком ') + curr_out_name + T(' прервана.') + ' ' + T('Пожалуйста попробуйте позже'), 'warning')
-            pass
 
+        conn = None
+        if not token_system_out:
+            try:
+                conn = crypto_client.connect(curr_out, xcurr_out)
+            except:
+                conn = None
+
+        # ЕСЛИ НЕТ СВЯЗИ - пусть платит все равно - потом связь появится
+        if conn and crypto_client.is_not_valid_addr(token_system_out, addr, conn):
+            return mess('address not valid for - ' + curr_out_name + ' - ' + addr)
 
     volume_in = vol
     is_order = True
@@ -242,7 +248,7 @@ def get():
         order_id = order.id
 
     amo_in = round(amo_in*1.005, 2) # добавим таксу яндекса 0.5%
-    destination = '7pb%s' % order_id # + ' ' + T('или') +' ' + curr_out.abbrev + ' ' + addr
+    destination = '7pb%s' % order_id # + ' ' + T('или') +' ' + curr_out.abbrev + ' ' + address
     free_bal = db_client.curr_free_bal(curr_out)
     h += sect(DIV(DIV(
         H2(T('3. Оплатите по данным реквизитам покупку %s') % curr_out_name, _class='center'),
@@ -354,9 +360,16 @@ def index():
             & (db.dealers_accs.used == True)
             & (db.dealers.used == True)
     ).select(db.dealers.ALL, groupby=db.dealers.id):
-        MIN = db_common.gMIN(deal, r.dealers)
-        ##MAX = db_common.gMAX(deal, r.dealers)
-        inp_dealers.append([r.dealers.id, '%s [%s] %s...%s' % (r.dealers.name, curr_in.abbrev, MIN, MAX)])
+        try:
+            # for mySQL
+            dealer = r.dealers
+        except:
+            # for PostgreSQL
+            dealer = r
+
+        MIN = db_common.gMIN(deal, dealer)
+        ##MAX = db_common.gMAX(deal, dealer)
+        inp_dealers.append([dealer.id, '%s [%s] %s...%s' % (dealer.name, curr_in.abbrev, MIN, MAX)])
 
     #print dd
     if len(inp_dealers)==0:

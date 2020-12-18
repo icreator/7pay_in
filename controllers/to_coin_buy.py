@@ -3,6 +3,15 @@
 #if not IS_LOCAL:
 #    raise HTTP(200, 'under construct')
 
+if False:
+    from gluon import *
+    import db
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 import datetime, time
 
 import common
@@ -64,7 +73,7 @@ def get():
         return mess(T('ОШИБКА: Задайте кошелек'))
 
     try:
-        if len(addr_out) < 25 or len(addr_out) > 40:
+        if len(addr_out) < 25 or len(addr_out) > 44:
             ##проверка на счет - если это не емайл и не ттелефон то надо длинну и на циифры
             return mess(T('ОШИБКА: неверный кошелек'))
     except:
@@ -78,6 +87,8 @@ def get():
     xcurr_in = db(db.xcurrs.curr_id == curr_id).select().first()
     if not xcurr_in: return mess(T('xcurr...'))
 
+    import crypto_client
+
     #print request.vars
     curr_out = db.currs[ request.vars.curr_out ]
     xcurr_out = db(db.xcurrs.curr_id == curr_out.id).select().first()
@@ -89,36 +100,33 @@ def get():
     if token_key_in:
         token_in = db.tokens[token_key_in]
         token_system_in = db.systems[token_in.system_id]
-        import rpc_erachain
 
     token_system_out = None
     token_key_out = xcurr_out.as_token
     if token_key_out:
         token_out = db.tokens[token_key_out]
         token_system_out = db.systems[token_out.system_id]
-        import rpc_erachain
-        
+
     #print request.application[-5:]
     if request.application[:-3] != '_dvlp':
         # чето конфликт если из ipay3_dvlp вызывать то кошелек на ipay3 не коннектится
         if token_system_out:
-            curr_block = rpc_erachain.get_info(token_system_out.connect_url)
-            if type(curr_block) != type(1):
+            curr_block = crypto_client.get_height(xcurr_out, token_system_out)
+            if type(1) != type(curr_block):
                 return mess(T('Connection to [%s] is lost, try later ') % curr_out_name)
-            if rpc_erachain.is_not_valid_addr(token_system_out.connect_url, addr_out):
-                return mess(T('address not valid for ') + curr_out_name + ' - ' + addr_out)
-            
+
             pass
         else:
-            import crypto_client
             try:
-                cc = crypto_client.conn(curr_out, xcurr_out)
+                conn = crypto_client.connect(curr_out, xcurr_out)
             except:
-                cc = None
-            if not cc:
+                conn = None
+
+            if not conn:
                 return mess(T('Connection to [%s] is lost, try later ') % curr_out_name)
-            if crypto_client.is_not_valid_addr(cc, addr_out):
-                return mess(T('address not valid for - ') + curr_out_name + ' - ' + addr_out)
+
+        if crypto_client.is_not_valid_addr_xcurr(token_system_out, addr_out, conn):
+            return mess(T('address not valid for - ') + curr_out_name + ' - ' + addr_out)
 
     try:
         session.toCoin = curr_out_abbrev
@@ -132,11 +140,13 @@ def get():
         print 'to_coin session error .vol:', type(vol), vol
 
     curr_in_name = curr_in.name
-    
+
     if token_system_in:
-        deal_acc_id, deal_acc_addr = rpc_erachain.get_deal_acc_addr(db, deal_id, curr_out, addr_out, token_system_in.account, xcurr_in)
-        addr_in =  token_system_in.account
-        pass
+        addr_in = token_system_in.account
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
+    elif xcurr_in.protocol == 'geth':
+        addr_in = xcurr_in.main_addr
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, addr_out, addr_in, xcurr_in)
     else:
         x_acc_label = db_client.make_x_acc(deal, addr_out, curr_out_abbrev)
         # найдем ранее созданный адресс для этого телефона, этой крипты и этого фиата
@@ -340,7 +350,7 @@ def get():
 
 ############################################################
 ###  pars:
-### addr + vol + mess
+### address + vol + mess
 def sel():
 
     addr_out = None
@@ -433,8 +443,8 @@ def sel():
 ############################################################
 ###  pars:
 ### curr = xcurr ABBREV
-### sum + addr + mess
-### /BTC/addr/sum
+### sum + address + mess
+### /BTC/address/sum
 def index():
 
     #common.page_stats(db, response['view'])

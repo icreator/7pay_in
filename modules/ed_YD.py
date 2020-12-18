@@ -8,8 +8,7 @@ from gluon.contrib import simplejson as json
 import time
 
 from gluon import current
-
-DOMEN = 'face2face'
+DOMEN = current.DOMEN
 
 # получить инфо о параметрах тут
 # https://money.yandex.ru/internal/mobile-api/get-showcase.xml?scid=4895

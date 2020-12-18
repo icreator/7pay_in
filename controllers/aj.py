@@ -104,7 +104,7 @@ def informer():
 
             )
     h = CAT(
-        #INPUT(_name='acc'),
+        #INPUT(_name='deal_acc'),
         DIV(
             DIV(
                 A(

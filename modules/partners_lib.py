@@ -1,6 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+if False:
+    from gluon import *
+    import db
+
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 ### партнерсие начисляются только с выходных curr.fee + deal.fee
 # и конвертируются в валюту дела у партнера
 # причем минимального значения нет так как выходы на прямом обмене могут быть мизер

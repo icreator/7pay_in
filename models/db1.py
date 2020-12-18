@@ -51,6 +51,7 @@ db.define_table('systems',
                 Field('name', length=25, unique=True, readable=False, comment='name of tokenized system'),
                 Field('name2', length=25, readable=False, comment='name for URI'),
                 Field('first_char', length=5, readable=False, comment='insert in db.common.get_currs_by_addr !!!'), # для быстрого поиска крипты по адресу
+                Field('protocol', length=20, readable=False, default='geth', comment='geth, era...'), # протокол крипты - разная обработка
                 Field('connect_url', default='http://user:pass@localhost:3333', unique=True),
                 Field('account', default='7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7', comment='address for incoming payments'),
                 Field('password'),
@@ -79,7 +80,7 @@ db.define_table('xcurrs',
                 #Field('clients_deposit', 'decimal(16,8)', default = Decimal('0.0')), # то что нельзя выводить или продавать так как это баланс клиеннтов-магазинов
                 #Field('reserve', 'decimal(4,2)', default = Decimal('0.0')), # 1=100% reserve from RUBles
                 Field('connect_url', default='http://user:pass@localhost:3333', unique=True),
-                Field('main_addr', comment='Deny process incomes on it'),
+                Field('main_addr', comment='Not process the incomes on it'),
                 Field('block_time', 'integer', comment='in sec. BTC = 600sec'),
                 Field('txfee', 'decimal(10,8)', default = Decimal('0.0001'), comment='For one pay_out transaction. Payed to web'),
                 Field('conf', 'integer', default = 3, comment='confirmations for accept'),
@@ -270,7 +271,6 @@ db.define_table('deals_cat',
 # валюты входа отдельно, сначала пользователи на дело, потомвалта входа на пользователя
 db.define_table('deals',
                 Field('cat_id', db.deals_cat, ondelete='CASCADE', default = 1),
-                #Field('curr_id', 'integer', comment='NOT USED now! GEt curr in DEAL_ACC'), # db.currs
                 Field('fee_curr_id', db.currs, comment='curr for calc FEE'),
                 Field('name', length=100,  unique=True), # for URL and LABELs
                 Field('name2', length=100, comment='english-name for URL and label'),
@@ -306,7 +306,6 @@ db.define_table('deals',
 # for copy from external DBs by 'import by CSV' of web2py
 db.define_table('deals_tmp',
                 Field('cat_id', db.deals_cat, ondelete='CASCADE', default = 1),
-                #Field('curr_id', 'integer', comment='NOT USED now! GEt curr in DEAL_ACC'), # db.currs
                 Field('fee_curr_id', db.currs, comment='curr for calc FEE'),
                 Field('name', length=100,  unique=True), # for URL and LABELs
                 Field('name2', length=100, comment='english-name for URL and label'),
@@ -403,8 +402,8 @@ db.define_table('deal_acc_addrs',
                 # имя аккаунта в кошельке должно создаваться по deals.name + deal_acc_id
                 # так даже не надо имени дела - deal_acc_id уже уникальный будет
                 # Field('account', length=30, required=True),
-                Field('addr', length=40, required=True), # его адрес в кошельке крипты
-                Field('addr_return', length=40, required=False), # если задан - авто перевод на него будет
+                Field('addr', length=60, required=True), # его адрес в кошельке крипты
+                Field('addr_return', length=60, required=False), # если задан - авто перевод на него будет
                 Field('incomed', 'decimal(16,8)'), # сколько крипты пришло
                 Field('converted', 'decimal(16,8)'), # сколько мы уже конвертировали
                 format='%(id)s %(xcurr_id)s %(addr)s',
@@ -488,7 +487,7 @@ db.define_table('clients_balances',
 db.define_table('clients_xwallets',
                 Field('client_id', db.clients, ondelete='CASCADE'),
                 Field('xcurr_id', db.xcurrs, ondelete='CASCADE'),
-                Field('addr', length=40, required=True),
+                Field('addr', length=60, required=True),
                 Field('bal', 'decimal(16,8)'),
                 format='%(client_id)s %(xcurr_id)s %(addr)s',
                 )
@@ -496,7 +495,7 @@ db.define_table('clients_ewallets',
                 Field('client_id', db.clients, ondelete='CASCADE'),
                 Field('dealer_id', db.dealers, ondelete='CASCADE'),
                 Field('ecurr_id', db.ecurrs),
-                Field('addr', length=40, required=True),
+                Field('addr', length=60, required=True),
                 Field('bal', 'decimal(16,3)', default=Decimal(0.0)),
                 format='%(client_id)s %(dealer_id)s %(ecurr_id)s %(addr)s',
                 )
@@ -530,7 +529,7 @@ db.define_table('persons',
                 )
 db.define_table('person_addrs',
                 Field('pers', db.persons, ondelete='CASCADE'),
-                Field('addr', length=40),
+                Field('addr', length=60),
                 format='%(addr)s',
                 )
 # данные на персону - ключ - значение
@@ -590,7 +589,7 @@ db.define_table('pay_ins',
                       #requires = IS_EMPTY_OR(IS_IN_DB(db, 'deal_acc_addrs.id', '%(addr)s')),
                       ),
                 Field('amount', 'decimal(14,8)', comment='value received'),
-                Field('confs', 'integer', comment='confirmations when record maked'),
+                Field('block_no', 'integer', comment='block where record exist'),
                 Field('txid', length=TXID_LEN), # транзакция
                 Field('vout', 'integer'), # выход в транзакции
                 Field('created_on', 'datetime', writable=False), # сами должны вставить default=request.now),
@@ -613,7 +612,7 @@ db.define_table('pay_ins_stack',
 # их в других сервисах могут разобрать
 db.define_table('pay_ins_unused',
                 Field('amount', 'decimal(16,8)', comment='value received'),
-                Field('confs', 'integer', comment='confirmations when record maked'),
+                Field('block_no', 'integer', comment='block where record exist'),
                 Field('txid', length=TXID_LEN), # транзакция
                 Field('vout', 'integer'), # выход в транзакции
                 Field('created_on', 'datetime', writable=False), # сами должны вставить default=request.now),
@@ -626,7 +625,7 @@ db.define_table('pay_ins_unused',
 # это для связи адреса крипты с номером заказа
 db.define_table('addr_orders',
                 Field('xcurr_id', db.xcurrs, ondelete='CASCADE'),
-                Field('addr', length=40), #
+                Field('addr', length=60), #
                 format='%(id)s %(addr)s',
                 )
 db.define_table('buys',
@@ -661,7 +660,7 @@ db.define_table('xcurrs_raw_trans',
                 Field('xcurr_id', db.xcurrs, ondelete='CASCADE'),
                 Field('txid', length=TXID_LEN), # дело в котром крипта использовалась
                 Field('tx_hex', 'text'),
-                Field('confs', 'integer'),
+                Field('block_no', 'integer', comment='block where record exist'),
                 )
 
 ###################################################################
@@ -676,7 +675,7 @@ db.define_table('buy_partners',
 db.define_table('buy_partners_xw',
                 Field('buy_partner_id', db.buy_partners, ondelete='CASCADE'), #
                 Field('curr_id', db.currs), #
-                Field('addr', length=40), #
+                Field('addr', length=60), #
                 Field('amo', 'decimal(12,8)', label=T('Накоплено'), default = Decimal('0.0')),
                 )
 

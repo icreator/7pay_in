@@ -1,5 +1,14 @@
 # coding: utf8
 
+if False:
+    from gluon import *
+    import db
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 #import copy
 import datetime, time
 import re
@@ -23,6 +32,8 @@ deal_name = 'WALLET'
 # найдем дело
 deal = db(db.deals.name==deal_name).select().first()
 if not deal: raise HTTP(200, T('ERROR: not found deal "%s"') % deal_name)
+
+deal_id = deal.id
 
 # заменить все не цифры и проверить длинну
 regular_phone = re.compile("\D")
@@ -96,7 +107,7 @@ def get():
         return mess(T('ОШИБКА: Задайте кошелек'))
 
     try:
-        if len(acc) < 6 or len(acc) > 40 or not IS_EMAIL(acc) and not valid_phone(acc) and not acc.isdidit():
+        if len(acc) < 6 or len(acc) > 44 or not IS_EMAIL(acc) and not valid_phone(acc) and not acc.isdidit():
             ##проверка на счет - если это не емайл и не ттелефон то надо длинну и на циифры
             return mess(T('ОШИБКА: неверный кошелек'))
     except:
@@ -139,25 +150,38 @@ def get():
             print 'to_wallet session error .vol:', type(vol), vol
 
     # теперь проверку на правильность кошелька для дилера электронных платежей
-    #res = ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, acc, deal.MIN_pay or dealer.pay_out_MIN or 20, False)
+    #res = ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, deal_acc, deal.MIN_pay or dealer.pay_out_MIN or 20, False)
     #res = {'error': ' TEST'}
     if False and res.get('status')!='success':
         m = 'error_description' in res and res.ger('error_description', res.get('error', 'dealer error'))
         m = T('Платежная система %s отвергла платеж, потому что: %s') % (dealer.name, m)
         return mess(m, 'warning')
 
-    curr_out_abbrev = curr_out.abbrev
-    x_acc_label = db_client.make_x_acc(deal, acc, curr_out_abbrev)
-    # найдем ранее созданный адресс для этого телефона, этой крипты и этого фиата
-    # сначала найтем аккаунт у дела
-    deal_acc_id = db_client.get_deal_acc_id(db, deal, acc, curr_out)
-    # теперь найдем кошелек для данной крипты
-    deal_acc_addr = db_client.get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr_in, xcurr_in, x_acc_label)
-    if not deal_acc_addr:
-        return mess((T('Связь с сервером %s прервана') % curr_in.name) + '. ' + T('Невозможно получить адрес для платежа') + '. ' + T('Пожалуйста попробуйте позже'), 'warning')
+    token_system_in = None
+    token_key_in = xcurr_in.as_token
+    if token_key_in:
+        token_in = db.tokens[token_key_in]
+        token_system_in = db.systems[token_in.system_id]
 
-    #request.vars['deal_acc_addr']=deal_acc_addr
-    addr = deal_acc_addr.addr
+    if token_system_in:
+        addr_in = token_system_in.account
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, acc, addr_in, xcurr_in)
+    elif xcurr_in.protocol == 'geth':
+        addr_in = xcurr_in.main_addr
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, acc, addr_in, xcurr_in)
+    else:
+        curr_out_abbrev = curr_out.abbrev
+        x_acc_label = db_client.make_x_acc(deal, acc, curr_out_abbrev)
+        # найдем ранее созданный адресс для этого телефона, этой крипты и этого фиата
+        # сначала найтем аккаунт у дела
+        deal_acc_id = db_client.get_deal_acc_id(db, deal, acc, curr_out)
+        # теперь найдем кошелек для данной крипты
+        deal_acc_addr = db_client.get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr_in, xcurr_in, x_acc_label)
+        if not deal_acc_addr:
+            return mess((T('Связь с сервером %s прервана') % curr_in.name) + '. ' + T('Невозможно получить адрес для платежа') + '. ' + T('Пожалуйста попробуйте позже'), 'warning')
+
+        #request.vars['deal_acc_addr']=deal_acc_addr
+        addr_in = deal_acc_addr.addr
         
     curr_in_abbrev = curr_in.abbrev
 
@@ -243,7 +267,7 @@ def get():
         hh += mess('[' + curr_in.name + '] -> [' + curr_out.name + ']' + T(' - лучшая цена не доступна.') + T('Но Вы можете оплатить вперед'), 'warning pb-10')
 
 
-    _, url_uri = common.uri_make( curr_in.name2, addr, {'amount':volume_in, 'label': db_client.make_x_acc_label(deal, acc, curr_out_abbrev)})
+    _, url_uri = common.uri_make( curr_in.name2, addr_in, {'amount':volume_in, 'label': db_client.make_x_acc_label(deal, acc, curr_out_abbrev)})
 
     lim_bal, may_pay = db_client.is_limited_ball(curr_in)
     if lim_bal:
@@ -297,9 +321,9 @@ def get():
             # FORM в основной делать тоже иначе они складываются
             INPUT(_name='v', value=volume_in, _class="pay_val", _readonly=''), curr_in.abbrev, BR(),
             T("Для этого скопируйте сумму и адрес (двойной клик по полю для выделения) и вставьте их в платеж на вашем кошельке"), ': ',
-            INPUT(_name='addr', _value=addr, _class='wallet', _readonly=''), BR(),
+            INPUT(_name='addr_in', _value=addr_in, _class='wallet', _readonly=''), BR(),
             #T('Резервы службы'), ' ', B(free_bal), ' ', T('рублей'), BR(),
-            #LOAD('where', 'for_addr', vars={'addr': addr}, ajax=True, times=100, timeout=20000,
+            #LOAD('where', 'for_addr', vars={'addr_in': addr_in}, ajax=True, times=100, timeout=20000,
             #    content=IMG(_src=URL('static','images/loading.gif'), _width=48)),
             INPUT( _type='submit',
                 _class='button blue-bgc',
@@ -336,7 +360,7 @@ def get():
 ############################################################
 ###  pars:
 ### ed = edealer_name
-### sum + acc + mess
+### sum + deal_acc + mess
 def index():
 
     #common.page_stats(db, response['view'])
@@ -386,12 +410,12 @@ def index():
         vn = 'sum'
         if vn in request.vars:
             vars[vn] = test_vol(request.vars[vn])
-        vn = 'acc'
+        vn = 'deal_acc'
         if vn in request.vars:
             acc = request.vars[vn]
             vars[vn] = acc
             if not ed_name:
-                return err_dict(T("ОШИБКА: Не задано имя системы электронных денег для данного кошелька %s! Пример ссылки: %s?ed=yandex&sum=1500&acc=423456780345") % (acc, URL()), True)
+                return err_dict(T("ОШИБКА: Не задано имя системы электронных денег для данного кошелька %s! Пример ссылки: %s?ed=yandex&sum=1500&deal_acc=423456780345") % (acc, URL()), True)
         vn = 'mess'
         if 'mess' in request.vars:
             vars[vn] = request.vars[vn]
@@ -415,7 +439,7 @@ def index():
                       //$(this).css('z-index','0');
                       $('#tag%s').hide('fast');
                       $('#cvr%s').css('display','block'); // .css('z-index','10');
-                      ajax('%s',['vol','acc','dealer'], 'tag%s');
+                      ajax('%s',['vol','deal_acc','dealer'], 'tag%s');
                       ''' % (id, id, URL('get', args=[id]), id)
         #print rr
         h += DIV(

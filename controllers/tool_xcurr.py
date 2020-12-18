@@ -1,5 +1,19 @@
 # -*- coding: utf-8 -*-
-if not IS_LOCAL: raise HTTP(200, 'error')
+
+if False:
+    from gluon import *
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+    import db
+
+import common
+# запустим сразу защиту от внешних вызов
+# тут только то что на локалке TRUST_IP in private/appconfig.ini
+common.not_is_local(request)
+
 session.forget(response)
 
 from decimal import Decimal
@@ -8,16 +22,16 @@ import db_common, crypto_client
 def index(): return dict(message="hello from tool_xcurr.py")
 
 def addrs():
-    if not request.args(0):return '/EMC/[addr]'
+    if not request.args(0):return '/EMC/[address]'
     curr, xcurr, e = db_common.get_currs_by_abbrev(db, request.args(0))
     if not xcurr: return 'xcurr not found'
-    cn = crypto_client.conn(curr, xcurr)
+    cn = crypto_client.connect(curr, xcurr)
     if not cn: return 'xcurr not connected'
 
     res = {}
     addr = request.args(1)
     if True or addr:
-        #res = {'addr': addr , 'res': cn.getreceivedbyaddress(addr) }
+        #res = {'address': address , 'res': cn.getreceivedbyaddress(address) }
         res1 = cn.listaddressgroupings()
         res = {}
         i = 1
@@ -30,7 +44,7 @@ def addrs():
                 cnt += 1
                 res ['i%s-j%s' % (i,j) ] = r
                 j += 1
-                # r = [addr, amo, acc]
+                # r = [address, amo, deal_acc]
                 #print r
                 if len(r) >2 :
                     cnt1 += 1
@@ -67,7 +81,7 @@ def ophrans():
     import db_common
     #import crypto_client
     curr, xcurr, e = db_common.get_currs_by_abbrev(db,request.args[0])
-    conn = crypto_client.conn(curr,xcurr)
+    conn = crypto_client.connect(curr, xcurr)
     h = CAT()
     cnt = 0
     for r in db((db.deal_acc_addrs.xcurr_id == xcurr.id)
@@ -86,3 +100,16 @@ def ophrans():
             h += P(BEAUTIFY(res))
             h += HR()
     return dict(h=CAT(H3('counter:', cnt),h))
+
+
+# args:
+# tools_xcurr/process_from/BTC/from_block
+def process_from():
+    session.forget(response)
+    if len(request.args) < 2:
+        mess = 'len(request.args)==0 need: tools_xcurr/process_from/BTC/12345'
+        return mess
+
+    import serv_block_proc
+
+    return serv_block_proc.run_once(db, request.args[0], int(request.args[1]))
