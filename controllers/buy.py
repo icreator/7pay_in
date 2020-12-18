@@ -8,6 +8,15 @@ import json
 
 import ed_common
 
+if False:
+    from gluon import *
+    import db
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 def log(mess):
     print mess
     db.logs.insert(mess='BUY: %s' % mess)
@@ -99,7 +108,7 @@ def income_YD():
                     ))
     id_trans = operation_id != '489576667705029008' and id_trans or 0
     #print id_trans
-    ## test on acc = 410012107376992 ? operation_id=='489576667705029008'
+    ## test on deal_acc = 410012107376992 ? operation_id=='489576667705029008'
     if id_trans <0:
         # значит такая запись уже была внесена и обработана - выход
         mess =  'income_YD: id_trans = %s Ok X2' % id_trans
@@ -212,7 +221,7 @@ def income_YD():
             return mess
 
     # { 'sender': info['sder'], 'operation_id': info['operation_id'],
-    #        'amo': info['amount'], 'xcurr': xcurr, 'addr': addr,
+    #        'amo': info['amount'], 'xcurr': xcurr, 'addr': address,
     #        'ecurr_abbrev':'RUB',
     #        }
 

@@ -41,7 +41,7 @@ def parse_item(ii, tab_sums, comp, deal_templ, tab):
         return
     if par_name in ['FormComment', 'sum', 'inrow']: return
 
-    deal_par_name = 'acc%s' % (ii[0])
+    deal_par_name = 'deal_acc%s' % (ii[0])
     print comp.tag
     print comp.element()
     label = comp.element('xf:label')

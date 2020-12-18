@@ -7,8 +7,17 @@ import json
 import time
 
 from gluon import current
+DOMEN = current.DOMEN
 
-DOMEN = 'face2face'
+if False:
+    from gluon import *
+    import db
+
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
 
 # получить инфо о параметрах тут
 # https://money.yandex.ru/internal/mobile-api/get-showcase.xml?scid=4895
@@ -39,9 +48,9 @@ headers = { 'Accept': 'application/json, text/javascript, */*; q=0.01',
 TTT = 'wcl'
 TTT = 'lib'
 
-def login(acc):
+def login(edlr_acc):
 
-    data = dict( source='MENU', login = acc.acc, password = acc.skey )
+    data = dict( source='MENU', login = edlr_acc.acc, password = edlr_acc.skey )
     if TTT == 'lib':
         h = urllib2.Request(URL + URL_LOG, urllib.urlencode(data), headers )
         r = urllib2.urlopen(h)
@@ -60,7 +69,7 @@ def login(acc):
         
     d = r.get('data')
     token = d and d.get('token')
-    #acc.update_record( pkey = token )
+    #edlr_acc.update_record( pkey = token )
         
     data['loginToken'] = token
     
@@ -79,12 +88,12 @@ def login(acc):
         return 'error on second request', r
     d = r.get('data')
     token = d and d.get('token')
-    #acc.update_record( pkey = token )
+    #edlr_acc.update_record( pkey = token )
         
     return None, r
 
-def get_balance(acc, TAG):
-    data = dict( source='MENU', login = acc.acc, password = acc.skey )
+def get_balance(edlr_acc, TAG):
+    data = dict( source='MENU', login = edlr_acc.acc, password = edlr_acc.skey )
     if TTT == 'lib':
         r = urllib2.Request(URL + 'settings/account/main.action')
         r = urllib2.urlopen(r)
@@ -98,7 +107,7 @@ def get_balance(acc, TAG):
         
     return None, bal
 
-def get_history(acc, direction, from_dt, to_dt, TAG):
+def get_history(edlr_acc, direction, from_dt, to_dt, TAG):
     data = dict(
         settings='true',
         conditions = dict(directions = direction),

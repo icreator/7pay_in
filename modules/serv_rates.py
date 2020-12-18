@@ -1,7 +1,18 @@
 # coding: utf8
 
+if False:
+    from gluon import *
+    import db
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 from time import sleep
 import datetime
+from threading import Thread
+
 try:
     import json
 except ImportError:
@@ -277,7 +288,14 @@ def get(db, not_local, interval=None):
         for exchg in db(db.exchgs).select():
             if not exchg.used: continue
             print(exchg.name)
-            get_from_exch(db, exchg)
+            if True:
+                get_from_exch(db, exchg)
+            else:
+                # rise error - https://groups.google.com/g/web2py/c/7Dl1lUeotgk/m/GiR89Y_0BAAJ
+                threadGetRate = Thread(target=get_from_exch, args=(db, exchg))
+                threadGetRate.start()
+            pass
+
         print('\n', datetime.datetime.now())
         
         if not_local:
