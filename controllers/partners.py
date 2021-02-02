@@ -33,7 +33,7 @@ def index():
         if len(addr)<30:
             deal_acc = db(db.deal_accs.partner == addr).select().first()
         else:
-            #print addr
+            #print address
             deal_acc_addr = db(db.deal_acc_addrs.addr == addr).select().first()
             if not deal_acc_addr: return dict(mess=T("такой адрес не найден"), cod=None)
     

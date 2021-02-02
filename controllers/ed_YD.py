@@ -33,7 +33,7 @@ acc_names": ["user", "PROPERTY1", "rapida_param1", "customerNumber", "CustomerNu
 def YmTo():
     session.forget(response)
     if len(request.args) < 2:
-        mess = '/[dealer_acc_id]/[deal_id]?acc=ACC&amo=AMO'
+        mess = '/[dealer_acc_id]/[deal_id]?deal_acc=ACC&amo=AMO'
         print mess
         return mess
 
@@ -44,11 +44,11 @@ def YmTo():
             & (db.dealer_deals.dealer_id == dealer.id)).select().first()
     if not dealer_deal: return 'NOT dealer_deal'
     
-    acc = request.vars.get('acc', '---???---')
+    acc = request.vars.get('deal_acc', '---???---')
     sum = request.vars.get('sum', '300.0')
     pars_in = {
         # acc_names": ["user", "PROPERTY1", "rapida_param1", "customerNumber", "CustomerNumber"]
-        #'PROPERTY1': acc,
+        #'PROPERTY1': deal_acc,
         u'customerNumber': acc,
         # SUM_NAMES = ['sum', 'netSum', 'redsum' ]
         u'sum': sum,
@@ -56,7 +56,7 @@ def YmTo():
         }
     test = log_on = None
     api_pars, acc_pars, acc_name = ed_YD.get_pars(dealer, dealer_acc)
-    #def YmTo(db, deal, edlr_deal, api_pars, token, acc, amount, acc_name, test=None, log_on=None, pars_in=None):
+    #def YmTo(db, deal, edlr_deal, api_pars, token, deal_acc, amount, acc_name, test=None, log_on=None, pars_in=None):
     res = ed_YD.YmTo(db, deal, dealer_deal, api_pars,
              dealer_acc.skey, acc,
              sum, acc_name, test, log_on, pars_in)

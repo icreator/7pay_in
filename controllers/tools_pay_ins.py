@@ -1,6 +1,19 @@
 # -*- coding: utf-8 -*-
 
-if not IS_LOCAL: raise HTTP(200, 'error...')
+if False:
+    from gluon import *
+    import db
+
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
+import common
+# запустим сразу защиту от внешних вызов
+# тут только то что на локалке TRUST_IP in private/appconfig.ini
+common.not_is_local(request)
 
 def add_pay_in_tx():
     curr = request.vars.curr
@@ -26,7 +39,7 @@ def add_pay_in_tx():
         return CAT(H2('already in PAY_INS'),BEAUTIFY(pay_in))
     
     import crypto_client
-    conn = crypto_client.conn(curr, xcurr)
+    conn = crypto_client.connect(curr, xcurr)
     if not conn:
         return 'error - not connected to wallet'
     res = None
@@ -55,9 +68,9 @@ def add_pay_in_tx():
         return H3('not found order for address: ' + addr)
     
     value = vout['value']
-    confs = res['confirmations']
+    block = res['block']
 
-    return CAT(LABEL('confs'), INPUT(_name='confs', _value=confs),' ', LABEL('address:'), INPUT(_name='addr', _value=addr),
+    return CAT(LABEL('block'), INPUT(_name='block', _value=block),' ', LABEL('address:'), INPUT(_name='addr', _value=addr),
               ' ', LABEL('value:'), INPUT(_name='amount', _value=value),BR(),
               INPUT(_type='submit'))
 
@@ -70,7 +83,7 @@ def add_pay_in():
             DIV(_id="tag"),
             )
     # непередается кнопка в эту форму - просто по рекваесту ловим
-    if form.process().accepted or request.vars.confs:
+    if form.process().accepted or request.vars.block:
         import datetime
         #print form.vars
         form.vars = request.vars
@@ -88,7 +101,7 @@ def add_pay_in():
                       txid = form.vars.txid,
                       vout = form.vars.vout,
                       amount = form.vars.amount,
-                      confs = form.vars.confs,
+                      block = form.vars.block,
                       created_on = datetime.datetime.now(),
                       )
         db.pay_ins_stack.insert( ref_ = pay_in_id)

@@ -1,11 +1,24 @@
 # coding: utf8
 
+if False:
+    from gluon import *
+    import db
+
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 import rates_lib
 import datetime
 
 session.forget(response)
 
-if not IS_LOCAL: raise HTTP(200, T('ERROR'))
+import common
+# запустим сразу защиту от внешних вызов
+# тут только то что на локалке TRUST_IP in private/appconfig.ini
+common.not_is_local(request)
 
 # попробовать что-либо вида
 def index():

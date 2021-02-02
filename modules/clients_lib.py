@@ -3,16 +3,14 @@
 from time import sleep
 Test = None
 
-DOMEN = 'face2face'
+from gluon import current
+DOMEN = current.DOMEN
 
 from decimal import Decimal
 import datetime
-#from gluon import *
 import urllib
-import httplib
 import json
 
-import db_common
 
 def log(db, mess):
     print mess
@@ -148,7 +146,7 @@ def notify_one(db, note):
 
 # по умолчанию ссылка для ответа
 ## http://site_url/to_shop_response/from_7pay_in?order=[order_id]
-def try_note_url(client, deal_acc):
+def try_note_url(db, client, deal_acc):
     note_url = client.note_url
     if not note_url or len(note_url)<2:
          deal = db.deals[deal_acc.deal_id]
@@ -183,7 +181,7 @@ def notify_one_acc(db, note, client=None, deal_acc=None):
     # сюда пришло значит время пришло послать уведомление
     deal_acc = deal_acc or db.deal_accs[note.deal_acc_id]
     client = client or db.clients[note.client_id]
-    try_note_url(client, deal_acc)
+    try_note_url(db, client, deal_acc)
     note.tries = tries + 1
     note.update_record()
     return
@@ -212,12 +210,13 @@ def serv_notify(db, interval=None):
         sleep(interval)
 
 def auto_collect(db):
+    import crypto_client
     print '\nAUTO_COLLECT'
     for xcurr in db(db.xcurrs).select():
         curr = db.currs[xcurr.curr_id]
         if not curr.used: continue
         print curr.abbrev
-        cn = crypto_client.conn(curr, xcurr)
+        cn = crypto_client.connect(curr, xcurr)
         if not cn: continue
         
         addrs = {}
