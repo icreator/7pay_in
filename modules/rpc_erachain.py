@@ -108,16 +108,17 @@ def get_tx_info(rpc_url, txid):
 
 # for precess incomes in serv_block_proc
 def parse_tx_fields(rec):
+    mess = rec['title'] ## may be = u''
     return dict(
         creator=rec['creator'],
         recipient=rec['recipient'],
         amount=Decimal(rec['amount']),
         asset=rec['asset'],
-        message=rec.get('title', rec['message']),
+        message = mess or rec['message'],
         txid=rec['signature'],
         vout=0,
         block=rec['height'],
-        timestamp=rec['timestamp'] * 0.001,
+        timestamp=rec['timestamp'],
         confs=rec['confirmations']
     )
 
