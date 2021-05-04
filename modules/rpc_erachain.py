@@ -170,11 +170,11 @@ def get_transactions(token_system, from_block=2):
             if 'amount' not in rec:
                 # only SEND transactions
                 continue
-            if 'actionKey' not in rec or rec['actionKey'] != 1:
+            if 'balancePos' not in rec or rec['balancePos'] != 1:
                 # only SEND PROPERTY action
                 continue
             if 'backward' in rec:
-                # skip BACKWADR
+                # skip BACKWARD
                 continue
             if rec.get('title') is '.main.':
                 ## skip my deposit
