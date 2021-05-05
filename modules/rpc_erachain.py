@@ -118,14 +118,13 @@ def parse_tx_fields(rec):
         txid=rec['signature'],
         vout=0,
         block=rec['height'],
-        timestamp=rec['timestamp'],
+        timestamp=rec['timestamp'] / 1000, # in SEC
         confs=rec['confirmations']
     )
 
 
 def get_transactions(token_system, from_block=2):
     rpc_url = token_system.connect_url
-    conf = token_system.conf or 2
     addr = token_system.account
 
     result = []
@@ -138,8 +137,7 @@ def get_transactions(token_system, from_block=2):
 
     i = from_block
 
-    ## TODO + confirmed HARD
-    while i + conf <= height:
+    while i <= height:
         if len(result) > 100 or i - from_block > 30000:
             break
 
