@@ -714,7 +714,7 @@ def run_once(db, abbrev, from_block_in=0):
             # если есть приход фиата то попробовать продать крипту - может там не хватило баланса
             # try:
             if True:
-                serv_to_buy.proc_ecurr(db, curr, xcurr, conn)
+                serv_to_buy.proc_ecurr(db, curr, xcurr, conn, token_system)
                 db.commit()
             else:
                 # except Exception as e:
