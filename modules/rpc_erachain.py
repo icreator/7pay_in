@@ -108,13 +108,13 @@ def get_tx_info(rpc_url, txid):
 
 # for precess incomes in serv_block_proc
 def parse_tx_fields(rec):
-    mess = rec['title'] ## may be = u''
+    title = rec.get('title') ## may be = u''
     return dict(
         creator=rec['creator'],
         recipient=rec['recipient'],
         amount=Decimal(rec['amount']),
         asset=rec['asset'],
-        message = mess or rec['message'],
+        message=rec.get('message', title),
         txid=rec['signature'],
         vout=0,
         block=rec['height'],
@@ -122,7 +122,7 @@ def parse_tx_fields(rec):
         confs=rec['confirmations']
     )
 
-
+# 1631311
 def get_transactions(token_system, from_block=2):
     rpc_url = token_system.connect_url
     addr = token_system.account
