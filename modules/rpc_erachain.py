@@ -108,23 +108,23 @@ def get_tx_info(rpc_url, txid):
 
 # for precess incomes in serv_block_proc
 def parse_tx_fields(rec):
+    title = rec.get('title') ## may be = u''
     return dict(
         creator=rec['creator'],
         recipient=rec['recipient'],
         amount=Decimal(rec['amount']),
         asset=rec['asset'],
-        message=rec.get('title', rec['message']),
+        message=rec.get('message', title),
         txid=rec['signature'],
         vout=0,
         block=rec['height'],
-        timestamp=rec['timestamp'] * 0.001,
+        timestamp=rec['timestamp'] / 1000, # in SEC
         confs=rec['confirmations']
     )
 
-
+# 1631311
 def get_transactions(token_system, from_block=2):
     rpc_url = token_system.connect_url
-    conf = token_system.conf or 2
     addr = token_system.account
 
     result = []
@@ -137,8 +137,7 @@ def get_transactions(token_system, from_block=2):
 
     i = from_block
 
-    ## TODO + confirmed HARD
-    while i + conf <= height:
+    while i <= height:
         if len(result) > 100 or i - from_block > 30000:
             break
 
@@ -170,11 +169,11 @@ def get_transactions(token_system, from_block=2):
             if 'amount' not in rec:
                 # only SEND transactions
                 continue
-            if 'actionKey' not in rec or rec['actionKey'] != 1:
+            if 'balancePos' not in rec or rec['balancePos'] != 1:
                 # only SEND PROPERTY action
                 continue
             if 'backward' in rec:
-                # skip BACKWADR
+                # skip BACKWARD
                 continue
             if rec.get('title') is '.main.':
                 ## skip my deposit
