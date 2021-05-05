@@ -137,7 +137,7 @@ def get_transactions(token_system, from_block=2):
 
     i = from_block
 
-    while i <= height:
+    while i < height:
         if len(result) > 100 or i - from_block > 30000:
             break
 
@@ -157,11 +157,15 @@ def get_transactions(token_system, from_block=2):
         if recs_count == 0:
             continue
 
+        if recs.get('error'):
+            print recs
+            log(current.db, 'get_transactions %s ERROR: %s' % (url_get, recs))
+            break
+
         # print 'erachain incomes - height: ', i, ' recs:', len(recs)
 
         incomes = []
         for rec in recs:
-            # print rec
 
             if rec['type'] != 31:
                 # only SEND transactions
