@@ -152,18 +152,18 @@ def get_transactions(token_system, from_block=2):
         except Exception as e:
             print e
             print recs
-            log(current.db, 'get_transactions %s EXCEPTION: %s - %s' % (url_get, e, recs))
+            log(current.db, token_system.name + 'get_txs %s EXCEPTION: %s - %s' % (url_get, e, recs))
             return result, i - 1
+
+        if type(recs) != type([]):
+            print recs
+            log(current.db, token_system.name + 'get_txs %s ERROR: %s' % (url_get, recs))
+            break
 
         if recs_count == 0:
             continue
 
-        if type(recs) != type([]):
-            print recs
-            log(current.db, 'get_transactions %s ERROR: %s' % (url_get, recs))
-            break
-
-        # print 'erachain incomes - height: ', i, ' recs:', len(recs)
+        # print token_system.name, ' incomes - height: ', i, ' recs:', len(recs)
 
         incomes = []
         for rec in recs:
