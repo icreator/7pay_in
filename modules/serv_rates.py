@@ -321,25 +321,37 @@ def get(db, not_local, interval=None):
 
                 buy, sell, avrg = rates_lib.get_average_rate_bsa(db, rec.curr1_id, USD_CURR.id)
                 if avrg:
-                    print (rec.curr1_id, 'USD', avrg, ' cross:', avrg * float(rec.hard_price))
+                    _, _, avrg2 = rates_lib.get_average_rate_bsa(db, rec.curr2_id, USD_CURR.id)
+                    if avrg2:
+                        continue
+                    print (rec.curr1_id, '/ USD', avrg, ', for',  rec.curr2_id, ' cross:', avrg * float(rec.hard_price))
                     db_common.store_cross_rates(db, exchg_id, rec.curr2_id, USD_CURR.id, buy * float(rec.hard_price), sell * float(rec.hard_price))
                     continue
 
                 buy, sell, avrg = rates_lib.get_average_rate_bsa(db, rec.curr2_id, USD_CURR.id)
                 if avrg:
-                    print (rec.curr2_id, 'USD', avrg, ' cross:', avrg * float(rec.hard_price))
+                    _, _, avrg2 = rates_lib.get_average_rate_bsa(db, rec.curr1_id, USD_CURR.id)
+                    if avrg2:
+                        continue
+                    print (rec.curr2_id, '/ USD', avrg, ', for',  rec.curr1_id, ' cross:', avrg * float(rec.hard_price))
                     db_common.store_cross_rates(db, exchg_id, rec.curr1_id, USD_CURR.id, buy * float(rec.hard_price), sell * float(rec.hard_price))
                     continue
 
                 buy, sell, avrg = rates_lib.get_average_rate_bsa(db, BTC_CURR.id, rec.curr1_id)
                 if avrg:
-                    print ('BTC', rec.curr1_id, avrg, ' cross:', avrg * float(rec.hard_price))
+                    _, _, avrg2 = rates_lib.get_average_rate_bsa(db, BTC_CURR.id, rec.curr2_id)
+                    if avrg2:
+                        continue
+                    print ('BTC /', rec.curr1_id, avrg, ', for',  rec.curr2_id, ' cross:', avrg * float(rec.hard_price))
                     db_common.store_cross_rates(db, exchg_id, BTC_CURR.id, rec.curr2_id, buy * float(rec.hard_price), sell * float(rec.hard_price))
                     continue
 
                 buy, sell, avrg = rates_lib.get_average_rate_bsa(db, BTC_CURR.id, rec.curr2_id)
                 if avrg:
-                    print ('BTC', rec.curr2_id, avrg, ' cross:', avrg * float(rec.hard_price))
+                    _, _, avrg2 = rates_lib.get_average_rate_bsa(db, BTC_CURR.id, rec.curr1_id)
+                    if avrg2:
+                        continue
+                    print ('BTC /', rec.curr2_id, avrg, ', for',  rec.curr1_id, ' cross:', avrg * float(rec.hard_price))
                     db_common.store_cross_rates(db, exchg_id, BTC_CURR.id, rec.curr1_id, buy * float(rec.hard_price), sell * float(rec.hard_price))
                     continue
 
