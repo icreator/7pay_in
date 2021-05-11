@@ -85,7 +85,9 @@ def from_poloniex(db, exchg):
     exchg_id = exchg.id
     ##PRINT_AS_FUNC and print(conn) or print conn
     for pair in db_common.get_exchg_pairs(db, exchg_id):
-        if not pair.used: continue
+        if not pair.used or not pair.ticker:
+            continue
+
         t1 = get_ticker(db, exchg_id, pair.curr1_id)
         t2 = get_ticker(db, exchg_id, pair.curr2_id)
         
@@ -128,7 +130,8 @@ def from_cryptsy(db, exchg):
     exchg_id = exchg.id
     ##PRINT_AS_FUNC and print(conn) or print conn
     for pair in db_common.get_exchg_pairs(db, exchg_id):
-        if not pair.used: continue
+        if not pair.used or not pair.ticker:
+            continue
         t1 = get_ticker(db, exchg_id, pair.curr1_id)
         t2 = get_ticker(db, exchg_id, pair.curr2_id)
         
@@ -298,30 +301,48 @@ def get(db, not_local, interval=None):
                 threadGetRate.start()
             pass
 
+        db.commit()
         print('\n', datetime.datetime.now())
 
         ##### MAKE CROSSES for HARD PRICES
         BTC_CURR, _, _ = db_common.get_currs_by_abbrev(db,'BTC')
         USD_CURR, _, _ = db_common.get_currs_by_abbrev(db,'USD')
-        exchg_id = 1
+        exchg_id = 5 # Cross
         for rec in db(db.exchg_pair_bases).select():
             if not rec.hard_price:
                 continue
 
-            if rec.curr1_id != BTC_CURR.id:
-                buy, sell, avrg = rates_lib.get_average_rate_bsa(db, BTC_CURR.id, rec.curr1_id)
-                if avrg:
-                    db_common.store_rates(db, exchg_id, BTC_CURR.id, curr2_id, sell * rec.hard_price, buy * rec.hard_price)
-                    continue
+            if rec.curr1_id == BTC_CURR.id or rec.curr2_id == BTC_CURR.id \
+                or rec.curr1_id == USD_CURR.id or rec.curr2_id == USD_CURR.id:
+                continue
 
-            if rec.curr2_id != BTC_CURR.id:
-                buy, sell, avrg = rates_lib.get_average_rate_bsa(db, rec.curr2_id, BTC_CURR.id)
-                if avrg:
-                    db_common.store_rates(db, exchg_id, curr1_id, BTC_CURR.id, sell * rec.hard_price, buy * rec.hard_price)
-                    continue
+            buy, sell, avrg = rates_lib.get_average_rate_bsa(db, rec.curr1_id, USD_CURR.id)
+            if avrg:
+                print (rec.curr1_id, 'USD', avrg, ' cross:', avrg * float(rec.hard_price))
+                db_common.store_cross_rates(db, exchg_id, rec.curr2_id, USD_CURR.id, buy * float(rec.hard_price), sell * float(rec.hard_price))
+                continue
+
+            buy, sell, avrg = rates_lib.get_average_rate_bsa(db, rec.curr2_id, USD_CURR.id)
+            if avrg:
+                print (rec.curr2_id, 'USD', avrg, ' cross:', avrg * float(rec.hard_price))
+                db_common.store_cross_rates(db, exchg_id, rec.curr1_id, USD_CURR.id, buy * float(rec.hard_price), sell * float(rec.hard_price))
+                continue
+
+            buy, sell, avrg = rates_lib.get_average_rate_bsa(db, BTC_CURR.id, rec.curr1_id)
+            if avrg:
+                print ('BTC', rec.curr1_id, avrg, ' cross:', avrg * float(rec.hard_price))
+                db_common.store_cross_rates(db, exchg_id, BTC_CURR.id, rec.curr2_id, buy * float(rec.hard_price), sell * float(rec.hard_price))
+                continue
+
+            buy, sell, avrg = rates_lib.get_average_rate_bsa(db, BTC_CURR.id, rec.curr2_id)
+            if avrg:
+                print ('BTC', rec.curr2_id, avrg, ' cross:', avrg * float(rec.hard_price))
+                db_common.store_cross_rates(db, exchg_id, BTC_CURR.id, rec.curr1_id, buy * float(rec.hard_price), sell * float(rec.hard_price))
+                continue
 
             pass
-        
+        db.commit()
+
         if not_local:
             # если я запустил это локально - то нельзя проверять историю диллеров
             # так как иначе будут 2-е выплаты!
