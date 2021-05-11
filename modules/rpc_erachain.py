@@ -94,9 +94,9 @@ def get_balance(token_system, token, address=None):
     except:
         return bals
 
-
-
     ## get transactions/unconfirmedincomes/7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7
+
+
 def get_unconf_incomes(rpc_url, address):
     recs = rpc_request(rpc_url + '/transactions/unconfirmedincomes/' + address)
     return recs
@@ -108,7 +108,7 @@ def get_tx_info(rpc_url, txid):
 
 # for precess incomes in serv_block_proc
 def parse_tx_fields(rec):
-    title = rec.get('title') ## may be = u''
+    title = rec.get('title')  ## may be = u''
     return dict(
         creator=rec['creator'],
         recipient=rec['recipient'],
@@ -118,9 +118,10 @@ def parse_tx_fields(rec):
         txid=rec['signature'],
         vout=0,
         block=rec['height'],
-        timestamp=rec['timestamp'] / 1000, # in SEC
+        timestamp=rec['timestamp'] / 1000,  # in SEC
         confs=rec['confirmations']
     )
+
 
 # 1631311
 def get_transactions(token_system, from_block=2):
@@ -157,7 +158,7 @@ def get_transactions(token_system, from_block=2):
         if recs_count == 0:
             continue
 
-        if recs.get('error'):
+        if type(recs) == type({}) and recs.get('error'):
             print recs
             log(current.db, 'get_transactions %s ERROR: %s' % (url_get, recs))
             break
