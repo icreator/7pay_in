@@ -158,7 +158,7 @@ def get_transactions(token_system, from_block=2):
         if recs_count == 0:
             continue
 
-        if type(recs) == type({}) and recs.get('error'):
+        if type(recs) != type([]):
             print recs
             log(current.db, 'get_transactions %s ERROR: %s' % (url_get, recs))
             break
