@@ -27,6 +27,7 @@ import db_common
 import db_client
 import serv_to_buy
 import clients_lib
+import rates_lib
 
 def log(db, mess):
     print(mess)
@@ -219,7 +220,6 @@ def from_btc_e_3(db,exchg):
         msg = "serv_rates %s :: %s" % (exchg.url, e)
         print(msg)
         return msg
-    
 
     
 def from_btc_e(db, exchg):
@@ -286,7 +286,9 @@ def get(db, not_local, interval=None):
     while True:
         # по всем биржам
         for exchg in db(db.exchgs).select():
-            if not exchg.used: continue
+            if not exchg.used:
+                continue
+
             print(exchg.name)
             if True:
                 get_from_exch(db, exchg)
@@ -297,6 +299,28 @@ def get(db, not_local, interval=None):
             pass
 
         print('\n', datetime.datetime.now())
+
+        ##### MAKE CROSSES for HARD PRICES
+        BTC_CURR, _, _ = db_common.get_currs_by_abbrev(db,'BTC')
+        USD_CURR, _, _ = db_common.get_currs_by_abbrev(db,'USD')
+        exchg_id = 1
+        for rec in db(db.exchg_pair_bases).select():
+            if not rec.hard_price:
+                continue
+
+            if rec.curr1_id != BTC_CURR.id:
+                buy, sell, avrg = rates_lib.get_average_rate_bsa(db, BTC_CURR.id, rec.curr1_id)
+                if avrg:
+                    db_common.store_rates(db, exchg_id, BTC_CURR.id, curr2_id, sell * rec.hard_price, buy * rec.hard_price)
+                    continue
+
+            if rec.curr2_id != BTC_CURR.id:
+                buy, sell, avrg = rates_lib.get_average_rate_bsa(db, rec.curr2_id, BTC_CURR.id)
+                if avrg:
+                    db_common.store_rates(db, exchg_id, curr1_id, BTC_CURR.id, sell * rec.hard_price, buy * rec.hard_price)
+                    continue
+
+            pass
         
         if not_local:
             # если я запустил это локально - то нельзя проверять историю диллеров

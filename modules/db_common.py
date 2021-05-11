@@ -126,9 +126,12 @@ def get_limits(db, exchg_id, curr_id):
     return limits
 
 
-def store_rates(db, pair, sell, buy):
-    pair.update_record(sp1=sell, bp1=buy, on_update=datetime.now())
-
+def store_rates(db, exchg_id, curr1_id, curr2_id, sell, buy):
+    price_pair = db(db.exchg_pairs.curr1_id == curr1_id & db.exchg_pairs.curr2_id == curr2_id).select().first()
+    if not price_pair:
+        db.exchg_pairs.insert(exchg_id=exchg_id, used=True, curr1_id=curr1_id, curr2_id=curr2_id, sp1=sell, bp1=buy, on_update=datetime.now())
+    else:
+        price_pair.update_record(exchg_id=exchg_id, used=True, sp1=sell, bp1=buy, on_update=datetime.now())
 
 def store_depts(db, pair, rec):
     # print rec
@@ -160,6 +163,8 @@ def store_depts(db, pair, rec):
     db.commit()
     # print pair.uniq, "updated..."
 
+def store_cross_rates(db, pair, sell, buy):
+    pair.update_record(sp1=sell, bp1=buy, on_update=datetime.now())
 
 def pay_err_store(db, dealer, dealer_acc, deal, acc, err):
     # запомним что такой платеж нужен комуто
