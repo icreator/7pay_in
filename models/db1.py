@@ -95,8 +95,6 @@ db.define_table('ecurrs',
                 format='%(curr_id)s',
                 )
 
-
-
 #
 db.define_table('exchgs',
                 Field('name', length=25, unique=True, ondelete='CASCADE'),
@@ -123,7 +121,6 @@ db.define_table('exchg_limits',
                 format='%(curr_id)s %(ticker)s',
                 )
 
-
 # тут сделаем уникальный сложную проверку
 db.exchg_limits.exchg_id.requires=IS_IN_DB(db, 'exchgs.id', '%(name)s',
                                            _and = IS_NOT_IN_DB(db(db.exchg_limits.curr_id==request.vars.curr_id),'exchg_limits.exchg_id'))
@@ -143,6 +140,7 @@ db.exchg_taxs.curr1_id.requires=IS_IN_DB(db, 'currs.id', '%(name)s',
 db.exchg_taxs.curr2_id.requires=IS_IN_DB(db, 'currs.id', '%(name)s',
                                          _and = IS_NOT_IN_DB(db(db.exchg_taxs.curr1_id==request.vars.curr1_id),'exchg_taxs.curr2_id'))
 
+# NEED set PAIR HERE for trade in SERVICE !!
 db.define_table('exchg_pair_bases',
                 Field('curr1_id', db.currs, ondelete='CASCADE'),
                 Field('curr2_id', db.currs, ondelete='CASCADE'),
@@ -151,7 +149,7 @@ db.define_table('exchg_pair_bases',
                 Field('base_perc', 'decimal(5,3)', default=0.3, comment='%'),
                 )
 
-
+# only for rates
 db.define_table('exchg_pairs',
                 Field('exchg_id', db.exchgs, ondelete='CASCADE'),
                 Field('used', 'boolean', default=False, comment='used by site'),
