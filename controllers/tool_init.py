@@ -285,7 +285,7 @@ def init_db_records():
              ],
             ['Cryptsy', 'cryptsy.com', 'cryptsy', '', False, 1, 0.0, [['DOGE', "DOGE"]]],
             ['Poloniex.com', 'poloniex.com', 'poloniex', '', True, 0.2, 0, [],
-             [['USD', 'BTC', True, 'USDT_BTC'], ['BTC', 'LTC', True, 'BTC_LTC'], ['BTC', 'DOGE', True, 'BTC_DOGE'],
+             [['BTC', 'USD', True, 'USDT_BTC'], ['BTC', 'LTC', True, 'BTC_LTC'], ['BTC', 'DOGE', True, 'BTC_DOGE'],
               ['BTC', 'DASH', True, 'BTC_DASH']]
              ]
         ]:

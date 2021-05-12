@@ -94,7 +94,7 @@ def make_edealer_payment(db, geted_pays, curr_in, xcurr, curr_out, ecurr, vol_in
     bal_dep = Decimal(curr_in.balance or 0) - Decimal(curr_in.deposit or 0)
     if max_bal and max_bal > 0 and max_bal - bal_dep < 0:  ##vol_in: тут уже в баланс упал вход
         mark_pay_ins(db, geted_pays, 'wait',
-                     current.T('Превышен запас монет: %s + %s > %s') % (bal_dep, vol_in, max_bal))
+                     current.T('Stock overflow on the service') + ': %s + %s > %s (max)' % (bal_dep, vol_in, max_bal))
         db.commit()
         return
 
