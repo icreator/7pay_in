@@ -148,6 +148,11 @@ db.define_table('exchg_pair_bases',
                 Field('base_vol', 'decimal(16,8)', default=10),
                 Field('base_perc', 'decimal(5,3)', default=0.3, comment='%'),
                 )
+db.exchg_pair_bases.curr1_id.requires=IS_IN_DB(db, 'currs.id', db.currs._format,
+      _and = IS_NOT_IN_DB(db(db.exchg_pair_bases.curr2_id==request.vars.curr2_id),'exchg_pair_bases.curr1_id'))
+db.exchg_pair_bases.curr2_id.requires=IS_IN_DB(db, 'currs.id', db.currs._format,
+      _and = IS_NOT_IN_DB(db(db.exchg_pair_bases.curr1_id==request.vars.curr1_id),'exchg_pair_bases.curr2_id'))
+
 
 # only for rates
 db.define_table('exchg_pairs',
@@ -187,8 +192,7 @@ db.define_table('exchg_pairs',
 db.exchg_pairs.exchg_id.requires=IS_IN_DB(db, 'exchgs.id', '%(name)s',
                                           _and = IS_NOT_IN_DB(db((db.exchg_pairs.curr1_id==request.vars.curr1_id) & (db.exchg_pairs.curr2_id==request.vars.curr2_id)),'exchg_pairs.exchg_id'))
 db.exchg_pairs.curr1_id.requires=IS_IN_DB(db, 'currs.id', db.currs._format,
-                                          _and = IS_NOT_IN_DB(db((db.exchg_pairs.exchg_id==request.vars.exchg_id) & (db.exchg_pairs.curr2_id==request.vars.curr2_id)),'exchg_pairs.curr1_id'),
-                                          )
+                                          _and = IS_NOT_IN_DB(db((db.exchg_pairs.exchg_id==request.vars.exchg_id) & (db.exchg_pairs.curr2_id==request.vars.curr2_id)),'exchg_pairs.curr1_id'))
 db.exchg_pairs.curr2_id.requires=IS_IN_DB(db, 'currs.id', db.currs._format,
                                           _and = IS_NOT_IN_DB(db((db.exchg_pairs.exchg_id==request.vars.exchg_id) & (db.exchg_pairs.curr1_id==request.vars.curr1_id)),'exchg_pairs.curr2_id'))
 
