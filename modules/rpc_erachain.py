@@ -180,7 +180,7 @@ def get_transactions(token_system, from_block=2):
             if 'backward' in rec:
                 # skip BACKWARD
                 continue
-            if rec.get('title') is '.main.':
+            if rec.get('title') is '.main.' or rec.get('message') is '.main.':
                 ## skip my deposit
                 continue
 
