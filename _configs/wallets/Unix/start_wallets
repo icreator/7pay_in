@@ -53,15 +53,24 @@ startAll() {
     runWallet ./run-nogui.sh
     popd
 
+    NAME=FOIL
+    pushd /home/uera/$NAME
+    runWallet ./run-nogui.sh
+    popd
+
+    NAME=DEXTrader
+    pushd /home/uera/$NAME
+    runWallet ./run-nogui.sh
+    popd
+
     NAME=dash
     runWallet /opt/${NAME}core/bin/${NAME}d
 
     NAME=litecoin
     runWallet /opt/$NAME/bin/${NAME}d
 
-#    NAME=dogecoin
-#    ARGS="$COMMON_ARGS -datadir=$WORKDIR/blockhains/$NAME"
-#    runWallet /opt/$NAME/bin/${NAME}d
+    NAME=dogecoin
+    runWallet /opt/$NAME/bin/${NAME}d
 
 #    NAME=novacoin
 #    runWallet /opt/$NAME/${NAME}d
