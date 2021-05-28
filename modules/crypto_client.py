@@ -366,9 +366,19 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system=None, token=None
 
 def get_xaddress_by_label(conn, label, protocol='btc'):
     addrs = conn.getaddressesbyaccount(label)
+    #log(current.db, 'getaddressesbyaccount %s' % addrs)
 
-    if addrs:
+    if type(addrs) == type([]):
         return addrs[0]
+    if type(addrs) == type({}):
+        # new style (litecoin 0.18)
+        if u'error' in addrs and addrs.get(u'error').get(u'code') == -32601:
+            addrs = conn.getaddressesbylabel(label)
+            #log(current.db, 'getaddressesbylabel %s' % addrs)
+            if u'error' not in addrs:
+                addr = addrs.get(0)
+                return addr
+
     return conn.getnewaddress(label)
 
 
