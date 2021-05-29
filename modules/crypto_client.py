@@ -365,12 +365,14 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system=None, token=None
 
 
 def get_xaddress_by_label(conn, label, protocol='btc'):
-    addrs = conn.getaddressesbyaccount(label)
+    addrs = conn.getaddressesbyaccount(label) #
     # log(current.db, 'getaddressesbyaccount %s' % addrs)
 
     if type(addrs) == type([]):
         # old style
-        return addrs[0]
+        if len(addrs) > 0:
+            return addrs[0]
+
     if type(addrs) == type({}):
         # new style (litecoin 0.18)
         # {u'id': 1, u'result': None, u'error': {u'message': u'Method not found', u'code': -32601}}
