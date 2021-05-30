@@ -684,7 +684,10 @@ def proc_xcurr(db, curr_in, xcurr):
         order = db.orders[rec.ref_]
         if order.created_on < dt_order:
             # print 'deleted' rec.id
-            del db.orders_stack[rec.id]
+            try:
+                del db.orders_stack[rec.id]
+            except Exception as e:
+                pass
 
     if not curr_in.used:
         # если валюта не используется то всем входам сделаем currency_unused - по нему будет возврат
