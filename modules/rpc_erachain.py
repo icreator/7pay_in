@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 # coding: utf8
 
+# [{u'creator': u'777RHZ9xEcyrBowSpYJYqYyNW4R4gfK28D', u'height': 76064, u'record_type': u'SEND', u'size': 159,
+# u'property1': 0, u'property2': 158, u'fee': u'0', u'forgedFee': 0, u'title': u'', u'sub_type_name': u'SEND',
+# u'seqNo': u'76064-1', u'type_name': u'SEND', u'balancePos': 1, u'publickey': u'9kxQacdvwBugooBYQ2MxTrhRK37ReQN3AJSKCnSq9Xj9',
+# u'version': 0, u'asset': 20, u'type': 31, u'tags': [u'@a:ast', u'@tt31', u'send', u'@a20'], u'timestamp': 1622328667016, u'sequence': 1, u'royaltyFee': 0,
+# u'confirmations': 798, u'recipient': u'7KC2LXsD6h29XQqqEa7EpwRhfv89i8imGK', u'invitedFee': 0, u'actionName': u'Transfer to the ownership', u'feePow': 0,
+# u'assetKey': 20, u'amount': u'9.174441',
+# u'deadLine': 1622328907016, u'signature': u'gd1Jyyh35GNYq7f7qooNKGWzJQ2m7sH56U6bbD4dRY1iwa9d8CBCF4fB6d2bFfBSfsPz4M1YRFm4Uq7cQ5rZMeB'}]
+
 import urllib
 import urllib2
 from gluon import current
@@ -94,9 +102,9 @@ def get_balance(token_system, token, address=None):
     except:
         return bals
 
-
-
     ## get transactions/unconfirmedincomes/7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7
+
+
 def get_unconf_incomes(rpc_url, address):
     recs = rpc_request(rpc_url + '/transactions/unconfirmedincomes/' + address)
     return recs
@@ -108,23 +116,25 @@ def get_tx_info(rpc_url, txid):
 
 # for precess incomes in serv_block_proc
 def parse_tx_fields(rec):
+    title = rec.get('title')  ## may be = u''
     return dict(
         creator=rec['creator'],
         recipient=rec['recipient'],
         amount=Decimal(rec['amount']),
         asset=rec['asset'],
-        message=rec.get('title', rec['message']),
+        message=rec.get('message', title),
         txid=rec['signature'],
         vout=0,
         block=rec['height'],
-        timestamp=rec['timestamp'] * 0.001,
+        timestamp=rec['timestamp'] / 1000,  # in SEC
         confs=rec['confirmations']
     )
 
 
+
+# 1631311
 def get_transactions(token_system, from_block=2):
     rpc_url = token_system.connect_url
-    conf = token_system.conf or 2
     addr = token_system.account
 
     result = []
@@ -137,8 +147,7 @@ def get_transactions(token_system, from_block=2):
 
     i = from_block
 
-    ## TODO + confirmed HARD
-    while i + conf <= height:
+    while i < height:
         if len(result) > 100 or i - from_block > 30000:
             break
 
@@ -152,17 +161,21 @@ def get_transactions(token_system, from_block=2):
         except Exception as e:
             print e
             print recs
-            log(current.db, 'get_transactions %s EXCEPTION: %s - %s' % (url_get, e, recs))
+            log(current.db, token_system.name + 'get_txs %s EXCEPTION: %s - %s' % (url_get, e, recs))
             return result, i - 1
+
+        if type(recs) != type([]):
+            print recs
+            log(current.db, token_system.name + 'get_txs %s ERROR: %s' % (url_get, recs))
+            break
 
         if recs_count == 0:
             continue
 
-        # print 'erachain incomes - height: ', i, ' recs:', len(recs)
+        # print token_system.name, ' incomes - height: ', i, ' recs:', len(recs)
 
         incomes = []
         for rec in recs:
-            # print rec
 
             if rec['type'] != 31:
                 # only SEND transactions
@@ -170,13 +183,13 @@ def get_transactions(token_system, from_block=2):
             if 'amount' not in rec:
                 # only SEND transactions
                 continue
-            if 'actionKey' not in rec or rec['actionKey'] != 1:
+            if 'balancePos' not in rec or rec['balancePos'] != 1:
                 # only SEND PROPERTY action
                 continue
             if 'backward' in rec:
-                # skip BACKWADR
+                # skip BACKWARD
                 continue
-            if rec.get('title') is '.main.':
+            if rec.get('title') is '.main.' or rec.get('message') is '.main.':
                 ## skip my deposit
                 continue
 

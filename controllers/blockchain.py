@@ -53,8 +53,9 @@ def tx():
     if not conn:
         return {"error": "not connected to wallet"}
     res = None
+
     try:
-        res = conn.getrawtransaction(txid,1) # все выдает
+        res = conn.getrawtransaction(txid, 1)  # все выдает
     except Exception as e:
         return {'error': e}
 

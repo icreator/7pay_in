@@ -366,9 +366,32 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system=None, token=None
 
 def get_xaddress_by_label(conn, label, protocol='btc'):
     addrs = conn.getaddressesbyaccount(label)
+    # log(current.db, 'getaddressesbyaccount %s' % addrs)
 
-    if addrs:
-        return addrs[0]
+    if type(addrs) == type([]):
+        # old style
+        if len(addrs) > 0:
+            return addrs[0]
+
+    if type(addrs) == type({}):
+        # new style (litecoin 0.18)
+        # {u'id': 1, u'result': None, u'error': {u'message': u'Method not found', u'code': -32601}}
+        if u'error' in addrs and addrs.get(u'error').get(u'code') == -32601:
+            addrs = conn.getaddressesbylabel(label)
+            # log(current.db, 'getaddressesbylabel %s' % addrs)
+            # {u'id': 1, u'result': None, u'error': {u'message': u'No addresses with label [to COIN] [7AQBTR1w4CWhf7QEmTtwy6eFmziyCJr1Un] [FOIL]', u'code': -11}}
+            if u'error' not in addrs:
+                addr = addrs.get(0)
+                return addr
+
+    # new style
+    # https://news.bitcoin.com/everything-you-should-know-about-bitcoin-address-formats/
+    #  \u201clegacy\u201d, \u201cp2sh-segwit\u201d, and \u201cbech32\u201d. default 'bech32'
+    addr = conn.getnewaddress(label, 'p2sh-segwit')
+    if type(addr) == type(''):
+        return addr
+
+    # old style (DOGE)
     return conn.getnewaddress(label)
 
 

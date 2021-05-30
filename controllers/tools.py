@@ -205,7 +205,8 @@ def test_buy_free():
     addr = u'CRjSDsfv5tLoe1ZWn59fjU5JrdH64vWo21'
     ecurr = db_common.get_ecurr_abr(db,"RUB")
     amo = 1
-    res, bal = serv_to_buy.buy_free(db, ecurr, amo, xcurr, addr)
+    token_system = None
+    res, bal = serv_to_buy.buy_free(db, ecurr, amo, xcurr, addr, token_system)
     print bal, res
 
 # для проверки ошибок в покупке валюты - в ответ на яндекс запрос
