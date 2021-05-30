@@ -365,7 +365,7 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system=None, token=None
 
 
 def get_xaddress_by_label(conn, label, protocol='btc'):
-    addrs = conn.getaddressesbyaccount(label) #
+    addrs = conn.getaddressesbyaccount(label)
     # log(current.db, 'getaddressesbyaccount %s' % addrs)
 
     if type(addrs) == type([]):
@@ -384,7 +384,9 @@ def get_xaddress_by_label(conn, label, protocol='btc'):
                 addr = addrs.get(0)
                 return addr
 
-    return conn.getnewaddress(label)
+    # https://news.bitcoin.com/everything-you-should-know-about-bitcoin-address-formats/
+    #  “legacy”, “p2sh-segwit”, and “bech32”. default 'bech32'
+    return conn.getnewaddress(label, 'p2sh-segwit')
 
 
 # открыть те что в списке
