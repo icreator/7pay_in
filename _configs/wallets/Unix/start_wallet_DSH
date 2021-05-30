@@ -8,7 +8,7 @@ PROC=${NAME}-qt
 APP=$APP_DIR/$PROC
 CONF=daemon.conf
 
-ARGS="-conf=$CONF"
+ARGS="-conf=$CONF -txindex"
 #-datadir=$WORK_DIR/blockchains/$NAME"
 #ARGS="$ARGS -txindex=1"
 
