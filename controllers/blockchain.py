@@ -55,19 +55,7 @@ def tx():
     res = None
 
     try:
-        # first from wallet
-        res = conn.gettransaction(txid)
-        if u'error' in res:
-            if res.get(u'error').get(u'code') == -5:
-                # continue to try getrawtransaction below
-                pass
-        else:
-            return res
-    except Exception as e:
-        return {'error': e}
-
-    try:
-        res = conn.getrawtransaction(txid,1) # все выдает
+        res = conn.getrawtransaction(txid, 1)  # все выдает
     except Exception as e:
         return {'error': e}
 
