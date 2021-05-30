@@ -297,7 +297,7 @@ def make_rec(acc, rec, transactions):
 
 ### parse commands:
 # add: SIGNATURE1 SIGNATURE2 ... - add that TX to payment
-def parse_mess(acc, lines, xcurr, token_system, rec, transactions):
+def parse_mess(db, acc, lines, xcurr, token_system, rec, transactions):
     if not lines:
         return
 
@@ -392,7 +392,7 @@ def get_incomed(db, curr, xcurr, token_system, from_block_in=None):
         make_rec(acc, rec, transactions)
 
         if len(lines) > 1:
-            parse_mess(acc, lines[1:], xcurr, token_system, rec, transactions)
+            parse_mess(db, acc, lines[1:], xcurr, token_system, rec, transactions)
 
     return transactions, chain_height
 
