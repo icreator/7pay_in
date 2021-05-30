@@ -157,7 +157,7 @@ OL(
                 for r in parts:
                     p_acc=r.deal_accs
                     p_deal = r.deals
-                    acc = p_acc.acc
+                    acc = p_acc.deal_acc
                     if len(acc)>13:
                         acc = acc[:2]+'..'+acc[-3:]
                     elif len(acc)>11:

@@ -2,6 +2,15 @@
 
 import time
 
+if False:
+    from gluon import *
+    import db
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 response.title=T("Купить биткоины, криптовалюту за безналичные по платежу из любого банка, который может пополнить Яндекс.Кошелек (Альфа-банк, ...). Однако пока Сбербанк не дает эту возможность")
 response.big_logo2=True
 response.logo2 = IMG(_src=URL('static','images/7P-302.png'), _width=200)
@@ -47,8 +56,8 @@ def check():
     curr, xcurr, _ = get_currs_by_addr(db, addr)
     if not xcurr:
         return T("Неверный адрес") # Invalid wallet address
-    from crypto_client import conn
-    conn = conn(curr, xcurr)
+    from crypto_client import connect
+    conn = connect(curr, xcurr)
     if not conn:
         return T("Нет связи с [%s]") % curr.abbrev # Not connected to wallet [%s]
     valid = conn.validateaddress(addr)
@@ -65,7 +74,7 @@ def index():
         INPUT(_name='addr', _placeholder=T('Адрес кошелька...')),BR(), # Wallet address
         INPUT(_name='ref', _placeholder=T('Номер платежа')), # payment referrence
         INPUT(_name='amo', _placeholder=T('Сумма платежа')), #payment amount
-        BUTTON(T('Check'), _onclick='ajax("buy_bank/check", ["addr", "ref", "amo"], "res");\
+        BUTTON(T('Check'), _onclick='ajax("buy_bank/check", ["address", "ref", "amo"], "res");\
                $("#res").html(\'<i class="fa fa-spinner fa-spin"></i>\');'),
         DIV(_id='res'),
         u(T('Назад на покупку биткоинов и другой криптовалюты'),

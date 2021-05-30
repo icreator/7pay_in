@@ -1,5 +1,19 @@
 # -*- coding: utf-8 -*-
-if not IS_LOCAL: raise HTTP(200, 'error')
+
+if False:
+    from gluon import *
+
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+    import db
+
+import common
+# запустим сразу защиту от внешних вызов
+# тут только то что на локалке TRUST_IP in private/appconfig.ini
+common.not_is_local(request)
 
 from decimal import Decimal
 import ed_common
@@ -62,6 +76,7 @@ def set_pars_YD(dealer):
 
         h += DIV(BEAUTIFY(ed_acc))
     return h
+
 # настроить аккаунт для работы по АПИ
 # так же можно добавить новый аккаунт
 def set_pars_api():
@@ -169,7 +184,7 @@ def pay_test_to_phone():
         & (db.dealer_deals.deal_id==deal.id)
         ).select().first()
     # послали запрос на операцию
-    #pay(edlr, edlr_acc, pattern_id, acc, amo, pay_pars, testMake, testConfirm):
+    #pay(edlr, edlr_acc, pattern_id, deal_acc, amo, pay_pars, testMake, testConfirm):
     # если задан другой телефон то платеж ему сделаем
     phone = len(request.args) == 0 and phone or request.args[0]
     res = ed_common.pay(deal, dealer, dealer_acc, dealer_deal, phone, 13)
@@ -244,7 +259,7 @@ def pay_to_deal():
         & (db.dealer_deals.deal_id==deal.id)
         ).select().first()
     # послали запрос на операцию
-    #pay(edlr, edlr_acc, pattern_id, acc, amo, pay_pars, testMake, testConfirm):
+    #pay(edlr, edlr_acc, pattern_id, deal_acc, amo, pay_pars, testMake, testConfirm):
     # если задан другой телефон то платеж ему сделаем
     res = ed_common.pay(db, deal, dealer, dealer_acc, dealer_deal, acc, float(request.vars['sum']))
     print res

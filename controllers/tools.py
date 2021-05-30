@@ -7,13 +7,14 @@ if False:
     session = current.session
     cache = current.cache
     T = current.T
+    import db
 
 ##from __future__ import print_function
 
 import socket
 session.forget(response)
 
-# vvv=True - включает секртную сессию и выдает страницу ошибки
+# vvv=True - включает секретную сессию и выдает страницу ошибки
 def not_is_local(vvv=None):
     http_host = request.env.http_host.split(':')[0]
     remote_addr = request.env.remote_addr
@@ -34,9 +35,10 @@ def not_is_local(vvv=None):
         if vvv: raise HTTP(200, T('ERROR: not admin in local'))
         return True
 
+import common
 # запустим сразу защиту от внешних вызов
-not_is_local(True)
-# тут только то что на локалке
+# тут только то что на локалке TRUST_IP in private/appconfig.ini
+common.not_is_local(request)
 
 import sys
 import time
@@ -75,7 +77,7 @@ def clients_auto_collect():
     import clients_lib
     clients_lib.auto_collect(db)
 
-def  get_reserve():
+def  get_balance_xcurr():
     if len(request.args) == 0:
         mess = 'len(request.args)==0'
         print mess
@@ -85,9 +87,9 @@ def  get_reserve():
     import crypto_client
     curr, xcurr, e = db_common.get_currs_by_abbrev(db,request.args[0])
     if not xcurr: return 'xcurr not found'
-    cn = crypto_client.conn(curr, xcurr)
+    cn = crypto_client.connect(curr, xcurr)
     if not cn: return 'xcurr not connected'
-    return crypto_client.get_reserve(curr, xcurr, cn) or 'None'
+    return crypto_client.get_balance_xcurr(curr, xcurr, cn) or 'None'
 
 # get_unspents(conn, conf=None, vol=None, addrs=None, accs=None):
 def get_unspents():
@@ -100,7 +102,7 @@ def get_unspents():
     import crypto_client
     curr, x, e = db_common.get_currs_by_abbrev(db,request.args[0])
     if not x: return 'xcurr not found'
-    cn = crypto_client.conn(curr,x)
+    cn = crypto_client.connect(curr, x)
     if not cn: return 'xcurr not connected'
     vol = None
     conf = len(request.args)>1 and int(request.args[1]) or None
@@ -114,9 +116,9 @@ def retrans_rawtr():
     for xcurr in db(db.xcurrs).select():
         curr = xcurr.curr_id and db.currs[xcurr.curr_id]
         if not curr: continue
-        cn = crypto_client.conn(curr,xcurr)
+        cn = crypto_client.connect(curr, xcurr)
         if not cn: continue
-        crypto_client.re_broadcast(db,curr,xcurr,cn)
+        crypto_client.re_broadcast(db, curr, xcurr, token_system, cn)
 
 # выдать запись из крипты или фиата
 def get_acurr_rec_xe(db, id):
@@ -203,7 +205,8 @@ def test_buy_free():
     addr = u'CRjSDsfv5tLoe1ZWn59fjU5JrdH64vWo21'
     ecurr = db_common.get_ecurr_abr(db,"RUB")
     amo = 1
-    res, bal = serv_to_buy.buy_free(db, ecurr, amo, xcurr, addr)
+    token_system = None
+    res, bal = serv_to_buy.buy_free(db, ecurr, amo, xcurr, addr, token_system)
     print bal, res
 
 # для проверки ошибок в покупке валюты - в ответ на яндекс запрос
@@ -299,7 +302,7 @@ def block_proc_test():
 # http://127.0.0.1:8000/ipay8/tools/send_to_many/CLR?CGk6Q3cx7qNEzAoWx2YnMNm2xvTQKEaYun=0.1&CdYGrbTZNhgYKh5gghYY6mFWr9pmGbEedY=0.13
 # http://127.0.0.1:8000/ipay8/tools/send_to_many/LTC?Lc7nSnWdhp1RU9kCDZS8gRCV1WBAMupkYy=0.01
 # Lc7nSnWdhp1RU9kCDZS8gRCV1WBAMupkYy
-# vars: {addr=amount, ...}
+# vars: {address:amount, ...}
 def send_to_many():
     import db_common
     import crypto_client
@@ -314,7 +317,7 @@ def send_to_many():
 
 
 def send_to_main(conn, xcurr, acc_from, amo):
-    mess = "to send %s from acc:"% amo +acc_from +" to " + xcurr.main_addr
+    mess = "to send %s from deal_acc:"% amo +acc_from +" to " + xcurr.main_addr
     print 'try', mess
     try:
         conn.sendfrom( acc_from, xcurr.main_addr, amo)
@@ -327,67 +330,6 @@ def send_to_main(conn, xcurr, acc_from, amo):
         print e.error
         return e.error
     #print mess
-
-
-# инициализация портала
-def inits_new_portal():
-
-    ###db.to_phone.drop()
-
-    resp = ""
-    # для всех криптовалют создадим главные аккаунты в кошельках
-    for xcurr in db(db.xcurrs).select():
-
-        if xcurr.as_token:
-            # это другая система
-            continue
-
-        curr = db.currs[xcurr.curr_id]
-
-        try:
-            conn = crypto_client.conn(curr, xcurr)
-            if not conn:
-                msg = curr.name + " - no connection to wallet"
-                print msg
-                resp = resp + msg + '<br>'
-                continue
-
-        except Exception as e:
-            msg = curr.name + " - no connection to wallet: " + e.message
-            print msg
-            resp = resp + msg + '<br>'
-            continue
-
-
-        if xcurr.protocol == 'btc':
-            try:
-                addr = crypto_client.get_xaddress_by_label(conn, '.main.')
-                xcurr.main_addr = addr
-                xcurr.update_record()
-                resp = resp + addr + ' - for ' + curr.name + '<br>'
-            except Exception as e:
-                print e
-                msg = curr.name + " - no made .main. account, error: " + e.message # e.args
-                print msg
-                resp = resp + msg + '<br>'
-                continue
-        elif xcurr.protocol == 'zen':
-            try:
-                addr = conn.listaddresses()[0]
-                xcurr.main_addr = addr
-                xcurr.update_record()
-                resp = resp + addr + ' - for ' + curr.name + '<br>'
-            except Exception as e:
-                print e
-                msg = curr.name + " - no made .main. account, error: " + e.message # e.args
-                print msg
-                resp = resp + msg + '<br>'
-                continue
-        else:
-            resp = resp + curr.name + ' - skipped<br>'
-
-
-    return resp
 
 
 # попробуем вручную получить ИД-платежа и его подтвердить
@@ -527,7 +469,7 @@ def pay_err_store():
 def json_try():
     ll='[\
 { "n": "reg", "l": "Код региона (77-Москва, 50-Моск.обл.)", "ln":2, "f": "%d" },\
-{ "n": "acc", "l": "Номер лицевого счета по квитанции (10 цифр)", "ln":10, "f": "%d" },\
+{ "n": "deal_acc", "l": "Номер лицевого счета по квитанции (10 цифр)", "ln":10, "f": "%d" },\
 { "n": "cod", "l": "Код платежа. (желательно 6 - корректирующий)",  "v": 6, "f": "%d" },\
 { "n": "PP", "l": "Код РР", "ln":3, "v": 199, "f": "%d" },\
 { "n": "m", "l": "Месяц", "calc": "lm", "hidden":"1" },\
@@ -583,17 +525,14 @@ def tx_info():
     import crypto_client
 
     token_system = conn = None
-    token_key = xcurr.as_token
-    if token_key:
+    if xcurr.protocol == 'era':
+        token_key = xcurr.as_token
         token = db.tokens[token_key]
         token_system = db.systems[token.system_id]
-        res = dict(result=crypto_client.get_tx_info(conn, token_system, txid))
+        res = dict(result=crypto_client.get_tx_info(xcurr, token_system, txid, conn))
         return res
 
-    conn = crypto_client.conn(curr, xcurr)
-    if not conn:
-        return {"error": "not connected to wallet"}
-    res = crypto_client.get_tx_info(conn, txid, request.vars)
+    res = crypto_client.get_tx_info(xcurr, token_system, txid, conn)
     return res
 
 # api/tx_senders/BTC/ee4ddc65d5e3bf133922cbdd9d616f89fc9b6ed11abbe9a040dac60eb260df23
@@ -618,7 +557,7 @@ def tx_senders():
         return res
 
     import crypto_client
-    conn = crypto_client.conn(curr, xcurr)
+    conn = crypto_client.connect(curr, xcurr)
     if not conn:
         return {"error": "not connected to wallet"}
     res = dict(result=crypto_client.sender_addrs(conn, token_system, txid))
