@@ -384,9 +384,15 @@ def get_xaddress_by_label(conn, label, protocol='btc'):
                 addr = addrs.get(0)
                 return addr
 
+    # new style
     # https://news.bitcoin.com/everything-you-should-know-about-bitcoin-address-formats/
-    #  “legacy”, “p2sh-segwit”, and “bech32”. default 'bech32'
-    return conn.getnewaddress(label, 'p2sh-segwit')
+    #  \u201clegacy\u201d, \u201cp2sh-segwit\u201d, and \u201cbech32\u201d. default 'bech32'
+    addr = conn.getnewaddress(label, 'p2sh-segwit')
+    if type(addr) == type(''):
+        return addr
+
+    # old style (DOGE)
+    return conn.getnewaddress(label)
 
 
 # открыть те что в списке
