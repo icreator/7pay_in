@@ -2,7 +2,7 @@
 
 source $(dirname "$0")/include
 
-COMMON_ARGS="-daemon -conf=daemon.conf"
+COMMON_ARGS="-daemon -conf=daemon.conf -txindex"
 #COMMON_ARGS="$COMMON_ARGS -txindex=1"
 
 ## --- Wallet(s) backup
@@ -45,13 +45,23 @@ runWallet() {
 startAll() {
     ARGS=$COMMON_ARGS
 
-    NAME=bitcoin
-    runWallet /opt/$NAME/bin/${NAME}d
-
     NAME=ERA
     pushd /home/uera/$NAME
     runWallet ./run-nogui.sh
     popd
+
+    NAME=FOIL
+    pushd /home/uera/$NAME
+    runWallet ./run-nogui.sh
+    popd
+
+    NAME=DEXTrader
+    pushd /home/uera/$NAME
+    runWallet ./run-nogui.sh
+    popd
+
+    NAME=bitcoin
+    runWallet /opt/$NAME/bin/${NAME}d
 
     NAME=dash
     runWallet /opt/${NAME}core/bin/${NAME}d
@@ -59,9 +69,8 @@ startAll() {
     NAME=litecoin
     runWallet /opt/$NAME/bin/${NAME}d
 
-#    NAME=dogecoin
-#    ARGS="$COMMON_ARGS -datadir=$WORKDIR/blockhains/$NAME"
-#    runWallet /opt/$NAME/bin/${NAME}d
+    NAME=dogecoin
+    runWallet /opt/$NAME/bin/${NAME}d
 
 #    NAME=novacoin
 #    runWallet /opt/$NAME/${NAME}d

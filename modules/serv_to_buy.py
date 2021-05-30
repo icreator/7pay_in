@@ -73,11 +73,11 @@ def get_vol_in(db, curr_in, curr_out, volume_out, expired):
     return volume_in, best_rate, tax_mess
 '''
 
-def buy_free(db, deal, curr_in, ecurr, volume_in, curr_out, xcurr, addr, conn, mess_in=None):
+def buy_free(db, deal, curr_in, ecurr, volume_in, curr_out, xcurr, addr, token_system, conn, mess_in=None):
     volume_in = float(volume_in)
     print 'try buy_free %s [%s] -> %s %s' % (volume_in, curr_in.abbrev, curr_out.abbrev, addr)
-    if not conn:
-        mess = '[' + curr_out.name + '] not connection'
+    if not (token_system or conn):
+        mess = 'buy_free [' + curr_out.name + '] not connection'
         print mess
         return { 'error': mess }, None
 
@@ -85,7 +85,7 @@ def buy_free(db, deal, curr_in, ecurr, volume_in, curr_out, xcurr, addr, conn, m
     xcurr_id = xcurr.id
     _, _, best_rate = rates_lib.get_rate(db, curr_in, curr_out, volume_in)
     if not best_rate:
-        mess = '[' + curr_in.name + '] -> [' + curr_out.name + ']' + current.T(' - лучший КУРС не найден!')
+        mess = 'buy_free [' + curr_in.name + '] -> [' + curr_out.name + ']' + current.T(' - лучший КУРС не найден!')
         print mess
         return { 'error': mess }, None
 
@@ -100,17 +100,17 @@ def buy_free(db, deal, curr_in, ecurr, volume_in, curr_out, xcurr, addr, conn, m
     try:
         volume_out, tax_mess = db_client.calc_fees(db, deal, dealer_deal, curr_in, curr_out, volume_in, best_rate, is_order, note=1)
     except Exception as e:
-        print 'BUY error db_client.calc_fees %s' % e
+        print 'buy_free error db_client.calc_fees %s' % e
         volume_out, tax_mess = volume_in * best_rate * 0.99, 'error in fees [%s], get rate 0.99' % e
 
     volume_out = common.rnd_8(volume_out)
 
-    print volume_in, curr_in.abbrev, '--> - tax - fee -->', volume_out, curr_out.abbrev, '\n mess:', tax_mess
+    print 'buy_free', volume_in, curr_in.abbrev, '--> - tax - fee -->', volume_out, curr_out.abbrev, '\n mess:', tax_mess
     
     #log_commit(db, tax_mess)
     #################################################
     bal_free = db_client.curr_free_bal(curr_out)
-    print '\nsend:', volume_out, curr_out.abbrev, 'bal_free:', bal_free, addr
+    print 'buy_free \nsend:', volume_out, curr_out.abbrev, 'bal_free:', bal_free, addr
     
 
     if bal_free < volume_out:
@@ -119,7 +119,7 @@ def buy_free(db, deal, curr_in, ecurr, volume_in, curr_out, xcurr, addr, conn, m
         #log(db, res)
     else:
         # внутри там еще вычтется комиссия сети
-        res, bal = crypto_client.send(db, curr_out, xcurr, addr, volume_out, conn)
+        res, bal = crypto_client.send(db, curr_out, xcurr, addr, volume_out, conn, token_system)
         print 'buy_free RES:', res, bal
         log(db, res)
         #log(db, bal)
@@ -192,10 +192,10 @@ def get_credit(db, buys):
     return buys.amount - amo_get
 
 # для данной крипты найдем невыплаченные покупки ее и попробуем выплатить
-def proc_ecurr(db, curr, xcurr, conn):
+def proc_ecurr(db, curr, xcurr, token_system, conn):
 
     print 'serv_to_buy proc_ecurr'
-    if not conn:
+    if not (token_system or conn):
         mess = '[' + curr.name + '] not connection'
         print mess
         return # { 'error': mess }, None
@@ -240,7 +240,7 @@ def proc_ecurr(db, curr, xcurr, conn):
         else:
             mess = None
 
-        res, bal = buy_free(db, deal, curr_in, rec.ecurrs, float(volume_in_cred), curr_out, xcurr, rec.buys.addr, conn)
+        res, bal = buy_free(db, deal, curr_in, rec.ecurrs, float(volume_in_cred), curr_out, xcurr, rec.buys.addr, token_system, conn)
         # запомним результат и апдейт балансов сделаем
         # тут же удаляет стек
         in_proc = res_update(db, rec.buys_stack.id, deal.id, res, bal, rec.buys, curr_out, xcurr, mess)

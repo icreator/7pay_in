@@ -8,7 +8,7 @@ PROC=${NAME}-qt
 APP=$APP_DIR/$PROC
 CONF=daemon_not_note.conf
 
-ARGS="-conf=$CONF" # -datadir=$DATA_DIR"
+ARGS="-conf=$CONF -txindex" # -datadir=$DATA_DIR"
 #ARGS="$ARGS -txindex=1"
 
 main() {
