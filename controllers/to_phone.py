@@ -1,6 +1,16 @@
 # coding: utf8
 
+if False:
+    from gluon import *
+    import db
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 #import copy
+
 import datetime
 import re
 
@@ -31,6 +41,9 @@ else:
     deal = db(db.deals.name==deal_name).select().first()
 
 if not deal: raise HTTP(200, T('ERROR: Not found deal "%s"') % deal_name)
+
+deal_id = deal.id
+
 # найдем счет у диллера электронных денег для этого дела
 vol = (deal.MIN_pay or 100) * 2
 dealer, dealer_acc, dealer_deal = ed_common.select_ed_acc(db, deal, ecurr_out, vol)
@@ -41,7 +54,7 @@ if False and not dealer: raise HTTP(200,
 
 dealer_acc = dealer and ed_common.sel_acc_max_for_balance(db, dealer, ecurr_out, vol, unlim=False)
 if False and not dealer_acc: raise HTTP(200,
-                                        #T('ERROR: Not found dealer acc "%s"') % deal_name
+                                        #T('ERROR: Not found dealer deal_acc "%s"') % deal_name
                                         'Просьба подождать до следующего дня или месяца - превышен лимит по данному виду операций'
                                         )
 
@@ -148,7 +161,7 @@ def get():
 
     # теперь проверку на правильность телефона для дилера электронных платежей
     # dealer и dealer_acc - выбирается в начале файла
-    # pay_test(deal, dealer, dealer_acc, dealer_deal, acc, volume_out)
+    # pay_test(deal, dealer, dealer_acc, dealer_deal, deal_acc, volume_out)
     res = dealer_acc and ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, ph, vol, False)
     ##print 'PAY:',res
     if True:
@@ -160,19 +173,33 @@ def get():
         return mess(T('Платежная система %s отвергла платеж, потому что: %s (... %s)') % (dealer.name, mm, dealer_acc.acc[-4:]))
 
     gift_cod = request.vars.gift_cod
-    curr_out_abbrev = curr_out.abbrev
-    x_acc_label = db_client.make_x_acc(deal, ph, curr_out_abbrev)
-    # найдем ранее созданный адресс для этого телефона, этой крипты и этого фиата
-    # сначала найтем аккаунт у дела
-    deal_acc_id = db_client.get_deal_acc_id(db, deal, ph, curr_out)
-    # теперь найдем кошелек для данной крипты
-    deal_acc_addr = db_client.get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr_in, xcurr_in, x_acc_label)
-    #deal_acc_addr = '123qwewfddgdfgfg'
-    if not deal_acc_addr:
-        return mess(T('Связь с кошельком ') + curr_in.name + T(' прервана.') + ' ' + T('Пожалуйста попробуйте позже'), 'warning')
 
-    #request.vars['deal_acc_addr']=deal_acc_addr
-    addr = deal_acc_addr.addr
+    token_system_in = None
+    token_key_in = xcurr_in.as_token
+    if token_key_in:
+        token_in = db.tokens[token_key_in]
+        token_system_in = db.systems[token_in.system_id]
+
+    if token_system_in:
+        addr_in = token_system_in.account
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, ph, addr_in, xcurr_in)
+    elif xcurr_in.protocol == 'geth':
+        addr_in = xcurr_in.main_addr
+        deal_acc_id, deal_acc_addr = db_client.get_deal_acc_addr(db, deal_id, curr_out, ph, addr_in, xcurr_in)
+    else:
+        curr_out_abbrev = curr_out.abbrev
+        x_acc_label = db_client.make_x_acc(deal, ph, curr_out_abbrev)
+        # найдем ранее созданный адресс для этого телефона, этой крипты и этого фиата
+        # сначала найтем аккаунт у дела
+        deal_acc_id = db_client.get_deal_acc_id(db, deal, ph, curr_out)
+        # теперь найдем кошелек для данной крипты
+        deal_acc_addr = db_client.get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr_in, xcurr_in, x_acc_label)
+        #deal_acc_addr = '123qwewfddgdfgfg'
+        if not deal_acc_addr:
+            return mess(T('Связь с кошельком ') + curr_in.name + T(' прервана.') + ' ' + T('Пожалуйста попробуйте позже'), 'warning')
+
+        #request.vars['deal_acc_addr']=deal_acc_addr
+        addr_in = deal_acc_addr.addr
 
     curr_in_abbrev = curr_in.abbrev
 
@@ -281,7 +308,7 @@ def get():
         tax_rep = ''
         hh += mess('[' + curr_in.name + '] -> [' + curr_out.name + ']' + T(' - лучшая цена не доступна.') + T('Но Вы можете оплатить вперед'), 'warning')
 
-    _, url_uri   = common.uri_make( curr_in.name2, addr, {'amount':volume_in, 'label': db_client.make_x_acc_label(deal, ph, curr_out_abbrev)})
+    _, url_uri   = common.uri_make( curr_in.name2, addr_in, {'amount':volume_in, 'label': db_client.make_x_acc_label(deal, ph, curr_out_abbrev)})
 
     lim_bal, may_pay = db_client.is_limited_ball(curr_in)
     if lim_bal:
@@ -334,9 +361,9 @@ def get():
             # FORM в основной делать тоже иначе они складываются
             INPUT(_name='v', value=volume_in, _class="pay_val", _readonly=''), curr_in_abbrev, BR(),
             T("Для этого скопируйте сумму и адрес (двойной клик по полю для выделения) и вставьте их в платеж на вашем кошельке"), ': ',
-            INPUT(_name='addr', _value=addr, _class='wallet', _readonly=''), BR(),
+            INPUT(_name='addr_in', _value=addr_in, _class='wallet', _readonly=''), BR(),
             T('Резервы службы'), ' ', B(free_bal), ' ', T('рублей'), BR(),
-            ##LOAD('where', 'for_addr', vars={'addr': addr}, ajax=True, times=100, timeout=20000,
+            ##LOAD('where', 'for_addr', vars={'addr_in': addr_in}, ajax=True, times=100, timeout=20000,
             ##    content=IMG(_src=URL('static','images/loading.gif'), _width=48)),
             INPUT( _type='submit',
                    _class='button blue-bgc',

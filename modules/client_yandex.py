@@ -7,8 +7,17 @@ import json
 import time
 
 from gluon import current
+DOMEN = current.DOMEN
 
-DOMEN = 'face2face'
+if False:
+    from gluon import *
+    import db
+
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
 
 def get_pars(edlr, edlr_acc):
     api_pars = json.loads( edlr.API )

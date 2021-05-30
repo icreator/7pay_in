@@ -1,107 +1,141 @@
 #!/usr/bin/env python
 # coding: utf8
 
+# [{u'creator': u'777RHZ9xEcyrBowSpYJYqYyNW4R4gfK28D', u'height': 76064, u'record_type': u'SEND', u'size': 159,
+# u'property1': 0, u'property2': 158, u'fee': u'0', u'forgedFee': 0, u'title': u'', u'sub_type_name': u'SEND',
+# u'seqNo': u'76064-1', u'type_name': u'SEND', u'balancePos': 1, u'publickey': u'9kxQacdvwBugooBYQ2MxTrhRK37ReQN3AJSKCnSq9Xj9',
+# u'version': 0, u'asset': 20, u'type': 31, u'tags': [u'@a:ast', u'@tt31', u'send', u'@a20'], u'timestamp': 1622328667016, u'sequence': 1, u'royaltyFee': 0,
+# u'confirmations': 798, u'recipient': u'7KC2LXsD6h29XQqqEa7EpwRhfv89i8imGK', u'invitedFee': 0, u'actionName': u'Transfer to the ownership', u'feePow': 0,
+# u'assetKey': 20, u'amount': u'9.174441',
+# u'deadLine': 1622328907016, u'signature': u'gd1Jyyh35GNYq7f7qooNKGWzJQ2m7sH56U6bbD4dRY1iwa9d8CBCF4fB6d2bFfBSfsPz4M1YRFm4Uq7cQ5rZMeB'}]
+
 import urllib
 import urllib2
-
 from gluon import current
-
-#import json
 from gluon.contrib import simplejson as json
+from decimal import Decimal
 import time
+
+import db_common
+
 
 def log(db, mess):
     print 'rpc_erachain - ', mess
     db.logs.insert(mess='YD: %s' % mess)
+
+
 def log_commit(db, mess):
-    log(db,mess)
+    log(db, mess)
     db.commit()
 
 
 def rpc_request(pars, vars=None, test=None):
-
     if test:
         vars['test_payment'] = True
         vars['test_result'] = test
 
     if vars:
         vars = urllib.urlencode(vars)
-        #print 'rpc VARS:', vars
-        rq = urllib2.Request(pars, vars)
+        # print 'rpc VARS:', vars
+        rq = urllib2.Request(pars + '?' + vars)
     else:
         rq = urllib2.Request(pars)
 
     ##rq.add_header('Authorization', 'Bearer ' + token)
-    #return rq
+    # return rq
     # платеж в процессе - ожидаем и потом еще раз запросим
     try:
         f = urllib2.urlopen(rq)
-        #r = f.read()
+        # r = f.read()
         r = json.load(f)
 
-        #print 'response - res:', r
+        # print 'response - res:', r
     except Exception as e:
         # или любая ошибка - повтор запроса - там должно выдать ОК
-        #print 'YmToConfirm while EXEPTION:', e
+        # print 'YmToConfirm while EXEPTION:', e
         log(current.db, 'rpc ' + pars + ' EXCEPTION: %s' % e)
         return e
 
-    #time.sleep(1)
+    # time.sleep(1)
 
     return r
 
-def get_deal_acc_addr(db, deal_id, curr_out, acc, addr, xcurr_in):
-    deal_acc = db((db.deal_accs.deal_id == deal_id)
-                  & (db.deal_accs.curr_id == curr_out.id)
-                  & (db.deal_accs.acc == acc)).select().first()
-    if not deal_acc:
-        deal_acc_id = db.deal_accs.insert(deal_id = deal_id, curr_id = curr_out.id, acc = acc)
-    else:
-        deal_acc_id = deal_acc.id
 
-    deal_acc_addr = db((db.deal_acc_addrs.addr==addr)
-                       & (db.deal_acc_addrs.xcurr_id==xcurr_in.id)).select().first()
+def get_xcurr_by_system_token(db, token_system, token_key):
+    try:
+        token_key = int(token_key)  # ASSET KEY in Erachain
+    except Exception as e:
+        curr_out, xcurr, _ = db_common.get_currs_by_abbrev(db, token_key)
+        return xcurr
 
-    if not deal_acc_addr:
-        deal_acc_addrs_id = db.deal_acc_addrs.insert(deal_acc_id = deal_acc_id, addr=addr, xcurr_id=xcurr_in.id)
-        deal_acc_addr = db.deal_acc_addrs[ deal_acc_addrs_id ]
+    token = db((db.tokens.system_id == token_system.id)
+               & (db.tokens.token_key == token_key)).select().first()
+    if not token:
+        return
 
-    return deal_acc_id, deal_acc_addr
+    return db(db.xcurrs.as_token == token.id).select().first()
 
 
-def get_info(rpc_url):
+def get_addresses(token_system):
+    return rpc_request(token_system.connect_url + "/addresses?password=" + token_system.password)
 
-    res = rpc_request(rpc_url + "/blocks/height")
 
-    return res
+def get_height(rpc_url):
+    return rpc_request(rpc_url + "/blocks/height")
 
-def is_not_valid_addr(rpc_url, addr):
-    res = rpc_request(rpc_url + "/addresses/validate/" + addr)
+
+def is_not_valid_addr(rpc_url, address):
+    res = rpc_request(rpc_url + "/addresses/validate/" + address)
     return not res
 
 
-def get_balances(rpc_url, addr):
+# all tokens for account
+def get_assets_balances(token_system, address=None):
+    return rpc_request(token_system.connect_url + "/addresses/assets/" + (address or token_system.account))
 
-    res = rpc_request(rpc_url + "/addresses/assets/" + addr)
-    #res = rpc_request(rpc_url + "/addresses/balance/" + addr)
 
-    return res
+# one token
+def get_balance(token_system, token, address=None):
+    try:
+        bals = get_assets_balances(token_system, address)
+        return bals['%d' % token.token_key][0][1]
+    except:
+        return bals
 
-def get_reserve(token_system, token):
-    bals = get_balances(token_system.connect_url, token_system.account)
-    return bals['%d' % token.token_key][0][1]
+    ## get transactions/unconfirmedincomes/7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7
 
-## get transactions/unconfirmedincomes/7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7
-def get_unconf_incomes(rpc_url, addr):
-    recs = rpc_request(rpc_url + '/transactions/unconfirmedincomes/' + addr)
+
+def get_unconf_incomes(rpc_url, address):
+    recs = rpc_request(rpc_url + '/transactions/unconfirmedincomes/' + address)
     return recs
 
-def get_tx_info(token_system, txid):
 
-    recs = rpc_request(token_system.connect_url + '/transactions/signature/' + txid)
-    return recs
+def get_tx_info(rpc_url, txid):
+    return rpc_request(rpc_url + '/transactions/signature/' + txid)
 
-def get_transactions(token_system, rpc_url, addr, from_block=2, conf=2):
+
+# for precess incomes in serv_block_proc
+def parse_tx_fields(rec):
+    title = rec.get('title')  ## may be = u''
+    return dict(
+        creator=rec['creator'],
+        recipient=rec['recipient'],
+        amount=Decimal(rec['amount']),
+        asset=rec['asset'],
+        message=rec.get('message', title),
+        txid=rec['signature'],
+        vout=0,
+        block=rec['height'],
+        timestamp=rec['timestamp'] / 1000,  # in SEC
+        confs=rec['confirmations']
+    )
+
+
+
+# 1631311
+def get_transactions(token_system, from_block=2):
+    rpc_url = token_system.connect_url
+    addr = token_system.account
 
     result = []
 
@@ -113,8 +147,7 @@ def get_transactions(token_system, rpc_url, addr, from_block=2, conf=2):
 
     i = from_block
 
-    ## TODO + confirmed HARD
-    while i + conf <= height:
+    while i < height:
         if len(result) > 100 or i - from_block > 30000:
             break
 
@@ -128,33 +161,40 @@ def get_transactions(token_system, rpc_url, addr, from_block=2, conf=2):
         except Exception as e:
             print e
             print recs
-            log(current.db, 'get_transactions %s EXCEPTION: %s - %s' % (url_get, e, recs))
+            log(current.db, token_system.name + 'get_txs %s EXCEPTION: %s - %s' % (url_get, e, recs))
             return result, i - 1
 
+        if type(recs) != type([]):
+            print recs
+            log(current.db, token_system.name + 'get_txs %s ERROR: %s' % (url_get, recs))
+            break
 
-        if recs_count > 0:
-            print 'erachain incomes - height: ', i, ' recs:', len(recs)
-        else:
+        if recs_count == 0:
             continue
+
+        # print token_system.name, ' incomes - height: ', i, ' recs:', len(recs)
 
         incomes = []
         for rec in recs:
-            #print rec
+
             if rec['type'] != 31:
                 # only SEND transactions
                 continue
-            if 'actionKey' not in rec or rec['actionKey'] != 1:
+            if 'amount' not in rec:
+                # only SEND transactions
+                continue
+            if 'balancePos' not in rec or rec['balancePos'] != 1:
                 # only SEND PROPERTY action
                 continue
             if 'backward' in rec:
-                # skip BACKWADR
+                # skip BACKWARD
                 continue
-            if rec.get('title') == '.main.':
+            if rec.get('title') is '.main.' or rec.get('message') is '.main.':
                 ## skip my deposit
                 continue
 
             incomes.append(rec)
-            #print 'erachain - title:', rec.get('title'), 'message:', rec.get('message')
+            # print 'erachain - title:', rec.get('title'), 'message:', rec.get('message')
 
         result += incomes
 
@@ -162,13 +202,12 @@ def get_transactions(token_system, rpc_url, addr, from_block=2, conf=2):
 
 
 def send(db, curr, xcurr, addr, amo, token_system=None, token=None, title=None, mess=None):
-
     if token is None:
         token = db.tokens[xcurr.as_token]
     if token_system is None:
         token_system = db.systems[token.system_id]
 
-    amo = round(float(amo),8)
+    amo = round(float(amo), 8)
 
     if token.token_key == 2:
         # if it is COMPU
@@ -177,53 +216,47 @@ def send(db, curr, xcurr, addr, amo, token_system=None, token=None, title=None, 
         txfee = 0
 
     try:
-        reserve = get_reserve(token_system, token)
+        reserve = get_balance(token_system, token)
     except Exception as e:
-        return {'error': 'connection lost - [%s]' % curr.abbrev }, None
+        return {'error': 'connection lost - [%s]' % curr.abbrev}, None
 
     if amo + txfee > reserve:
-        return {'error':'out off reserve:[%s]' % reserve }, None
+        return {'error': 'out off reserve:[%s]' % reserve}, None
 
     # проверим готовность базы - is lock - и запишем за одно данные
     log_commit(db, 'try send: %s[%s] %s, fee: %s' % (amo, curr.abbrev, addr, txfee))
     if amo > txfee * 2:
-        #if True:
+        # if True:
         try:
             ##amo_to_pay = amo - txfee - it already inserted in GET_RATE by db.currs
             amo_to_pay = amo
-            print 'res = erachain.send(addr, amo - txfee)', amo_to_pay
-            if False: ## 4.11 version Erachain
-                # GET r_send/7GvWSpPr4Jbv683KFB5WtrCCJJa6M36QEP/79MXsjo9DEaxzu6kSvJUauLhmQrB4WogsH?message=mess&encrypt=false&password=123456789
-                pars = "r_send/%s/%s?assetKey=%d&amount=%f&title=%s%s&encrypt=true&password=%s" % (token_system.account, addr,
-                                                                                                   token.token_key, amo_to_pay,
-                                                                                                   title or 'face2face.cash', mess and ('&message='+mess) or '',
-                                                                                                   token_system.password)
-                print pars
-                res = rpc_request(token_system.connect_url + pars)
-            else:
-                pars = '/rec_payment/%d/%s/%d/%f/%s?password=%s' % (0, token_system.account, token.token_key, amo_to_pay, addr, token_system.password)
-                print pars
-                res = rpc_request(token_system.connect_url + pars)
-            print "SENDed? ", type(res), res
+            # print 'res = erachain.send(addr, amo - txfee)', amo_to_pay
+            pars = '/rec_payment/%d/%s/%d/%f/%s?password=%s' % (
+                0, token_system.account, token.token_key, amo_to_pay, addr, token_system.password)
+            # print pars
+            res = rpc_request(token_system.connect_url + pars)
+            # print "SENDed? ", type(res), res
             if type(res) == type({}):
                 error = res.get('error')
             else:
-                return {'error': ("%s" % res) + ' [%s]' % curr.abbrev }, None
+                return {'error': ("%s" % res) + ' [%s]' % curr.abbrev}, None
 
             if error:
-                error_message = current.CODE_UTF and str(res['message'] + ('%s' % error)).decode(current.CODE_UTF,'replace') or str(res['message'] + ('%s' % error))
-                return {'error': error_message  + ' [%s]' % curr.abbrev }, None
+                error_message = current.CODE_UTF and str(res['message'] + ('%s' % error)).decode(current.CODE_UTF,
+                                                                                                 'replace') or str(
+                    res['message'] + ('%s' % error))
+                return {'error': error_message + ' [%s]' % curr.abbrev}, None
 
             res = res['signature']
 
-        #else:
+        # else:
         except Exception as e:
-            error_message = current.CODE_UTF and str(e).decode(current.CODE_UTF,'replace') or str(e)
-            return {'error': error_message + ' [%s]' % curr.abbrev }, None
+            error_message = current.CODE_UTF and str(e).decode(current.CODE_UTF, 'replace') or str(e)
+            return {'error': error_message + ' [%s]' % curr.abbrev}, None
     else:
         # тут mess для того чтобы обнулить выход и зачесть его как 0
-        res = { 'mess':'< txfee', 'error':'so_small', 'error_description': '%s < txfee %s' % (amo, txfee) }
+        res = {'mess': '< txfee', 'error': 'so_small', 'error_description': '%s < txfee %s' % (amo, txfee)}
 
-    bal = get_reserve(token_system, token)
+    bal = get_balance(token_system, token)
 
     return res, bal

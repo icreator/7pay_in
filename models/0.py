@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 
+if False:
+    from gluon import *
+    import db
+
+    request = current.request
+    response = current.response
+    session = current.session
+    cache = current.cache
+    T = current.T
+
 from gluon.custom_import import track_changes; track_changes(True)
 
 ### тут еще сессия не задана!!! что конектимся к кукиясам - она в ДВ открывается
@@ -19,7 +29,7 @@ from gluon.contrib.appconfig import AppConfig
 ## once in production, remove reload=True to gain full speed
 myconf = AppConfig(reload=True)
 
-DOMEN = myconf.take('app.domen')
+current.DOMEN = DOMEN = myconf.take('app.domen')
 DEVELOP = myconf.take('app.develop', cast=bool)
 
 USE_TO_PHONE =  myconf.take('mode.use_to_phone')
@@ -36,10 +46,11 @@ current.CURR_USD_ID = CURR_USD_ID = myconf.take('currs.usd_id')
 current.CURR_USD_ID = CURR_RUB_ID = myconf.take('currs.rub_id')
 current.CURR_USD_ID = CURR_BTC_ID = myconf.take('currs.btc_id')
 
-TRUST_IP = myconf.take('app.trust_ip')
+current.TRUST_IP = TRUST_IP = myconf.take('app.trust_ip')
 
 
-if DEVELOP: print '0.py - app.DEVELOP'
+if DEVELOP:
+    print '0.py - app.DEVELOP'
 
 current.IS_LOCAL = IS_LOCAL = request.is_local
 current.IS_MOBILE = IS_MOBILE = request.user_agent().is_mobile
