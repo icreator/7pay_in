@@ -27,7 +27,11 @@ def index():
 def get_ext_rates():
     import serv_rates
     serv_rates.get(db, 'True', -1)
+    db.commit() # need for CRON
+    return 'OK'
 
 def proc_history():
     import serv_to_buy
-    return serv_to_buy.proc_history(db, only_list=None, ed_acc=None, from_dt_in='same')
+    mess = serv_to_buy.proc_history(db, only_list=None, ed_acc=None, from_dt_in='same')
+    db.commit() # need for CRON
+    return mess

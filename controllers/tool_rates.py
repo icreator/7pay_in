@@ -25,11 +25,6 @@ def index():
     #err(1)
     return dict(message="hello from tool_rates.py")
 
-# take external rates for cron
-def get_ext_rates():
-    import serv_rates
-    serv_rates.get(db, 'True', -1)
-
 
 def serv_rates():
     if not request.args(0): return 'serv_rates/exchgs.id'
