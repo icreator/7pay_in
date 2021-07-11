@@ -229,38 +229,6 @@ def from_btc_e_3(db,exchg):
     
 def from_btc_e(db, exchg):
     from_btc_e_3(db, exchg)
-    return
-    
-    for pair in db_common.get_exchg_pairs(db, exchg.id):
-        if not pair.used: continue
-        curr1 = db.currs[pair.curr1_id]
-        if not curr1.used: continue
-        curr2 = db.currs[pair.curr2_id]
-        if not curr2.used: continue
-        
-        #PRINT_AS_FUNC and print(pair) or print pair
-        limits1 = db_common.get_limits(db, exchg.id, pair.curr1_id)
-        limits2 = db_common.get_limits(db, exchg.id, pair.curr2_id)
-        #if not limits1 or not limits2: continue
-        # если нет лимитов то берем мелкие буквы
-        #PRINT_AS_FUNC and print(pair.curr1_id, pair.curr2_id) or print pair.curr1_id, pair.curr2_id
-        t1 = limits1 and limits1.ticker or None
-        if not t1:
-            t1 = curr1.abbrev.lower()
-        t2 = limits2 and limits2.ticker or None
-        if not t2:
-            t2 = curr2.abbrev.lower()
-        print("   ",  t1, t2)
-        if Test: continue
-        try:
-            tab = exch_client.getDept(exchg.name, t1, t2)
-            pass
-        except Exception as e:
-            msg = "serv_rates %s :: %s" % (exchg.url, e)
-            print(msg)
-            continue
-
-        db_common.store_depts(db, pair, tab)
 
 def get_from_exch(db, exchg):
     if exchg.API_type == 'btc-e_3':
@@ -375,6 +343,18 @@ def get(db, not_local, interval=None):
             print ('next cross')
             pass
 
+        if True:
+            try:
+                # если есть невыплаченные покупки криптовалюты
+                clients_lib.notify(db)
+            except Exception as e:
+                db.rollback()
+                log_commit(db, 'clients_lib.notify ERROR: %s' % e)
+
+        if Test or interval < 0:
+            # run once
+            return
+
         if not_local:
             # если я запустил это локально - то нельзя проверять историю диллеров
             # так как иначе будут 2-е выплаты!
@@ -408,19 +388,8 @@ def get(db, not_local, interval=None):
                     db.rollback()
                     log_commit(db, 'serv_to_buy.proc_history ERROR: %s' % e)
 
-            if True:
-                try:
-                    # если есть невыплаченные покупки криптовалюты
-                    clients_lib.notify(db)
-                except Exception as e:
-                    db.rollback()
-                    log_commit(db, 'clients_lib.notify ERROR: %s' % e)
-
         else:
             print('local use - skep serv_to_buy.proc_history and clients_lib.notify')
-
-        if Test or interval < 0:
-            break
 
         print('sleep', interval, 'sec')
         sleep(interval)
