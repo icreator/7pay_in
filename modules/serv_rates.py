@@ -226,10 +226,6 @@ def from_btc_e_3(db,exchg):
         print(msg)
         return msg
 
-    
-def from_btc_e(db, exchg):
-    from_btc_e_3(db, exchg)
-
 def get_from_exch(db, exchg):
     if exchg.API_type == 'btc-e_3':
         return from_btc_e_3(db,exchg)
@@ -241,7 +237,7 @@ def get_from_exch(db, exchg):
         return from_cryptsy(db, exchg)
     else:
         conn = exch_client.conn(exchg)
-        res = from_btc_e(db,exchg)
+        res = from_btc_e_3(db,exchg)
         exch_client.conn_close(exchg)
         return res
     #return conn
