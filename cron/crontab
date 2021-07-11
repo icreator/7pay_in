@@ -1,1 +1,4 @@
 #crontab
+
+*/2 * * * * user tool_cron/get_ext_rates
+*/10 * * * * user tool_cron/proc_history

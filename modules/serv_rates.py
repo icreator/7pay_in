@@ -339,10 +339,13 @@ def make_cross(db):
     return count
 
 
+# if Interval < 0 use once
 def get(db, not_local, interval=None):
     interval = interval or 66
-    print( __name__, 'not_local:',not_local, ' interval:', interval)
     not_local = not_local == 'True'
+
+    if interval > 0:
+        print( __name__, 'not_local:', not_local, ' interval:', interval)
 
     proc_buys_period = 550
     i_pb = proc_buys_period
@@ -365,7 +368,7 @@ def get(db, not_local, interval=None):
             pass
 
         db.commit()
-        print('\n', datetime.datetime.now())
+        print('\n rates updated - ', datetime.datetime.now())
 
         # make cross rates
         while make_cross(db) > 0:
@@ -385,16 +388,19 @@ def get(db, not_local, interval=None):
                         # запустим историю только 1 раз за запуск сервера!
                         # если вдруг что-то не так в момент работы сервера, то это саппорт решать должен
                         # в контроллере edealers есть list_incoms - которая проверяет историю
-                        # и ттам можно сделать лист входов или их в стек выплат записать
+                        # и там можно сделать лист входов или их в стек выплат записать
+                        print('try serv_to_buy.proc_history')
                         mess = serv_to_buy.proc_history(db)
-                        #PRINT_AS_FUNC and print(mess) or print mess
+                        ## PRINT_AS_FUNC and print(mess) or print mess
+                        print(mess)
                         serv_to_buy_proc_history_one = not serv_to_buy_proc_history_one
-                        print('\n', datetime.datetime.now())
                     elif True:
                         ## сейчас у нас ссылка неработает из-за pixle HTTPS
                         ## так что будем пробовать историю
+                        print('try serv_to_buy.proc_history')
                         mess = serv_to_buy.proc_history(db, only_list=None, ed_acc=None,
                                 from_dt_in='same')
+                        print(mess)
                         ##PRINT_AS_FUNC and print(mess) or print mess
                     # внутри db.commit()
                 except Exception as e:
@@ -411,13 +417,16 @@ def get(db, not_local, interval=None):
                     log_commit(db, 'clients_lib.notify ERROR: %s' % e)
 
         else:
-            print('local use - skeep serv_to_buy.proc_history and clients_lib.notify')
+            print('local use - skep serv_to_buy.proc_history and clients_lib.notify')
 
-        if Test: break
-        print( 'sleep',interval,'sec')
+        if Test or interval < 0:
+            break
+
+        print('sleep', interval, 'sec')
         sleep(interval)
 
-if Test: get(db)
+if Test:
+    get(db)
 
 # если делать вызов как модуля то нужно убрать это иначе неизвестный db
 import sys
