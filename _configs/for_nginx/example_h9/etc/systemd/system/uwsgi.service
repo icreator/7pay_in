@@ -1,0 +1,16 @@
+[Unit]
+Description=uWSGI Emperor Service
+After=syslog.target
+
+[Service]
+EnvironmentFile=-/etc/sysconfig/uwsgi
+ExecStart=/usr/bin/uwsgi --ini /etc/uwsgi/uwsgi.ini --pidfile /run/uwsgi/uwsgi.pid --stats /run/uwsgi/stats.sock
+ExecReload=/bin/kill -HUP $MAINPID
+KillSignal=SIGINT
+##Restart=always
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target
