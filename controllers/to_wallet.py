@@ -83,7 +83,7 @@ def err_dict(m, not_add_err=False):
 def get():
 
     args = request.args
-    #print args, '\n', request.vars
+    #print (args, '\n', request.vars)
     if len(args) != 1: return mess('err...')
     curr_id = args(0)
     if not curr_id.isdigit(): return mess('dig...')
@@ -102,7 +102,7 @@ def get():
         return mess('digs...')
 
     acc = request.vars.acc
-    #print request.vars
+    #print (request.vars)
     if not acc:
         return mess(T('ОШИБКА: Задайте кошелек'))
 
@@ -121,7 +121,7 @@ def get():
     try:
         session.toDlrAcc = acc
     except:
-        print 'to_wallet session error .toDlrAcc:', type(acc), acc
+        print ('to_wallet session error .toDlrAcc:', type(acc), acc)
 
     dealer_acc = ed_common.sel_acc_max(db, dealer, ecurr_out, vol)
     if not dealer_acc:
@@ -141,13 +141,13 @@ def get():
         try:
             session.vol = MIN
         except:
-            print 'to_wallet session error .vol:', type(MIN), MIN
+            print ('to_wallet session error .vol:', type(MIN), MIN)
         return mess( T('ОШИБКА: Слишком маленькая сумма платежа %s < %s') % (vol, MIN))
     else:
         try:
             session.vol = vol
         except:
-            print 'to_wallet session error .vol:', type(vol), vol
+            print ('to_wallet session error .vol:', type(vol), vol)
 
     # теперь проверку на правильность кошелька для дилера электронных платежей
     #res = ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, deal_acc, deal.MIN_pay or dealer.pay_out_MIN or 20, False)
@@ -241,7 +241,7 @@ def get():
                                            best_rate, is_order, note=1)
         vol_out_new = common.rnd_8(vol_out_new)
         if volume_out != vol_out_new:
-            print 'to_phone error_in_fees: volume_out != vol_out_new', volume_out,  vol_out_new
+            print ('to_phone error_in_fees: volume_out != vol_out_new', volume_out,  vol_out_new)
 
         volume_in = common.rnd_8(volume_in)
         rate_out = volume_out / volume_in
@@ -364,7 +364,7 @@ def get():
 def index():
 
     #common.page_stats(db, response['view'])
-    #print request.args
+    #print (request.args)
 
     response.title=T("Обмен биткоинов криптовалют на электронные деньги Яндекс")
     response.subtitle = T('Dogecoin Litecoin NEXT')
@@ -382,7 +382,7 @@ def index():
     try:
         session.date_log = request.now
     except:
-        print 'to_wallet session error .date_log:', type(request.now), request.now
+        print ('to_wallet session error .date_log:', type(request.now), request.now)
 
     # берем только тех кто за рубли и для этого дела
     # причем по 1 аккаунту на диллера тут нужно - для писка
@@ -423,7 +423,7 @@ def index():
     h = CAT()
     dealer = None
     for rr in db_client.get_xcurrs_for_deal(db, 0, curr_out, deal, dealer):
-        #print rr
+        #print (rr)
         id = '%s' % rr['id']
         disabled = rr['expired']
         if disabled:
@@ -441,7 +441,7 @@ def index():
                       $('#cvr%s').css('display','block'); // .css('z-index','10');
                       ajax('%s',['vol','deal_acc','dealer'], 'tag%s');
                       ''' % (id, id, URL('get', args=[id]), id)
-        #print rr
+        #print (rr)
         h += DIV(
             DIV(
                 DIV(

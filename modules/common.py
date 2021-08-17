@@ -51,7 +51,7 @@ def page_stats(db,view):
     ss.loads = ss.loads + 1
     ss.update_record()
     # вызов там на страницах автоматом этот db.commit()
-    print view, ss.loads, ip()
+    print (view, ss.loads, ip())
     return ss.loads
 
 def last_year():
@@ -89,7 +89,7 @@ def QRcode(data_string,file_name=None):
     level = 1
     file_name = file_name or "1111.png"
     while 1:
-        #print size
+        #print (size)
         try:
             q = pyqrnative.QRCode(size, quality[level])
             q.addData(data_string)

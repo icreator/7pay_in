@@ -53,13 +53,13 @@ def aaa(a, r=2):
             {{=T('В ожидании')}}
         </H3>
         {{odd = None}}
-        {{##print pays_unconf}}
+        {{##print (pays_unconf}})
         {{for r in pays_unconf:}}
         <div class='row' style='padding-top:5px;padding-bottom:5px;
                             {{=odd and 'background-color:lavender;' or ''}}' >
                 <span class='small'>
                     {{if type(r) != type([]):}}
-                    {{#print r}}
+                    {{#print (r}})
                     {{=r}}
                     {{else:}}
                 {{='{:%Y-%m-%d %H:%M:%S}'.format(r[6])}}

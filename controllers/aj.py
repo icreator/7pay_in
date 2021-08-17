@@ -126,11 +126,11 @@ def ok_to():
     to = request.args(0)
     if len(to)>10:return
     v = 'ok' + to
-    #print v
+    #print (v)
     try:
         session[v] = 1
     except:
-        print 'aj.to_ok session error [v]:', type(v), v
+        print ('aj.to_ok session error [v]:', type(v), v)
 
 # TODO тут надо блокировать внесение адреса возврата если дата разошлась с датой создания записи на пол дня
 def addr_ret1():

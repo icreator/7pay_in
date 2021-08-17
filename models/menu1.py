@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-if DEVELOP: print 'menu1.py - app.DEVELOP'
+if DEVELOP: print ('menu1.py - app.DEVELOP')
 
 if request.ajax:
     pass
@@ -177,7 +177,7 @@ else:
             # нет телефона - это новичек
             recalc = True
         elif BONUS_DATE:
-            #print today, BONUS_DATE #, session
+            #print (today, BONUS_DATE #, session)
             try:
                 days_left = (today - BONUS_DATE).days
             except:
@@ -192,9 +192,9 @@ else:
         if recalc:
             from gifts_lib import calc
             gres, bonus_new, bonus_to_pay, wait_days = calc(db, BONUSES, ph, today, GIFT_CODE)
-            #print 'session.bonus_day', today
-            #print gres
-            #print bonus_new, bonus_to_pay, wait
+            #print ('session.bonus_day', today)
+            #print (gres)
+            #print (bonus_new, bonus_to_pay, wait)
             # если что-то взяли сегодня ои дату взятия поменяем
             session.bonus_day = bonus_new and today
             session.bonus_to_pay = bonus_to_pay

@@ -50,7 +50,7 @@ current.TRUST_IP = TRUST_IP = myconf.take('app.trust_ip')
 
 
 if DEVELOP:
-    print '0.py - app.DEVELOP'
+    print ('0.py - app.DEVELOP')
 
 current.IS_LOCAL = IS_LOCAL = request.is_local
 current.IS_MOBILE = IS_MOBILE = request.user_agent().is_mobile
@@ -58,7 +58,7 @@ current.IS_TABLET = IS_TABLET = request.user_agent().is_tablet
 
 
 ADMIN = request.controller == 'appadmin'
-##print ADMIN
+##print (ADMIN)
 SKIN = myconf['skin']
 
 def _get_bon():

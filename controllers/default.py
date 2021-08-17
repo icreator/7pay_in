@@ -103,7 +103,7 @@ def to_many():
 def crypto_trans():
     session.forget(response)
     #ss = common.page_stats(db,response['view'])
-    #print response['view'], ss, common.ip()
+    #print (response['view'], ss, common.ip())
 
     #response.logo2 = IMG(_src=URL('static','images/slide3.png'), _width=256)
     response.title = T("Бесплатные переводы СНГ без посредников")
@@ -124,7 +124,7 @@ def crypto_trans():
 def crypto():
     session.forget(response)
     #ss = common.page_stats(db,response['view'])
-    #print response['view'], ss, common.ip()
+    #print (response['view'], ss, common.ip())
 
     response.logo2 = IMG(_src=URL('static','images/slide3.png'), _width=256)
     response.title = T("Что такое криптовалюта и биткоин?")
@@ -142,7 +142,7 @@ def crypto():
 def crypto_go():
     session.forget(response)
     #ss = common.page_stats(db,response['view'])
-    #print response['view'], ss, common.ip()
+    #print (response['view'], ss, common.ip())
 
     response.title = T("Как начать добывать биткоин и догикоин?")
     response.subtitle = ' '
@@ -188,8 +188,8 @@ def index():
         db.currs.id == db.currs_stats.curr_id).select(sum_, db.currs.ALL, groupby=db.currs.id, orderby=~sum_) ## good on PostgreSQL
 
     for r in recs:
-        #print r._extra
-        #print r._extra['SUM("currs_stats"."count_")']
+        #print (r._extra)
+        #print (r._extra['SUM("currs_stats"."count_")'])
         try:
             uses = r._extra['SUM(currs_stats.count_)']
         except:
@@ -369,7 +369,7 @@ def e_gold():
     import rates_lib, db_common
     session.forget(response)
     #ss = common.page_stats(db,response['view'])
-    #print response['view'], ss, common.ip()
+    #print (response['view'], ss, common.ip())
 
     title = response.title = T("Биткоин - Настоящее цифровое золото...")
     subtitle = response.subtitle = 'Здесь мы научим тебя как заработать на своё будущее.'
@@ -388,7 +388,7 @@ def e_gold():
 def halava():
     session.forget(response)
     #ss = common.page_stats(db,response['view'])
-    #print response['view'], ss, common.ip()
+    #print (response['view'], ss, common.ip())
 
     title=response.title = T("Как получить немного денег на халяву?")
     subtitle=response.subtitle = ' '
@@ -398,7 +398,7 @@ def halava():
 def halava2():
     session.forget(response)
     #ss = common.page_stats(db,response['view'])
-    #print response['view'], ss, common.ip()
+    #print (response['view'], ss, common.ip())
 
     title=response.title = T("Как получить деньги на халяву?")
     subtitle=response.subtitle = 'от 300 до 3000 рублей в месяц!'

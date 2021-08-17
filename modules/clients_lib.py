@@ -13,7 +13,7 @@ import json
 
 
 def log(db, mess):
-    print mess
+    print (mess)
     db.logs.insert(mess='CNT: %s' % mess)
 def log_commit(db, mess):
     log(db,mess)
@@ -87,17 +87,17 @@ def mem_input(db, client, order_id, amo, curr, desc, deal_acc = None):
     return clients_trans_id, bal
 
 def notify_one(db, note):
-    #print note
+    #print (note)
     tries = note.tries or 0
-    #print 'tries:', tries
+    #print ('tries:', tries)
 
     if tries > 6: return
     if tries > 0:
         tmin = note.created_on
         dt_old = datetime.datetime.now() - datetime.timedelta(0, 60*2**tries)
-        #print datetime.timedelta(0, 60*2**tries), ' - ', dt_old
+        #print (datetime.timedelta(0, 60*2**tries), ' - ', dt_old)
         if note.created_on > dt_old:
-            #print 'till wail'
+            #print ('till wail')
             return
 
     # сюда пришло значит время пришло послать уведомление
@@ -113,7 +113,7 @@ def notify_one(db, note):
         info = json.loads(clients_tran.desc_)
     except Exception as e:
         info = clients_tran.desc_
-    print info
+    print (info)
     '''
     type(info)==type(' ') and info or 'desc' in info and info['desc'] or '',
     'txid' in info and info['txid'] or '',
@@ -132,14 +132,14 @@ def notify_one(db, note):
         f = urllib.urlopen(url_rersp)
         r = f.read()
     except Exception as e:
-        print e
-    print f and f.getcode()
+        print (e)
+    print (f and f.getcode())
     if not f or f.getcode() != 200:
         log(db, '%s %s' % (f.getcode(), r))
         note.tries = tries + 1
         note.update_record()
     else:
-        print 'notify_one deleted'
+        print ('notify_one deleted')
         del db.clients_notifies[note.id]
     note.update_record()
     return r
@@ -158,24 +158,24 @@ def try_note_url(db, client, deal_acc):
         # пошлем запрос ничего во твет не ждем
         urllib.urlopen(url_rersp)
         #f = urllib.urlopen(url_rersp)
-        #print f and f.getcode()
+        #print (f and f.getcode())
         #r = f.read()
     except Exception as e:
-        print e
+        print (e)
 
 def notify_one_acc(db, note, client=None, deal_acc=None):
-    #print note
+    #print (note)
     tries = note.tries or 0
-    #print 'tries:', tries
+    #print ('tries:', tries)
 
     if tries > 10: return
     if tries > 0:
         # это ненулевое уведомление значит еще проверку на вермя делаем
         tmin = note.created_on
         dt_old = datetime.datetime.now() - datetime.timedelta(0, 30*2**tries)
-        #print datetime.timedelta(0, 60*2**tries), ' - ', dt_old
+        #print (datetime.timedelta(0, 60*2**tries), ' - ', dt_old)
         if note.created_on > dt_old:
-            #print 'till wail'
+            #print ('till wail')
             return
 
     # сюда пришло значит время пришло послать уведомление
@@ -198,24 +198,24 @@ def notify(db):
 # запуск как сервера
 def serv_notify(db, interval=None):
     interval = interval or 66
-    print __name__, ' interval:', interval
+    print (__name__, ' interval:', interval)
 
     while True:
         try:
             notify(db)
         except Exception as e:
-            print 'ERROR:', __name__, e
+            print ('ERROR:', __name__, e)
             
         if Test: break
         sleep(interval)
 
 def auto_collect(db):
     import crypto_client
-    print '\nAUTO_COLLECT'
+    print ('\nAUTO_COLLECT')
     for xcurr in db(db.xcurrs).select():
         curr = db.currs[xcurr.curr_id]
         if not curr.used: continue
-        print curr.abbrev
+        print (curr.abbrev)
         cn = crypto_client.connect(curr, xcurr)
         if not cn: continue
         
@@ -227,7 +227,7 @@ def auto_collect(db):
             client = db.clients[cl_bal.client_id]
             # берем только клиентов с автовыплатой
             if not client.auto_collect: continue
-            print client.email, cl_bal.bal
+            print (client.email, cl_bal.bal)
             # locket db
             cl_xwallet = db((db.clients_xwallets.client_id == client.id)
                             & (db.clients_xwallets.xcurr_id == xcurr.id)).select().first()
@@ -235,23 +235,23 @@ def auto_collect(db):
             
             addr = cl_xwallet.addr
             if not addr or len(addr) < 20:
-                print 'not valid addr:', addr
+                print ('not valid addr:', addr)
                 continue
             
             valid = cn.validateaddress(addr)
             if not valid or 'isvalid' in valid and not valid['isvalid'] or 'ismine' in valid and valid['ismine']:
-                print 'not valid addr:', addr, valid
+                print ('not valid addr:', addr, valid)
                 continue
-            print 'add bal:', cl_bal.bal
+            print ('add bal:', cl_bal.bal)
             addrs[addr] = round( float( cl_bal.bal ), 8 )
-        #print addrs
+        #print (addrs)
         if len(addrs)==0:continue
         # теперь надо выплату сделать разовую всем за раз
         # отлько таксу здесь повыше сделаем чтобы быстро перевелось
         #{ 'txid': res, 'tx_hex': tx_hex, 'txfee': transFEE }
         res = crypto_client.send_to_many(curr, xcurr, addrs, 3*float(xcurr.txfee or 0.0001), cn )
         if not res or 'txid' not in res:
-            print res
+            print (res)
             return
         # деньги перевелись нужно зачесть это каждому
         txid = res['txid']
@@ -266,7 +266,7 @@ def auto_collect(db):
             addr = trans[u'address']
             # значение с минусом - поменяем его на +
             amo = - trans[u'amount']
-            print amo, addr
+            print (amo, addr)
             rec = db((db.clients_xwallets.xcurr_id == xcurr.id)
                     & (db.clients_xwallets.addr == addr)
                     & (db.clients.id == db.clients_xwallets.client_id)
@@ -279,7 +279,7 @@ def auto_collect(db):
             # тут балансы все обновляются и сохраняются
             clients_trans_id, bal_new = mem_output(db, client, order_id, amo, curr,
                 '{"txid": "%s", "vout": %s}' % (txid, vout))
-            print 'bal new:', bal_new
+            print ('bal new:', bal_new)
             vout = vout + 1
 
     # тут не надо же сохранять - уже сохранилось в mem_output

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-if DEVELOP: print 'db_session.py - app.DEVELOP'
-#print 'db_session.py',request.controller, request.function
-#print 'db_session.py - session.gc', session.gc
+if DEVELOP: print ('db_session.py - app.DEVELOP')
+#print ('db_session.py',request.controller, request.function)
+#print ('db_session.py - session.gc', session.gc)
     
 if request.ajax:
     # для вызовов аякса многое не нужно
@@ -24,19 +24,19 @@ else:
                 partner = db(db.deal_accs.partner == gc).select().first()
                 if partner:
                     GIFT_CODE = partner.partner
-                    #print partner
+                    #print (partner)
 
     if not GIFT_CODE and request.cookies.has_key('gift_code'):
         GIFT_CODE = request.cookies['gift_code'].value
-        #print "request.cookies['gift_code'].value:", GIFT_CODE
+        #print ("request.cookies['gift_code'].value:", GIFT_CODE)
     if GIFT_CODE and len(GIFT_CODE) < 5: GIFT_CODE = None
 
     GIFT_CODE = GIFT_CODE or session.gc
     if GIFT_CODE and len(GIFT_CODE) < 5: session.gc = GIFT_CODE = None
-    #print 'db_session GIFT_CODE1 [%s]' % GIFT_CODE, type(GIFT_CODE), len(GIFT_CODE), not GIFT_CODE
+    #print ('db_session GIFT_CODE1 [%s]' % GIFT_CODE, type(GIFT_CODE), len(GIFT_CODE), not GIFT_CODE)
 
     var_gc = request.vars.gc # из запроса возьмем пригласительный код - перенаправим потом
-    #print 'var_gc', var_gc
+    #print ('var_gc', var_gc)
 
     # если в кукиях нет кода то возможно он есть в запросе
     if not GIFT_CODE and var_gc:
@@ -47,7 +47,7 @@ else:
         # значит взято из запроса! - пересчитать и перенаправить
         # пересчитать бонус при следующем запросе
         session.bonus_recalc = True
-    #print 'db_session GIFT_CODE', GIFT_CODE
+    #print ('db_session GIFT_CODE', GIFT_CODE)
     
     if var_gc:
         request.vars.pop('gc')
@@ -64,10 +64,10 @@ else:
         redirect(URL( args = request.args, vars = vars))
 
 # теперь язык зададим
-#print 'session.lang and T.accepted_language', session.lang, T.accepted_language, T.accepted_language[0:3]
+#print ('session.lang and T.accepted_language', session.lang, T.accepted_language, T.accepted_language[0:3])
 if T.accepted_language[0:3] == 'en-':
     T.accepted_language = 'en'
     T.force('en')
 if session.lang and T.accepted_language != session.lang:
-    #print '0.py - forsed T.[%s]' % session.lang
+    #print ('0.py - forsed T.[%s]' % session.lang)
     T.force(session.lang)

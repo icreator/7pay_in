@@ -15,7 +15,7 @@ db = DAL("sqlite://storage.sqlite",
 # this keyword buil model on fly on load
         auto_import=True,
         folder="../databases")
-#print db.tables
+#print (db.tables)
 '''
 
 
@@ -122,11 +122,11 @@ def get_exchg_pairs(db, id):
 
 def get_limits(db, exchg_id, curr_id):
     limits = db((db.exchg_limits.exchg_id == exchg_id) & (db.exchg_limits.curr_id == curr_id)).select().first()
-    # print limits
+    # print (limits)
     return limits
 
 def store_depts(db, pair, rec):
-    # print rec
+    # print (rec)
     pair.sp1 = rec[0][0][0]
     pair.sv1 = rec[0][0][1]
     pair.sp2 = rec[0][1][0]
@@ -153,7 +153,7 @@ def store_depts(db, pair, rec):
     pair.on_update = datetime.now()
     pair.update_record()
     db.commit()
-    # print pair.uniq, "updated..."
+    # print (pair.uniq, "updated...")
 
 def store_rates(db, pair, sell, buy):
     pair.update_record(sp1=sell, bp1=buy, on_update=datetime.now())
@@ -162,10 +162,10 @@ def store_cross_rates(db, exchg_id, curr1_id, curr2_id, sell, buy):
     price_pair = db((db.exchg_pairs.curr1_id == curr1_id) & (db.exchg_pairs.curr2_id == curr2_id)).select().first()
     if not price_pair:
         db.exchg_pairs.insert(exchg_id=exchg_id, used=True, curr1_id=curr1_id, curr2_id=curr2_id, sp1=sell, bp1=buy, on_update=datetime.now())
-        print 'insert:', curr1_id, curr2_id, sell, buy
+        print ('insert:', curr1_id, curr2_id, sell, buy)
     else:
         price_pair.update_record(exchg_id=exchg_id, used=True, sp1=sell, bp1=buy, on_update=datetime.now())
-        print 'update:', curr1_id, curr2_id, sell, buy
+        print ('update:', curr1_id, curr2_id, sell, buy)
 
 def pay_err_store(db, dealer, dealer_acc, deal, acc, err):
     # запомним что такой платеж нужен комуто

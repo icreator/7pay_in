@@ -76,7 +76,7 @@ def pay():
 # TODO тут на входе дело ловить а не валюту выхода
 
     #common.page_stats(db, response['view'])
-    #print response['view'], ss, db_common.ip()
+    #print (response['view'], ss, db_common.ip())
 
     response.title=T("Проверьте данные")
     ph = request.vars.get('phone')
@@ -165,15 +165,15 @@ def pay():
     best_rate = pairs = taxs= ed_fee = None
 
     pr_b, pr_s, pr_avg = rates_lib.get_average_rate_bsa(db, curr_in.id, curr_out.id, None)
-    #print pr_b, pr_s, pr_avg
+    #print (pr_b, pr_s, pr_avg)
     if pr_avg:
         vol_in = volume_out / pr_b
-        #print vol_in, curr_in.abbrev, '-->', volume_out, curr_out.abbrev
+        #print (vol_in, curr_in.abbrev, '-->', volume_out, curr_out.abbrev)
         amo_out, _, best_rate = rates_lib.get_rate(db, curr_in, curr_out, vol_in)
         #best_rate = best_rate and 1/best_rate
-        #print best_rate, 1/best_rate
+        #print (best_rate, 1/best_rate)
 
-    #print best_rate, pair
+    #print (best_rate, pair)
     if not best_rate:
         response.title=T("ОШИБКА")
         return dict(uri='[' + curr_in.name + '] -> [' + curr_out.name + ']' + T(' - лучшая цена не доступна.'), addr=None)
@@ -185,7 +185,7 @@ def pay():
     volume_in, rate_out, tax_info = db_client.get_fees_for_out(
         db, deal, dealer_deal, curr_in, curr_out, volume_out, best_rate, pairs, taxs, ed_fee)
 
-    #print tax_info
+    #print (tax_info)
     request.vars['dealer_name']=dealer.name
     request.vars['curr_out_name']=curr_out.abbrev
     request.vars['curr_in_name']=curr_in.abbrev
@@ -202,7 +202,7 @@ def pay():
 
     #deal = db(db.deals.name==deal_name).select().first()
     # new make order
-    #print deal_acc_addr
+    #print (deal_acc_addr)
     id = db.orders.insert(
         ref_ = deal_acc_addr.id,
         volume_in = volume_in,
@@ -229,7 +229,7 @@ def go2():
     curr_out = db.currs[ ecurr.curr_id ]
     if not curr_out: return T('Empty curr')
     
-    #print request.vars
+    #print (request.vars)
     best_rate = pairs = taxs = ed_fee = k = v = None
     for k, v in request.vars.iteritems():
         pass
@@ -267,15 +267,15 @@ def go2():
             hh = T('Not used')
         else:
             pr_b, pr_s, pr_avg = rates_lib.get_average_rate_bsa(db, curr_in.id, curr_out.id, None)
-            #print pr_b, pr_s, pr_avg
+            #print (pr_b, pr_s, pr_avg)
             if pr_avg:
                 vol_in = volume_out / pr_b
-                #print vol_in, curr_in.abbrev, '-->', volume_out, curr_out.abbrev
+                #print (vol_in, curr_in.abbrev, '-->', volume_out, curr_out.abbrev)
                 amo_out, _, best_rate = rates_lib.get_rate(db, curr_in, curr_out, vol_in)
                 #best_rate = best_rate and 1/best_rate
-                #print best_rate, 1/best_rate
+                #print (best_rate, 1/best_rate)
 
-            #print best_rate, pair
+            #print (best_rate, pair)
             if not best_rate:
                 hh = CAT('[' + curr_in.name + '] -> [' + curr_out.name + ']' + T(' - лучшая цена не доступна.'))
             else:
@@ -407,7 +407,7 @@ def index():
     wallet = wallet or session.visitor_wallet or None
     if wallet: response.title = title1 + ':' + wallet[:3] + '****' + wallet[-3:]
 
-    #print request.args
+    #print (request.args)
     if len(request.args)>0: response.flash = ERRS[request.args[0]]
 
     _, reclams = recl.get(db,2)

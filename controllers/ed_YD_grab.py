@@ -18,7 +18,7 @@ dealer = db(db.dealers.name=='Yandex').select().first()
 HIDDENS = ['hidden', 'hidden-fields']
 
 def log(mess):
-    print mess
+    print (mess)
     db.logs.insert(mess='CNT: %s' % mess)
 def log_commit(mess):
     log(mess)
@@ -30,7 +30,7 @@ def index():
 
 def parse_item(ii, tab_sums, comp, deal_templ, tab):
     if comp.attributes.get('_place') in HIDDENS: return
-    print 'item', comp.attributes
+    print ('item', comp.attributes)
     bind = comp.attributes.get('_bind')
     name = comp.attributes.get('_name')
     role = comp.attributes.get('_role')
@@ -42,24 +42,24 @@ def parse_item(ii, tab_sums, comp, deal_templ, tab):
     if par_name in ['FormComment', 'sum', 'inrow']: return
 
     deal_par_name = 'deal_acc%s' % (ii[0])
-    print comp.tag
-    print comp.element()
+    print (comp.tag)
+    print (comp.element())
     label = comp.element('xf:label')
-    print 'label:', label, label and len(label)
+    print ('label:', label, label and len(label))
     label = label and label[0] or ''
     if type(label) != type(''):
         # тут вложенный <para><ptext>Реквизиты перевода</ptext></para>
         label = label.element('ptext')[0]
 
     hint = comp.element('xf:hint')
-    print hint
+    print (hint)
     if hint:
         if type(hint) == type(comp):
             if len(hint)>0:
                 hint = hint[0]
             else:
                 hint = '*'
-    print label, hint
+    print (label, hint)
     if hint:
         if type(hint) != type('') and len(hint)>0:
             # тут вложенный <para><ptext>Реквизиты перевода</ptext></para>
@@ -69,7 +69,7 @@ def parse_item(ii, tab_sums, comp, deal_templ, tab):
     attr = par_name and { 'n': par_name } or None
 
     if comp.tag == 'xf:select1':
-        #print 'select'
+        #print ('select')
         opts = comp.element('xf:choices')
         if not opts:
             opts = comp.elements('xf:item')
@@ -79,26 +79,26 @@ def parse_item(ii, tab_sums, comp, deal_templ, tab):
             for item in opts:
                 if type(item)==type(''):
                     # тут иногда текст а не элемент встречается
-                    #print '"%s"' % comp
+                    #print ('"%s"' % comp)
                     continue
                 l = item.element('xf:label')
-                #print type(l), type([])
+                #print (type(l), type([]))
                 v = item.element('xf:value')
-                #print v
+                #print (v)
                 if l and v:
                     sel.append({ 'label':l[0], 'value': v[0] })
-            #print sel
+            #print (sel)
             if sel and len(sel)>0: attr['sel'] = sel
         else:
             # иначе просто как поле делаем
             #l = item.element('xf:label')[0]
             pass
 
-    #print attr
+    #print (attr)
 
     #label = label.decode('utf8')
     #label = label.decode('ascii')
-    #print label
+    #print (label)
     tt = {}
     if label: tt['l'] = label
     if attr:
@@ -108,11 +108,11 @@ def parse_item(ii, tab_sums, comp, deal_templ, tab):
     if len(tt)>0: deal_templ.append( tt )
 
 def parse_group(ii, tab_sums, gr, deal_templ, tab):
-    print 'group', gr.attributes
+    print ('group', gr.attributes)
     for comp in gr: # .components:
         if type(comp)==type(''):
             # тут иногда текст а не элемент встречается
-            #print '"%s"' % comp
+            #print ('"%s"' % comp)
             continue
         if comp.attributes.get('_type') in HIDDENS: continue
         if comp.attributes.get('_place') in HIDDENS: continue
@@ -133,7 +133,7 @@ def parse_scid(scid):
         f = urllib2.urlopen(rq)
         html = f.read()
     except Exception as e:
-        print 'xml ', rq, e
+        print ('xml ', rq, e)
         dn_e = e
         return dn, dn_e, deal_templ, tab, None
 
@@ -164,7 +164,7 @@ def parse_scid(scid):
 def parse():
     if len(request.args) == 0:
         mess = 'parse/scid'
-        print mess
+        print (mess)
         return mess
     dn, dn_e, deal_templ, dealer_deal_templ, html = parse_scid(request.args[0])
     return BEAUTIFY(XML(html)) + BEAUTIFY(dn) + BEAUTIFY(dn_e) + BEAUTIFY(deal_templ) +'\n' + BEAUTIFY(dealer_deal_templ)
@@ -179,16 +179,16 @@ def make_YD_deal_0(scid, upd=None):
 
     deal = db(db.deals.name == dn).select().first()
     if not deal:
-        print '\n insert', dn_e
+        print ('\n insert', dn_e)
         id = db.deals.insert(name = dn, name2 = dn_e, used=True,
                              cat_id =1,
                              template_ = deal_templ)
         deal = db.deals[id]
     elif deal.used:
-        print '\n update', dn_e
+        print ('\n update', dn_e)
         deal.update_record( template_ = deal_templ, used=True )
     else:
-        print '\n not Used!', dn_e
+        print ('\n not Used!', dn_e)
         return None, None, None, None
 
     dealer_deal = db(
@@ -214,7 +214,7 @@ def make_YD_deal_0(scid, upd=None):
 def make_YD_deal():
     if len(request.args) == 0:
         mess = 'make_YD_deal/scid/[to update=1 or 0 or empty]'
-        print mess
+        print (mess)
         return mess
     scid = request.args[0]
     ## принудительный апдейт - иначе не апдейтить если уже есть и работает
@@ -229,16 +229,16 @@ def make_YD_deal():
 def update_from_to():
     if len(request.args) == 0:
         mess = 'len(request.args)==0'
-        print mess
+        print (mess)
         return mess
     e = ''
     upd = request.args(2)
     for scid in range(int(request.args[0]), int(request.args(1))):
-        print scid
+        print (scid)
         try:
         #if True:
             dn, dn_e, deal_templ, dealer_deal_templ = make_YD_deal_0(scid, upd)
-            print dn, dn_e
+            print (dn, dn_e)
         except Exception as e:
             log('%s - %s' % (scid, e))
         db.commit()

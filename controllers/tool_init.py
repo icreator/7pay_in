@@ -390,7 +390,7 @@ def inits_new_portal():
             resp += addr + '<br>'
 
         except Exception as e:
-            print e
+            print (e)
             msg = token_system.name + " - no made system account, error: %s" % e
             resp += msg + '<br>'
             continue

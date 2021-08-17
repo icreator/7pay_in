@@ -695,7 +695,7 @@ db.define_table('gifts',
                 Field('on_create', 'datetime', writable=False, default=request.now, label=T('Запущен') ),
                 )
 #def pppp(r):
-#    print r
+#    print (r)
 #db.gifts.deal_url = Field.Virtual(
 #    lambda row: URL('more','to_pay', args=[row.gifts.deal_id]))
 

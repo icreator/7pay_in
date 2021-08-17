@@ -127,13 +127,13 @@ def get():
         try:
             session.vol = MIN
         except:
-            print 'to_phone session error .vol:', type(MIN), MIN
+            print ('to_phone session error .vol:', type(MIN), MIN)
 
         return mess( T('ОШИБКА: Слишком маленькая сумма платежа %s < %s') % (vol, MIN))
 
     kod = request.vars.kod or '7'
     ph = request.vars.phone
-    #print request.vars
+    #print (request.vars)
     if not ph:
         return mess(T('ОШИБКА: Задайте номер телефона'))
     ph = valid_phone(kod+ph)
@@ -154,16 +154,16 @@ def get():
         session.toPhone = ph_sess
         session.vol = vol
     except:
-        print 'to_phone session error .toPhone:', type(ph), ph
-        print 'to_phone session error .vol:', type(vol), vol
+        print ('to_phone session error .toPhone:', type(ph), ph)
+        print ('to_phone session error .vol:', type(vol), vol)
 
-    ##print 'ph, session.phone:', ph, session.toPhone
+    ##print ('ph, session.phone:', ph, session.toPhone)
 
     # теперь проверку на правильность телефона для дилера электронных платежей
     # dealer и dealer_acc - выбирается в начале файла
     # pay_test(deal, dealer, dealer_acc, dealer_deal, deal_acc, volume_out)
     res = dealer_acc and ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, ph, vol, False)
-    ##print 'PAY:',res
+    ##print ('PAY:',res)
     if True:
         pass
     elif not res:
@@ -248,10 +248,10 @@ def get():
 
     # если есть скрытый партнерский код то его забьем пользователю
     deal_acc = db.deal_accs[deal_acc_id]
-    #print gift_cod, deal_acc
+    #print (gift_cod, deal_acc)
     if gift_cod:
         if not deal_acc.gift and not deal_acc.partner:
-            #print 'added', gift_cod
+            #print ('added', gift_cod)
             deal_acc.update_record(gift = gift_cod)
             h += P('Подарочный код', ': ', gift_cod)
 
@@ -283,7 +283,7 @@ def get():
                                                    best_rate, is_order, note=1)
         vol_out_new = common.rnd_8(vol_out_new)
         if volume_out != vol_out_new:
-            print 'to_phone error_in_fees: volume_out != vol_out_new', volume_out,  vol_out_new
+            print ('to_phone error_in_fees: volume_out != vol_out_new', volume_out,  vol_out_new)
 
         volume_in = common.rnd_8(volume_in)
         rate_out = volume_out / volume_in
@@ -411,19 +411,19 @@ def index():
             session.date_log = None
             session.toPhone = None
 
-    #print request.vars
+    #print (request.vars)
     if request.vars:
-        #print 'reset'
+        #print ('reset')
         vol = test_vol(request.vars.sum)
         session.vol = vol if vol else None
         phone = request.vars.phone
         phone = phone and valid_phone(phone)
-        print phone
+        print (phone)
         if phone: session.toPhone = phone
     else:
         phone = session.toPhone
 
-    ##print 'phone, session.phone:', phone, session.toPhone
+    ##print ('phone, session.phone:', phone, session.toPhone)
     if phone and len(phone) == 10:
         phone = session.toPhone = '7' + phone
     title = phone and CAT(T('Ваш телефон') + ':' + phone[:3] + '***' + phone[-3:] + ' ', SPAN(response.title, _class='small')) or response.title
@@ -432,7 +432,7 @@ def index():
     try:
         session.date_log = request.now
     except:
-        print 'to_phone session error .date_log:', type(request.now), request.now
+        print ('to_phone session error .date_log:', type(request.now), request.now)
 
     h = CAT()
     hh = CAT(H1(response.title), response.subtitle and H3(response.subtitle) or '')
@@ -444,7 +444,7 @@ def index():
 
     h = CAT()
     for rr in db_client.get_xcurrs_for_deal(db, 0, curr_out, deal, dealer):
-        #print row
+        #print (row)
         id = '%s' % rr['id']
         disabled = rr['expired']
         #bgc = 'gold'
@@ -463,7 +463,7 @@ def index():
                       $('#cvr%s').css('display','block'); // .css('z-index','10');
                       ajax('%s',['vol', 'phone', 'gift_cod'], 'tag%s');
                       ''' % (id, id, URL('get', args=[id]), id)
-        #print row
+        #print (row)
         h += DIV(
             DIV(
                 DIV(

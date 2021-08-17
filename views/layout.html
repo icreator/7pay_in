@@ -2,7 +2,7 @@
 # protection from .AJAX call to common controller without ajax -  for malicious attackers
 if request.ajax:
     ## raise HTTP(200, 'be-be-be') - cicling ERROR ((
-    #print 'redirected to JAM'
+    #print ('redirected to JAM')
     redirect(URL('default','jam'))
 pass
 }}

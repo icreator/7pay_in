@@ -17,7 +17,7 @@ response.logo2 = IMG(_src=URL('static','images/7P-302.png'), _width=200)
 response.not_show_func = True
 
 def log(mess):
-    print mess
+    print (mess)
     db.logs.insert(mess='BUY: %s' % mess)
 def log_commit(mess):
     log(mess)

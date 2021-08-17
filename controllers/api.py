@@ -49,7 +49,7 @@ def rates():
         deal_sel = request.args(0)
         WPnames = False
 
-    # print deal_sel
+    # print (deal_sel)
     if deal_sel and deal_sel.upper() == 'HELP':
         return 'rates/[deal] - deal = PH_7RUB | TO_YDRUB | IN_YDRUB | TO_COIN | None - all'
     import rates_lib, db_client, ed_common
@@ -68,7 +68,7 @@ def rates():
         else:
             deal = db(db.deals.name == 'phone +7').select().first()
         dealer, dealer_acc, dealer_deal = ed_common.select_ed_acc(db, deal, ecurr_out)
-        # print deal.name, 'dealer:', dealer_deal
+        # print (deal.name, 'dealer:', dealer_deal)
         to_max = round(float(db_common.get_balance_dealer_acc(dealer_acc)), 8)
 
         for r in db((db.currs.id == db.xcurrs.curr_id)
@@ -120,7 +120,7 @@ def rates():
         else:
             deal = db(db.deals.name == 'BUY').select().first()
         dealer, dealer_acc, dealer_deal = ed_common.select_ed_acc(db, deal, ecurr_out)
-        # print deal.name, 'dealer:', dealer_deal
+        # print (deal.name, 'dealer:', dealer_deal)
         to_max = dealer_max = round(float(db_common.get_balance_dealer_acc(dealer_acc)), 8)
         for r in db((db.currs.id == db.xcurrs.curr_id)
                     & (db.currs.used == True)).select():
@@ -160,7 +160,7 @@ def rates():
         else:
             deal = db(db.deals.name == 'BUY').select().first()
         # тут пустой %% dealer, dealer_acc, dealer_deal = ed_common.select_ed_acc(db, deal, ecurr_out)
-        # print deal.name, 'dealer:', dealer_deal
+        # print (deal.name, 'dealer:', dealer_deal)
         dealer_deal = None
         in_max = 57000  # у фиатного диллера одну покупку ограничим
         for r in db((db.currs.id == db.xcurrs.curr_id)
@@ -207,7 +207,7 @@ def rates():
                 if in_max > 0:
                     bal = db_client.curr_free_bal(curr_in)
                     in_max = round(float(in_max - bal), 8)
-            # print curr_in.abbrev, ' to RUB', vol_in
+            # print (curr_in.abbrev, ' to RUB', vol_in)
             for r_out in db((db.currs.id == db.xcurrs.curr_id)
                             & (db.currs.used == True)).select():
                 curr_out = r_out.currs
@@ -275,7 +275,7 @@ def curr_get_info():
 
         if not conn:
             return {'error': 'Connection to ' + curr_abbrev + ' wallet is lost. Try later'}
-        # print conn
+        # print (conn)
         try:
             # getblockchaininfo, getnetworkinfo, and getwalletinfo
             # res = conn.getinfo()
@@ -389,7 +389,7 @@ def rates3():
 def for_addr():
     session.forget(response)
     addr = request.vars and request.vars.get('addr')
-    # print address
+    # print (address)
     if not addr or len(addr) < 24: return dict(pays=T('ошибочный адрес [%s]') % addr)
 
     pays = where1.found_buys(db, addr)
@@ -399,7 +399,7 @@ def for_addr():
     pays = []
     # все еще не подтвержденные
     curr, xcurr, _, = db_common.get_currs_by_addr(db, addr)
-    # print curr, '\n', xcurr
+    # print (curr, '\n', xcurr)
     if not curr or not curr.used: return dict(pays=T('ошибочный адрес по первой букве [%s]') % addr)
     where1.found_unconfirmed(db, curr, xcurr, addr, pays)
 
@@ -451,14 +451,14 @@ def deals_does():
 
     pays_unconf = []
     where3.found_unconfirmed(db, curr_in, xcurr_in, addr, pays_unconf)
-    # print 'pays_unconf:', pays_unconf
+    # print ('pays_unconf:', pays_unconf)
 
     pays_process = []
     where3.found_pay_ins_process(db, addr, pays_process)
 
     pays = []
     where3.found_pay_ins(db, addr, pays)
-    # print 'pays:', pays
+    # print ('pays:', pays)
     return dict(pays_unconf=pays_unconf, pays_process=pays_process, pays=pays,
                 payed_month=payed_month, MAX=MAX, addr=addr,
                 payed=payed, price=price, order_id=order_id, amo_rest_url=amo_rest_url,
