@@ -497,7 +497,7 @@ def send_to_many(db, curr, xcurr, sends_in, tx_fee_in=None, conn_in=None):
     # тут надоп роверить баланс клиента
     vol = 0.0
     sends = {}
-    for (k, v) in sends_in.iteritems():
+    for (k, v) in sends_in.items():
         v = round(float(v), ROUND_TO)
         vol = vol + v
         # отловим повторы в списке и ссумируем их

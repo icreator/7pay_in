@@ -83,7 +83,7 @@ def buys_twiced():
 
     if rewrite_credits:
         h += H3('list of payers')
-        for p, amo in buyers.iteritems():
+        for p, amo in buyers.items():
             h += DIV(p, ': ', amo)
             buyers_credit = db(db.buyers_credit.acc == p).select().first()
             if buyers_credit.un_rewrite: continue

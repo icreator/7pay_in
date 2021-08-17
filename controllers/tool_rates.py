@@ -39,7 +39,7 @@ def get_best_rates():
     rates = rates_lib.get_best_rates(db, curr_in, curr_out=None)
     #print (rates)
     h = CAT()
-    for i, r in rates.iteritems():
+    for i, r in rates.items():
         #print (i,r)
         h += DIV(
             db.currs[i].abbrev,' base: ',r[0],' tax: ', r[1],' rate:', r[2], ' - 1/rate:', 1/r[2] if r[2] else 0

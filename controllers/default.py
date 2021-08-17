@@ -177,7 +177,7 @@ def index():
     session.forget(response)
 
     if db(db.currs).isempty():
-        return "init DB first: " + URL("tools_dc", "init_db_records")
+        return "init DB first: " + URL("tool_init", "init_db_records")
 
     users = db(db.deal_accs).count()
 

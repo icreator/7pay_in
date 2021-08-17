@@ -231,7 +231,7 @@ def go2():
     
     #print (request.vars)
     best_rate = pairs = taxs = ed_fee = k = v = None
-    for k, v in request.vars.iteritems():
+    for k, v in request.vars.items():
         pass
     #return '%s: %s' % (k,v)
     # берем теперь наилучший аккаунт у этого диллера для нас

@@ -172,7 +172,7 @@ def get():
         for key in ['xcurr', 'volume', 'deal_id']:
             deal_pars[key] = request.post_vars.pop(key)
         # парамтеры что ввел пользователь обрежем чтобы скрипты не писали
-        for (k,v) in request.post_vars.iteritems():
+        for (k,v) in request.post_vars.items():
             if len(v) > 20:
                 request.post_vars[k] = v[:20]
         acc = request.post_vars #.list.sort()
@@ -532,7 +532,7 @@ def index():
                 lab_ = LABEL(lab_ and T(lab_) or p_n_name)
                 opt=[]
                 for item in sel:
-                    #for (v, l) in item.iteritems():
+                    #for (v, l) in item.items():
                     opt.append(OPTION(item['label'], _value=item['value']))
                 #print (opt)
                 inp = SELECT(opt, _name=p_n_name, _id=p_n_name, _type="text", _class='field blue-c', **add_pars)

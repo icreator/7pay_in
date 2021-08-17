@@ -56,7 +56,7 @@ def b_p_db_update(db, conn, curr, xcurr, token_system, token, tab, curr_block):
     # сюда приходят все одиночные входы
     # поидее надо их всех запомнить
 
-    for rec in tab:  # .iteritems():
+    for rec in tab:  # .items():
         amount = rec['amount']
         acc = rec['acc']
         recipient = rec['recipient']

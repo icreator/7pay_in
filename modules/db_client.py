@@ -594,7 +594,7 @@ def get_fees_for_out(db, deal, dealer_deal, curr_in, curr_out, volume_out, rate,
             pair = pairs[i]
             curr_out = db.currs[pair['curr2_id']]
             i = i + 1
-            for exchg_name, vol in tax.iteritems():
+            for exchg_name, vol in tax.items():
                 ss = '%s ->[%s]: %s' % (exchg_name, curr_out.abbrev, vol * 100)
                 info.append(ss + '%; ')
         info.append(' ')

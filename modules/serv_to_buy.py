@@ -332,7 +332,7 @@ def proc_history(db, only_list=None, ed_acc=None, from_dt_in=None):
 
             if only_list:
                 if u'sender' not in rec:
-                    #for (k, v ) in rec.iteritems():
+                    #for (k, v ) in rec.items():
                         #if type(v) == type(u''):
                             #v = v.decode('utf8')
                             #v = v.decode('ascii')

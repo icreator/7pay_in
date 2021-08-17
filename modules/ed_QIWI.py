@@ -280,7 +280,7 @@ def make_pay_pars(deal, dlr_deal, api_pars, acc, amount, pars):
         # если форму с сайта дилера взяли то и параметры там не надо распаковывать
         acc_pars = json.loads( acc )
         # просто их добавим в общий набор параметров
-        for k, v in acc_pars.iteritems():
+        for k, v in acc_pars.items():
             pars[k] = v
         '''
         # тут просто по порядку преобразуем из аккаунта нашего дела в их параметры

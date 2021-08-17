@@ -205,7 +205,7 @@ def from_btc_e_3(db,exchg):
     try:
         resp = fetch(url)
         res = json.loads(resp)
-        for k,v in res.iteritems():
+        for k,v in res.items():
             print( k[:3], k[4:],  ) # v
             curr1 = get_curr(db, exchg_id, k[:3])
             curr2 = get_curr(db, exchg_id, k[4:])
