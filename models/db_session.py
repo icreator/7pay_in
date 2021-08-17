@@ -3,7 +3,7 @@
 if DEVELOP: print ('db_session.py - app.DEVELOP')
 #print ('db_session.py',request.controller, request.function)
 #print ('db_session.py - session.gc', session.gc)
-    
+
 if request.ajax:
     # для вызовов аякса многое не нужно
     ##   GIFT_CODE = session.gc - оже для всех аяксов отключим!!! там где надо берем из сессии только
@@ -26,7 +26,7 @@ else:
                     GIFT_CODE = partner.partner
                     #print (partner)
 
-    if not GIFT_CODE and request.cookies.has_key('gift_code'):
+    if not GIFT_CODE and 'gift_code' in request.cookies:
         GIFT_CODE = request.cookies['gift_code'].value
         #print ("request.cookies['gift_code'].value:", GIFT_CODE)
     if GIFT_CODE and len(GIFT_CODE) < 5: GIFT_CODE = None
@@ -48,7 +48,7 @@ else:
         # пересчитать бонус при следующем запросе
         session.bonus_recalc = True
     #print ('db_session GIFT_CODE', GIFT_CODE)
-    
+
     if var_gc:
         request.vars.pop('gc')
         redirect(URL(args=request.args, vars=request.vars))
