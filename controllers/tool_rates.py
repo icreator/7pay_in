@@ -23,7 +23,8 @@ common.not_is_local(request)
 # попробовать что-либо вида
 def index():
     #err(1)
-    return dict(message="hello from tools.py")
+    return dict(message="hello from tool_rates.py")
+
 
 def serv_rates():
     if not request.args(0): return 'serv_rates/exchgs.id'
@@ -63,7 +64,7 @@ def get_best_price_for_volume():
     print db_client.get_best_price_for_volume(db, a_in.id, a_out.id,
             float(request.args[2]), expired, s_b)
 
-# выдать лучшуу цену нв объем
+# выдать лучшую цену нв объем
 # best_price/sell/LTC/RUB/123
 def best_price():
     if len(request.args) == 0:
@@ -90,7 +91,7 @@ def best_price():
     return res
 
 # выдает список для вычисления курса по степени объема
-# http://127.0.0.1:8000/ipay/tools/get_rate_powers/BTC
+# http://127.0.0.1:8000/ipay/tools_rates/get_rate_powers/BTC
 def get_rate_powers():
     if len(request.args) == 0:
         mess = 'len(request.args)==0'

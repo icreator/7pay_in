@@ -1,0 +1,16 @@
+[Unit]
+Description = uWSGI Emperor
+After = syslog.target
+
+[Service]
+ExecStart = uwsgi --master --die-on-term --emperor /etc/uwsgi --logto /var/log/uwsgi/uwsgi.log
+RuntimeDirectory = uwsgi
+Restart = always
+KillSignal = SIGQUIT
+Type = notify
+StandardError = syslog
+NotifyAccess = all
+
+[Install]
+WantedBy = multi-user.target
+

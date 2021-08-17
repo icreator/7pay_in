@@ -86,7 +86,7 @@ main() {
     fi
     startAll
 
-    delay 60
+    delay 160
 
     COMMON_ARGS="$COMMON_ARGS -reindex"
     startAll

@@ -1,1 +1,5 @@
 #crontab
+
+# for start CRON need start command: 'python web2py.py -Y'
+*/2 * * * * user tool_cron/get_ext_rates
+*/10 * * * * user tool_cron/proc_history
