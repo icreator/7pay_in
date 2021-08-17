@@ -1,12 +1,12 @@
 ﻿# -*- coding: utf-8 -*-
-    
+
 #from gluon.custom_import import track_changes; track_changes(True)
 
 # fake_migrate - только если таблица уже создана - а если поля добавлям от не нужно
 # и если в другом проекте поля уже добавлены и их не надо добавлять
 if DEVELOP: print ('db.py - app.DEVELOP')
 
-    
+
 #########################################################################
 ## This scaffolding model makes your app work on Google App Engine too
 ## File is released under public domain and you can use without limitations
@@ -34,10 +34,10 @@ if not request.env.web2py_runtime_gae:
         #print ('MIGRATE: ', migrate)
         #print ('fake: ', fake_migrate)
         db = DAL(myconf.take('db.uri'), pool_size=myconf.take('db.pool_size', cast=int), check_reserved=['all'],
-                #migrate = Not (Not (myconf.take('db.migrate'))),
-                migrate = migrate,
-                fake_migrate = fake_migrate,
-                )
+                 #migrate = Not (Not (myconf.take('db.migrate'))),
+                 migrate = migrate,
+                 fake_migrate = fake_migrate,
+                 )
     ## в кукиях у пользователей хранить сессии - а не у нас на диске
     session.connect(request,response,cookie_key='kjykGFDRETfxf65',compression_level=None)
 else:
