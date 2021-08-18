@@ -33,30 +33,25 @@ def init_db_records():
     #########################################
 
     if not db(db.currs).isempty():
-        return dict(message=current.T('db.currs is not EMPTY - truncate it before!'))
+        return dict(message=current.T('db.currs is not EMPTY - clear it before!'))
+    if not db(db.exchgs).isempty():
+        return dict(message=current.T('db.exchgs is not EMPTY - clear it before!'))
 
-    if db(db.exchgs).isempty():
-        db.exchgs.truncate('RESTART IDENTITY CASCADE')  # restart autoincrement ID
+    db.exchgs.truncate('RESTART IDENTITY CASCADE')  # restart autoincrement ID
 
-    if db(db.exchg_taxs).isempty():
-        db.exchg_taxs.truncate('RESTART IDENTITY CASCADE')
+    db.exchg_taxs.truncate('RESTART IDENTITY CASCADE')
 
-    if db(db.exchg_pair_bases).isempty():
-        db.exchg_pair_bases.truncate('RESTART IDENTITY CASCADE')
+    db.exchg_pair_bases.truncate('RESTART IDENTITY CASCADE')
 
-    if db(db.dealers).isempty():
-        db.dealers.truncate('RESTART IDENTITY CASCADE')
+    db.dealers.truncate('RESTART IDENTITY CASCADE')
 
-    if db(db.systems).isempty():
-        db.systems.truncate('RESTART IDENTITY CASCADE')
+    db.systems.truncate('RESTART IDENTITY CASCADE')
 
-    if db(db.deals_cat).isempty():
-        db.deals_cat.truncate('RESTART IDENTITY CASCADE')
+    db.deals_cat.truncate('RESTART IDENTITY CASCADE')
 
-    if db(db.deals).isempty():
-        db.deals.truncate('RESTART IDENTITY CASCADE')
+    db.deals.truncate('RESTART IDENTITY CASCADE')
 
-    if db(db.currs).isempty():
+    if True:
         db.currs.truncate('RESTART IDENTITY CASCADE')
         db.deals_cat.truncate('RESTART IDENTITY CASCADE')
         db.systems.truncate('RESTART IDENTITY CASCADE')
@@ -392,4 +387,3 @@ def inits_new_portal():
             continue
 
     return resp
-
