@@ -20,17 +20,21 @@ session.forget(response)
 import common
 # запустим сразу защиту от внешних вызов
 # тут только то что на локалке TRUST_IP in private/appconfig.ini
-common.not_is_local(request)
-
+if True:
+    common.not_is_local(request)
+############################
 
 # попробовать что-либо вида
 def index():
     # err(1)
-    return dict(message="inits")
-
+    return dict(message=current.T('init tools'))
 
 def init_db_records():
     #########################################
+
+    if not db(db.currs).isempty():
+        return dict(message=current.T('db.currs is not EMPTY - truncate it before!'))
+
     if db(db.exchgs).isempty():
         db.exchgs.truncate('RESTART IDENTITY CASCADE')  # restart autoincrement ID
 
@@ -283,7 +287,7 @@ def init_db_records():
         ]:
 
             exchg_id = db.exchgs.insert(name=r[0], url=r[1],
-                                        API_type=r[2], API=r[3], used=r[4], tax=r[5],
+                                        api_type=r[2], API=r[3], used=r[4], tax=r[5],
                                         fee=r[6]
                                         )
             if len(r) > 7:
