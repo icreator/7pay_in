@@ -1,6 +1,6 @@
 
 import math
-from PIL import Image, ImageDraw
+from pillow import Image, ImageDraw
 
 #QRCode for Python
 #
