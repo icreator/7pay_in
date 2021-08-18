@@ -23,14 +23,6 @@ import common
 common.not_is_local(request)
 
 
-# запустим сразу защиту от внешних вызов
-if False:
-    not_is_local(True)
-
-
-# тут только то что на локалке
-
-
 # попробовать что-либо вида
 def index():
     # err(1)
