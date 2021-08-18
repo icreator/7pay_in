@@ -249,7 +249,7 @@ def init_db_records():
         dealer_id = db.dealers.insert(
             name='Yandex',
             used=True,
-            API='{ "URI_YM_API": "https://money.yandex.ru/api", "URI_YM_AUTH": "https://sp-money.yandex.ru/oauth/authorize", "URI_YM_TOKEN": "https://sp-money.yandex.ru/oauth/token", "acc_names": ["user", "PROPERTY1", "rapida_param1", "customerNumber", "CustomerNumber"] }',
+            api='{ "URI_YM_API": "https://money.yandex.ru/api", "URI_YM_AUTH": "https://sp-money.yandex.ru/oauth/authorize", "URI_YM_TOKEN": "https://sp-money.yandex.ru/oauth/token", "acc_names": ["user", "PROPERTY1", "rapida_param1", "customerNumber", "CustomerNumber"] }',
             info='{ "shops_url": "https://money.yandex.ru/shop.xml?scid=", "search_url": "https://money.yandex.ru/", "img_url": "https://money.yandex.ru" }',
             pay_out_MIN=10)
         db.dealers_accs.insert(dealer_id=dealer_id, ecurr_id=2, acc='4100134701234567', balance=9999999,
@@ -287,7 +287,7 @@ def init_db_records():
         ]:
 
             exchg_id = db.exchgs.insert(name=r[0], url=r[1],
-                                        api_type=r[2], API=r[3], used=r[4], tax=r[5],
+                                        api_type=r[2], api=r[3], used=r[4], tax=r[5],
                                         fee=r[6]
                                         )
             if len(r) > 7:
