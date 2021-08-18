@@ -251,7 +251,7 @@ def init_db_records():
             used=True,
             api='{ "URI_YM_API": "https://money.yandex.ru/api", "URI_YM_AUTH": "https://sp-money.yandex.ru/oauth/authorize", "URI_YM_TOKEN": "https://sp-money.yandex.ru/oauth/token", "acc_names": ["user", "PROPERTY1", "rapida_param1", "customerNumber", "CustomerNumber"] }',
             info='{ "shops_url": "https://money.yandex.ru/shop.xml?scid=", "search_url": "https://money.yandex.ru/", "img_url": "https://money.yandex.ru" }',
-            pay_out_MIN=10)
+            pay_out_min=10)
         db.dealers_accs.insert(dealer_id=dealer_id, ecurr_id=2, acc='4100134701234567', balance=9999999,
                                pkey='{"YM_REDIRECT_URI": "https://7pay.in/ed_YD/yandex_response", "secret_response": "**secret response**", "CLIENT_ID": "**TOKEN**", "SCOPE": "account-info operation-history operation-details payment-shop.limit(1,37777) payment-p2p.limit(1,37777)"}',
                                used=True, expired='2216-02-10')

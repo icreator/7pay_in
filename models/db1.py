@@ -205,9 +205,9 @@ db.define_table('dealers',
                 Field('balance', 'decimal(12,2)', default = Decimal('0.0'), comment='current balance'),
                 Field('deposit', 'decimal(16,3)', default = Decimal('0.0')), # то что нельзя выводить или продавать - запас для меня
                 Field('clients_deposit', 'decimal(16,3)', default = Decimal('0.0')), # то что нельзя выводить или продавать так как это баланс клиеннтов-магазинов
-                Field('API', 'text', comment='API commands and urls in JSON format'),
+                Field('api', 'text', comment='API commands and urls in JSON format'),
                 Field('info', 'text', label='Info', comment='Description'),
-                Field('pay_out_MIN', 'decimal(6,2)', default = Decimal('10.0'), comment='MIN paymennt for this ecurr and edialer'),
+                Field('pay_out_min', 'decimal(6,2)', default = Decimal('10.0'), comment='MIN paymennt for this ecurr and edialer'),
                 format='%(name)s',
                 )
 # one ACC = one CURR (+reserve)

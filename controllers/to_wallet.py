@@ -150,7 +150,7 @@ def get():
             print ('to_wallet session error .vol:', type(vol), vol)
 
     # теперь проверку на правильность кошелька для дилера электронных платежей
-    #res = ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, deal_acc, deal.MIN_pay or dealer.pay_out_MIN or 20, False)
+    #res = ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, deal_acc, deal.MIN_pay or dealer.pay_out_min or 20, False)
     #res = {'error': ' TEST'}
     if False and res.get('status')!='success':
         m = 'error_description' in res and res.ger('error_description', res.get('error', 'dealer error'))

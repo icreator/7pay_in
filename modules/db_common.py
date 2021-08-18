@@ -187,7 +187,7 @@ def gMIN(deal, dealer, min0=10):
     min1 = deal.MIN_pay or 0
     if min1 < 0: return 0
     min1 = int(min1 or min0)
-    min2 = int(dealer and dealer.pay_out_MIN or min0)
+    min2 = int(dealer and dealer.pay_out_min or min0)
     min_ = min2 > min1 and min2 or min1
     return int(min_ * 1.2) + 1
 

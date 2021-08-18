@@ -245,7 +245,7 @@ def get():
     pattern_id = dealer_deal.scid
     res = ed_common.pay_test(db, deal, dealer, dealer_acc,
          dealer_deal, acc,
-         #(deal.MIN_pay or dealer.pay_out_MIN or 10)*2,
+         #(deal.MIN_pay or dealer.pay_out_min or 10)*2,
          volume_out,
          False )
 

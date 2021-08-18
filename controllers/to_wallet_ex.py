@@ -105,7 +105,7 @@ def pay():
     # теперь проверку на правильность кошелька для дилера электронных платежей
     #dealer_acc
     # pay_test(deal, dealer, dealer_acc, dealer_deal, deal_acc, volume_out)
-    res = ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, ph, deal.MIN_pay or dealer.pay_out_MIN or 20, False)
+    res = ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, ph, deal.MIN_pay or dealer.pay_out_min or 20, False)
     if res['status']!='success':
         response.title=T("ОШИБКА")
         mess = 'error_description' in res and res['error_description'] or res['error'] or 'dealer error'
@@ -150,7 +150,7 @@ def pay():
 
     request.vars['addr_in']=addr_in
 
-    MIN = deal.MIN_pay or dealer.pay_out_MIN or 3
+    MIN = deal.MIN_pay or dealer.pay_out_min or 3
     if MIN > volume_out:
         u = URL('to_wallet','index',args=['err02']) #, vars={'l':deal.MIN_pay})
         redirect(u)
@@ -248,7 +248,7 @@ def go2():
     
     h = CAT()
     
-    MIN = deal.MIN_pay or dealer.pay_out_MIN or 3
+    MIN = deal.MIN_pay or dealer.pay_out_min or 3
     if MIN > volume_out:
         return T('ОШИБКА: Слишком маленькая сумма платежа')
 
