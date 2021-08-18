@@ -28,7 +28,7 @@ def not_is_local(request, vvv=True):
     if (remote_addr not in hosts) and (remote_addr not in current.TRUST_IP):
         #and request.function != 'manage':
         if vvv:
-            raise HTTP(200, current.T('ERROR: not admin in local'))
+            raise HTTP(200, 'ERROR: ' + current.T('not admin in local'))
         return True
     
 def uri_make(name, addr, pars_in, label_in=None):
@@ -78,33 +78,35 @@ def last_month2():
 #import _imaging
 # для Апаче нужно установить отсюда пакет:
 # http://www.lfd.uci.edu/~gohlke/pythonlibs/ -- Pillow‑2.4.0.win32‑py2.7.exe
-import pyqrnative
-def QRcode(data_string,file_name=None):
-    #import os
-    quality={1: pyqrnative.QRErrorCorrectLevel.L,
-             2: pyqrnative.QRErrorCorrectLevel.M,
-             3: pyqrnative.QRErrorCorrectLevel.Q,
-             4: pyqrnative.QRErrorCorrectLevel.H}
-    size = 4
-    level = 1
-    file_name = file_name or "1111.png"
-    while 1:
-        #print (size)
-        try:
-            q = pyqrnative.QRCode(size, quality[level])
-            q.addData(data_string)
-            q.make()
-            break
-        except TypeError:
-            size+=1
-    x=q.makeImage()
-    #qr_file = os.path.join('C:/web2py/applications/ipay10/static', file_name)
-    qr_file = file_name
-    img_file = open(qr_file, 'wb')
-    x.save(img_file, 'PNG')
-    img_file.close()
-    #img = IMG(_src=URL('static', file_name)) # а то тормозит и качество ухудшает), _width=124)
-    #return dict(im = img)
+
+if False:
+    import pyqrnative
+    def QRcode(data_string,file_name=None):
+        #import os
+        quality={1: pyqrnative.QRErrorCorrectLevel.L,
+                 2: pyqrnative.QRErrorCorrectLevel.M,
+                 3: pyqrnative.QRErrorCorrectLevel.Q,
+                 4: pyqrnative.QRErrorCorrectLevel.H}
+        size = 4
+        level = 1
+        file_name = file_name or "1111.png"
+        while 1:
+            #print (size)
+            try:
+                q = pyqrnative.QRCode(size, quality[level])
+                q.addData(data_string)
+                q.make()
+                break
+            except TypeError:
+                size+=1
+        x=q.makeImage()
+        #qr_file = os.path.join('C:/web2py/applications/ipay10/static', file_name)
+        qr_file = file_name
+        img_file = open(qr_file, 'wb')
+        x.save(img_file, 'PNG')
+        img_file.close()
+        #img = IMG(_src=URL('static', file_name)) # а то тормозит и качество ухудшает), _width=124)
+        #return dict(im = img)
 
 def rnd_8(v, rnd=8):
     return round( float( v ), rnd )
