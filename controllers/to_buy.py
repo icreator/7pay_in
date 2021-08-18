@@ -41,7 +41,7 @@ deal_name = 'BUY'
 # найдем дело
 deal = db(db.deals.name==deal_name).select().first()
 if not deal: raise HTTP(200, T('ERROR: not found deal "%s"') % deal_name)
-MAX = deal.MAX_pay
+MAX = deal.max_pay
 
 # переходник для показа ссылкок и картинок в листингах
 def download():

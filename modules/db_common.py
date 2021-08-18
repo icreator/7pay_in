@@ -184,7 +184,7 @@ def pay_err_store(db, dealer, dealer_acc, deal, acc, err):
 
 def gMIN(deal, dealer, min0=10):
     # для платежей криптой - любые суммы
-    min1 = deal.MIN_pay or 0
+    min1 = deal.min_pay or 0
     if min1 < 0: return 0
     min1 = int(min1 or min0)
     min2 = int(dealer and dealer.pay_out_min or min0)
@@ -194,7 +194,7 @@ def gMIN(deal, dealer, min0=10):
 
 def gMAX(deal, dealer, max0=2777):
     # для платежей криптой - любые суммы
-    max1 = deal.MAX_pay or 0
+    max1 = deal.max_pay or 0
     if max1 < 0: return 0
     max1 = int(max1 or max0)
     ## нет у дилера макс пока max2 = int(dealer and dealer.pay_out_MAX or max0)

@@ -292,10 +292,10 @@ db.define_table('deals',
                 # для мосэнерго [12345 123 12 199 6]
                 Field('template_', 'text'),
                 Field('calcs_', 'json'),
-                ## MIN_pay + MAX_pay - Только для фиата выставляются потому точно малая
-                Field('MIN_pay', 'decimal(6,2)', default = 13, comment='для фиата только действует'), # минимум который можно платить
+                ## min_pay + max_pay - Только для фиата выставляются потому точно малая
+                Field('min_pay', 'decimal(6,2)', default = 13, comment='для фиата только действует'), # минимум который можно платить
                 # если превышает то берем пропорциональный оброк при оплате
-                Field('MAX_pay', 'decimal(13,2)', default = 1777, comment='для фиата только действует'), # максимум который можно платить за раз
+                Field('max_pay', 'decimal(13,2)', default = 1777, comment='для фиата только действует'), # максимум который можно платить за раз
                 Field('fee', 'decimal(14,8)', default = 0, comment='Оброк мне за это дело'),
                 Field('tax', 'decimal(4,2)', default = 1, comment='% подать мне за это дело'),
                 Field('fee_min', 'decimal(14,8)', default = 1, comment='limit tax down'),
@@ -327,10 +327,10 @@ db.define_table('deals_tmp',
                 # для мосэнерго [12345 123 12 199 6]
                 Field('template_', 'text'),
                 Field('calcs_', 'json'),
-                ## MIN_pay + MAX_pay - Только для фиата выставляются потому точно малая
-                Field('MIN_pay', 'decimal(6,2)', default = 13, comment='для фиата только действует'), # минимум который можно платить
+                ## min_pay + max_pay - Только для фиата выставляются потому точно малая
+                Field('min_pay', 'decimal(6,2)', default = 13, comment='для фиата только действует'), # минимум который можно платить
                 # если превышает то берем пропорциональный оброк при оплате
-                Field('MAX_pay', 'decimal(13,2)', default = 1777, comment='для фиата только действует'), # максимум который можно платить за раз
+                Field('max_pay', 'decimal(13,2)', default = 1777, comment='для фиата только действует'), # максимум который можно платить за раз
                 Field('fee', 'decimal(14,8)', default = 0, comment='Оброк мне за это дело'),
                 Field('tax', 'decimal(4,2)', default = 1, comment='% подать мне за это дело'),
                 Field('fee_min', 'decimal(14,8)', default = 1, comment='limit tax down'),

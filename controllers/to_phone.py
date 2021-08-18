@@ -45,7 +45,7 @@ if not deal: raise HTTP(200, T('ERROR: Not found deal "%s"') % deal_name)
 deal_id = deal.id
 
 # найдем счет у диллера электронных денег для этого дела
-vol = (deal.MIN_pay or 100) * 2
+vol = (deal.min_pay or 100) * 2
 dealer, dealer_acc, dealer_deal = ed_common.select_ed_acc(db, deal, ecurr_out, vol)
 if False and not dealer: raise HTTP(200,
                                     #T('ERROR: Not found dealer for "%s". Please try in next month') % deal_name
@@ -64,7 +64,7 @@ if False and not dealer_acc: raise HTTP(200,
 
 MIN = dealer and db_common.gMIN(deal, dealer) or 0
 e_balance = dealer_acc and db_common.get_balance_dealer_acc( dealer_acc )
-MAX = int(deal.MAX_pay)
+MAX = int(deal.max_pay)
 if e_balance:
     dealer_acc.balance = e_balance
     dealer_acc.update_record()

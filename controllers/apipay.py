@@ -886,7 +886,7 @@ def history():
         done.append(result)
 
     deal_res = dict(id=deal.id, name=deal.name,
-                    MAX=float(deal.MAX_pay))
+                    MAX=float(deal.max_pay))
 
     import gifts_lib
     if 'to COIN' in deal.name:

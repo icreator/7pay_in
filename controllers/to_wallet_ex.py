@@ -50,7 +50,7 @@ def ug(h, url, cls='col-sm-4', onclick=None, style=''):
 
 def get_e_bal(deal, dealer, dealer_acc):
     e_balance = db_common.get_balance_dealer_acc( dealer_acc )
-    MAX = deal.MAX_pay or 1333
+    MAX = deal.max_pay or 1333
     if e_balance:
         #dealer_acc.balance = e_balance
         #dealer_acc.update_record()
@@ -105,7 +105,7 @@ def pay():
     # теперь проверку на правильность кошелька для дилера электронных платежей
     #dealer_acc
     # pay_test(deal, dealer, dealer_acc, dealer_deal, deal_acc, volume_out)
-    res = ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, ph, deal.MIN_pay or dealer.pay_out_min or 20, False)
+    res = ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, ph, deal.min_pay or dealer.pay_out_min or 20, False)
     if res['status']!='success':
         response.title=T("ОШИБКА")
         mess = 'error_description' in res and res['error_description'] or res['error'] or 'dealer error'
@@ -150,9 +150,9 @@ def pay():
 
     request.vars['addr_in']=addr_in
 
-    MIN = deal.MIN_pay or dealer.pay_out_min or 3
+    MIN = deal.min_pay or dealer.pay_out_min or 3
     if MIN > volume_out:
-        u = URL('to_wallet','index',args=['err02']) #, vars={'l':deal.MIN_pay})
+        u = URL('to_wallet','index',args=['err02']) #, vars={'l':deal.min_pay})
         redirect(u)
         return
 
@@ -248,7 +248,7 @@ def go2():
     
     h = CAT()
     
-    MIN = deal.MIN_pay or dealer.pay_out_min or 3
+    MIN = deal.min_pay or dealer.pay_out_min or 3
     if MIN > volume_out:
         return T('ОШИБКА: Слишком маленькая сумма платежа')
 
@@ -381,8 +381,8 @@ def index():
     vars = {
             'phone': session.visitor_wallet or None,
             #'mess' = request.args,
-            'MIN': deal.MIN_pay or 3,
-            'MAX': deal.MAX_pay or 1333,
+            'MIN': deal.min_pay or 3,
+            'MAX': deal.max_pay or 1333,
             'ed_sel': ed_sel,
             'last_visit': session.visitor_date_log
             }

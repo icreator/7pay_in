@@ -374,7 +374,7 @@ def sel():
     else:
         curr_rub = db(db.currs.abbrev=='RUB').select().first()
         deal_id = db.deals.insert(name = deal_name, name2 = deal_name, fee_curr_id = curr_rub.id,
-                used = False, fee = 1, MIN_pay = 0, MAX_pay = 0)
+                used = False, fee = 1, min_pay = 0, max_pay = 0)
         deal = db.deals[ deal_id ]
 
     from gluon.storage import Storage

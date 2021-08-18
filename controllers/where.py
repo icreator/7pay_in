@@ -123,7 +123,7 @@ def list():
         curr_out = db.currs[deal_acc.curr_id]
         deal = db.deals[deal_acc.deal_id]
         payed_month = not deal.is_shop and deal_acc.payed_month or Decimal(0)
-        MAX = deal.MAX_pay
+        MAX = deal.max_pay
         payed = deal_acc.payed or Decimal(0)
         price = deal_acc.price
         order_id = deal_acc.acc

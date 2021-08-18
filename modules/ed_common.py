@@ -441,7 +441,7 @@ def get_edealers_for_to_wallet(db, deal, curr_out, ecurr_out_id, ed_name=None):
         #print (edealer.name)
         limit_bal = 0
         MAX = MIN = db_common.gMIN(deal, edealer)
-        MAX = deal.MAX_pay or 1777
+        MAX = deal.max_pay or 1777
         limit_bal, accs = get_lim_bal(db, edealer)
         if MAX * 3 > limit_bal:
             MAX = limit_bal / 4

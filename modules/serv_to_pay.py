@@ -131,7 +131,7 @@ def make_edealer_payment(db, geted_pays, curr_in, xcurr, curr_out, ecurr, vol_in
     # log(db, '%s %s %s %s %s %s %s %s %s' % ('try payout:', vol_in, curr_in.abbrev, '-->', volume_out, curr_out.abbrev, deal_acc_addr.addr,  ' - geted_pays:', geted_pays))
 
     if ecurr:
-        MIN = deal.MIN_pay
+        MIN = deal.min_pay
     else:
         xcurr_out = db(db.xcurrs.curr_id == curr_out.id).select().first()
         MIN = (xcurr_out.txfee or curr_out.fee_in or curr_out.fee_out) * 3
@@ -274,7 +274,7 @@ def make_edealer_payment(db, geted_pays, curr_in, xcurr, curr_out, ecurr, vol_in
                 # для сайтов и обмена - без изменения величины оплаты так как там жесткая величина
                 over_turns = 0
             else:
-                over_turns = (deal_acc.payed_month or 0) / (deal.MAX_pay or 777)
+                over_turns = (deal_acc.payed_month or 0) / (deal.max_pay or 777)
 
             if over_turns > 5:
                 volume_out_full = volume_out_full * Decimal(0.98)  # если превышение боле чем в 6 раза то 2% себе сразу
@@ -621,7 +621,7 @@ def proc_free_payments(db, curr_in, xcurr, used_pays):
                 grp_deal = db.deals[grp_deal_acc.deal_id]
                 fee_curr = db.currs[grp_deal.fee_curr_id]
                 geted_pays = [grp.pay_ins_stack.id]
-                print ('curr out:', curr_out.abbrev, ' fee_curr:', fee_curr.abbrev, 'grp_deal.MAX_pay:', grp_deal.MAX_pay)
+                print ('curr out:', curr_out.abbrev, ' fee_curr:', fee_curr.abbrev, 'grp_deal.max_pay:', grp_deal.max_pay)
                 pr_b, pr_s, pr_avg = rates_lib.get_average_rate_bsa(db, curr_in.id, curr_out.id, None)
                 if not pr_avg:
                     print ('proc_free_payments - rates None')
@@ -654,7 +654,7 @@ def proc_free_payments(db, curr_in, xcurr, used_pays):
                 print ('income:', row_deal_acc_addrs.addr, pay.pay_ins.amount)
                 amo = amo + Decimal(pay.pay_ins.amount)
                 geted_pays.append(pay.pay_ins_stack.id)
-                if ecurr and amo * rate_out > grp_deal.MAX_pay:
+                if ecurr and amo * rate_out > grp_deal.max_pay:
                     # если за раз уже много набралось и общая сумма платежа выше нормы - прекратить сборку
                     break
 

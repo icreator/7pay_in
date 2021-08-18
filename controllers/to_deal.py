@@ -62,7 +62,7 @@ scid_ = re.compile("[?&](\w+)=(\w+)")
 
 def get_e_bal(deal, dealer, dealer_acc):
     e_balance = db_common.get_balance_dealer_acc( dealer_acc )
-    MAX = deal.MAX_pay or 2777
+    MAX = deal.max_pay or 2777
     if e_balance:
         #dealer_acc.balance = e_balance
         #dealer_acc.update_record()
@@ -150,7 +150,7 @@ def get():
     if not volume_out: return mess('volume_out error...')
 
     deal = db.deals[deal_id]
-    vol = (deal.MIN_pay or 100) * 2
+    vol = (deal.min_pay or 100) * 2
     dealer, dealer_acc, dealer_deal = ed_common.select_ed_acc(db, deal, ecurr_out, vol, True)
     if not dealer:
         return mess('ERROR: not found dealer for "%s"' % deal.name)
@@ -245,7 +245,7 @@ def get():
     pattern_id = dealer_deal.scid
     res = ed_common.pay_test(db, deal, dealer, dealer_acc,
          dealer_deal, acc,
-         #(deal.MIN_pay or dealer.pay_out_min or 10)*2,
+         #(deal.min_pay or dealer.pay_out_min or 10)*2,
          volume_out,
          False )
 
@@ -436,7 +436,7 @@ def index():
         #redirect(URL('to_shop','index',args=[client.id], vars=request.vars))
         raise HTTP(200, T('ERROR: it is client "%s"') % client.email)
 
-    vol = (deal.MIN_pay or 100) * 2
+    vol = (deal.min_pay or 100) * 2
     dealer, dealer_acc, dealer_deal = ed_common.select_ed_acc(db, deal, ecurr_out, vol, True)
     if not dealer:
         raise HTTP(200, T('ERROR: not found dealer for "%s"') % deal.name)
@@ -445,7 +445,7 @@ def index():
     #print (dealer.info)
     dealer_info = dealer.info and json.loads(dealer.info)
     shops_url = dealer_info['shops_url']
-    #MAX = deal.MAX_pay or 777
+    #MAX = deal.max_pay or 777
     MIN = db_common.gMIN(deal, dealer)
 
     if not response.vars: response.vars = {}

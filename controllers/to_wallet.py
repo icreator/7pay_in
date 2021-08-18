@@ -53,7 +53,7 @@ def test_vol(vol, _min=None, _max=None):
 
 def get_e_bal(deal, dealer, dealer_acc):
     e_balance = db_common.get_balance_dealer_acc( dealer_acc )
-    MAX = int(deal.MAX_pay or 1777)
+    MAX = int(deal.max_pay or 1777)
     if e_balance:
         #dealer_acc.balance = e_balance
         #dealer_acc.update_record()
@@ -150,7 +150,7 @@ def get():
             print ('to_wallet session error .vol:', type(vol), vol)
 
     # теперь проверку на правильность кошелька для дилера электронных платежей
-    #res = ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, deal_acc, deal.MIN_pay or dealer.pay_out_min or 20, False)
+    #res = ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, deal_acc, deal.min_pay or dealer.pay_out_min or 20, False)
     #res = {'error': ' TEST'}
     if False and res.get('status')!='success':
         m = 'error_description' in res and res.ger('error_description', res.get('error', 'dealer error'))
@@ -471,6 +471,6 @@ def index():
     return dict(title=title, subtitle=subtitle, acc=acc, inp_dealers=inp_dealers, limit_bal=limit_bal,
                 # это для ограничения в поле ввода и пересчета в нем
                 MIN = db_common.gMIN(deal, None),
-                MAX = int(deal.MAX_pay or 2555),
+                MAX = int(deal.max_pay or 2555),
                 vars=vars,
                 xcurrs_h=xcurrs_h, reclams=reclams)
