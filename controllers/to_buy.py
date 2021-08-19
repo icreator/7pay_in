@@ -28,7 +28,7 @@ import serv_to_buy
 response.title=T("Купить биткоины, криптовалюту")
 
 def log(mess):
-    print mess
+    print (mess)
     db.logs.insert(mess='BUY: %s' % mess)
 def log_commit(mess):
     log(mess)
@@ -41,7 +41,7 @@ deal_name = 'BUY'
 # найдем дело
 deal = db(db.deals.name==deal_name).select().first()
 if not deal: raise HTTP(200, T('ERROR: not found deal "%s"') % deal_name)
-MAX = deal.MAX_pay
+MAX = deal.max_pay
 
 # переходник для показа ссылкок и картинок в листингах
 def download():
@@ -165,7 +165,7 @@ def get():
             vol = MIN
             session.vol = vol
         except:
-            print 'to_buy session error .vol:', type(addr), addr
+            print ('to_buy session error .vol:', type(addr), addr)
 
         return mess( T('ОШИБКА: Слишком маленькая сумма платежа %s < %s') % (vol, MIN))
 
@@ -184,8 +184,8 @@ def get():
         session.buyAddr = addr
         session.buyVol = vol
     except:
-        print 'list session error .buyAddr:', type(addr), vol
-        print 'list session error .buyVol:', type(vol), vol
+        print ('list session error .buyAddr:', type(addr), vol)
+        print ('list session error .buyVol:', type(vol), vol)
 
     token_system_out = None
     token_key_out = xcurr_out.as_token
@@ -193,7 +193,7 @@ def get():
         token_out = db.tokens[token_key_out]
         token_system_out = db.systems[token_out.system_id]
 
-    #print best_rate
+    #print (best_rate)
     if request.application[:-3] != '_dvlp':
 
         conn = None
@@ -217,7 +217,7 @@ def get():
     volume_out = common.rnd_8(vol_out)
     volume_in = common.rnd_8(volume_in)
     rate_end = volume_in / volume_out
-    ##print 'buy:', volume_in, vol_out, rate_end
+    ##print ('buy:', volume_in, vol_out, rate_end)
 
     h = CAT()
 
@@ -346,13 +346,13 @@ def index():
     try:
         session.date_log = request.now
     except:
-        print 'to_buy session error .date_log:', type(request.now), request.now
+        print ('to_buy session error .date_log:', type(request.now), request.now)
     
     # берем только тех кто за рубли и для этого дела
     # причем по 1 аккаунту на диллера тут нужно - для писка
     # какой диллер вообще на кошельки принимает
     ecurr_in_id = ecurr.id
-    #print ecurr_in_id
+    #print (ecurr_in_id)
     inp_dealers = []
     for r in db(
             (db.dealers.id == db.dealers_accs.dealer_id)
@@ -371,7 +371,7 @@ def index():
         ##MAX = db_common.gMAX(deal, dealer)
         inp_dealers.append([dealer.id, '%s [%s] %s...%s' % (dealer.name, curr_in.abbrev, MIN, MAX)])
 
-    #print dd
+    #print (dd)
     if len(inp_dealers)==0:
         # ошибка какаято что нет диллера
         return err_dict(T('Не найден диллер для выплаты, просьба сообщить об ошибке в службу поддержки!'))
@@ -379,7 +379,7 @@ def index():
     xcurrs = db_client.get_xcurrs_for_buy(db, curr_in, deal)
     h = CAT()
     for rr in xcurrs:
-        #print rr
+        #print (rr)
         id = '%s' % rr['id']
         disabled = rr['expired']
         if disabled:
@@ -401,7 +401,7 @@ def index():
                       $('#cvr%s').css('display','block'); // .css('z-index','10');
                       ajax('%s',['vol', 'wallet','dealer'], 'tag%s');
                       ''' % (id, id, URL('get', args=[id]), id)
-        #print r
+        #print (r)
         h += DIV(
             DIV(
                 DIV(

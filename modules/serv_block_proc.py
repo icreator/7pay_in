@@ -41,7 +41,7 @@ TO_COIN_ID = 2
 
 def log(db, mess):
     mess = 'BLK: %s' % mess
-    print mess
+    print (mess)
     db.logs.insert(mess=mess)
 
 
@@ -56,7 +56,7 @@ def b_p_db_update(db, conn, curr, xcurr, token_system, token, tab, curr_block):
     # сюда приходят все одиночные входы
     # поидее надо их всех запомнить
 
-    for rec in tab:  # .iteritems():
+    for rec in tab:  # .items():
         amount = rec['amount']
         acc = rec['acc']
         recipient = rec['recipient']
@@ -76,11 +76,11 @@ def b_p_db_update(db, conn, curr, xcurr, token_system, token, tab, curr_block):
 
         try:
             # for cyrilic - error
-            print curr.abbrev, 'b_p_db_update - acc:"%s"' % acc, ' unspent:', amount, 'txid:', txid, 'vout:', vout
+            print (curr.abbrev, 'b_p_db_update - acc:"%s"' % acc, ' unspent:', amount, 'txid:', txid, 'vout:', vout)
         except:
-            print curr.abbrev, 'b_p_db_update', recipient, ' unspent:', amount, 'txid:', txid, 'vout:', vout
-        # print datetime.datetime.fromtimestamp(rec['time'])
-        # print rec, '\n'
+            print (curr.abbrev, 'b_p_db_update', recipient, ' unspent:', amount, 'txid:', txid, 'vout:', vout)
+        # print (datetime.datetime.fromtimestamp(rec['time']))
+        # print (rec, '\n')
         if token_system:
             ## ASSET_KEY income > ASSET_KEY outcome : ADDRESS
             acc_tab = acc.split('>')
@@ -96,7 +96,7 @@ def b_p_db_update(db, conn, curr, xcurr, token_system, token, tab, curr_block):
                 log(db, curr.abbrev + ' income xCURR not found ' + acc)
                 continue
 
-            # print curr.abbrev, 'curr_in for SYSTEM: ', token_system.name
+            # print (curr.abbrev, 'curr_in for SYSTEM: ', token_system.name)
 
             out_tab = acc_tab[1].split(':')
             if len(out_tab) < 2:
@@ -116,12 +116,12 @@ def b_p_db_update(db, conn, curr, xcurr, token_system, token, tab, curr_block):
                 log(db, curr.abbrev + ' AS TOKEN not found curr_out ' + acc)
                 continue
 
-            # print curr.abbrev, 'as TOKEN curr_out: ', curr_out.abbrev
+            # print (curr.abbrev, 'as TOKEN curr_out: ', curr_out.abbrev)
 
             deal_acc = db((db.deal_accs.acc == recipient)
                           & (db.deal_accs.curr_id == curr_out.id)).select().first()
             if not deal_acc:
-                # print 'make deal_acc'
+                # print ('make deal_acc')
                 deal_acc_id = db.deal_accs.insert(deal_id=TO_COIN_ID, acc=recipient, curr_id=curr_out.id)
                 deal_acc_addr_id = db.deal_acc_addrs.insert(deal_acc_id=deal_acc_id, addr=token_system.account,
                                                             xcurr_id=xcurr.id)
@@ -130,7 +130,7 @@ def b_p_db_update(db, conn, curr, xcurr, token_system, token, tab, curr_block):
                 deal_acc_addr = db((db.deal_acc_addrs.deal_acc_id == deal_acc.id)
                                    & (db.deal_acc_addrs.xcurr_id == xcurr.id)).select().first()
                 if not deal_acc_addr:
-                    # print 'make deal_acc_addr'
+                    # print ('make deal_acc_addr')
                     deal_acc_addr_id = db.deal_acc_addrs.insert(deal_acc_id=deal_acc.id, addr=token_system.account,
                                                                 xcurr_id=xcurr.id)
                     deal_acc_addr = db.deal_acc_addrs[deal_acc_addr_id]
@@ -146,14 +146,14 @@ def b_p_db_update(db, conn, curr, xcurr, token_system, token, tab, curr_block):
             if not deal_acc_addr:
                 # такой адрес не в наших счетах
                 if conn:
-                    print 'unknown [%s] address %s for account:"%s"' % (curr.abbrev, recipient, acc)
+                    print ('unknown [%s] address %s for account:"%s"' % (curr.abbrev, recipient, acc))
                     # если не найдено в делах то запомним в неизвестных
                     if False:
                         send_back(db, conn, token_system, curr, xcurr, txid, amount)
-                    print curr.abbrev, 'skip? to return -> txid', txid
+                    print (curr.abbrev, 'skip? to return -> txid', txid)
                     continue
                 else:
-                    print curr.abbrev, 'UNKNOWN deal:', rec
+                    print (curr.abbrev, 'UNKNOWN deal:', rec)
                     continue
 
         # теперь в таблице от unspent без повторов - так как там блок каждый раз новый
@@ -164,17 +164,17 @@ def b_p_db_update(db, conn, curr, xcurr, token_system, token, tab, curr_block):
             trans = db((db.pay_ins.txid == txid) & (db.pay_ins.vout == vout)).select().first()
         if trans:
             # уже такая есть
-            print curr.abbrev, 'txid+vout exist:', txid, vout
+            print (curr.abbrev, 'txid+vout exist:', txid, vout)
             continue
 
         if not token_system and deal_acc_addr:
             addr_ret = deal_acc_addr.addr_return
             if deal_acc_addr.unused and conn and addr_ret:
                 # переводы на этоот адрес запрещены - тоже вернем его
-                print 'UNUSED [%s] address %s for account:"%s"' % (curr.abbrev, recipient, acc)
+                print ('UNUSED [%s] address %s for account:"%s"' % (curr.abbrev, recipient, acc))
                 # если не найдено в делах то запомним в неизвестных
                 send_back(db, conn, token_system, curr, xcurr, txid, amount, addr_ret)
-                print curr.abbrev, 'to return -> txid', txid
+                print (curr.abbrev, 'to return -> txid', txid)
                 continue
 
         created_on = datetime.datetime.fromtimestamp(time)
@@ -184,7 +184,7 @@ def b_p_db_update(db, conn, curr, xcurr, token_system, token, tab, curr_block):
                                    txid=txid, vout=vout,
                                    created_on=created_on
                                    )
-        # print rec['time']
+        # print (rec['time'])
         # закатаем записи в стек чтобы быстро разообрать платежи по ордерам
         db.pay_ins_stack.insert(ref_=pay_id)
 
@@ -209,7 +209,7 @@ def b_p_db_update(db, conn, curr, xcurr, token_system, token, tab, curr_block):
 
         for token_rec in db(db.tokens.system_id == token_system.id).select():
             token_xcurr = db(db.xcurrs.as_token == token_rec.id).select().first()
-            # print token_rec
+            # print (token_rec)
             token_key = '%d' % token_rec.token_key
             if type(tokens_balances) == type({}) and token_key in tokens_balances:
                 balance = tokens_balances.get(token_key)
@@ -246,7 +246,7 @@ def parse_line(db, mess, creator):
         return None
 
     args = mess.split(':')
-    # print 'parse_line:', mess, args
+    # print ('parse_line:', mess, args)
 
     arg1 = args[0].strip()
     if len(arg1) < 20:
@@ -337,18 +337,18 @@ def parse_mess(db, acc, lines, xcurr, token_system, rec, transactions):
 def get_incomed(db, curr, xcurr, token_system, from_block_in=None):
     tab = []
     chain_height = crypto_client.get_height(xcurr, token_system)
-    print curr.name, 'chain_height:', chain_height
+    print (curr.name, 'chain_height:', chain_height)
     if type(1) != type(chain_height):
         # кошелек еще не запустился
-        print curr.name, 'not started else'
+        print (curr.name, 'not started else')
         return tab, from_block_in
 
     from_block = from_block_in or token_system and token_system.from_block or xcurr.from_block
     if from_block:
         if not chain_height > from_block:
-            print curr.name, 'not chain_height > from_block', chain_height, from_block, 'return []'
+            print (curr.name, 'not chain_height > from_block', chain_height, from_block, 'return []')
             return tab, from_block  # если переиндексация то возможно что и меньше
-        print curr.name, from_block, '-->', chain_height
+        print (curr.name, from_block, '-->', chain_height)
         tab, chain_height = crypto_client.get_transactions(xcurr, token_system, from_block)
 
         if chain_height is None:
@@ -370,13 +370,13 @@ def get_incomed(db, curr, xcurr, token_system, from_block_in=None):
         if chain_height is None:
             return [], None
 
-    print curr.name, chain_height, '\n', tab
+    print (curr.name, chain_height, '\n', tab)
 
     transactions = []
     for rec in tab:
 
         rec = crypto_client.parse_tx_fields(xcurr, token_system, rec)
-        # print 'after parse_tx_fields: ', rec
+        # print ('after parse_tx_fields: ', rec)
 
         message = rec.get('message')
         if not message:
@@ -410,22 +410,22 @@ def b_p_proc_unspent(db, conn, curr, xcurr, addr_in=None, from_block_in=None):
     # макс подтв так чтобы не брать уже обработанные
     chain_height = conn.getblockcount()
     from_block = from_block_in or xcurr.from_block
-    print curr.name, 'chain_height:', chain_height
+    print (curr.name, 'chain_height:', chain_height)
     if type(1) != type(chain_height):
         # кошелек еще не запустился
-        print curr.name, 'not started else'
+        print (curr.name, 'not started else')
         return tab, from_block  # если переиндексация то возможно что и меньше
     sumUnsp = None
     sumChange = None
 
     if from_block:
         if not chain_height > from_block:
-            print curr.name, 'not chain_height > from_block', chain_height, from_block
+            print (curr.name, 'not chain_height > from_block', chain_height, from_block)
             return tab, from_block  # если переиндексация то возможно что и меньше
-        print curr.name, chain_height, from_block
+        print (curr.name, chain_height, from_block)
         confLast = chain_height - from_block - 1
         confMax = xcurr.conf + confLast
-        # print curr.name, 'confMax:', confMax
+        # print (curr.name, 'confMax:', confMax)
         l_Unsp = conn.listunspent(xcurr.conf, confMax)
         if type(l_Unsp) == type({}):
             # ошибка
@@ -466,7 +466,7 @@ def b_p_proc_unspent(db, conn, curr, xcurr, addr_in=None, from_block_in=None):
             continue
 
         amount = r[u'amount']
-        # print curr.name, '\n\n',amount, r
+        # print (curr.name, '\n\n',amount, r)
         # continue
 
         txid = r[u'txid']
@@ -487,7 +487,7 @@ def b_p_proc_unspent(db, conn, curr, xcurr, addr_in=None, from_block_in=None):
                 # сдача тут
                 break
         if its_outcome:
-            # print curr.name, 'its_outcome'
+            # print (curr.name, 'its_outcome')
             sumChange = sumChange and sumChange + amount or amount
             continue
 
@@ -499,15 +499,15 @@ def b_p_proc_unspent(db, conn, curr, xcurr, addr_in=None, from_block_in=None):
             rawtr = conn.getrawtransaction(txid, 1)
             vouts = rawtr[u'vout']
             trans = vouts[vout]
-            # print curr.name, trans
+            # print (curr.name, trans)
             recipient = trans[u'scriptPubKey'][u'addresses'][0]
 
         if addr_in and addr_in != recipient:
             continue
         if not acc:
             acc = conn.getaccount(recipient)
-        # print curr.name, acc, addr
-        # print curr.name, amount, txid, vout
+        # print (curr.name, acc, addr)
+        # print (curr.name, amount, txid, vout)
 
         sumUnsp = sumUnsp and sumUnsp + amount or amount
         tab.append({'acc': acc, 'amount': Decimal(amount),
@@ -521,7 +521,7 @@ def b_p_proc_unspent(db, conn, curr, xcurr, addr_in=None, from_block_in=None):
     sumUnsp = sumUnsp or 0
     sumChange = sumChange or 0
     sumFull = sumUnsp + sumChange
-    # print curr.name, '\n\nsumUnsp:',sumUnsp, '  sumChange:',sumChange, ' SUM:',sumFull
+    # print (curr.name, '\n\nsumUnsp:',sumUnsp, '  sumChange:',sumChange, ' SUM:',sumFull)
     return tab, chain_height
 
 
@@ -531,12 +531,12 @@ def send_back(db, conn, token_system, curr, xcurr, txid, amount, to_addr=None):
         return 'backWard denied by service'
 
     sender_addr = to_addr or crypto_client.sender_addr(xcurr, token_system, txid, conn)
-    print curr.name, 'return to sender_addr:', sender_addr
+    print (curr.name, 'return to sender_addr:', sender_addr)
     if not sender_addr: return
     amo = round(float(amount - xcurr.txfee * 2), 8)
     if amo > 0:
 
-        print curr.name, 'send_back:', amo, sender_addr
+        print (curr.name, 'send_back:', amo, sender_addr)
         if True:
             res, bal = crypto_client.send(db, curr, xcurr, sender_addr, amo)
             log(db, 'send_back - res: %s' % res)
@@ -549,7 +549,7 @@ def send_back(db, conn, token_system, curr, xcurr, txid, amount, to_addr=None):
             txid = conn.sendtoaddress(sender_addr, amo)
             try:
                 # может быть ошибка при конвертации ASCII
-                print curr.name, txid
+                print (curr.name, txid)
             except:
                 pass
             return txid
@@ -557,7 +557,7 @@ def send_back(db, conn, token_system, curr, xcurr, txid, amount, to_addr=None):
         txid = conn.sendtoaddress(sender_addr, amo)
         try:
             # может быть ошибка прри конвертации в ASCII
-            print curr.name, txid
+            print (curr.name, txid)
         except:
             pass
         return txid
@@ -572,7 +572,7 @@ def return_refused(db, curr, xcurr, conn, token_system):
                 & (db.pay_ins.ref_ == db.deal_acc_addrs.id)
                 & (db.deal_acc_addrs.xcurr_id == xcurr.id)
                 ).select():
-        # print curr.name, r
+        # print (curr.name, r)
         ##STATUS_REFUSED = {'technical_error', 'payment_refused', 'currency_unused', 'refuse'}
         ##if r.pay_ins.status in db_common.STATUS_REFUSED or r.pay_ins_stack.to_refuse:
         if r.pay_ins.status == 'refuse' or r.pay_ins_stack.to_refuse:
@@ -583,15 +583,15 @@ def return_refused(db, curr, xcurr, conn, token_system):
                                  r.pay_ins.amount, r.deal_acc_addrs.addr_return)
             else:
                 txid = 'probe1'
-            # print curr.name, txid
+            # print (curr.name, txid)
             to_delete_from_stack = True  # удалить из стека чтобы 2 раза не отправлять
             if txid and type({}) == type(txid):
                 # {u'id': 1, u'result': None, u'error': {u'message': u'Insufficient funds', u'code': -6}}
                 err = txid.get('error')
-                print curr.name, "return_refused - err.get('error'):", err
+                print (curr.name, "return_refused - err.get('error'):", err)
                 if err and err[u'code'] == -6:
                     # не хватает монет - ничего не делаем
-                    print curr.name, "to_delete_from_stack=False - Insufficient funds', u'code': -6"
+                    print (curr.name, "to_delete_from_stack=False - Insufficient funds', u'code': -6")
                     to_delete_from_stack = False
                     r.pay_ins.status = 'wait return'
                     r.pay_ins.status_mess = 'Insufficient funds'
@@ -612,7 +612,7 @@ def return_refused(db, curr, xcurr, conn, token_system):
 
             if to_delete_from_stack:
                 # если нет вообще отк ошелькка связи то удалим - так как там походу что-то не то
-                print curr.name, 'try del pay_ins_stack[%s]: txid= %s' % (r.pay_ins_stack.id, txid)
+                print (curr.name, 'try del pay_ins_stack[%s]: txid= %s' % (r.pay_ins_stack.id, txid))
                 del db.pay_ins_stack[r.pay_ins_stack.id]
             r.pay_ins.update_record()
             db.commit()
@@ -629,7 +629,7 @@ def run_once(db, abbrev, from_block_in=0):
     if not xcurr:
         mess = "ERROR:" + abbrev + " in db.xcurrs not exist"
         ss = ss + '%s<br>' % mess
-        print mess
+        print (mess)
         return ss
 
     conn = None
@@ -654,7 +654,7 @@ def run_once(db, abbrev, from_block_in=0):
             if True:
                 addr_in = None  # '4V6CeFxAHGVTM5wYKhAbXwbXsjUW5Bazdh'
                 tab, curr_block = b_p_proc_unspent(db, conn, curr, xcurr, addr_in, from_block_in)
-                # print curr.name, 'tab:   ',tab
+                # print (curr.name, 'tab:   ',tab)
                 # return
                 b_p_db_update(db, conn, curr, xcurr, token_system, token, tab, curr_block)
             else:
@@ -666,7 +666,7 @@ def run_once(db, abbrev, from_block_in=0):
         else:
             mess = curr.name + " no connection to wallet"
             ss = ss + '%s<br>' % mess
-            print curr.name, mess
+            print (curr.name, mess)
 
     # return
 

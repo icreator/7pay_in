@@ -14,7 +14,7 @@ import db_common
 def found_buys(db, addr):
     res = []
     if not addr or len(addr) < 6: return res
-    # print addr
+    # print (addr)
     no_addr = addr == "????--"
     expired = datetime.datetime.now() - datetime.timedelta(no_addr and 1 or 40, 0)
     for r in db(
@@ -58,10 +58,10 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
     conn = crypto_client.connect(curr, xcurr)
     if not conn:
         # mess = curr.name + ' ' + T('no connection to wallet')
-        # print mess
+        # print (mess)
         # pays.append(mess)
         return
-    # print xcurr.name
+    # print (xcurr.name)
     addr_use = not (privat or addr == "????")
 
     confs_need = xcurr.conf
@@ -72,18 +72,18 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
     from_block = xcurr.from_block
     if not from_block: return
     confMax = confs_need + curr_block - from_block - 1
-    # print 'confMax:', confMax
+    # print ('confMax:', confMax)
     lUnsp = conn.listunspent(0, confMax)
     if type(lUnsp) != type([]):
-        print 'ERROR: found_unconfirmed lUnsp:', lUnsp
+        print ('ERROR: found_unconfirmed lUnsp:', lUnsp)
         pays.append('ERROR: found_unconfirmed lUnsp')
         return
     txids_used = {}
     for r in lUnsp:
-        # print '\n\n',r.get(u'amount'), r
+        # print ('\n\n',r.get(u'amount'), r)
         txid = r.get(u'txid')
         if not txid:
-            print '\n found_unconfirmed GEN?', r
+            print ('\n found_unconfirmed GEN?', r)
             continue
         if txid in txids_used:
             # обработанные транзакции пропустим
@@ -94,7 +94,7 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
         # тут массив - может быть несколько транзакций
         # может быть [u'category'] == u'receive' ИЛИ u'send'
         trans_details = ti['details']
-        # print 'trans LEN:', len( trans_details ), 'trans_details:',trans_details
+        # print ('trans LEN:', len( trans_details ), 'trans_details:',trans_details)
         # continue
         # так вот, в одной транзакции может быть несколько входов!
         # поэтому если есть выход - значит тут вход это сдача наша с вывода и такую
@@ -104,7 +104,7 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
             if detail[u'category'] == u'send':
                 its_outcome = True
                 # сдача тут
-                # print 'outcome'
+                # print ('outcome')
                 break
         if its_outcome:
             continue
@@ -112,11 +112,11 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
         for income in trans_details:
             if income[u'category'] != u'receive':
                 continue
-            # print addr, income[u'address']
+            # print (addr, income[u'address'])
             if addr_use and income[u'address'] != addr:
                 continue
             # далее только входы будут
-            # print 'income:   ',income
+            # print ('income:   ',income)
             # CopperLark тут нету аккаунта и нет адреса
             # а у Litecoin есть сразу в записи unspent
             # запомним сумму монет на вывод
@@ -172,7 +172,7 @@ def found_pay_ins(db, curr_in, xcurr_in, addr, pays, amo_rest):
             & (db.pay_ins.created_on > expired)
     ).select(orderby=~db.pay_ins.created_on):
         if pay.pay_ins.id in used: continue
-        # print pay
+        # print (pay)
         xcurr = db.xcurrs[pay.deal_acc_addrs.xcurr_id]
         if xcurr_in and xcurr_in.id != xcurr.id: continue
         curr_in = db.currs[xcurr.curr_id]
@@ -214,7 +214,7 @@ def found_pay_ins(db, curr_in, xcurr_in, addr, pays, amo_rest):
                 p_i = payout.vars or json.loads(payout.info or '{}')
                 rate = round(payout.amount / payout.amo_in, 8)
                 amo_out = round(pay.pay_ins.amount * payout.amount / payout.amo_in, 2)
-                # if not 'payment_id' in p_i: print payout.info, amo_out
+                # if not 'payment_id' in p_i: print (payout.info, amo_out)
                 pay_out_info = T('%s [%s] -%s%s %s ') % (
                 amo_out, curr_out.abbrev, dealer_deal.tax, '%', payout.created_on)
                 if not privat:

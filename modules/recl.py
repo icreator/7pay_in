@@ -9,7 +9,7 @@ def get(db, limit, level=None):
     recs = db(level <= db.recl.level_
         ).select(db.recl.ALL,orderby='<random>', limitby=(0, limit))
     #recs.update ( count = count + 1 )
-    #print recs
+    #print (recs)
     ht = ''
     try:
         for r in recs:

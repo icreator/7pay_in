@@ -36,7 +36,7 @@ def validate_phone(ph):
     import re
     regular_phone = re.compile("\D")
     ph = regular_phone.sub("","%s" % ph)
-    #print ph
+    #print (ph)
     if len(ph) < 11:
         return 'Слишком короткий номер', None
     return None, ph

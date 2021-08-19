@@ -30,7 +30,7 @@ import db_client
 
 
 def log(mess):
-    print mess
+    print (mess)
     db.logs.insert(mess='CNT: %s' % mess)
 def log_commit(mess):
     log(mess)
@@ -64,7 +64,7 @@ def send_email_to_descr(to_addrs, subj, mess=None, rec=None, templ=None):
         context = dict( rec = rec )
         #mess = response.render('add_shop_mail.html', context)
         mess = response.render(templ, context)
-    #print mess
+    #print (mess)
     #to_addrs = ['kentrt@yandex.ru','icreator@mail.ru']
     mail.send(to=to_addrs[0],
            cc=len(to_addrs)>1 and to_addrs[1:] or None,

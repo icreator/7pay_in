@@ -6,22 +6,22 @@ import urllib
 import btceapi_my
 
 
-#print btceapi_my.getDepth(btceapi_my.BTCEConnection('btc-e.com', 20),"btc_usd")
+#print (btceapi_my.getDepth(btceapi_my.BTCEConnection('btc-e.com', 20),"btc_usd"))
 
 exchgs_tab = {}        
 
 def conn(exchg):
     if not exchg.name in exchgs_tab or not exchgs_tab[exchg.name]:
-        print exchg.name, "connect to", exchg.url
+        print (exchg.name, "connect to", exchg.url)
         exchgs_tab[exchg.name] = [btceapi_my.BTCEConnection(exchg.url, 20), exchg.API_type]
 
-    #print exchgs_tab[exchg.name]
+    #print (exchgs_tab[exchg.name])
     return exchgs_tab[exchg.name]
 
 def conn_close(exchg):
     exchgs_tab[exchg.name][0].close()
     exchgs_tab[exchg.name] = None
-    #print "exchgs_tab", exchgs_tab
+    #print ("exchgs_tab", exchgs_tab)
 
 def depth(exchg_name, curr_in, curr_out):
     if True:
@@ -54,7 +54,7 @@ def tradeHistory(exchg_name, pair, count):
 
 def make_sell_buy_depth(num_rows, data, log=None):
 
-        if log: print data[0],data[1],data[3],data[4]
+        if log: print (data[0],data[1],data[3],data[4])
         amount1 = 0
         amount2 = 0
         tab = range(num_rows) # 5 -> 0,1,2,3,4
@@ -66,11 +66,11 @@ def make_sell_buy_depth(num_rows, data, log=None):
         for i in range(num_rows):
             price = decimal.Decimal(best*decimal.Decimal(1+(s_b and 1 or -1)*i/100.0)).quantize(decimal.Decimal('.00000001'), rounding=decimal.ROUND_DOWN)
             tab[i]=[price,0,0]
-        if log: print tab,"\n", s_b, "(s_b and 1 or -1)=",(s_b and 1 or -1)
+        if log: print (tab,"\n", s_b, "(s_b and 1 or -1)=",(s_b and 1 or -1))
                 
         i = 0
         for d in data:
-            if log: print d[0],d[1], amount1, amount2
+            if log: print (d[0],d[1], amount1, amount2)
             amount2 += d[1]*d[0]
             amount1 += d[1]                
             if s_b and tab[i][0] < d[0]*decimal.Decimal(0.995): i += 1
@@ -80,7 +80,7 @@ def make_sell_buy_depth(num_rows, data, log=None):
             if i > num_rows-1: break
             if not s_b and tab[i][0] > d[0]*decimal.Decimal(1.005): i += 1 # может одну ступеньку проскочить
             if i > num_rows-1: break
-            if log: print s_b, "i:", i, "use price:", tab[i][0], "for d[0]:", d[0]
+            if log: print (s_b, "i:", i, "use price:", tab[i][0], "for d[0]:", d[0])
             tab[i][1] = amount1
             tab[i][2] = amount2
         
@@ -135,13 +135,13 @@ def getDepth_UpBit(conn, curr_in, curr_out):
     #encoded_params = urllib.urlencode(params)
     encoded_params = None
     
-    #print str_, encoded_params
+    #print (str_, encoded_params)
     try:
         res = conn.makeJSONRequest(str_, None, encoded_params)
     except Exception as e:
         msg = " makeJSONRequest:: %s" % e
         raise Exception(msg)
-    #print res
+    #print (res)
     
 
     '''
@@ -166,7 +166,7 @@ def getDepth_UpBit(conn, curr_in, curr_out):
     if res[u'success'] == decimal.Decimal('1'):
         # {"success":1,"return":{"CLR/RUB":"5.495"}}
         price = res[u'return'].get(pair)
-        print price
+        print (price)
         return [[decimal.Decimal(price), decimal.Decimal(1000)]], [[decimal.Decimal(price), decimal.Decimal(1000)]]
     
         #sell = res[u'return'][u'sell']
@@ -174,15 +174,15 @@ def getDepth_UpBit(conn, curr_in, curr_out):
     else:
         raise Exception("error - getDepth_UpBit for %s" % pair)
 
-    #print "sell"
+    #print ("sell")
     sells = []
     pays = []
     for rec in sell:
-        #print "rank:",rec[u'rank'], rec[u'valueA'], rec[u'valueB']
+        #print ("rank:",rec[u'rank'], rec[u'valueA'], rec[u'valueB'])
         sells.append([decimal.Decimal(rec[u'rank']), decimal.Decimal(rec[u'valueA'])])
-    #print "buy"
+    #print ("buy")
     for rec in buy:
-        #print "rank:",rec[u'rank'], rec[u'valueA'], rec[u'valueB']
+        #print ("rank:",rec[u'rank'], rec[u'valueA'], rec[u'valueB'])
         pays.append([decimal.Decimal(rec[u'rank']), decimal.Decimal(rec[u'valueA'])])
     
     return sells, pays

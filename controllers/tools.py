@@ -49,7 +49,7 @@ import datetime
 import json
 
 def log(mess):
-    print mess
+    print (mess)
     db.logs.insert(mess='CNT: %s' % mess)
 def log_commit(mess):
     log(mess)
@@ -80,7 +80,7 @@ def clients_auto_collect():
 def  get_balance_xcurr():
     if len(request.args) == 0:
         mess = 'len(request.args)==0'
-        print mess
+        print (mess)
         return mess
     #import db_client
     import db_common
@@ -95,7 +95,7 @@ def  get_balance_xcurr():
 def get_unspents():
     if len(request.args) == 0:
         mess = 'len(request.args)==0'
-        print mess
+        print (mess)
         return mess
     #import db_client
     import db_common
@@ -107,7 +107,7 @@ def get_unspents():
     vol = None
     conf = len(request.args)>1 and int(request.args[1]) or None
     tab, summ = crypto_client.get_unspents(cn, conf, vol)
-    print tab, summ
+    print (tab, summ)
     return '%s <br>%s' % (summ, BEAUTIFY(tab))
 
 
@@ -207,7 +207,7 @@ def test_buy_free():
     amo = 1
     token_system = None
     res, bal = serv_to_buy.buy_free(db, ecurr, amo, xcurr, addr, token_system)
-    print bal, res
+    print (bal, res)
 
 # для проверки ошибок в покупке валюты - в ответ на яндекс запрос
 def test_buy():
@@ -222,7 +222,7 @@ def test_buy():
 def get_best_price_for_volume():
     if len(request.args) == 0:
         mess = 'len(request.args)==0'
-        print mess
+        print (mess)
         return mess
     import db_client
     import db_common
@@ -231,8 +231,8 @@ def get_best_price_for_volume():
     expired = datetime.datetime.now() - datetime.timedelta(5,600)
     s_b = len(request.args)<4 or request.args[3]=='sell'
     #s_b = not 3 in request.args or request.args[3]=='sell'
-    print s_b
-    print db_client.get_best_price_for_volume(db, a_in.id, a_out.id,
+    print (s_b)
+    print (db_client.get_best_price_for_volume(db, a_in.id, a_out.id,)
             float(request.args[2]), expired, s_b)
 
 def depth0(e_id,pair):
@@ -243,7 +243,7 @@ def depth0(e_id,pair):
 def depth():
     if len(request.args) == 0:
         mess = 'len(request.args)==0'
-        print mess
+        print (mess)
         return mess
     import exch_client
     exchg = db.exchgs[request.args[0]]
@@ -257,14 +257,14 @@ def depth():
 # по отловленным входам
 # сделать платежи фиата
 def to_pay():
-    print 'to_pay'
+    print ('to_pay')
     from serv_to_pay import run_once
     run_once(db)
 
 # отлов входящих платежей с 0-1-2 подтверждениями и закатываем их
 # в стек платежей с датой-временем нахождения
 def check_new_inputs():
-    print 'check_new_inputs'
+    print ('check_new_inputs')
     from serv_new_inputs import run_once
     run_once(db)
 
@@ -276,17 +276,17 @@ def check_new_inputs():
 # tools/block_proc/LTC
 ###@cache.action(time_expire=10, cache_model=cache.ram, vars=True)
 def block_proc():
-    print 'block_proc runned'
+    print ('block_proc runned')
     #return 'stoped'
     session.forget(response)
     if len(request.args) == 0:
         mess = 'len(request.args)==0'
-        print mess
+        print (mess)
         return mess
     import serv_block_proc
     abbrev = request.args[0]
     #bhash = len(request.args) > 1 and request.args[1] or None
-    print 'block_proc', abbrev
+    print ('block_proc', abbrev)
     #return abbrev
     return serv_block_proc.run_once(db, abbrev)
 
@@ -312,24 +312,24 @@ def send_to_many():
     if not request.vars or len(request.vars)==0: HTTP(500, 'list ={}' )
 
     res = crypto_client.send_to_many(curr, xcurr, request.vars)
-    print res
+    print (res)
     return '%s' % res
 
 
 def send_to_main(conn, xcurr, acc_from, amo):
     mess = "to send %s from deal_acc:"% amo +acc_from +" to " + xcurr.main_addr
-    print 'try', mess
+    print ('try', mess)
     try:
         conn.sendfrom( acc_from, xcurr.main_addr, amo)
     except Exception as e:
         if e.error['code']==-4:
             # если не хватает на комиссию то уменьшим сумму и повторим
-            print 'tax -0.01'
+            print ('tax -0.01')
             send_to_main(conn, xcurr, acc_from, amo * 0.97)
             return
-        print e.error
+        print (e.error)
         return e.error
-    #print mess
+    #print (mess)
 
 
 # попробуем вручную получить ИД-платежа и его подтвердить
@@ -340,7 +340,7 @@ def YmToConfirm():
     session.forget(response)
     if len(request.args) < 2:
         mess = '/[dealer_acc_id]/[request_id]'
-        print mess
+        print (mess)
         return mess
 
     dealer_acc = db.dealers_accs[request.args(0)]
@@ -422,9 +422,9 @@ def pay_test_to_mosenergo():
 
         }'''
 
-    print acc
+    print (acc)
     res = ed_YD.pay(deal, dealer, dealer_acc, 4895, acc, 22, pay_pars)
-    print res
+    print (res)
     return res
 
 # попробуем вручную получить ИД-платежа и его подтвердить
@@ -478,8 +478,8 @@ def json_try():
     ff = json.loads(ll)
     #for rr in ff:
     #    print
-    #    for (k,v) in rr.iteritems():
-    #        print k,v
+    #    for (k,v) in rr.items():
+    #        print (k,v)
     return BEAUTIFY(ff)
 
 def deals_used():
@@ -503,7 +503,7 @@ def out_txid():
                 r.update_record(vars = v)
                 r.update_record( txid = v.get('payment_id') or None )
             except Exception as e:
-                print e
+                print (e)
                 r.update_record(vars = '"%s"' % v)
 
 
@@ -579,7 +579,7 @@ def datetime():
 
 def parse_mess(mess):
     args = mess.strip().split(':')
-    #print args
+    #print (args)
     import db_common
     curr_out, xcurr_out, e = db_common.get_currs_by_abbrev(db, args[0].strip())
     if xcurr_out:

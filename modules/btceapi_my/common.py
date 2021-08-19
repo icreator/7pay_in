@@ -75,15 +75,15 @@ class BTCEConnection:
         if extra_headers is not None:
             headers.update(extra_headers)
 
-        #print "COMMON", url, params, headers
+        #print ("COMMON", url, params, headers)
         self.conn.request("POST", url, params, headers)
         response = self.conn.getresponse().read()
-        #print "COMMON -----"
+        #print ("COMMON -----")
     
         return response
                                 
     def makeJSONRequest(self, url, extra_headers = None, params = ""):
-        #print "makeJSONRequest:", url
+        #print ("makeJSONRequest:", url)
         try:
             response = self.makeRequest(url, extra_headers, params)
         except Exception as e:

@@ -18,7 +18,7 @@ MON_LIM_P = 47777
 
 def log(db, mess):
     mess = 'EDc: %s' % mess
-    print mess
+    print (mess)
     db.logs.insert(mess=mess)
 def log_commit(db, mess):
     log(db,mess)
@@ -58,7 +58,7 @@ def sel_acc_max(db, dealer, ecurr, vol, unlim=None):
             limits_end(db, ed_acc)
             # проверим на лимиты теперь - если превышен то пропустим
             if not limits_test(db, ed_acc, vol):
-                print 'limitted'
+                print ('limitted')
                 continue
 
         bal = ed_acc.balance
@@ -82,7 +82,7 @@ def sel_acc_max(db, dealer, ecurr, vol, unlim=None):
 # для пополнения
 def sel_acc_min(db, dealer, ecurr, vol, unlim=None):
     #min = db.dealers_accs.balance.max()
-    #print db().select(max).first()[max]
+    #print (db().select(max).first()[max])
     s = 999999
     acc = None
     
@@ -96,11 +96,11 @@ def sel_acc_min(db, dealer, ecurr, vol, unlim=None):
 
         # если подходит дата окончания ключа то прекратим пополнение этого счета
         if ed_acc.expired < expired:
-            #print ed_acc.expired, ' < ', expired
+            #print (ed_acc.expired, ' < ', expired)
             continue
 
         if not unlim:
-            #print 'test limits'
+            #print ('test limits')
             # сбросим лимиты если надо
             limits_end(db, ed_acc)
             # проверим на лимиты теперь - если превышен то пропустим
@@ -129,14 +129,14 @@ def select_ed_acc(db, deal, ecurr, vol=33, unlim=None):
     # по всем диллерам
     for dealer_deal in db(db.dealer_deals.deal_id == deal.id).select():
         dealer = db.dealers[dealer_deal.dealer_id]
-        #print dealer.name
+        #print (dealer.name)
         # теперь выберем аккант наш у диллера где больше всего деннег
         acc = sel_acc_max(db, dealer, ecurr, vol, unlim)
         if acc:
             # счет нашелся
             l.append([dealer, acc, dealer_deal])
 
-    #print l
+    #print (l)
     # теперь из найденных счетов выберем с наименьшей комиссией
     tax = 100
     for t in l:

@@ -18,7 +18,7 @@ if False:
     T = current.T
 
 def log(mess):
-    print mess
+    print (mess)
     db.logs.insert(mess='BUY: %s' % mess)
 def log_commit(mess):
     log(mess)
@@ -107,7 +107,7 @@ def income_YD():
                     op_id=operation_id
                     ))
     id_trans = operation_id != '489576667705029008' and id_trans or 0
-    #print id_trans
+    #print (id_trans)
     ## test on deal_acc = 410012107376992 ? operation_id=='489576667705029008'
     if id_trans <0:
         # значит такая запись уже была внесена и обработана - выход
@@ -121,7 +121,7 @@ def income_YD():
     # теперь обновим баланс - чтобы он не сбивался
     if e_bal:
         dealer_acc.update_record(balance = e_bal)
-        print dealer_acc.acc,'ball updated:', e_bal
+        print (dealer_acc.acc,'ball updated:', e_bal)
 
     #"secret_response":"CldjPZDx7qnpA+ZITT03htyk"
     '''
@@ -181,8 +181,8 @@ def income_YD():
              v['datetime'], v['sender'], v['codepro'], notification_secret, v['label'])
         import hashlib
         hhh = hashlib.sha1(sss).hexdigest()
-        #print v['sha1_hash']
-        #print hhh
+        #print (v['sha1_hash'])
+        #print (hhh)
         equ = v['sha1_hash'] == hhh
         #db.logs.insert(mess='%s \n%s \n%s' % (v['sha1_hash'], hhh, equ))
         if not equ:
@@ -194,7 +194,7 @@ def income_YD():
         info = ed_common.get_payment_info(dealer, dealer_acc, operation_id)
         log('ed_common.get_payment_info: %s' % info) #json.dumps(info))
 
-    print 'buy:get_payment_info - ', info
+    print ('buy:get_payment_info - ', info)
     if not Test_income_YD:
         # наш ли это платеж?
         # если настроены уведомления но не настроины токен для АПИ
@@ -227,7 +227,7 @@ def income_YD():
 
     # это наж платеж - его в крипту перегнать надо
     # запомним это в базе чтобы если ошибка будет то потом попытаться еще раз
-    #print info
+    #print (info)
     amo = info['amo']
     xcurr = info['xcurr']
     curr_out = info['curr']

@@ -45,7 +45,7 @@ def addrs():
                 res ['i%s-j%s' % (i,j) ] = r
                 j += 1
                 # r = [address, amo, deal_acc]
-                #print r
+                #print (r)
                 if len(r) >2 :
                     cnt1 += 1
         res['1all'] = cnt
@@ -88,12 +88,12 @@ def ophrans():
                 & (db.pay_ins.ref_ == db.deal_acc_addrs.id)).select():
         cnt += 1
         txid = r.pay_ins.txid
-        #print txid
+        #print (txid)
         if len(txid) > 60 and len(txid) < 70:
             res = conn.gettransaction(txid) # выдает только для кошелька
             if res:
                 conf = res.get('confirmations')
-                #print conf
+                #print (conf)
                 if conf > 2:
                     continue
             h += P(BEAUTIFY(r.pay_ins))

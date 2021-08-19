@@ -49,7 +49,7 @@ def frmt_fee(fee, perc=''):
     </div>
     {{odd = None
     for curr in currs:
-        #print 'BASE: ->', curr.abbrev
+        #print ('BASE: ->', curr.abbrev)
         odd = not odd
         # сначала курс покупки за рубли
         pr_b, pr_s, pr_avg = rates_lib.get_average_rate_bsa(db, curr.id, curr_base.id, None)

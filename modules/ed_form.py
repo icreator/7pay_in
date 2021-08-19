@@ -58,14 +58,14 @@ def form_YD(html_in):
     #inpts = []
     for inpt in form.find_all('input'):
         #inpt.empty-element()
-        #print inpt
-        #print inpt.get('type'), u'type' in inpt and inpt[u'type']
+        #print (inpt)
+        #print (inpt.get('type'), u'type' in inpt and inpt[u'type'])
         t = inpt.get('type')
         if t:
-            #print t
+            #print (t)
             if t == 'hidden':
                 #inpts.append(inpt)
-                #print 'expract: ',inpt['name'],'=',inpt['value']
+                #print ('expract: ',inpt['name'],'=',inpt['value'])
                 #inpt.extract() нельзя потому что инпуты вложенные после разбора СУПом
                 inpt['name'] = ''
                 inpt['value'] = ''
@@ -119,17 +119,17 @@ def load_YD(url_yd, my_url):
     try:
         f = urllib2.urlopen(url_yd)
     except Exception as e:
-        print 'ERROR load ', url_yd, e
+        print ('ERROR load ', url_yd, e)
         return None, url_yd, e, None
 
-    #print 'BS4'
+    #print ('BS4')
     html_in = f.read()
 
     #for 
     #html_in = regular_digs.sub("","%s" % acc)
 
     # Tag.isSelfClosing -> Tag.is_empty_element
-    #print BeautifulSoup.empty_element_tags
+    #print (BeautifulSoup.empty_element_tags)
     #BeautifulSoup.empty_element_tags = ['input', 'INPUT', 'br']
     openHTML = BeautifulSoup(html_in)
     #SoupStrainer - этот кодировку тогда не понимает

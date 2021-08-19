@@ -36,7 +36,7 @@ deal_name = 'BUY'
 
 def log(db, mess):
     mess = 'BUY: %s' % mess
-    print mess
+    print (mess)
     db.logs.insert(mess=mess)
 def log_commit(db, mess):
     log(db,mess)
@@ -48,14 +48,14 @@ def get_vol_in(db, curr_in, curr_out, volume_out, expired):
     best_rate, pairs, taxs, efee = db_client.get_best_price_for_volume(
             db, curr_out.id, curr_in.id, volume_out, expired, s_b)
     if not best_rate:
-        #print None
+        #print (None)
         return None, None, None
 
-    #print best_rate, '1/r=', round(1/best_rate,8), pairs, '\n', taxs, efee
+    #print (best_rate, '1/r=', round(1/best_rate,8), pairs, '\n', taxs, efee)
     #best_rate = 1/best_rate
     volume_in = volume_out * best_rate
     tax_mess = ''
-    #print 'best_rate, volume_in:', best_rate, volume_in
+    #print ('best_rate, volume_in:', best_rate, volume_in)
 
     if volume_out:
         # возьмем таксы все
@@ -65,9 +65,9 @@ def get_vol_in(db, curr_in, curr_out, volume_out, expired):
         ## здесь не надо переворачивать - курс для продажи кррипты уже дан best_rate = 1/best_rate # обязательно перевернем
         #volume_out, tax_mess = db_client.use_fees_for_in(db, deal, dealer_deal, curr_in, curr_out, volume_in, best_rate)
         deal_fee = dealer_deal_fee = None
-        #print volume_out, ' -> ', volume_in, best_rate
+        #print (volume_out, ' -> ', volume_in, best_rate)
         volume_out2, tax_mess = db_client.use_fees_for_in(db, deal_fee, dealer_deal_fee, curr_in, curr_out, volume_in, 1/best_rate)
-        #print volume_out2
+        #print (volume_out2)
         volume_in = volume_in * volume_out / Decimal(volume_out2)
         best_rate = volume_out / volume_in
     return volume_in, best_rate, tax_mess
@@ -75,10 +75,10 @@ def get_vol_in(db, curr_in, curr_out, volume_out, expired):
 
 def buy_free(db, deal, curr_in, ecurr, volume_in, curr_out, xcurr, addr, token_system, conn, mess_in=None):
     volume_in = float(volume_in)
-    print 'try buy_free %s [%s] -> %s %s' % (volume_in, curr_in.abbrev, curr_out.abbrev, addr)
+    print ('try buy_free %s [%s] -> %s %s' % (volume_in, curr_in.abbrev, curr_out.abbrev, addr))
     if not (token_system or conn):
         mess = 'buy_free [' + curr_out.name + '] not connection'
-        print mess
+        print (mess)
         return { 'error': mess }, None
 
     ecurr_id = ecurr.id
@@ -86,10 +86,10 @@ def buy_free(db, deal, curr_in, ecurr, volume_in, curr_out, xcurr, addr, token_s
     _, _, best_rate = rates_lib.get_rate(db, curr_in, curr_out, volume_in)
     if not best_rate:
         mess = 'buy_free [' + curr_in.name + '] -> [' + curr_out.name + ']' + current.T(' - лучший КУРС не найден!')
-        print mess
+        print (mess)
         return { 'error': mess }, None
 
-    ##print best_rate, '1/r=', round(1/best_rate,8)
+    ##print (best_rate, '1/r=', round(1/best_rate,8))
     # возьмем таксы все
     dealer_deal = None
     # там входной оброк не берется - так как он берется с заказов только
@@ -100,17 +100,17 @@ def buy_free(db, deal, curr_in, ecurr, volume_in, curr_out, xcurr, addr, token_s
     try:
         volume_out, tax_mess = db_client.calc_fees(db, deal, dealer_deal, curr_in, curr_out, volume_in, best_rate, is_order, note=1)
     except Exception as e:
-        print 'buy_free error db_client.calc_fees %s' % e
+        print ('buy_free error db_client.calc_fees %s' % e)
         volume_out, tax_mess = volume_in * best_rate * 0.99, 'error in fees [%s], get rate 0.99' % e
 
     volume_out = common.rnd_8(volume_out)
 
-    print 'buy_free', volume_in, curr_in.abbrev, '--> - tax - fee -->', volume_out, curr_out.abbrev, '\n mess:', tax_mess
+    print ('buy_free', volume_in, curr_in.abbrev, '--> - tax - fee -->', volume_out, curr_out.abbrev, '\n mess:', tax_mess)
     
     #log_commit(db, tax_mess)
     #################################################
     bal_free = db_client.curr_free_bal(curr_out)
-    print 'buy_free \nsend:', volume_out, curr_out.abbrev, 'bal_free:', bal_free, addr
+    print ('buy_free \nsend:', volume_out, curr_out.abbrev, 'bal_free:', bal_free, addr)
     
 
     if bal_free < volume_out:
@@ -120,7 +120,7 @@ def buy_free(db, deal, curr_in, ecurr, volume_in, curr_out, xcurr, addr, token_s
     else:
         # внутри там еще вычтется комиссия сети
         res, bal = crypto_client.send(db, curr_out, xcurr, addr, volume_out, conn, token_system)
-        print 'buy_free RES:', res, bal
+        print ('buy_free RES:', res, bal)
         log(db, res)
         #log(db, bal)
         if type(res) == type(u' '):
@@ -139,7 +139,7 @@ def buy_free(db, deal, curr_in, ecurr, volume_in, curr_out, xcurr, addr, token_s
                 if res.get('mess'): volume_out = 0
                 res['amo_out'] = volume_out
                 res['tax_mess'] = tax_mess
-    print res
+    print (res)
     return res, bal
 
 ## return True - это значит запись в стеке остается занятая в процессе - для дальнейших разборов вручную
@@ -194,10 +194,10 @@ def get_credit(db, buys):
 # для данной крипты найдем невыплаченные покупки ее и попробуем выплатить
 def proc_ecurr(db, curr, xcurr, token_system, conn):
 
-    print 'serv_to_buy proc_ecurr'
+    print ('serv_to_buy proc_ecurr')
     if not (token_system or conn):
         mess = '[' + curr.name + '] not connection'
-        print mess
+        print (mess)
         return # { 'error': mess }, None
     # найдем дело
     deal = db(db.deals.name==deal_name).select().first()
@@ -271,26 +271,26 @@ def proc_history(db, only_list=None, ed_acc=None, from_dt_in=None):
                 continue
         else:
             ss += [dealer_acc.acc]
-            print '\n', dealer_acc.acc
+            print ('\n', dealer_acc.acc)
             # если перебо всех, то пропустим неиспользуемые
             if not dealer_acc.used:
                 # если счет не используется
                 ss += [' unused']
-                print ' unused'
+                print (' unused')
                 continue
         if not dealer_acc.skey:
             # если ключ доступа не задан
-            print ' unused skey'
+            print (' unused skey')
             continue
         dealer = db.dealers[dealer_acc.dealer_id]
         if not dealer.used:
-            print ' dealer unused'
+            print (' dealer unused')
             continue
         #ecurr=db.ecurrs[dealer_acc.ecurr_id]
         if only_list:
             ss1 = '%s : %s' % (dealer.name, dealer_acc.acc)
             ss += [ss1]
-            print '\n', ss1
+            print ('\n', ss1)
 
         # from_dt_in - не трогаем так как в цикле его можно переопределить и будет ошибка для других аккаунтов!!
         if from_dt_in == 'same' or not from_dt_in:
@@ -300,24 +300,24 @@ def proc_history(db, only_list=None, ed_acc=None, from_dt_in=None):
             from_dt = from_dt_in
 
         ss1 = 'try get_history_inputs from dt: %s' % from_dt
-        print ss1
+        print (ss1)
         if only_list:
             ss += [ss1]
 
         # тут всегда будет выдавать последнюю запись взода рублей
         tab = ed_common.get_history_inputs(dealer, dealer_acc, from_dt )
         #tab = sorted(tab, key='datetime')
-        #print 'len(tab)', len(tab)
+        #print ('len(tab)', len(tab))
         #if only_list: ss += [tab]
 
-        print 'result TABLE'
+        print ('result TABLE')
         dt_last = None
         ss += ['*** INCOMS ***']
         ssr = ['****']
         for rec in tab:
             ss += ssr
             ssr = ['*** ***']
-            #print rec
+            #print (rec)
             # запомним время последней обработанной транзакции
             if True or not dt_last:
                 # вроде теперь в прямом порядке
@@ -328,21 +328,21 @@ def proc_history(db, only_list=None, ed_acc=None, from_dt_in=None):
             if rec['status']!='success': continue
             op_id = 'operation_id' in rec and rec['operation_id']
             if not op_id: continue
-            print  'proc_history', rec['datetime']
+            print ( 'proc_history', rec['datetime'])
 
             if only_list:
                 if u'sender' not in rec:
-                    #for (k, v ) in rec.iteritems():
+                    #for (k, v ) in rec.items():
                         #if type(v) == type(u''):
                             #v = v.decode('utf8')
                             #v = v.decode('ascii')
                             #rec[k] = v
 
                     ss1 = rec
-                    #print rec.get('title').encode('utf-8')
+                    #print (rec.get('title').encode('utf-8'))
                 else:
                     ss1 = dict( sender=rec['sender'], amount=rec['amount'], dt=rec['datetime'], mess=rec['message'], op_id=rec['operation_id'])
-                print ss1
+                print (ss1)
                 ssr += [ss1]
 
             buy_rec = db( (db.buys.dealer_acc_id==dealer_acc.id)
@@ -358,7 +358,7 @@ def proc_history(db, only_list=None, ed_acc=None, from_dt_in=None):
             
             #info = ed_common.get_payment_info( dealer, dealer_acc, op_id )
             info = rec
-            #print info
+            #print (info)
             # запомним то что на аккаунте было телодвижение
             bal = float(info.get('balance') or dealer_acc.balance or 0)
             amo=info.get('amount', 0)
@@ -373,7 +373,7 @@ def proc_history(db, only_list=None, ed_acc=None, from_dt_in=None):
             # теперь обновим баланс - чтобы он не сбивался
             if bal:
                 dealer_acc.update_record(balance = bal)
-                print dealer_acc.acc,'ball updated:', bal
+                print (dealer_acc.acc,'ball updated:', bal)
 
             info, mess = ed_common.is_payment_for_buy(db, dealer, dealer_acc, info)
             if not info:
@@ -403,7 +403,7 @@ def proc_history(db, only_list=None, ed_acc=None, from_dt_in=None):
                     status = xcurr and addr and 'progress' or 'addr waiting',
                     )
                 db.buys_stack.insert(ref_=buy_id)
-                print ss1
+                print (ss1)
             else:
                 ssr += [ss1]
 
@@ -425,13 +425,13 @@ Test = None
 
 def serv_proc_history(db, interval=None):
     interval = interval or 666
-    print __name__, ' interval:', interval
+    print (__name__, ' interval:', interval)
 
     while True:
         try:
             proc_history(db)
         except Exception as e:
-            print 'ERROR:', __name__, e
+            print ('ERROR:', __name__, e)
 
         if Test: break
         sleep(interval)

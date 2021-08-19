@@ -41,27 +41,27 @@ def deals_to_tmp():
     db.deals_tmp.insert(
         fee_curr_id=CURR_RUB_ID, name='BUY', name2='to BUY',
         used=False, not_gifted=True,
-        MIN_pay=10, MAX_pay=2777,
+        min_pay=10, max_pay=2777,
         fee=3, tax=0.2, fee_min=0, fee_max=0)
     db.deals_tmp.insert(
         fee_curr_id=CURR_RUB_ID, name='to COIN', name2='to COIN',
         used=False, not_gifted=True,
-        MIN_pay=10, MAX_pay=2777,
+        min_pay=10, max_pay=2777,
         fee=3, tax=0.2, fee_min=0, fee_max=0)
     db.deals_tmp.insert(
         fee_curr_id=CURR_RUB_ID, name='WALLET', name2='to WALLET',
         used=False, not_gifted=True,
-        MIN_pay=10, MAX_pay=2777,
+        min_pay=10, max_pay=2777,
         fee=3, tax=0.2, fee_min=0, fee_max=0)
     db.deals_tmp.insert(cat_id=1,
                         fee_curr_id=CURR_RUB_ID, name='phone +7', name2='to PHONE +7',
                         used=False, not_gifted=True,
-                        MIN_pay=10, MAX_pay=2777,
+                        min_pay=10, max_pay=2777,
                         fee=3, tax=0.2, fee_min=0, fee_max=0)
     db.deals_tmp.insert(cat_id=1,
                         fee_curr_id=CURR_USD_ID, name='phone', name2='to PHONE',
                         used=False, not_gifted=True,
-                        MIN_pay=1, MAX_pay=2777,
+                        min_pay=1, max_pay=2777,
                         fee=3, tax=0.2, fee_min=0, fee_max=0)
 
     for rec in db(db.deals).select():

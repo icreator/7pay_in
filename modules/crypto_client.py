@@ -23,7 +23,7 @@ ROUND_TO = 8
 ##import db_client
 
 def log(db, mess):
-    print mess
+    print (mess)
     db.logs.insert(mess='CRY: %s' % mess)
 
 
@@ -148,8 +148,8 @@ def sender_addr(xcurr, token_system, txid, conn=None):
     if not vins:
         # res.append({ 'tr_info.vins': 'None'})
         # тут может быть приход с добвтого блока - тогда тоже будет пусто!
-        print 'ERROR: sender_addr - tr_in_info:', tr_info
-        print 'RUN "crypto WALLET.exe"  -reindex -txindex'
+        print ('ERROR: sender_addr - tr_in_info:', tr_info)
+        print ('RUN "crypto WALLET.exe"  -reindex -txindex')
         return
     vin = vins[0]
     txid = vin['txid']
@@ -157,8 +157,8 @@ def sender_addr(xcurr, token_system, txid, conn=None):
     tr_in_info = conn.getrawtransaction(txid, 1)
 
     if 'error' in tr_in_info:
-        print 'ERROR: sender_addr - tr_in_info:', tr_in_info
-        print 'RUN "crypto WALLET.exe"  -reindex -txindex'
+        print ('ERROR: sender_addr - tr_in_info:', tr_in_info)
+        print ('RUN "crypto WALLET.exe"  -reindex -txindex')
         return
     vin = vins[0]
     txid = vin['txid']
@@ -166,8 +166,8 @@ def sender_addr(xcurr, token_system, txid, conn=None):
     tr_in_info = conn.getrawtransaction(txid, 1)
 
     if 'error' in tr_in_info:
-        print 'ERROR: sender_addr - tr_in_info:', tr_in_info
-        print 'RUN "crypto WALLET.exe"  -reindex -txindex'
+        print ('ERROR: sender_addr - tr_in_info:', tr_in_info)
+        print ('RUN "crypto WALLET.exe"  -reindex -txindex')
         return
     sender = tr_in_info[u'vout'][vout][u'scriptPubKey'][u'addresses']
     return sender[0]
@@ -177,12 +177,12 @@ def sender_addr(xcurr, token_system, txid, conn=None):
 
 # покажем если был вызов а не из кэша
 def conn_1(curr, xcurr, timeout=40):
-    print 'try connect to ', curr.abbrev
+    print ('try connect to ', curr.abbrev)
     # def __init__(self, service_url, service_name=None, timeout=HTTP_TIMEOUT, connection=None):
     cn = ServiceProxy(xcurr.connect_url, None, timeout)
-    # print cn
+    # print (cn)
     blk = cn.getblockcount()
-    print 'connected on block:', blk
+    print ('connected on block:', blk)
     return cn
 
 
@@ -191,7 +191,7 @@ def conn_0(curr, xcurr, timeout=40):
     try:
         cn = cache.ram(curr.abbrev, lambda: conn_1(curr, xcurr, timeout), time_expire=36000)
     except Exception as e:
-        print curr.abbrev + ' conn except: %s' % current.CODE_UTF and str(e).decode(current.CODE_UTF, 'replace') or str(
+        print (curr.abbrev + ' conn except: %s' % current.CODE_UTF and str(e).decode(current.CODE_UTF, 'replace') or str()
             e)
         cn = None
     if not cn:
@@ -237,20 +237,20 @@ def conn_old(curr, xcurr, inttime=30):
         # if cn:
         cn = cache.ram(curr.abbrev, lambda: ServiceProxy(xcurr.connect_url), time_expire=3600)
     except Exception as e:
-        print 'conn except: %s %s' % (
+        print ('conn except: %s %s' % ()
             current.CODE_UTF and str(e).decode(current.CODE_UTF, 'replace') or str(e), curr.abbrev)
         ##return
-    # print datetime.datetime.now() - t1
+    # print (datetime.datetime.now() - t1)
 
     # если в кэше нет ничего или ошибка была то поновой без кжша возьмем
     try:
         cn = cn or ServiceProxy(xcurr.connect_url)
     except Exception as e:
-        print 'conn except (ServiceProxy): %s %s' % (
+        print ('conn except (ServiceProxy): %s %s' % ()
             current.CODE_UTF and str(e).decode(current.CODE_UTF, 'replace') or str(e), curr.abbrev)
         return
-    # print cnj
-    # print cn.getblockcount(), cn
+    # print (cnj)
+    # print (cn.getblockcount(), cn)
 
     try:
         cn.getblockcount()
@@ -258,7 +258,7 @@ def conn_old(curr, xcurr, inttime=30):
         # else: cn.settxfee(0.001)
         pass
     except Exception as e:
-        print 'conn except (getblockcount): %s %s' % (
+        print ('conn except (getblockcount): %s %s' % ()
             current.CODE_UTF and str(e).decode(current.CODE_UTF, 'replace') or str(e), curr.abbrev)
         return
     return cn
@@ -274,9 +274,9 @@ def get_balance_xcurr(curr, xcurr, cn=None):
         return
     curr_block = cn.getblockcount()
     conf = curr_block - xcurr.from_block + xcurr.conf
-    # print conf
+    # print (conf)
     tab, sum_Full = get_unspents(cn, conf)
-    # print sum_Full
+    # print (sum_Full)
     return sum_Full
 
 
@@ -349,9 +349,9 @@ def send(db, curr, xcurr, addr, amo, conn_in=None, token_system=None, token=None
             to_send_amo = int(amo * 100000000)
             to_send_amo = float(to_send_amo) / 100000000.0
 
-            print 'res = conn.sendtoaddress(addr, amo)', to_send_amo
+            print ('res = conn.sendtoaddress(addr, amo)', to_send_amo)
             res = cc.sendtoaddress(addr, to_send_amo)
-            print "SENDed? ", res
+            print ("SENDed? ", res)
         # else:
         except Exception as e:
             ##return {'error': (current.CODE_UTF and str(e).decode(current.CODE_UTF,'replace') or str(e)) + ' [%s]' % curr.abbrev }, None
@@ -410,8 +410,8 @@ def locks(conn):
     try:
         conn.lockunspent(False, ll)
     except Exception as e:
-        print e,
-        print e.error
+        print (e,)
+        print (e.error)
 
 
 # выдать неиспользованные входы - для создания транзакции вручную
@@ -422,11 +422,11 @@ def get_unspents(conn, conf_from=None, vol=None, addrs=None, accs=None):
     sumFull = sumReceive = sumChange = sumGen = 0.0
     tab = []
     lUnsp = conn.listunspent(conf_from)
-    # print conf_from, conn.getbalance(), lUnsp
+    # print (conf_from, conn.getbalance(), lUnsp)
     # обработка со старых начинаем
     lUnsp.sort(key=lambda r: r[u'confirmations'], reverse=True)
     for unsp in lUnsp:
-        # print 'conf:', unsp[u'confirmations'], ' amo:', unsp[u'amount'], 'vout:',unsp[u'vout']
+        # print ('conf:', unsp[u'confirmations'], ' amo:', unsp[u'amount'], 'vout:',unsp[u'vout'])
         txid = unsp['txid']
         ti = conn.gettransaction(txid)
         trans_details = ti['details']
@@ -442,9 +442,9 @@ def get_unspents(conn, conf_from=None, vol=None, addrs=None, accs=None):
             if tx_addr not in addrs: continue
 
         amo = float(unsp[u'amount'])
-        # print '\n\n confirmations:',unsp[u'confirmations'], 'amo:',amo, unsp
+        # print ('\n\n confirmations:',unsp[u'confirmations'], 'amo:',amo, unsp)
 
-        # print '   DETAILS', trans_details
+        # print ('   DETAILS', trans_details)
         categ = ''
 
         its_change = None
@@ -477,18 +477,18 @@ def get_unspents(conn, conf_from=None, vol=None, addrs=None, accs=None):
         tab.append({'txid': txid, 'vout': vout,
                     'category': categ, 'amo': amo
                     })
-        # print '   appended... as', categ
+        # print ('   appended... as', categ)
         if vol and vol < sumFull: break
 
     # sumFull = sumFull + sumChange + sumGen + sumReceive
-    # print sumFull, 'change:', sumChange, 'gen:',sumGen, 'receive:',sumReceive
+    # print (sumFull, 'change:', sumChange, 'gen:',sumGen, 'receive:',sumReceive)
     return tab, sumFull
 
 
 # вычислить комисиию за длинну транзакции
 def calc_txfee(cn, lus, sends, fee_in):
     tx_str = cn.createrawtransaction(lus, sends)
-    # print 'len(tx_str):',len(tx_str), fee_in
+    # print ('len(tx_str):',len(tx_str), fee_in)
     return fee_in * (round(len(tx_str) / 1000, 0) + 1)
 
 
@@ -497,7 +497,7 @@ def send_to_many(db, curr, xcurr, sends_in, tx_fee_in=None, conn_in=None):
     # тут надоп роверить баланс клиента
     vol = 0.0
     sends = {}
-    for (k, v) in sends_in.iteritems():
+    for (k, v) in sends_in.items():
         v = round(float(v), ROUND_TO)
         vol = vol + v
         # отловим повторы в списке и ссумируем их
@@ -508,15 +508,15 @@ def send_to_many(db, curr, xcurr, sends_in, tx_fee_in=None, conn_in=None):
     if not cn:
         return {'error': 'ERROR: connection to wallet [%s] is broken' % curr.abbrev}
 
-    # print 'wallet balance:', cn.getbalance()
+    # print ('wallet balance:', cn.getbalance())
     res = None
     addr = None
     conf = xcurr.conf
     # наберем входы неиспользованные на этот объем монет
     lus, amo_u = get_unspents(cn, conf, vol, addr)
-    # print lus
+    # print (lus)
     transFEE = calc_txfee(cn, lus, sends, float(tx_fee_in or xcurr.txfee or 0.0001))
-    # print transFEE
+    # print (transFEE)
 
     # reserve - то что уже учтено нами и это можно отослать дальше
     reserve = get_balance_xcurr(curr, xcurr, cn)
@@ -528,7 +528,7 @@ def send_to_many(db, curr, xcurr, sends_in, tx_fee_in=None, conn_in=None):
 
     # теперь надо остаток перевести себе за минусом комиссиии платежа
     my_change = round(amo_u - vol - transFEE, 8)
-    # print vol, '+ my_change:', my_change, len(lus), len(sends), amo_u
+    # print (vol, '+ my_change:', my_change, len(lus), len(sends), amo_u)
     if my_change < 0:
         return {
             'error': 'ERROR: my_change %s < 0 ! wallet balance: %s - %s - fee %s' % (my_change, amo_u, vol, transFEE)}
@@ -540,30 +540,30 @@ def send_to_many(db, curr, xcurr, sends_in, tx_fee_in=None, conn_in=None):
         # тут надо использовать
 
         change_addr = xcurr.main_addr
-        # print change_addr, '=', my_change
+        # print (change_addr, '=', my_change)
         sends[change_addr] = my_change
 
     tx_str = cn.createrawtransaction(lus, sends)
     if type(tx_str) == type({}):
-        # print tx_str
+        # print (tx_str)
         return {'error': 'ERROR: createrawtransaction res= %s' % (tx_str)}
 
     # return '%s' % transFEE
 
-    # print '\n\n [%s]' % cn.decoderawtransaction(tx_str)
+    # print ('\n\n [%s]' % cn.decoderawtransaction(tx_str))
 
     # провеим нне залочена ло база данных и заодно запомним платеж в логах
     if db: log_commit(db, 'try crypto_client.send_to_many %s: %s' % (curr.abbrev, sends_in))
 
     res = cn.signrawtransaction(tx_str)
-    # print 'signrawtransaction:', res
+    # print ('signrawtransaction:', res)
     if u'error' in res or not res[u'complete']:
         return {'error': 'ERROR: signrawtransaction %s' % (res[u'error'])}
     # транзакция успешно подписана - можем отправить ее в сеть
 
     tx_hex = res[u'hex']  # запомним ее - вдруг сеть не включила в блок
     res = cn.sendrawtransaction(tx_hex)
-    # print type(res)
+    # print (type(res))
     # log('sendrawtransaction: %s' % res)
     if type(res) != type(u' '):
         return {'error': 'ERROR: sendrawtransaction %s' % (res)}
@@ -586,7 +586,7 @@ def re_broadcast(db, curr, xcurr, token_system, cn=None):
             r.block = block
             r.update_record()
             continue
-        print 're_broadcast:', tx
+        print ('re_broadcast:', tx)
         # log(db, tx)
         res = cn.signrawtransaction(tx[u'hex'])
-        print res
+        print (res)

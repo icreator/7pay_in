@@ -233,7 +233,7 @@ def get_rate():
 
     args = request.args
     vars = request.vars
-    ##print args, '\n', request.vars
+    ##print (args, '\n', request.vars)
     if len(args) < 2:
         if len(vars) < 2:
             return mess('err...')
@@ -280,7 +280,7 @@ def get_rate_out():
 
     args = request.args
     vars = request.vars
-    ##print args, '\n', request.vars
+    ##print (args, '\n', request.vars)
     if len(args) < 2:
         if len(vars) < 2:
             return mess('err...')
@@ -342,7 +342,7 @@ def get_uri_in():
     import rates_lib, common
 
     args = request.args
-    ##print args, '\n', request.vars
+    ##print (args, '\n', request.vars)
     if len(args) < 2: return mess('err...')
     deal_id = args(0)
 
@@ -424,7 +424,7 @@ def get_uri_in():
         token_out = db.tokens[token_key_out]
         token_system_out = db.systems[token_out.system_id]
 
-    # print request.application[-5:]
+    # print (request.application[-5:])
     if request.application[:-3] != '_dvlp':
         # conflicts to call if from [ipay3_dvlp]  - wallet not in connection...
         if token_system_out:
@@ -540,7 +540,7 @@ def get_uri():
     import rates_lib, common
 
     args = request.args
-    ##print args, '\n', request.vars
+    ##print (args, '\n', request.vars)
     if len(args) < 2: return mess('err...')
     deal_id = args(0)
 
@@ -622,7 +622,7 @@ def get_uri():
         token_out = db.tokens[token_key_out]
         token_system_out = db.systems[token_out.system_id]
 
-    # print request.application[-5:]
+    # print (request.application[-5:])
     if request.application[:-3] != '_dvlp':
         # conflicts to call if from [ipay3_dvlp]  - wallet not in connection...
         if token_system_out:
@@ -886,7 +886,7 @@ def history():
         done.append(result)
 
     deal_res = dict(id=deal.id, name=deal.name,
-                    MAX=float(deal.MAX_pay))
+                    MAX=float(deal.max_pay))
 
     import gifts_lib
     if 'to COIN' in deal.name:
@@ -909,7 +909,7 @@ def history():
                         message=deal_acc_mess
                         )
 
-    # print 'pays:', pays
+    # print ('pays:', pays)
     out_res = dict(deal=deal_res, deal_acc=deal_acc_res,
                    unconfirmed=pays_unconf, in_process=in_proc, done=done
                    )

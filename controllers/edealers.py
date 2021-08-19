@@ -28,7 +28,7 @@ import ed_YD
 import serv_to_buy
 
 def log(mess):
-    print mess
+    print (mess)
     db.logs.insert(mess='BUY: %s' % mess)
     db.commit()
 
@@ -67,7 +67,7 @@ def buys_twiced():
         checked.append(r.id)
         if r.status != 'OK':
             h += H5(' STATUS: %s' % r.status)
-        print r.id, r.amount, 'status:', r.status
+        print (r.id, r.amount, 'status:', r.status)
         i += 1
         r.tax_mess=''
         h += DIV(H3(B('#%s status: %s %s' % (r.id, r.status, r.created_on))), B('%s' % r))
@@ -83,7 +83,7 @@ def buys_twiced():
 
     if rewrite_credits:
         h += H3('list of payers')
-        for p, amo in buyers.iteritems():
+        for p, amo in buyers.items():
             h += DIV(p, ': ', amo)
             buyers_credit = db(db.buyers_credit.acc == p).select().first()
             if buyers_credit.un_rewrite: continue
@@ -113,7 +113,7 @@ def pay_outs_twiced():
                  & (db.pay_outs.id != r.id)
                     ).select()
         if r_rs:
-            print r
+            print (r)
             i += 1
             h += DIV(H3(B('%s' % r.id)), B('%s' % r))
             for r_r in r_rs:
