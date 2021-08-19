@@ -83,7 +83,7 @@ def from_livecoin(db, exchg):
 
 def from_poloniex(db, exchg):
     exchg_id = exchg.id
-    ##PRINT_AS_FUNC and print(conn) or print conn
+    ##PRINT_AS_FUNC and print(conn) or print (conn)
     for pair in db_common.get_exchg_pairs(db, exchg_id):
         if not pair.used or not pair.ticker:
             continue
@@ -95,7 +95,7 @@ def from_poloniex(db, exchg):
         https://poloniex.com/public?command=returnTradeHistory&currencyPair=BTC_DOGE
     [{"globalTradeID":13711923,"tradeID":469269,"date":"2016-01-17 11:37:16","type":"sell",
     "rate":"0.00000039","amount":"273.78000000","total":"0.00010677"},        '''
-        print (t1, t2, 'pair.ticker:', pair.ticker)
+        print ((t1, t2, 'pair.ticker:', pair.ticker))
         if Test: continue
             
         try:
@@ -130,7 +130,7 @@ def from_poloniex(db, exchg):
 
 def from_cryptsy(db, exchg):
     exchg_id = exchg.id
-    ##PRINT_AS_FUNC and print(conn) or print conn
+    ##PRINT_AS_FUNC and print(conn) or print (conn)
     for pair in db_common.get_exchg_pairs(db, exchg_id):
         if not pair.used or not pair.ticker:
             continue
@@ -205,7 +205,7 @@ def from_btc_e_3(db,exchg):
     try:
         resp = fetch(url)
         res = json.loads(resp)
-        for k,v in res.iteritems():
+        for k,v in res.items():
             print( k[:3], k[4:],  ) # v
             curr1 = get_curr(db, exchg_id, k[:3])
             curr2 = get_curr(db, exchg_id, k[4:])
@@ -262,7 +262,7 @@ def make_cross(db):
             _, _, avrg2 = rates_lib.get_average_rate_bsa(db, rec.curr2_id, USD_CURR.id, expired)
             if avrg2:
                 continue
-            print (rec.curr1_id, '/ USD', avrg, ', for',  rec.curr2_id, ' cross:', avrg * float(rec.hard_price))
+            print ((rec.curr1_id, '/ USD', avrg, ', for',  rec.curr2_id, ' cross:', avrg * float(rec.hard_price)))
             db_common.store_cross_rates(db, exchg_id, rec.curr2_id, USD_CURR.id, buy * float(rec.hard_price), sell * float(rec.hard_price))
             count += 1
             continue
@@ -272,7 +272,7 @@ def make_cross(db):
             _, _, avrg2 = rates_lib.get_average_rate_bsa(db, rec.curr1_id, USD_CURR.id, expired)
             if avrg2:
                 continue
-            print (rec.curr2_id, '/ USD', avrg, ', for',  rec.curr1_id, ' cross:', avrg * float(rec.hard_price))
+            print ((rec.curr2_id, '/ USD', avrg, ', for',  rec.curr1_id, ' cross:', avrg * float(rec.hard_price)))
             db_common.store_cross_rates(db, exchg_id, rec.curr1_id, USD_CURR.id, buy * float(rec.hard_price), sell * float(rec.hard_price))
             count += 1
             continue
@@ -282,7 +282,7 @@ def make_cross(db):
             _, _, avrg2 = rates_lib.get_average_rate_bsa(db, BTC_CURR.id, rec.curr2_id, expired)
             if avrg2:
                 continue
-            print ('BTC /', rec.curr1_id, avrg, ', for',  rec.curr2_id, ' cross:', avrg * float(rec.hard_price))
+            print (('BTC /', rec.curr1_id, avrg, ', for',  rec.curr2_id, ' cross:', avrg * float(rec.hard_price)))
             db_common.store_cross_rates(db, exchg_id, BTC_CURR.id, rec.curr2_id, buy * float(rec.hard_price), sell * float(rec.hard_price))
             count += 1
             continue
@@ -292,7 +292,7 @@ def make_cross(db):
             _, _, avrg2 = rates_lib.get_average_rate_bsa(db, BTC_CURR.id, rec.curr1_id, expired)
             if avrg2:
                 continue
-            print ('BTC /', rec.curr2_id, avrg, ', for',  rec.curr1_id, ' cross:', avrg * float(rec.hard_price))
+            print (('BTC /', rec.curr2_id, avrg, ', for',  rec.curr1_id, ' cross:', avrg * float(rec.hard_price)))
             db_common.store_cross_rates(db, exchg_id, BTC_CURR.id, rec.curr1_id, buy * float(rec.hard_price), sell * float(rec.hard_price))
             count += 1
             continue
@@ -336,7 +336,7 @@ def get(db, not_local, interval=None):
 
         # make cross rates
         while make_cross(db) > 0:
-            print ('next cross')
+            print (('next cross'))
             pass
 
         if True:
@@ -367,7 +367,7 @@ def get(db, not_local, interval=None):
                         # и там можно сделать лист входов или их в стек выплат записать
                         print('try serv_to_buy.proc_history')
                         mess = serv_to_buy.proc_history(db)
-                        ## PRINT_AS_FUNC and print(mess) or print mess
+                        ## PRINT_AS_FUNC and print(mess) or print (mess)
                         print(mess)
                         serv_to_buy_proc_history_one = not serv_to_buy_proc_history_one
                     elif True:
@@ -377,7 +377,7 @@ def get(db, not_local, interval=None):
                         mess = serv_to_buy.proc_history(db, only_list=None, ed_acc=None,
                                 from_dt_in='same')
                         print(mess)
-                        ##PRINT_AS_FUNC and print(mess) or print mess
+                        ##PRINT_AS_FUNC and print(mess) or print (mess)
                     # внутри db.commit()
                 except Exception as e:
                 #else:
@@ -395,6 +395,6 @@ if Test:
 
 # если делать вызов как модуля то нужно убрать это иначе неизвестный db
 import sys
-#PRINT_AS_FUNC and print(sys.argv) or print sys.argv
+#PRINT_AS_FUNC and print(sys.argv) or print (sys.argv)
 if len(sys.argv)>1:
     get(db, sys.argv[1], float(sys.argv[2]))

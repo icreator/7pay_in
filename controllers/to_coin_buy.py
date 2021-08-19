@@ -50,7 +50,7 @@ def err_dict(m, not_add_err=False):
 def get():
 
     args = request.args
-    ##print args, '\n', request.vars
+    ##print (args, '\n', request.vars)
     if len(args) < 2: return mess('err...')
     deal_id = args(0)
     curr_id = args(1)
@@ -68,7 +68,7 @@ def get():
         return mess('digs...')
 
     addr_out = request.vars.addr
-    #print request.vars
+    #print (request.vars)
     if not addr_out:
         return mess(T('ОШИБКА: Задайте кошелек'))
 
@@ -89,7 +89,7 @@ def get():
 
     import crypto_client
 
-    #print request.vars
+    #print (request.vars)
     curr_out = db.currs[ request.vars.curr_out ]
     xcurr_out = db(db.xcurrs.curr_id == curr_out.id).select().first()
     curr_out_abbrev = curr_out.abbrev
@@ -107,7 +107,7 @@ def get():
         token_out = db.tokens[token_key_out]
         token_system_out = db.systems[token_out.system_id]
 
-    #print request.application[-5:]
+    #print (request.application[-5:])
     if request.application[:-3] != '_dvlp':
         # чето конфликт если из ipay3_dvlp вызывать то кошелек на ipay3 не коннектится
         if token_system_out:
@@ -132,12 +132,12 @@ def get():
         session.toCoin = curr_out_abbrev
         session.toCoinA = addr_out
     except:
-        print 'to_coin session error .toCoinA:', type(addr_out), addr_out
+        print ('to_coin session error .toCoinA:', type(addr_out), addr_out)
 
     try:
         session.vol = vol
     except:
-        print 'to_coin session error .vol:', type(vol), vol
+        print ('to_coin session error .vol:', type(vol), vol)
 
     curr_in_name = curr_in.name
 
@@ -224,7 +224,7 @@ def get():
                                            best_rate, is_order, note=1)
         vol_out_new = common.rnd_8(vol_out_new)
         if common.rnd_8(volume_out) != vol_out_new:
-            print 'to_phone error_in_fees: volume_out != vol_out_new', volume_out,  vol_out_new
+            print ('to_phone error_in_fees: volume_out != vol_out_new', volume_out,  vol_out_new)
 
         volume_in = common.rnd_8(volume_in)
         rate_out = volume_out / volume_in
@@ -374,7 +374,7 @@ def sel():
     else:
         curr_rub = db(db.currs.abbrev=='RUB').select().first()
         deal_id = db.deals.insert(name = deal_name, name2 = deal_name, fee_curr_id = curr_rub.id,
-                used = False, fee = 1, MIN_pay = 0, MAX_pay = 0)
+                used = False, fee = 1, min_pay = 0, max_pay = 0)
         deal = db.deals[ deal_id ]
 
     from gluon.storage import Storage
@@ -391,7 +391,7 @@ def sel():
     dealer = None
     for rr in db_client.get_xcurrs_for_deal(db, 0, curr_out, deal, dealer):
         if rr['id'] == curr_out.id: continue
-        #print rr
+        #print (rr)
         id = '%s' % rr['id']
         disabled = rr['expired']
         if disabled:
@@ -409,7 +409,7 @@ def sel():
                       $('#cvr%s').css('display','block'); // .css('z-index','10');
                       ajax('%s',['vol','addr','curr_out'], 'tag%s');
                       ''' % (id, id, URL('get', args=[deal_id, id]), id)
-        #print rr
+        #print (rr)
         h += DIV(
             DIV(
                 DIV(
@@ -448,7 +448,7 @@ def sel():
 def index():
 
     #common.page_stats(db, response['view'])
-    #print request.args
+    #print (request.args)
 
     response.title=T("Обмен биткоинов и других цифровых активов между собой включая токены Erachain")
     response.subtitle = T('Bitcoin Dogecoin Litecoin NEXT')
@@ -463,7 +463,7 @@ def index():
     try:
         session.date_log = request.now
     except:
-        print 'to_coin session error .date_log:', type(request.now), request.now
+        print ('to_coin session error .date_log:', type(request.now), request.now)
 
     if request.vars:
         abberv = abbrev or request.vars.get('curr')

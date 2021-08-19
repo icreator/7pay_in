@@ -102,7 +102,7 @@ def store_in_cookies(gift_code, erase=None):
     # внимание - если мы проверяем кукие на локалке - то они для всех приложений == будут
     # так как тут путь от домена задан пустой - тоесть будет домен один для всех
     response.cookies['gift_code']['path'] = '/'
-    # print 'response.cookies', response.cookies
+    # print ('response.cookies', response.cookies)
 
 
 # добавим код подарочны к этому аккаунту
@@ -145,7 +145,7 @@ def add_cod(db, T, deal, deal_acc, cod, use_try=None):
         if use_try:
             deal_acc.gift_try = deal_acc.gift_try and deal_acc.gift_try + 1 or 1
             deal_acc.update_record()
-            # print deal_acc.gift_try
+            # print (deal_acc.gift_try)
             mess = T('Такого подарочного кода [%s] не существует. У Вас осталлось %s попыток.') % (
             cod, 6 - deal_acc.gift_try)
         else:
@@ -217,11 +217,11 @@ def gift_proc(db, T, deal, deal_acc, request, session, GIFT_CODE):
     gift_amount_old = deal_acc.gift_amount
     if not GIFT_CODE and request.cookies.has_key('gift_code'):
         GIFT_CODE = request.cookies['gift_code'].value
-        # print "to phone - request.cookies['gift_code'].value:", GIFT_CODE
+        # print ("to phone - request.cookies['gift_code'].value:", GIFT_CODE)
 
     if GIFT_CODE and len(GIFT_CODE) < 5: GIFT_CODE = None
     GIFT_CODE = deal_acc.gift or GIFT_CODE
-    # print 'to phone GIFT_CODE1:', GIFT_CODE
+    # print ('to phone GIFT_CODE1:', GIFT_CODE)
     if not GIFT_CODE:
         # если в кукиях нет кода то может тут задали вручную?
         GIFT_CODE = request.vars.gift_cod
@@ -234,12 +234,12 @@ def gift_proc(db, T, deal, deal_acc, request, session, GIFT_CODE):
         add_cod(db, T, deal, deal_acc, GIFT_CODE)
         add_amo(db, T, deal, deal_acc, GIFT_CODE)
 
-    # print 'deal_acc.gift != GIFT_CODE', deal_acc.gift, GIFT_CODE
+    # print ('deal_acc.gift != GIFT_CODE', deal_acc.gift, GIFT_CODE)
     if deal_acc.gift and deal_acc.gift != GIFT_CODE:
         # возможно что раньше уже для этого дела заданы были коды то из возьмем
         GIFT_CODE = session.gc = deal_acc.gift
         store_in_cookies(GIFT_CODE)
-        # print session.gc
+        # print (session.gc)
 
     if not GIFT_CODE:
         return None, None

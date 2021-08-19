@@ -85,7 +85,7 @@ def add_pay_in():
     # непередается кнопка в эту форму - просто по рекваесту ловим
     if form.process().accepted or request.vars.block:
         import datetime
-        #print form.vars
+        #print (form.vars)
         form.vars = request.vars
         acc_addr = db(db.deal_acc_addrs.addr==form.vars.addr).select().first()
         if not acc_addr:
@@ -107,9 +107,9 @@ def add_pay_in():
         db.pay_ins_stack.insert( ref_ = pay_in_id)
         response.flash = 'added'
     else:
-        print 'not accepted (('
-        print 'request.vars:', request.vars
-        print 'form.vars:', form.vars
+        print ('not accepted ((')
+        print ('request.vars:', request.vars)
+        print ('form.vars:', form.vars)
         
     return dict(h=DIV(H2('Try add lost transaction to pay_ins + pay_in_stack'), form, _class='container'))
 
@@ -123,7 +123,7 @@ def add_pay_in_stack():
     ref_id = request.vars.ref_id
     if ref_id:
         pay_in = db.pay_ins[ ref_id ]
-        print pay_in
+        print (pay_in)
         if not pay_in:
             response.flash = 'not exist'
             return dict(h=DIV(h, _class='container'))

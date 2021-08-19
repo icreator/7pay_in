@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-if DEVELOP: print 'menu1.py - app.DEVELOP'
+if DEVELOP: print ('menu1.py - app.DEVELOP')
 
 if request.ajax:
     pass
@@ -36,7 +36,7 @@ else:
     LANG_CURR = session.lang or T.accepted_language
     def lang_sel():
         langs = []
-        for (n,l) in LANGS.iteritems():
+        for (n,l) in LANGS.items():
             if LANG_CURR == n: continue
             vars = request.vars.copy()
             vars['lang'] = n
@@ -48,7 +48,7 @@ else:
 
 
     # если текущий язык не ннайден в нашем списке то покажем Англ как текущий
-    lang = LANGS.get(LANG_CURR, LANGS.get('en', LANGS.get('ru', LANGS.values()[0])))
+    lang = LANGS.get(LANG_CURR, LANGS.get('en', LANGS.get('ru', list(LANGS.values())[0])))
     MENU_RIGHT = [
         (CAT(IMG(_src=URL('static', 'images/flags/' + lang[1]), _width=30, _alt=''), not IS_MOBILE and CAT( ' ', lang[0]) or ''),
             False, None, lang_sel())
@@ -177,7 +177,7 @@ else:
             # нет телефона - это новичек
             recalc = True
         elif BONUS_DATE:
-            #print today, BONUS_DATE #, session
+            #print (today, BONUS_DATE #, session)
             try:
                 days_left = (today - BONUS_DATE).days
             except:
@@ -192,9 +192,9 @@ else:
         if recalc:
             from gifts_lib import calc
             gres, bonus_new, bonus_to_pay, wait_days = calc(db, BONUSES, ph, today, GIFT_CODE)
-            #print 'session.bonus_day', today
-            #print gres
-            #print bonus_new, bonus_to_pay, wait
+            #print ('session.bonus_day', today)
+            #print (gres)
+            #print (bonus_new, bonus_to_pay, wait)
             # если что-то взяли сегодня ои дату взятия поменяем
             session.bonus_day = bonus_new and today
             session.bonus_to_pay = bonus_to_pay
@@ -211,7 +211,7 @@ else:
             return None, None, bonus_to_pay
 
         bres = CAT()
-        for (k, b) in gres.iteritems():
+        for (k, b) in gres.items():
             if k=='new':
                 bres += H2('За первое посещение нашей службы',' ',B(b), ' ', 'Satoshi')
             elif k =='gc':

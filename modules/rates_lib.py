@@ -51,7 +51,7 @@ def get_average_rate_bsa_1(db, in_id, out_id, expired, recursed=False):
         avg = float(avg)
         b = avg*0.99
         s = avg/0.99
-        ##print 'get as HARD', b,s
+        ##print ('get as HARD', b,s)
         return b, s, avg
 
     b = s = avg = None
@@ -67,9 +67,9 @@ def get_average_rate_bsa_1(db, in_id, out_id, expired, recursed=False):
  WHERE (%s) \
  GROUP BY curr1_id, curr2_id \
  ;" % cond
-    #print qry
+    #print (qry)
     rec = db.executesql(qry, as_dict=True)
-    #print rec
+    #print (rec)
     if len(rec)>0:
         rec = rec[0]
         b = s = avg = None
@@ -103,9 +103,9 @@ def get_average_rate_bsa_2(db, in_id, out_id, expired):
             b = 1/s1
             s = 1/b1
             avg = 1/avg
-            #print 'get reverse rate:', b, s
+            #print ('get reverse rate:', b, s)
     else:
-        #print 'get direct rate:', b, s
+        #print ('get direct rate:', b, s)
         pass
     return b,s,avg
 
@@ -117,16 +117,16 @@ def get_average_rate_bsa(db, in_id, out_id, expired=None):
 
     b,s,avg = get_average_rate_bsa_2(db, in_id, out_id, expired)
     if b and s:
-        #print in_id,'->',out_id, b, s
+        #print (in_id,'->',out_id, b, s)
         ##b,s = add_tax(db, in_id, out_id, b, s)
         return b, s, avg
 
     # try use BTC cross-rate
     btc, x, e = db_common.get_currs_by_abbrev(db,'BTC')
-    #print 'get_average_rate_bsa <>BTC'
+    #print ('get_average_rate_bsa <>BTC')
     bBTC1,sBTC1,avgBTC1 = get_average_rate_bsa_2(db, in_id, btc.id, expired)
     bBTC2,sBTC2,avgBTC2 = get_average_rate_bsa_2(db, btc.id, out_id, expired)
-    #print 'get_average_rate_bsa <>BTC', bBTC1, sBTC1, ' // ', bBTC2, sBTC2
+    #print ('get_average_rate_bsa <>BTC', bBTC1, sBTC1, ' // ', bBTC2, sBTC2)
     if bBTC1 and sBTC1 and bBTC2 and sBTC2:
         #cross-rate is found
         b = bBTC1 * bBTC2
@@ -136,10 +136,10 @@ def get_average_rate_bsa(db, in_id, out_id, expired=None):
 
     # try use USD cross-rate
     usd, x, e = db_common.get_currs_by_abbrev(db,'USD')
-    #print 'get_average_rate_bsa <>USD'
+    #print ('get_average_rate_bsa <>USD')
     bUSD1,sUSD1,avgUSD1 = get_average_rate_bsa_2(db, in_id, usd.id, expired)
     bUSD2,sUSD2,avgUSD2 = get_average_rate_bsa_2(db, usd.id, out_id, expired)
-    #print 'get_average_rate_bsa <>USD', bUSD1, sUSD1, ' // ', bUSD2, sUSD2
+    #print ('get_average_rate_bsa <>USD', bUSD1, sUSD1, ' // ', bUSD2, sUSD2)
     if bUSD1 and sUSD1 and bUSD2 and sUSD2:
         #cross-rate is found
         b = bUSD1 * bUSD2
@@ -149,27 +149,27 @@ def get_average_rate_bsa(db, in_id, out_id, expired=None):
 
     # try use BTC->USD cross-rate
     if bBTC1 and sBTC1 and bUSD2 and sUSD2:
-        #print 'get_average_rate_bsa >>BTC>>>USD>>>'
+        #print ('get_average_rate_bsa >>BTC>>>USD>>>')
         bBTC_USD1, sBTC_USD1, avgBTC_USD1 = get_average_rate_bsa_2(db, btc.id, usd.id, expired)
-        #print 'get_average_rate_bsa >>BTC>>>USD>>>', bBTC_USD1, sBTC_USD1
+        #print ('get_average_rate_bsa >>BTC>>>USD>>>', bBTC_USD1, sBTC_USD1)
         if bBTC_USD1 and sBTC_USD1:
             #cross-rate is found
             b = bBTC1 * bBTC_USD1 * bUSD2
             s = sBTC1 * sBTC_USD1 * sUSD2
             avg = avgBTC1 * avgBTC_USD1 * avgUSD2
-            #print '***BTC > USD***', b, s, avg
+            #print ('***BTC > USD***', b, s, avg)
             return b, s, avg
 
     # try use reverse BTC->USD cross-rate
     if bBTC2 and sBTC2 and bUSD1 and sUSD1:
         bBTC_USD2, sBTC_USD2, avgBTC_USD2 = get_average_rate_bsa_2(db, usd.id, btc.id, expired)
-        #print 'get_average_rate_bsa <<BTC<<<USD<<<', bBTC_USD2, sBTC_USD2
+        #print ('get_average_rate_bsa <<BTC<<<USD<<<', bBTC_USD2, sBTC_USD2)
         if bBTC_USD2 and sBTC_USD2:
             #cross-rate is found
             b = bBTC2 * bBTC_USD2 * bUSD1
             s = sBTC2 * sBTC_USD2 * sUSD1
             avg = avgBTC2 * avgBTC_USD2 * avgUSD1
-            #print '***BTC < USD***', b, s, avg
+            #print ('***BTC < USD***', b, s, avg)
             return b, s, avg
 
     return None, None, None
@@ -205,9 +205,9 @@ def get_pow_rate_par_1(db, curr_in, curr_out, rate_rev):
     return
     
 def get_pow_rate_par(db, curr_in, curr_out, rate_rev, expired):
-    #print curr_in.abbrev, '->>', curr_out.abbrev
+    #print (curr_in.abbrev, '->>', curr_out.abbrev)
     rate_par = get_pow_rate_par_1(db, curr_in, curr_out, rate_rev)
-    #print rate_par
+    #print (rate_par)
     if rate_par:
         return rate_par
 
@@ -215,10 +215,10 @@ def get_pow_rate_par(db, curr_in, curr_out, rate_rev, expired):
     btc, x, e = db_common.get_currs_by_abbrev(db,'BTC')
     pr_b1, pr_s, pr_avg = get_average_rate_bsa(db, curr_in.id, btc.id, expired)
     rate_par1 = get_pow_rate_par_1(db, curr_in, btc, pr_b1) # курс для ->БТС берем
-    #print 'rate_par1:',rate_par1, pr_b1
+    #print ('rate_par1:',rate_par1, pr_b1)
     pr_b2, pr_s, pr_avg = get_average_rate_bsa(db, btc.id, curr_out.id, expired)
     rate_par2 = get_pow_rate_par_1(db, btc, curr_out, pr_b2) # курс для <-БТС берем
-    #print 'rate_par2:',rate_par2, pr_b2
+    #print ('rate_par2:',rate_par2, pr_b2)
     if rate_par1 and rate_par2:
         # нашли кросскурс
         return [(rate_par1[0]*rate_par2[0]/pr_b1)**0.5, rate_par1[1]+rate_par2[1]]
@@ -227,10 +227,10 @@ def get_pow_rate_par(db, curr_in, curr_out, rate_rev, expired):
     btc, x, e = db_common.get_currs_by_abbrev(db,'USD')
     pr_b1, pr_s, pr_avg = get_average_rate_bsa(db, curr_in.id, btc.id, expired)
     rate_par1 = get_pow_rate_par_1(db, curr_in, btc, pr_b1) # курс для ->БТС берем
-    #print 'rate_par1:',rate_par1, pr_b1
+    #print ('rate_par1:',rate_par1, pr_b1)
     pr_b2, pr_s, pr_avg = get_average_rate_bsa(db, btc.id, curr_out.id, expired)
     rate_par2 = get_pow_rate_par_1(db, btc, curr_out, pr_b2) # курс для <-БТС берем
-    #print 'rate_par2:',rate_par2, pr_b2
+    #print ('rate_par2:',rate_par2, pr_b2)
     if rate_par1 and rate_par2:
         # нашли кросскурс
         return [(rate_par1[0]*rate_par2[0]/pr_b1)**0.5, rate_par1[1]+rate_par2[1]]
@@ -245,7 +245,7 @@ def get_best_rates(db, curr_in, curr_out=None):
             rates[curr_out.id] = [100000, 0, 1]
         else:
             pr_b, pr_s, pr_avg = get_average_rate_bsa(db, curr_in.id, curr_out.id, expired)
-            #print curr_in.abbrev,'->',curr_out.abbrev, pr_b, pr_s, pr_avg
+            #print (curr_in.abbrev,'->',curr_out.abbrev, pr_b, pr_s, pr_avg)
             if pr_b:
                 rate_par = get_pow_rate_par(db, curr_in, curr_out, pr_b, expired)
                 if rate_par: rates[curr_out.id] = [rate_par[0], rate_par[1], pr_b]
@@ -268,12 +268,12 @@ def get_best_rate(best_rates, curr_out, amo):
     for pow in range(0,10):
         power_perc = pow
         vol = base_vol*3**pow
-        #print vol, amo
+        #print (vol, amo)
         if vol > amo:
             break
     # power_perc = power_perc + 1
     perc = power_perc*base_perc
-    #print 'POWER:', power_perc, ' ->:', perc,'%'
+    #print ('POWER:', power_perc, ' ->:', perc,'%')
     best_rate = base_rate * (1 - perc*0.01)
     return best_rate
 
@@ -295,7 +295,7 @@ def get_rate_order_for_trans(db, shop_order_addr_id, amo):
         if used_amo + amo > r.rate_orders.volume_in:
             continue
         r.rate_orders.update_record(used_amo = used_amo + amo)
-        #print 'get_rate_order_for_trans  r.rate_orders:',  r.rate_orders
+        #print ('get_rate_order_for_trans  r.rate_orders:',  r.rate_orders)
         return r.rate_orders
     return None
 
@@ -308,13 +308,13 @@ def get_amo_out(db, rates, shop_order_addr, curr_out, amo, created_on):
     if created_on and created_on > dt_trans:
         # тут же найдем заказ на курс для данной транзакции
         rate_order = shop_order_addr and get_rate_order_for_trans(db, shop_order_addr.id, amo) or None
-        #print 'get_amo_out - RATE by rate_order:',rate_order
+        #print ('get_amo_out - RATE by rate_order:',rate_order)
     if rate_order:
         rate = rate_order.volume_out / rate_order.volume_in
         amo_out = rate*amo
     else:
         ## и покажем обратный курс
-        #print 'get_amo_out - RATES:', curr_out.abbrev,':',rates, rates.get(curr_out.id) and 1/rates[curr_out.id][2] or None
+        #print ('get_amo_out - RATES:', curr_out.abbrev,':',rates, rates.get(curr_out.id) and 1/rates[curr_out.id][2] or None)
         rate = get_best_rate(rates, curr_out, amo)
         if rate:
             amo_out = rate*float(amo)
@@ -326,7 +326,7 @@ def get_rate(db, curr_in, curr_out, amo_in=None, created_on=None, shop_order_add
     if curr_in.id == curr_out.id:
         return amo_in, None, 1.0
     if not amo_in: amo_in = 0.0
-    #print '%s[%s] -> [%s]' % (amo_in, curr_in.abbrev, curr_out.abbrev)
+    #print ('%s[%s] -> [%s]' % (amo_in, curr_in.abbrev, curr_out.abbrev))
     rates = get_best_rates(db, curr_in, curr_out)
     if not amo_in:
         if rates:
@@ -406,10 +406,10 @@ def get_rate_for_api(db, curr_id, curr_out_id, vol_in, deal = None, dealer_deal 
         out_res['curr_in_rec'] = curr_in
         out_res['curr_out_rec'] = curr_out
 
-    #print '\n'
-    #print 'get_rate_for_api'
+    #print ('\n')
+    #print ('get_rate_for_api')
     pr_b, pr_s, pr_avg = get_average_rate_bsa(db, curr_in.id, curr_out.id, None)
-    #print 'get_rate_for_api', curr_in.abbrev, '>>', curr_out.abbrev, '::', pr_avg
+    #print ('get_rate_for_api', curr_in.abbrev, '>>', curr_out.abbrev, '::', pr_avg)
     if pr_avg:
         _, _, base_rate = get_rate(db, curr_in, curr_out, vol_in)
     else:

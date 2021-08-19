@@ -27,7 +27,7 @@ def subsel_callback():
     try:
         session.forget(response)
         vars = request.vars
-        #print vars
+        #print (vars)
         dealer_deal_id = vars.pop('dealer_deal_id')
         deal_id = vars.pop('deal_id')
         dealer_deal = db.dealer_deals[dealer_deal_id]
@@ -40,11 +40,11 @@ def subsel_callback():
             if items:
                 opts = []
                 for item in items:
-                    #print item
+                    #print (item)
                     if '%s' % item[0] == '%s' % v:
                         opts.append(OPTION(item[2], _value=item[1]))
 
-                #print opts
+                #print (opts)
                 if len(opts)>0:
                     sel = SELECT(
                         opts,
@@ -60,7 +60,7 @@ def subsel_callback():
 
             return sel
     except Exception as e:
-        print e
+        print (e)
         return e
 
 def make_img(r, dealer_info, shop_url=None):
@@ -136,7 +136,7 @@ def list():
                 & (not search or db.deals.name.contains(search))
                 ).select(orderby=~db.deals.count_|db.deals.name,
                          cache=(cache.ram, not IS_LOCAL and 3600 or 0), cacheable= not IS_LOCAL)
-    #print datetime.datetime.now() - t1
+    #print (datetime.datetime.now() - t1)
 
     for r in recs:
         if r.name=='phone +7' or r.name=='WALLET': continue

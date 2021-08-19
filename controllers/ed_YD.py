@@ -16,7 +16,7 @@ import ed_YD
 dealer = db(db.dealers.name=='Yandex').select().first()
 
 def log(mess):
-    print mess
+    print (mess)
     db.logs.insert(mess='CNT: %s' % mess)
 def log_commit(mess):
     log(mess)
@@ -34,7 +34,7 @@ def YmTo():
     session.forget(response)
     if len(request.args) < 2:
         mess = '/[dealer_acc_id]/[deal_id]?deal_acc=ACC&amo=AMO'
-        print mess
+        print (mess)
         return mess
 
     dealer_acc = db.dealers_accs[request.args(0)]
@@ -68,7 +68,7 @@ def YmToConfirm():
     session.forget(response)
     if len(request.args) < 2:
         mess = '/[dealer_acc_id]/[request_id]'
-        print mess
+        print (mess)
         return mess
 
     dealer_acc = db.dealers_accs[request.args(0)]
@@ -110,7 +110,7 @@ def get_yandex_token():
     if not edlr: return 'not edlr or edlr_acc'
 
     api_pars, acc_pars, acc_name = ed_YD.get_pars(edlr, edlr_acc)
-    print  acc_name, ':', acc_pars
+    print ( acc_name, ':', acc_pars)
     acc_pars['YM_REDIRECT_URI'] = acc_pars['YM_REDIRECT_URI'] + '/%s' % edlr_acc.id
     
     #return BEAUTIFY([api_pars, acc_pars, acc_name])

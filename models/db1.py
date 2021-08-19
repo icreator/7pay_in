@@ -102,8 +102,8 @@ db.define_table('exchgs',
                 Field('url', length=55, unique=True),
                 Field('tax', 'decimal(4,3)', required=True, default=0.2, comment='tax % for one order'),
                 Field('fee', 'decimal(5,3)', required=True, default=0, comment='absolut fee for one order'),
-                Field('API_type', length=15, comment='API type = upbit, btce'),
-                Field('API', 'text', comment='API commands and urls in JSON format'),
+                Field('api_type', length=15, comment='API type = upbit, btce'),
+                Field('api', 'text', comment='API commands and urls in JSON format'),
                 Field('pkey', 'text', comment='public key'),
                 Field('skey', 'text', comment='secret key'),
                 format='%(name)s',
@@ -205,9 +205,9 @@ db.define_table('dealers',
                 Field('balance', 'decimal(12,2)', default = Decimal('0.0'), comment='current balance'),
                 Field('deposit', 'decimal(16,3)', default = Decimal('0.0')), # то что нельзя выводить или продавать - запас для меня
                 Field('clients_deposit', 'decimal(16,3)', default = Decimal('0.0')), # то что нельзя выводить или продавать так как это баланс клиеннтов-магазинов
-                Field('API', 'text', comment='API commands and urls in JSON format'),
+                Field('api', 'text', comment='API commands and urls in JSON format'),
                 Field('info', 'text', label='Info', comment='Description'),
-                Field('pay_out_MIN', 'decimal(6,2)', default = Decimal('10.0'), comment='MIN paymennt for this ecurr and edialer'),
+                Field('pay_out_min', 'decimal(6,2)', default = Decimal('10.0'), comment='MIN paymennt for this ecurr and edialer'),
                 format='%(name)s',
                 )
 # one ACC = one CURR (+reserve)
@@ -292,10 +292,10 @@ db.define_table('deals',
                 # для мосэнерго [12345 123 12 199 6]
                 Field('template_', 'text'),
                 Field('calcs_', 'json'),
-                ## MIN_pay + MAX_pay - Только для фиата выставляются потому точно малая
-                Field('MIN_pay', 'decimal(6,2)', default = 13, comment='для фиата только действует'), # минимум который можно платить
+                ## min_pay + max_pay - Только для фиата выставляются потому точно малая
+                Field('min_pay', 'decimal(6,2)', default = 13, comment='для фиата только действует'), # минимум который можно платить
                 # если превышает то берем пропорциональный оброк при оплате
-                Field('MAX_pay', 'decimal(13,2)', default = 1777, comment='для фиата только действует'), # максимум который можно платить за раз
+                Field('max_pay', 'decimal(13,2)', default = 1777, comment='для фиата только действует'), # максимум который можно платить за раз
                 Field('fee', 'decimal(14,8)', default = 0, comment='Оброк мне за это дело'),
                 Field('tax', 'decimal(4,2)', default = 1, comment='% подать мне за это дело'),
                 Field('fee_min', 'decimal(14,8)', default = 1, comment='limit tax down'),
@@ -327,10 +327,10 @@ db.define_table('deals_tmp',
                 # для мосэнерго [12345 123 12 199 6]
                 Field('template_', 'text'),
                 Field('calcs_', 'json'),
-                ## MIN_pay + MAX_pay - Только для фиата выставляются потому точно малая
-                Field('MIN_pay', 'decimal(6,2)', default = 13, comment='для фиата только действует'), # минимум который можно платить
+                ## min_pay + max_pay - Только для фиата выставляются потому точно малая
+                Field('min_pay', 'decimal(6,2)', default = 13, comment='для фиата только действует'), # минимум который можно платить
                 # если превышает то берем пропорциональный оброк при оплате
-                Field('MAX_pay', 'decimal(13,2)', default = 1777, comment='для фиата только действует'), # максимум который можно платить за раз
+                Field('max_pay', 'decimal(13,2)', default = 1777, comment='для фиата только действует'), # максимум который можно платить за раз
                 Field('fee', 'decimal(14,8)', default = 0, comment='Оброк мне за это дело'),
                 Field('tax', 'decimal(4,2)', default = 1, comment='% подать мне за это дело'),
                 Field('fee_min', 'decimal(14,8)', default = 1, comment='limit tax down'),
@@ -695,7 +695,7 @@ db.define_table('gifts',
                 Field('on_create', 'datetime', writable=False, default=request.now, label=T('Запущен') ),
                 )
 #def pppp(r):
-#    print r
+#    print (r)
 #db.gifts.deal_url = Field.Virtual(
 #    lambda row: URL('more','to_pay', args=[row.gifts.deal_id]))
 

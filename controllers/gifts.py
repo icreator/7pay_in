@@ -109,7 +109,7 @@ def clear_gift_code():
     if session.toPhone: session.pop('toPhone')
     if session.bonus_to_pay: session.pop('bonus_to_pay')
     if session.show_bonus_late: session.pop('show_bonus_late')
-    ##print session
+    ##print (session)
     from gifts_lib import store_in_cookies
     store_in_cookies('')
     redirect(URL('to_phone','index'))

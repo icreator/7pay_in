@@ -17,7 +17,7 @@ def make_p_url(id, deal_name, cod):
                                   T('Получи подарок в %s') % deal_name)
 
 def index():
-    #print request.post_vars
+    #print (request.post_vars)
     addr = request.post_vars.wallet
     if not addr or len(addr)<2:
         parts = db((db.deal_accs.partner_payed + db.deal_accs.partner_sum >0)
@@ -33,7 +33,7 @@ def index():
         if len(addr)<30:
             deal_acc = db(db.deal_accs.partner == addr).select().first()
         else:
-            #print address
+            #print (address)
             deal_acc_addr = db(db.deal_acc_addrs.addr == addr).select().first()
             if not deal_acc_addr: return dict(mess=T("такой адрес не найден"), cod=None)
     
@@ -78,7 +78,7 @@ def index():
 
     for i in range(1, len(addr) - 11):
         cod = addr[i:i+10]
-        #print cod
+        #print (cod)
         deal_acc_is = db(db.deal_accs.partner==cod).select().first()
         if not deal_acc_is:
             deal_acc.partner = cod

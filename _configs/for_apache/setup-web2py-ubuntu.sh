@@ -79,7 +79,7 @@ echo "=================================="
 openssl genrsa 1024 > /etc/apache2/ssl/self_signed.key
 chmod 400 /etc/apache2/ssl/self_signed.key
 openssl req -new -x509 -nodes -sha1 -days 365 -key /etc/apache2/ssl/self_signed.key > /etc/apache2/ssl/self_signed.cert
-openssl x509 -noout -fingerprint -text < /etc/apache2/ssl/self_signed.cert > /etc/apache2/ssl/self_signed.info
+openssl x509 -noout -fingerprint (-text < /etc/apache2/ssl/self_signed.cert > /etc/apache2/ssl/self_signed.info)
 
 echo "rewriting your apache config file to use mod_wsgi"
 echo "================================================="

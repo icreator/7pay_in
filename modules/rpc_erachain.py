@@ -20,7 +20,7 @@ import db_common
 
 
 def log(db, mess):
-    print 'rpc_erachain - ', mess
+    print ('rpc_erachain - ', mess)
     db.logs.insert(mess='YD: %s' % mess)
 
 
@@ -36,7 +36,7 @@ def rpc_request(pars, vars=None, test=None):
 
     if vars:
         vars = urllib.urlencode(vars)
-        # print 'rpc VARS:', vars
+        # print ('rpc VARS:', vars)
         rq = urllib2.Request(pars + '?' + vars)
     else:
         rq = urllib2.Request(pars)
@@ -49,10 +49,10 @@ def rpc_request(pars, vars=None, test=None):
         # r = f.read()
         r = json.load(f)
 
-        # print 'response - res:', r
+        # print ('response - res:', r)
     except Exception as e:
         # или любая ошибка - повтор запроса - там должно выдать ОК
-        # print 'YmToConfirm while EXEPTION:', e
+        # print ('YmToConfirm while EXEPTION:', e)
         log(current.db, 'rpc ' + pars + ' EXCEPTION: %s' % e)
         return e
 
@@ -159,20 +159,20 @@ def get_transactions(token_system, from_block=2):
             recs = rpc_request(url_get)
             recs_count = len(recs)
         except Exception as e:
-            print e
-            print recs
+            print (e)
+            print (recs)
             log(current.db, token_system.name + 'get_txs %s EXCEPTION: %s - %s' % (url_get, e, recs))
             return result, i - 1
 
         if type(recs) != type([]):
-            print recs
+            print (recs)
             log(current.db, token_system.name + 'get_txs %s ERROR: %s' % (url_get, recs))
             break
 
         if recs_count == 0:
             continue
 
-        # print token_system.name, ' incomes - height: ', i, ' recs:', len(recs)
+        # print (token_system.name, ' incomes - height: ', i, ' recs:', len(recs))
 
         incomes = []
         for rec in recs:
@@ -194,7 +194,7 @@ def get_transactions(token_system, from_block=2):
                 continue
 
             incomes.append(rec)
-            # print 'erachain - title:', rec.get('title'), 'message:', rec.get('message')
+            # print ('erachain - title:', rec.get('title'), 'message:', rec.get('message'))
 
         result += incomes
 
@@ -230,12 +230,12 @@ def send(db, curr, xcurr, addr, amo, token_system=None, token=None, title=None, 
         try:
             ##amo_to_pay = amo - txfee - it already inserted in GET_RATE by db.currs
             amo_to_pay = amo
-            # print 'res = erachain.send(addr, amo - txfee)', amo_to_pay
+            # print ('res = erachain.send(addr, amo - txfee)', amo_to_pay)
             pars = '/rec_payment/%d/%s/%d/%f/%s?password=%s' % (
                 0, token_system.account, token.token_key, amo_to_pay, addr, token_system.password)
-            # print pars
+            # print (pars)
             res = rpc_request(token_system.connect_url + pars)
-            # print "SENDed? ", type(res), res
+            # print ("SENDed? ", type(res), res)
             if type(res) == type({}):
                 error = res.get('error')
             else:

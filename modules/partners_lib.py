@@ -35,23 +35,23 @@ def calc(db, deal, curr_out, deal_acc, vol_out, probe=None):
     fee_d = deal.fee or 0
     if fee_d:
         if probe:
-            print 'for partner  deal_fee', fee_d
+            print ('for partner  deal_fee', fee_d)
         # преобразуем выходную мзду Дела в валюту аккаунта партнера
         fee_rate = Decimal(rates_lib.get_avr_rate_or_null(db, deal.fee_curr_id, deal_acc_partner.curr_id))
         fee_d *= fee_rate / 2
         if probe:
             partner_deal_curr = db.currs[ deal_acc_partner.curr_id ]
-            print 'for partner curr - rate -> deal_fee', fee_rate, fee_d, curr_out.abbrev, partner_deal_curr.abbrev
+            print ('for partner curr - rate -> deal_fee', fee_rate, fee_d, curr_out.abbrev, partner_deal_curr.abbrev)
         deal_acc_partner.partner_sum = (deal_acc_partner.partner_sum or 0) + fee_d
     fee_c = curr_out.fee_out or 0
     if fee_c:
         if probe:
-            print 'for partner curr_fee_out', fee_c
+            print ('for partner curr_fee_out', fee_c)
         # преобразуем выходную мзду валюты выхода в валюту аккаунта партнера
         fee_rate = Decimal(rates_lib.get_avr_rate_or_null(db, curr_out.id, deal_acc_partner.curr_id))
         fee_c *= fee_rate / 2
         if probe:
-            print 'for partner curr - rate -> curr_fee_out', fee_rate, fee_c, curr_out.abbrev, partner_deal_curr.abbrev
+            print ('for partner curr - rate -> curr_fee_out', fee_rate, fee_c, curr_out.abbrev, partner_deal_curr.abbrev)
         deal_acc_partner.partner_sum = (deal_acc_partner.partner_sum or 0) + fee_c
 
     if probe:
