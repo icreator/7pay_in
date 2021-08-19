@@ -8,12 +8,12 @@ def index(): return dict(message="hello from test.py")
 
 def a():
     mess = '7pb4'
-    print mess[0:3]
+    print (mess[0:3])
     if mess.startswith('7pb'):
         # просто код заказа тут
         order_id = mess[3:]
         order_id = mess.split('7pb')[1]
-        print order_id
+        print (order_id)
         if order_id.isdigit():
             order = db.addr_orders[ order_id ]
             if order:

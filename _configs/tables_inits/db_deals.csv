@@ -1,4 +1,4 @@
-deals.id,deals.cat_id,deals.fee_curr_id,deals.name,deals.name2,deals.show_text,deals.wants,deals.used,deals.is_shop,deals.not_gifted,deals.url,deals.my_client,deals.icon,deals.img,deals.template_,deals.calcs_,deals.MIN_pay,deals.MAX_pay,deals.fee,deals.tax,deals.fee_min,deals.fee_max,deals.average_,deals.count_
+deals.id,deals.cat_id,deals.fee_curr_id,deals.name,deals.name2,deals.show_text,deals.wants,deals.used,deals.is_shop,deals.not_gifted,deals.url,deals.my_client,deals.icon,deals.img,deals.template_,deals.calcs_,deals.min_pay,deals.max_pay,deals.fee,deals.tax,deals.fee_min,deals.fee_max,deals.average_,deals.count_
 1,1,2,BUY,to BUY,<NULL>,1,False,False,True,<NULL>,False,<NULL>,<NULL>,<NULL>,<NULL>,10.00,2777.00,3.00000000,0.20,0E-8,0E-8,0E-8,0
 2,1,2,to COIN,to COIN,<NULL>,1,False,False,True,<NULL>,False,<NULL>,<NULL>,<NULL>,<NULL>,10.00,2777.00,3.00000000,0.20,0E-8,0E-8,0E-8,0
 3,1,2,WALLET,to WALLET,<NULL>,1,False,False,True,<NULL>,False,<NULL>,<NULL>,<NULL>,<NULL>,10.00,2777.00,3.00000000,0.20,0E-8,0E-8,0E-8,0

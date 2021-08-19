@@ -13,7 +13,7 @@ import crypto_client
 
 def found_buys(db, buys, addr=None):
     if not addr or len(addr) < 6: return False
-    # print addr
+    # print (addr)
     no_addr = addr == "????--"
     expired = datetime.datetime.now() - datetime.timedelta(no_addr and 40 or 3, 0)
     for rec in db(
@@ -32,7 +32,7 @@ def found_unconfirmed_tokens_0(db, token_system):
     from_block = token_system.from_block
     if not from_block:
         mess = token_system.name + ': ' + T('not last block, please wait...')
-        # print mess
+        # print (mess)
         pays.append(mess)
         return
 
@@ -40,12 +40,12 @@ def found_unconfirmed_tokens_0(db, token_system):
     curr_block = crypto_client.get_height(None, token_system)
     if type(curr_block) != type(1):
         mess = token_system.name + ': ' + T('no connection to wallet')
-        # print mess
+        # print (mess)
         pays.append(mess)
         return
 
     confMax = confs_need + curr_block - from_block - 1
-    # print 'confMax:', confMax
+    # print ('confMax:', confMax)
 
     lUnsp = crypto_client.get_unconf_incomes(None, token_system, token_system.account)
     if type(lUnsp) != type([]):
@@ -109,7 +109,7 @@ def found_unconfirmed_tokens(db, token_system):
 
 
 def found_unconfirmed_coins_0(db, curr, xcurr):
-    # print curr.abbrev
+    # print (curr.abbrev)
 
     pays = []
 
@@ -118,43 +118,43 @@ def found_unconfirmed_coins_0(db, curr, xcurr):
     conn = crypto_client.connect(curr, xcurr)
     if not conn:
         mess = curr.name + ': ' + T('no connection to wallet')
-        # print mess
+        # print (mess)
         pays.append(mess)
         return
 
-    # print xcurr.name
+    # print (xcurr.name)
 
     try:
         curr_block = conn.getblockcount()
     except:
         mess = curr.name + ': ' + T('no blockcount connection to wallet')
-        # print mess
+        # print (mess)
         pays.append(mess)
         return
 
-    # print curr_block
+    # print (curr_block)
     if type(curr_block) != type(-1):
         pays.append(curr.name + ' not started else... curr block: %s' % curr_block)
         return
     from_block = xcurr.from_block
     if not from_block:
         mess = curr.name + ': ' + T('not last block, please wait...')
-        # print mess
+        # print (mess)
         pays.append(mess)
         return
 
     confMax = confs_need + curr_block - from_block - 1
-    # print 'confMax:', confMax
+    # print ('confMax:', confMax)
 
     lUnsp = conn.listunspent(0, confMax)
-    # print lUnsp
+    # print (lUnsp)
     if type(lUnsp) != type([]):
         mess = 'ERROR: found_unconfirmed lUnsp: %s' % lUnsp
         pays.append(mess)
         return
     txids_used = {}
     for r in lUnsp:
-        # print '\n\n',r.get(u'amount'), r
+        # print ('\n\n',r.get(u'amount'), r)
         txid = r.get(u'txid')
         if not txid:
             mess = 'found_unconfirmed GEN [%s]?' % r
@@ -169,7 +169,7 @@ def found_unconfirmed_coins_0(db, curr, xcurr):
         # тут массив - может быть несколько транзакций
         # может быть [u'category'] == u'receive' ИЛИ u'send'
         trans_details = ti['details']
-        # print 'trans LEN:', len( trans_details ), 'trans_details:',trans_details
+        # print ('trans LEN:', len( trans_details ), 'trans_details:',trans_details)
         # continue
         # так вот, в одной транзакции может быть несколько входов!
         # поэтому если есть выход - значит тут вход это сдача наша с вывода и такую
@@ -179,17 +179,17 @@ def found_unconfirmed_coins_0(db, curr, xcurr):
             if detail[u'category'] == u'send':
                 its_outcome = True
                 # сдача тут
-                # print 'outcome'
+                # print ('outcome')
                 break
         if its_outcome:
             continue
 
         for income in trans_details:
             if income[u'category'] != u'receive': continue
-            # print income[u'address']
+            # print (income[u'address'])
 
             # далее только входы будут
-            # print 'income:   ',income
+            # print ('income:   ',income)
             # CopperLark тут нету аккаунта и нет адреса
             # а у Litecoin есть сразу в записи unspent
             pays.append([dict(id=curr.id, abbrev=curr.abbrev),
@@ -214,7 +214,7 @@ def found_unconfirmed_coins(db, curr, xcurr):
 #
 
 def found_unconfirmed(db, curr, xcurr, addr, pays):
-    # print curr.abbrev
+    # print (curr.abbrev)
 
     confs_need = xcurr.conf
 
@@ -228,7 +228,7 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
         curr_block = crypto_client.get_height(xcurr, token_system)
         if type(curr_block) != type(1):
             mess = curr.name + ': ' + T('no connection to wallet')
-            # print mess
+            # print (mess)
             pays.append(mess)
             return
 
@@ -237,32 +237,32 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
         conn = crypto_client.connect(curr, xcurr)
         if not conn:
             mess = curr.name + ': ' + T('no connection to wallet')
-            # print mess
+            # print (mess)
             pays.append(mess)
             return
-        # print xcurr.name
+        # print (xcurr.name)
 
         try:
             curr_block = conn.getblockcount()
         except:
             mess = curr.name + ': ' + T('no blockcount connection to wallet')
-            # print mess
+            # print (mess)
             pays.append(mess)
             return
 
-    # print curr_block
+    # print (curr_block)
     if type(curr_block) != type(-1):
         pays.append(curr.name + ' not started else... curr block: %s' % curr_block)
         return
     from_block = xcurr.from_block
     if not from_block:
         mess = curr.name + ': ' + T('not last block, please wait...')
-        # print mess
+        # print (mess)
         pays.append(mess)
         return
 
     confMax = confs_need + curr_block - from_block - 1
-    # print 'confMax:', confMax
+    # print ('confMax:', confMax)
     if token_system:
         lUnsp = crypto_client.get_unconf_incomes(xcurr, token_system, token_system.account)
         if type(lUnsp) != type([]):
@@ -310,14 +310,14 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
 
     else:
         lUnsp = conn.listunspent(0, confMax)
-        # print lUnsp
+        # print (lUnsp)
         if type(lUnsp) != type([]):
             mess = 'ERROR: found_unconfirmed lUnsp: %s' % lUnsp
             pays.append(mess)
             return
         txids_used = {}
         for r in lUnsp:
-            # print '\n\n',r.get(u'amount'), r
+            # print ('\n\n',r.get(u'amount'), r)
             txid = r.get(u'txid')
             if not txid:
                 mess = 'found_unconfirmed GEN [%s]?' % r
@@ -332,7 +332,7 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
             # тут массив - может быть несколько транзакций
             # может быть [u'category'] == u'receive' ИЛИ u'send'
             trans_details = ti['details']
-            # print 'trans LEN:', len( trans_details ), 'trans_details:',trans_details
+            # print ('trans LEN:', len( trans_details ), 'trans_details:',trans_details)
             # continue
             # так вот, в одной транзакции может быть несколько входов!
             # поэтому если есть выход - значит тут вход это сдача наша с вывода и такую
@@ -342,7 +342,7 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
                 if detail[u'category'] == u'send':
                     its_outcome = True
                     # сдача тут
-                    # print 'outcome'
+                    # print ('outcome')
                     break
             if its_outcome:
                 continue
@@ -350,11 +350,11 @@ def found_unconfirmed(db, curr, xcurr, addr, pays):
             for income in trans_details:
                 if income[u'category'] != u'receive':
                     continue
-                # print addr, income[u'address']
+                # print (addr, income[u'address'])
                 if addr and income[u'address'] != addr:
                     continue
                 # далее только входы будут
-                # print 'income:   ',income
+                # print ('income:   ',income)
                 # CopperLark тут нету аккаунта и нет адреса
                 # а у Litecoin есть сразу в записи unspent
                 ##pay_in = db(db.deal_acc_addrs.addr = addr).select().first()
@@ -411,7 +411,7 @@ def found_pay_ins_process(db, addr, pays):
         rec_vals = addr and dict() or get_refs(db, pay)
         rec_vals['pay_in'] = pay_in
         rec_vals['pay_in_stack'] = pay.pay_ins_stack
-        # print pay.pay_ins.status
+        # print (pay.pay_ins.status)
         pays.append(rec_vals)
 
 

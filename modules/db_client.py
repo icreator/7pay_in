@@ -62,7 +62,7 @@ def get_deal_acc_id(db, deal, acc, curr_out, price=None):
                   ).select():
         if len(rec.acc) < 3: continue
         deal_acc = rec
-        ##print 'get_deal_acc_id found:', deal_acc.id, deal_acc.acc, curr_out.id
+        ##print ('get_deal_acc_id found:', deal_acc.id, deal_acc.acc, curr_out.id)
         break
 
     if deal_acc:
@@ -70,7 +70,7 @@ def get_deal_acc_id(db, deal, acc, curr_out, price=None):
     else:
         time.sleep(1)
         deal_acc_id = db.deal_accs.insert(deal_id=deal.id, acc=acc, curr_id=curr_out.id, price=price)
-        ##print 'insert new - deal_acc_id:', deal_acc_id
+        ##print ('insert new - deal_acc_id:', deal_acc_id)
     return deal_acc_id
 
 
@@ -99,7 +99,7 @@ def get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr, xcurr, x_acc_label):
                        & (db.deal_acc_addrs.xcurr_id == xcurr.id)
                        ).select().first()
     if deal_acc_addr:
-        ##print 'get_deal_acc_addr_for_xcurr found:', 'deal_acc_id:', deal_acc_id, 'xcurr_id:', xcurr.id, '>>', deal_acc_addr.id, deal_acc_addr.addr
+        ##print ('get_deal_acc_addr_for_xcurr found:', 'deal_acc_id:', deal_acc_id, 'xcurr_id:', xcurr.id, '>>', deal_acc_addr.id, deal_acc_addr.addr)
         return deal_acc_addr
 
     # Erachain tokens?
@@ -128,7 +128,7 @@ def get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr, xcurr, x_acc_label):
             x_acc_label = x_acc_label.decode('utf8')
             # x_acc_label = x_acc_label.encode('koi8_r') # 'iso8859_5') # 'cp866') # 'cp1251') #'cp855')
             # x_acc_label = x_acc_label.decode('cp855')
-            ##print 'GET new addr for x_acc_label:', x_acc_label
+            ##print ('GET new addr for x_acc_label:', x_acc_label)
             try:
                 addr = crypto_client.get_xaddress_by_label(conn, x_acc_label)
             except:
@@ -142,7 +142,7 @@ def get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr, xcurr, x_acc_label):
         xcurr_id=xcurr.id,
         addr=addr)
     deal_acc_addr = db.deal_acc_addrs[id]
-    ##print 'GETed new addr :', addr
+    ##print ('GETed new addr :', addr)
     return deal_acc_addr
 
 
@@ -162,13 +162,13 @@ def get_price_with_fee(db, price, s_b, exchg_id, dealer_id, d_e=None):
    Field('fee_de', 'decimal(4,2)', comment='fee in % from e-dealer to exhange'),
     '''
     if not r:
-        # print "NOT FEE for exchg_id:",exchg_id, "dealer_id:", dealer_id
+        # print ("NOT FEE for exchg_id:",exchg_id, "dealer_id:", dealer_id)
         return price, 0.0
 
     fee = float(d_e and r.fee_de or r.fee_ed) / 100.0
-    # print 'fee:',fee
+    # print ('fee:',fee)
     fee_1 = 1.0 + (s_b and -fee or fee)
-    # print 'fee:',fee, 'income price:',price, 'price:',price * fee
+    # print ('fee:',fee, 'income price:',price, 'price:',price * fee)
     return price * fee_1, fee
 
 
@@ -194,13 +194,13 @@ def get_best_price_for_volume_1(db, in_id, out_id, volume, expired, s_b=None, de
           "exchg_id, curr2_id \
  FROM exchg_pairs \
  WHERE (curr1_id=%s AND curr2_id=%s AND on_update > '%s');" % (in_id, out_id, expired)
-    # print qry
+    # print (qry)
     pairs = db.executesql(qry, as_dict=True)
-    # print pairs
+    # print (pairs)
     best_price = best_pair = best_tax = best_fee_ed = None
     vol = 0
     for pair in pairs:
-        # print pair['exchg_id'], "prices:",pair['p1'], " ... ", pair['p5'], 'vol:',pair['v5']
+        # print (pair['exchg_id'], "prices:",pair['p1'], " ... ", pair['p5'], 'vol:',pair['v5'])
         vol = pair['v1'] or 0
         price = pair['p1']
         exchg = None
@@ -223,17 +223,17 @@ def get_best_price_for_volume_1(db, in_id, out_id, volume, expired, s_b=None, de
                             # значит нету такого объема - пропустим
                             # price = None
                             # но укажем что пара торгуется
-                            # print 'out of volume:', volume
+                            # print ('out of volume:', volume)
                             best_pair = pair
                             continue
-        # print "price get:", price
+        # print ("price get:", price)
         if price:
             # use exchange tax
             exchg = db.exchgs[pair['exchg_id']]
             tax = float(exchg.tax or 0.2) * 0.01  # in %
-            # print price, ' +  exchange tax(', tax, ') -> new price',
+            # print (price, ' +  exchange tax(', tax, ') -> new price',)
             if tax: price = price * Decimal(1 + (s_b and -tax or tax))
-            # print price
+            # print (price)
         if dealer_id and price: price, fee_ed = get_price_with_fee(db, price, s_b, pair['exchg_id'], dealer_id, d_e)
         if best_price and price:
             if s_b and best_price < price \
@@ -248,10 +248,10 @@ def get_best_price_for_volume_1(db, in_id, out_id, volume, expired, s_b=None, de
             best_tax = {exchg.url: tax}
             best_fee_ed = fee_ed
 
-        # print best_price, vol
+        # print (best_price, vol)
 
-    # if best_price: print "best exch:", best_pair['exchg_id'], 'best price:', best_price
-    # else: print "best exch:",None
+    # if best_price: print ("best exch:", best_pair['exchg_id'], 'best price:', best_price)
+    # else: print ("best exch:",None)
 
     return best_price, best_pair, best_tax, best_fee_ed
 
@@ -264,20 +264,20 @@ def get_best_price_for_volume(db, id1, id2, vol, expired, s_b=None, dealer_id=No
     # если объем большой то выдаст Ноне для цены и данные по паре
     best_price, best_pair, best_tax, best_fee_ed = get_best_price_for_volume_1(
         db, id1, id2, vol, expired, s_b, dealer_id, d_e)
-    # print best_tax
+    # print (best_tax)
     if not best_pair:
         # если не нашлось такой ПАРЫ то обратный обмен ищем
         # но обратную операцию
-        # print "rate not exist, try back rate...", id1, id2
+        # print ("rate not exist, try back rate...", id1, id2)
         rateB, rateS, rateAVG = rates_lib.get_average_rate_bsa(db, id2, id1, expired)
-        # print rateB, rateS, rateAVG
+        # print (rateB, rateS, rateAVG)
         # изменим количество
         vol2 = None
         if s_b and rateB:  # если нужна была продажа изначально то берем Покупку
             vol2 = float(vol) / rateB
         if not s_b and rateS:  # берем продажу
             vol2 = float(vol) / rateS
-        # print vol2
+        # print (vol2)
         if vol2 != None:
             best_price, best_pair, best_tax, best_fee_ed = get_best_price_for_volume_1(
                 db, id2, id1, vol2, expired, not s_b, dealer_id, d_e)
@@ -293,7 +293,7 @@ def get_best_price_for_volume(db, id1, id2, vol, expired, s_b=None, dealer_id=No
     if not best_price1: return None, None, None, None
     # нашли кросскурс
     vol1 = vol * best_price1
-    # print 'best_price1:',best_price1, 'vol1:', vol1
+    # print ('best_price1:',best_price1, 'vol1:', vol1)
     best_price2, best_pair2, best_tax2, best_fee_ed = get_best_price_for_volume_1(
         db, btc.id, id2, vol1, expired, s_b, dealer_id, d_e)
     if not best_price2: return None, None, None, None
@@ -316,13 +316,13 @@ def test2():
     c2, x, e = get_currs_by_abbrev(db, 'RUB').id
     pair = db((db.exchg_pairs.curr1_id == c1.id) & (db.exchg_pairs.curr2_id == c2.id)).select().first()
     for vol in (1, 10, 100, 1000, 10000, 33000):
-        # print "\n", vol
-        # print "--->"
+        # print ("\n", vol)
+        # print ("--->")
         best_price, best_pair, best_tax, best_fee_ed = get_best_price_for_volume(db, x1_id, x2_id, vol, expired)
         # и проверим обратную
-        # print "<<<<"
+        # print ("<<<<")
         rateB, rateS, rateA = rates_lib.get_average_rate_bsa(db, x2_id, x1_id, expired)
-        # print "rateB, rateS, rateA", rateB, rateS, rateA
+        # print ("rateB, rateS, rateA", rateB, rateS, rateA)
         if rateS: best_price, best_pair, best_tax, best_fee_ed = get_best_price_for_volume(db, x2_id, x1_id,
                                                                                            vol / rateS, expired)
 
@@ -372,7 +372,7 @@ def get_xcurrs_for_deal(db, amo_out, curr_out, deal, dealer=None, s_b_in=None, n
         else:
             # количество уже жестко задано от магазина
             pr_b, pr_s, pr_avg = rates_lib.get_average_rate_bsa(db, curr_in.id, curr_out.id, expired)
-            # print pr_b, pr_s, pr_avg
+            # print (pr_b, pr_s, pr_avg)
             if pr_b:
                 amo_in = amo_out / pr_b
 
@@ -381,7 +381,7 @@ def get_xcurrs_for_deal(db, amo_out, curr_out, deal, dealer=None, s_b_in=None, n
             # OLD style - without taxes
 
             if not amo_out or pr_b:
-                # print 'amo_in:', amo_in
+                # print ('amo_in:', amo_in)
                 amo_out, rate_order, rate = rates_lib.get_rate(db, curr_in, curr_out, amo_in)
         else:
             # new STYLE - full price
@@ -435,7 +435,7 @@ def get_xcurrs_for_buy(db, curr_in, deal):
         else:
             # берем в расчет только недавние цены
             ao_, ro_, rate = rates_lib.get_rate(db, curr_in, curr_out)
-            # print  ao_, ro_, rate
+            # print ( ao_, ro_, rate)
             if rate:
                 rate = 1 / rate
             else:
@@ -478,7 +478,7 @@ def get_best_price_for_volume_buy(db, curr_in, curr_out, volume_in):
     # поменяем in out s_b
     best_rate, pair, txs, efee = get_best_price_for_volume(
         db, curr_in.id, curr_out.id, volume_in, expired, s_b)  # , dealer.id, d_e)
-    # print best_rate, '1/r=', round(1/best_rate,8), pair, '\n', txs, efee
+    # print (best_rate, '1/r=', round(1/best_rate,8), pair, '\n', txs, efee)
     if not best_rate:
         if pair:
             best_rate, pair, txs, efee = get_best_price_for_volume(
@@ -487,10 +487,10 @@ def get_best_price_for_volume_buy(db, curr_in, curr_out, volume_in):
             mess = 'out off VOLUME= %s for [%s]->[%s].' % (volume_in, curr_in.abbrev, curr_out.abbrev)
             mess = mess + ' I use RATE for 0.001 coins -15% = '
             mess = mess + '%s' % best_rate
-            print mess
+            print (mess)
         else:
             mess = '[%s]->[%s] best rate NOT found!' % (curr_in.abbrev, curr_out.abbrev)
-            print mess
+            print (mess)
             return rate, mess, pair, txs, efee
     volume_out = volume_in * best_rate
     rate = round(volume_in / volume_out, 8)  # тут обратный курс сразу берем
@@ -507,18 +507,18 @@ def get_best_price_by_volume_out(db, curr_in_id, curr_out_id, volume_out, dealer
     # берем в расчет только недавние цены
     expired = datetime.now() - timedelta(0, 360)
     pr_b, pr_s, pr_avg = rates_lib.get_average_rate_bsa(db, curr_in_id, curr_out_id, expired)
-    # print pr_b, pr_s, pr_avg
+    # print (pr_b, pr_s, pr_avg)
     if not pr_b:
         return best_rate, pairs, taxs, fee_ed
     volume_in = volume_out / Decimal(pr_b)
-    # print volume_in, volume_out, pr_b
+    # print (volume_in, volume_out, pr_b)
     s_b = s_b_in == None and True or s_b_in
     d_e = None
     # тут уже с учетом комиссии вывода с биржи на фиат
     # и с учетом комисии конвертаций через кросс-курсы
     best_rate, pairs, taxs, fee_ed = get_best_price_for_volume(
         db, curr_in_id, curr_out_id, volume_in, expired, s_b, dealer_id, d_e)
-    # print best_rate, pairs, taxs
+    # print (best_rate, pairs, taxs)
     return best_rate, pairs, taxs, fee_ed
 
 
@@ -586,7 +586,7 @@ def get_fees_for_out(db, deal, dealer_deal, curr_in, curr_out, volume_out, rate,
     # теперь посмотрим сколько надо входа:
     vol_in = vol / rate
     info.append(T('Расчетный курс: %s с учетом комиссии бирж') % rate)
-    # print pairs, taxs
+    # print (pairs, taxs)
     if taxs and len(taxs) > 0:
         info.append(T(': {'))
         i = 0
@@ -594,7 +594,7 @@ def get_fees_for_out(db, deal, dealer_deal, curr_in, curr_out, volume_out, rate,
             pair = pairs[i]
             curr_out = db.currs[pair['curr2_id']]
             i = i + 1
-            for exchg_name, vol in tax.iteritems():
+            for exchg_name, vol in tax.items():
                 ss = '%s ->[%s]: %s' % (exchg_name, curr_out.abbrev, vol * 100)
                 info.append(ss + '%; ')
         info.append(' ')
@@ -641,10 +641,10 @@ def use_fees_for_in(db, deal, dealer_deal, curr_in, curr_out, vol_in, rate, mess
     fee = float(curr_in.fee_in or 0)
     if fee >0:
         vol_in = vol_in + fee
-    print deal
-    print dealer_deal
-    print curr_in
-    print curr_out
+    print (deal)
+    print (dealer_deal)
+    print (curr_in)
+    print (curr_out)
     '''
     # тепеь добавим таксы на вход - в обратном порядке от выхода накрутки
     tax = float(curr_in.tax_in or 0)
@@ -804,7 +804,7 @@ def calc_fees(db, deal, dealer_deal, curr_in, curr_out, vol_in, rate, is_order=N
     ##    return vol_in, mess
     fee_curr = db.currs[deal.fee_curr_id]
     fee_rate = Decimal(rates_lib.get_avr_rate_or_null(db, fee_curr.id, curr_out.id))
-    ##print 'fee_rate', fee_rate
+    ##print ('fee_rate', fee_rate)
     abbrev_in = curr_in.abbrev
     # это такса за создание заказа и столбление курса в заказе
     fee = use_fee and curr_in.fee_in or 0
@@ -938,7 +938,7 @@ def calc_fees_back(db, deal, dealer_deal, curr_in, curr_out, vol_out, rate, is_o
     fee_curr = db.currs[deal.fee_curr_id]
     fee_rate = Decimal(rates_lib.get_avr_rate_or_null(db, fee_curr.id, curr_out.id))
 
-    ##print 'back - fee_rate', fee_rate, fee_curr.abbrev, abbrev_out
+    ##print ('back - fee_rate', fee_rate, fee_curr.abbrev, abbrev_out)
     ################ BACK ##################################
     ## сделано перестановкой от оригинала и - на + поменял
     # мзда диллера - то что он снимает с нас свыше суммы платежа
@@ -1047,6 +1047,6 @@ def calc_fees_back(db, deal, dealer_deal, curr_in, curr_out, vol_out, rate, is_o
 
 # test2()
 
-# print db(db.exchg_pairs.id==1).select().first().s1
+# print (db(db.exchg_pairs.id==1).select().first().s1)
 # db(db.exchg_pairs.id==1).update(s1='999')
 # db.commit()

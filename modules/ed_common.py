@@ -29,7 +29,7 @@ PAY_PARS_P2P = PAY_PARS
 
 def log(db, mess):
     mess = 'EDc: %s' % mess
-    print mess
+    print (mess)
     db.logs.insert(mess=mess)
 def log_commit(db, mess):
     log(db,mess)
@@ -68,13 +68,13 @@ def limits_test(db, ed_acc, vol=33):
     
     if ed_acc.limited:
         # если ограничение - то не более 10тыс в день и 40 тыс в мес
-        #print 'ed_acc.day_limit_sum + vol:', ed_acc.day_limit_sum + vol
+        #print ('ed_acc.day_limit_sum + vol:', ed_acc.day_limit_sum + vol)
         if ed_acc.day_limit_sum + vol > DAY_LIM_A:
             return
         if ed_acc.mon_limit_sum + vol > MON_LIM_A:
             return
     else:
-        #print 'ed_acc.day_limit_sum + vol:', ed_acc.day_limit_sum + vol
+        #print ('ed_acc.day_limit_sum + vol:', ed_acc.day_limit_sum + vol)
         # если НЕТ ограничения - то не более 10тыс в день и 40 тыс в мес
         if ed_acc.day_limit_sum + vol > DAY_LIM_P:
             return
@@ -86,7 +86,7 @@ def limits_test(db, ed_acc, vol=33):
 # выбрать счет с наибольшим резервом
 # тут если приближается конец токена то используем его впервую очередб
 def sel_acc_max(db, dealer, ecurr, vol, unlim=None):
-    #print 'try sel_acc_max for vol:', vol, 'unlim:', unlim
+    #print ('try sel_acc_max for vol:', vol, 'unlim:', unlim)
     # в днях - 100 дней от окончания действия ключа
     expired = datetime.date.today() + datetime.timedelta(30)
     s = 0
@@ -96,13 +96,13 @@ def sel_acc_max(db, dealer, ecurr, vol, unlim=None):
              ).select():
         if not ed_acc.used: continue
 
-        #print ed_acc.acc, ed_acc.balance, ed_acc.day_limit_sum
+        #print (ed_acc.acc, ed_acc.balance, ed_acc.day_limit_sum)
         if not unlim:
             # сбросим лимиты если надо
             limits_end(db, ed_acc)
             # проверим на лимиты теперь - если превышен то пропустим
             if not limits_test(db, ed_acc, vol):
-                #print 'limitted'
+                #print ('limitted')
                 continue
 
         bal = ed_acc.balance
@@ -117,14 +117,14 @@ def sel_acc_max(db, dealer, ecurr, vol, unlim=None):
             # но баланса должно хватать для платежа + комиссия
             bal = bal * Decimal(3)
 
-        #print 'new bal:',bal, 'new max bal for pay:', s
+        #print ('new bal:',bal, 'new max bal for pay:', s)
         if s < bal:
             s = bal
             acc = ed_acc
     return acc
 
 def sel_acc_max_for_balance(db, dealer, ecurr, vol, unlim=None):
-    #print 'try sel_acc_max for vol:', vol, 'unlim:', unlim
+    #print ('try sel_acc_max for vol:', vol, 'unlim:', unlim)
     # в днях - 100 дней от окончания действия ключа
     s = 0
     acc = None
@@ -137,13 +137,13 @@ def sel_acc_max_for_balance(db, dealer, ecurr, vol, unlim=None):
         if vol and vol > bal * koeff:
             continue
 
-        #print ed_acc.acc, ed_acc.balance, ed_acc.day_limit_sum
+        #print (ed_acc.acc, ed_acc.balance, ed_acc.day_limit_sum)
         if not unlim:
             # сбросим лимиты если надо
             limits_end(db, ed_acc)
             # проверим на лимиты теперь - если превышен то пропустим
             if not limits_test(db, ed_acc, vol):
-                #print 'limitted'
+                #print ('limitted')
                 continue
 
 
@@ -152,7 +152,7 @@ def sel_acc_max_for_balance(db, dealer, ecurr, vol, unlim=None):
             # но баланса должно хватать для платежа + комиссия
             bal = bal * Decimal(3)
 
-        #print 'new bal:',bal, 'new max bal for pay:', s
+        #print ('new bal:',bal, 'new max bal for pay:', s)
         if s < bal:
             s = bal
             acc = ed_acc
@@ -162,7 +162,7 @@ def sel_acc_max_for_balance(db, dealer, ecurr, vol, unlim=None):
 # для пополнения
 def sel_acc_min(db, dealer, ecurr, vol, unlim=None):
     #min = db.dealers_accs.balance.max()
-    #print db().select(max).first()[max]
+    #print (db().select(max).first()[max])
     s = 999999
     acc = None
     
@@ -176,13 +176,13 @@ def sel_acc_min(db, dealer, ecurr, vol, unlim=None):
 
         # если подходит дата окончания ключа то прекратим пополнение этого счета
         if ed_acc.expired < expired:
-            #print ed_acc.expired, ' < ', expired
+            #print (ed_acc.expired, ' < ', expired)
             continue
         if ed_acc.reserve_MAX and ed_acc.reserve_MAX + 555 < ed_acc.balance:
             continue
 
         if not unlim:
-            #print 'test limits'
+            #print ('test limits')
             # сбросим лимиты если надо
             limits_end(db, ed_acc)
             # проверим на лимиты теперь - если превышен то пропустим
@@ -208,7 +208,7 @@ def sel_acc_min(db, dealer, ecurr, vol, unlim=None):
 def select_ed_acc(db, deal, ecurr, vol=33, unlim=None):
     result = None, None, None
     vol = Decimal(1.1) * Decimal(vol)
-    #print vol, type(vol)
+    #print (vol, type(vol))
     # сначала возьмем те у кого баланс больше чем нужно максимально
     for ed_acc in db(
                (db.dealer_deals.deal_id == deal.id)
@@ -220,26 +220,26 @@ def select_ed_acc(db, deal, ecurr, vol=33, unlim=None):
              & (db.dealers_accs.reserve_MAX < db.dealers_accs.balance)
              & (db.dealers_accs.balance > vol)
              ).select():
-        print 'get as max_reserve > balance', ed_acc.dealers_accs.acc
+        print ('get as max_reserve > balance', ed_acc.dealers_accs.acc)
         return ed_acc.dealers, ed_acc.dealers_accs, ed_acc.dealer_deals
 
     l = []
     # по всем диллерам
     for dealer_deal in db(db.dealer_deals.deal_id == deal.id).select():
         dealer = db.dealers[dealer_deal.dealer_id]
-        #print dealer.name
+        #print (dealer.name)
         # теперь выберем аккант наш у диллера где больше всего деннег
         acc = sel_acc_max(db, dealer, ecurr, vol, unlim)
         if acc:
             # счет нашелся
-            print 'added for search:', acc.acc
+            print ('added for search:', acc.acc)
             l.append([dealer, acc, dealer_deal])
 
-    print l
+    print (l)
     # теперь из найденных счетов выберем с наименьшей комиссией
     tax = 100
     for t in l:
-        print '  t[2].tax:', t[2].tax
+        print ('  t[2].tax:', t[2].tax)
         if tax > t[2].tax:
             tax = t[2].tax
             result = t[0], t[1], t[2]
@@ -252,7 +252,7 @@ def add_trans(db, pars):
     tr = db((db.dealers_accs_trans.dealer_acc_id==pars['dealer_acc_id'])
             & (db.dealers_accs_trans.op_id==pars['op_id'])).select().first()
     if tr: return -tr.id # уже такая есть
-    print 'ed_common - add_trans ADD pars %s' % pars
+    print ('ed_common - add_trans ADD pars %s' % pars)
     tr_last=db(db.dealers_accs_trans.dealer_acc_id==pars['dealer_acc_id']).select().last()
     bal_last = tr_last and tr_last.balance or Decimal(0)
     pars['diff'] = float(bal_last) - float(pars.get('balance') or 0) + float(pars.get('amo') or 0)
@@ -349,9 +349,9 @@ def pay(db, deal, dealer, dealer_acc, dealer_deal, acc, volume_out_full, log_on=
             acc, volume_out, None, None, log_on, pars_in)
         if res['status'] == u'refused' and res.get('error') == u'authorization_reject':
             # авторизация кончилась - надо этот счет выключить
-            print 'pay - authorization_reject for', dealer_acc.acc
+            print ('pay - authorization_reject for', dealer_acc.acc)
             dealer_acc.update_record( used = False)
-            #print 'authorization_reject'
+            #print ('authorization_reject')
     else:
         res = {'status':'refused', 'error':'no dealer', 'error_description': dealer.name + ' not scripted', }
 
@@ -359,7 +359,7 @@ def pay(db, deal, dealer, dealer_acc, dealer_deal, acc, volume_out_full, log_on=
         sum_taken = res.get('sum_taken')
         # платеж прошел и было взято с нас, запомним
         if log_on != False:
-            print 'ed_common pay() res:', res
+            print ('ed_common pay() res:', res)
         add_trans(db, dict(dealer_acc_id=dealer_acc.id,
                     info='%s' % res,
                     vars = res,
@@ -397,20 +397,20 @@ def get_payment_info(dealer, dealer_acc, pay_id ):
 # test - not seek in DB
 def is_order_addr(db, mess, test=None ):
     vs = mess.split('7pb')
-    #print vs
+    #print (vs)
     if len(vs)==2:
         order_id = vs[1]
-        #print 'is_order_addr 7pb +', order_id
+        #print ('is_order_addr 7pb +', order_id)
         if order_id.isdigit():
-            #print 'is_order_addr isdigits', order_id
+            #print ('is_order_addr isdigits', order_id)
             order = db.addr_orders[ order_id ]
             if order:
-                #print 'is_order_addr order',  order.addr
+                #print ('is_order_addr order',  order.addr)
                 xcurr = db.xcurrs[ order.xcurr_id ]
                 addr = order.addr
                 return xcurr, addr and addr.strip()
         else:
-            print 'is_payment_for_buy -  orderId:', order_id
+            print ('is_payment_for_buy -  orderId:', order_id)
     return None, None
 
 # test - not seek in DB
@@ -438,10 +438,10 @@ def get_edealers_for_to_wallet(db, deal, curr_out, ecurr_out_id, ed_name=None):
     limit_bal = None
     for edealer in db((db.dealers.used == True)
                  & (not ed_name or db.dealers.name == ed_name)).select():
-        #print edealer.name
+        #print (edealer.name)
         limit_bal = 0
         MAX = MIN = db_common.gMIN(deal, edealer)
-        MAX = deal.MAX_pay or 1777
+        MAX = deal.max_pay or 1777
         limit_bal, accs = get_lim_bal(db, edealer)
         if MAX * 3 > limit_bal:
             MAX = limit_bal / 4

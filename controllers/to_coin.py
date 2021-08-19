@@ -50,10 +50,10 @@ def get_uri_in():
     response.js = "$('.go2-btn').removeClass('disabled');$('#go2').children('i').removeClass('fa-refresh fa-spin').addClass('fa-search');"
 
     h, result = get_rate_result(request, get_currs = True)
-    print result
+    print (result)
     
     addr_out = request.vars.addr
-    #print request.vars
+    #print (request.vars)
     if not addr_out:
         return mess(T('ОШИБКА: Задайте кошелек'))
 
@@ -96,7 +96,7 @@ def get_uri_in():
         token_out = db.tokens[token_key_out]
         token_system_out = db.systems[token_out.system_id]
 
-    #print request.application[-5:]
+    #print (request.application[-5:])
     if request.application[:-3] != '_dvlp' and not DEVELOP_USE:
         # чето конфликт если из ipay3_dvlp вызывать то кошелек на ipay3 не коннектится
         if token_system_out:
@@ -120,13 +120,13 @@ def get_uri_in():
         session.toCoin = curr_out_abbrev
         session.toCoinA = addr_out
     except:
-        print 'to_coin session error .toCoinA:', type(addr_out), addr_out
+        print ('to_coin session error .toCoinA:', type(addr_out), addr_out)
 
     volume_in = result['volume_in']
     try:
         session.vol = volume_in
     except:
-        print 'to_coin session error .volume_in:', type(volume_in), volume_in
+        print ('to_coin session error .volume_in:', type(volume_in), volume_in)
 
     if token_system_in:
         addr_in = token_system_in.account
@@ -198,7 +198,7 @@ def get_uri_in():
 
         volume_out = common.rnd_8(volume_out)
         rate_out = volume_out / volume_in
-        #print 'rate_out', rate_out, 'volume_in', volume_in, 'volume_out', volume_out
+        #print ('rate_out', rate_out, 'volume_in', volume_in, 'volume_out', volume_out)
 
         # new make order
         order_id = db.orders.insert(
@@ -301,7 +301,7 @@ def get_rate_result(request, get_currs = False):
     import rates_lib
     result = rates_lib.get_rate_for_api(db, request.vars.get('curr_in'), request.vars.get('curr_out'), request.vars.get('vol_in'), get_limits = True, get_currs = get_currs)
 
-    print result
+    print (result)
     
     if 'error' in result:
         return mess(result['error']), result
@@ -364,7 +364,7 @@ def get_rate():
 def index():
 
     #common.page_stats(db, response['view'])
-    #print request.args
+    #print (request.args)
 
     response.title=T("Exchange Bitcoin and ERA, COMPU")
     response.subtitle = T('Bitcoin Erachain Gate')
@@ -379,7 +379,7 @@ def index():
     try:
         session.date_log = request.now
     except:
-        print 'to_coin session error .date_log:', type(request.now), request.now
+        print ('to_coin session error .date_log:', type(request.now), request.now)
 
     if request.vars:
         abberv = abbrev or request.vars.get('curr') or session.toCoin

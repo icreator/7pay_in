@@ -28,7 +28,7 @@ def try_buy_stack():
     
     mess = buy.addr
     xcurr, addr = ed_common.is_order_addr(db, mess)
-    print xcurr
+    print (xcurr)
     if xcurr and not buy.xcurr_id:
         buy.update_record( xcurr_id = xcurr.id, addr = addr )
     return addr
@@ -156,7 +156,7 @@ def get_ebalance():
     dealer_acc = db.dealers_accs[ request.args[0]]
     dealer = db.dealers[ dealer_acc. dealer_id ]
     res = ed_common.get_balance(dealer, dealer_acc )
-    print type(res), res
+    print (type(res), res)
     return 'type:%s - %s' % (type(res), res)
 
 # 410012107376992/
@@ -188,7 +188,7 @@ def pay_test_to_phone():
     # если задан другой телефон то платеж ему сделаем
     phone = len(request.args) == 0 and phone or request.args[0]
     res = ed_common.pay(deal, dealer, dealer_acc, dealer_deal, phone, 13)
-    print res
+    print (res)
     return res
 
 # http://127.0.0.1:8000/ipay/tools/pay_test_YD?pattern_id=1856&sum=15&PROPERTY1=0897468952&rapida_param1=0897468952&redsum=15
@@ -203,14 +203,14 @@ def pay_test():
     dealer_deal = db((db.dealer_deals.scid==scid)
             & (db.dealer_deals.dealer_id==dealer.id)).select().first()
     deal = db.deals[dealer_deal.deal_id]
-    print deal.name
+    print (deal.name)
     dealer, dealer_acc, d_ = ed_common.select_ed_acc(db, deal, ecurr)
-    print dealer_acc.acc, dealer_acc.balance
+    print (dealer_acc.acc, dealer_acc.balance)
     vol = float(request.vars.get('sum') or request.vars.get('redsum') or 13)
 
     acc = '---???---'
     res = ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, acc, vol, True, request.vars)
-    print res
+    print (res)
     return BEAUTIFY(res)
 
 
@@ -226,15 +226,15 @@ def pay_test_to_deal():
     dealer_deal = db((db.dealer_deals.deal_id==deal.id)
             & (db.dealer_deals.dealer_id==dealer.id)).select().first()
     #deal = db.deals[dealer_deal.deal_id]
-    print deal.name
+    print (deal.name)
     dealer, dealer_acc, d_ = ed_common.select_ed_acc(db, deal, ecurr)
-    print dealer_acc.acc, dealer_acc.balance
+    print (dealer_acc.acc, dealer_acc.balance)
     
     vol = float(request.args(1) or 100)
     
     acc = request.vars.get('acc')
     res = ed_common.pay_test(db, deal, dealer, dealer_acc, dealer_deal, acc, vol, True, None)
-    print res
+    print (res)
     return BEAUTIFY(res)
 
 # оплатить с заданного дилера с заданного акка диллера, по делу, на аккаунт дела - сумму
@@ -262,7 +262,7 @@ def pay_to_deal():
     #pay(edlr, edlr_acc, pattern_id, deal_acc, amo, pay_pars, testMake, testConfirm):
     # если задан другой телефон то платеж ему сделаем
     res = ed_common.pay(db, deal, dealer, dealer_acc, dealer_deal, acc, float(request.vars['sum']))
-    print res
+    print (res)
     return BEAUTIFY(res)
 
 # найти счет диллера с котрого будем платить
@@ -305,7 +305,7 @@ def select_ed_acc():
     deal_id = request.args(0)
     if not deal_id: return '/[deal_id]/[vol_out_full]/[limited]'
     deal = db.deals[deal_id]
-    print deal.name
+    print (deal.name)
     curr = db.currs[ deal.fee_curr_id ]
     ecurr = db(db.ecurrs.curr_id == curr.id).select().first()
     volume_out_full = Decimal(request.args(1) or 0)
@@ -313,7 +313,7 @@ def select_ed_acc():
     dealer, dealer_acc, d_ = ed_common.select_ed_acc(db, deal, ecurr, volume_out_full, limited)
     if not dealer_acc:
         return 'dealer_acc=None'
-    print dealer_acc.acc, dealer_acc.balance
+    print (dealer_acc.acc, dealer_acc.balance)
     h = CAT(H1(deal.name,' : ', curr.abbrev),
             dealer_acc.acc,': ', dealer_acc.balance, ' day_limit_sum:', dealer_acc.day_limit_sum,
             ' mon_limit_sum:', dealer_acc.mon_limit_sum,' reserve_MAX:', dealer_acc.reserve_MAX,
@@ -324,7 +324,7 @@ def select_ed_acc():
 def get_lim_bal():
     if len(request.args) == 0:
         mess = 'len(request.args)==0'
-        print mess
+        print (mess)
         return mess
     import ed_common
     dealer = db.dealers[request.args[0]]
@@ -341,7 +341,7 @@ def get_lim_bal():
 def get_payment_info():
     if len(request.args) == 0:
         mess = '/edealers/get_payment_info/41001873409965/[op_id]'
-        #print mess
+        #print (mess)
         return mess
     ed_acc = request.args(0)
     op_id = request.args(1)
@@ -368,7 +368,7 @@ def get_payment_info():
 def list_incoms():
     if len(request.args) == 0:
         mess = '/edealers/list_incoms/41001873409965?from=same or 2015-06-06T06:08:19Z'
-        #print mess
+        #print (mess)
         return mess
 
     import serv_to_buy

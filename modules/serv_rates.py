@@ -83,7 +83,7 @@ def from_livecoin(db, exchg):
 
 def from_poloniex(db, exchg):
     exchg_id = exchg.id
-    ##PRINT_AS_FUNC and print(conn) or print conn
+    ##PRINT_AS_FUNC and print(conn) or print (conn)
     for pair in db_common.get_exchg_pairs(db, exchg_id):
         if not pair.used or not pair.ticker:
             continue
@@ -95,7 +95,7 @@ def from_poloniex(db, exchg):
         https://poloniex.com/public?command=returnTradeHistory&currencyPair=BTC_DOGE
     [{"globalTradeID":13711923,"tradeID":469269,"date":"2016-01-17 11:37:16","type":"sell",
     "rate":"0.00000039","amount":"273.78000000","total":"0.00010677"},        '''
-        print (t1, t2, 'pair.ticker:', pair.ticker)
+        print ((t1, t2, 'pair.ticker:', pair.ticker))
         if Test: continue
             
         try:
@@ -130,7 +130,7 @@ def from_poloniex(db, exchg):
 
 def from_cryptsy(db, exchg):
     exchg_id = exchg.id
-    ##PRINT_AS_FUNC and print(conn) or print conn
+    ##PRINT_AS_FUNC and print(conn) or print (conn)
     for pair in db_common.get_exchg_pairs(db, exchg_id):
         if not pair.used or not pair.ticker:
             continue
@@ -205,7 +205,7 @@ def from_btc_e_3(db,exchg):
     try:
         resp = fetch(url)
         res = json.loads(resp)
-        for k,v in res.iteritems():
+        for k,v in res.items():
             print( k[:3], k[4:],  ) # v
             curr1 = get_curr(db, exchg_id, k[:3])
             curr2 = get_curr(db, exchg_id, k[4:])
@@ -226,42 +226,6 @@ def from_btc_e_3(db,exchg):
         print(msg)
         return msg
 
-    
-def from_btc_e(db, exchg):
-    from_btc_e_3(db, exchg)
-    return
-    
-    for pair in db_common.get_exchg_pairs(db, exchg.id):
-        if not pair.used: continue
-        curr1 = db.currs[pair.curr1_id]
-        if not curr1.used: continue
-        curr2 = db.currs[pair.curr2_id]
-        if not curr2.used: continue
-        
-        #PRINT_AS_FUNC and print(pair) or print pair
-        limits1 = db_common.get_limits(db, exchg.id, pair.curr1_id)
-        limits2 = db_common.get_limits(db, exchg.id, pair.curr2_id)
-        #if not limits1 or not limits2: continue
-        # если нет лимитов то берем мелкие буквы
-        #PRINT_AS_FUNC and print(pair.curr1_id, pair.curr2_id) or print pair.curr1_id, pair.curr2_id
-        t1 = limits1 and limits1.ticker or None
-        if not t1:
-            t1 = curr1.abbrev.lower()
-        t2 = limits2 and limits2.ticker or None
-        if not t2:
-            t2 = curr2.abbrev.lower()
-        print("   ",  t1, t2)
-        if Test: continue
-        try:
-            tab = exch_client.getDept(exchg.name, t1, t2)
-            pass
-        except Exception as e:
-            msg = "serv_rates %s :: %s" % (exchg.url, e)
-            print(msg)
-            continue
-
-        db_common.store_depts(db, pair, tab)
-
 def get_from_exch(db, exchg):
     if exchg.API_type == 'btc-e_3':
         return from_btc_e_3(db,exchg)
@@ -273,7 +237,7 @@ def get_from_exch(db, exchg):
         return from_cryptsy(db, exchg)
     else:
         conn = exch_client.conn(exchg)
-        res = from_btc_e(db,exchg)
+        res = from_btc_e_3(db,exchg)
         exch_client.conn_close(exchg)
         return res
     #return conn
@@ -298,7 +262,7 @@ def make_cross(db):
             _, _, avrg2 = rates_lib.get_average_rate_bsa(db, rec.curr2_id, USD_CURR.id, expired)
             if avrg2:
                 continue
-            print (rec.curr1_id, '/ USD', avrg, ', for',  rec.curr2_id, ' cross:', avrg * float(rec.hard_price))
+            print ((rec.curr1_id, '/ USD', avrg, ', for',  rec.curr2_id, ' cross:', avrg * float(rec.hard_price)))
             db_common.store_cross_rates(db, exchg_id, rec.curr2_id, USD_CURR.id, buy * float(rec.hard_price), sell * float(rec.hard_price))
             count += 1
             continue
@@ -308,7 +272,7 @@ def make_cross(db):
             _, _, avrg2 = rates_lib.get_average_rate_bsa(db, rec.curr1_id, USD_CURR.id, expired)
             if avrg2:
                 continue
-            print (rec.curr2_id, '/ USD', avrg, ', for',  rec.curr1_id, ' cross:', avrg * float(rec.hard_price))
+            print ((rec.curr2_id, '/ USD', avrg, ', for',  rec.curr1_id, ' cross:', avrg * float(rec.hard_price)))
             db_common.store_cross_rates(db, exchg_id, rec.curr1_id, USD_CURR.id, buy * float(rec.hard_price), sell * float(rec.hard_price))
             count += 1
             continue
@@ -318,7 +282,7 @@ def make_cross(db):
             _, _, avrg2 = rates_lib.get_average_rate_bsa(db, BTC_CURR.id, rec.curr2_id, expired)
             if avrg2:
                 continue
-            print ('BTC /', rec.curr1_id, avrg, ', for',  rec.curr2_id, ' cross:', avrg * float(rec.hard_price))
+            print (('BTC /', rec.curr1_id, avrg, ', for',  rec.curr2_id, ' cross:', avrg * float(rec.hard_price)))
             db_common.store_cross_rates(db, exchg_id, BTC_CURR.id, rec.curr2_id, buy * float(rec.hard_price), sell * float(rec.hard_price))
             count += 1
             continue
@@ -328,7 +292,7 @@ def make_cross(db):
             _, _, avrg2 = rates_lib.get_average_rate_bsa(db, BTC_CURR.id, rec.curr1_id, expired)
             if avrg2:
                 continue
-            print ('BTC /', rec.curr2_id, avrg, ', for',  rec.curr1_id, ' cross:', avrg * float(rec.hard_price))
+            print (('BTC /', rec.curr2_id, avrg, ', for',  rec.curr1_id, ' cross:', avrg * float(rec.hard_price)))
             db_common.store_cross_rates(db, exchg_id, BTC_CURR.id, rec.curr1_id, buy * float(rec.hard_price), sell * float(rec.hard_price))
             count += 1
             continue
@@ -339,10 +303,13 @@ def make_cross(db):
     return count
 
 
+# if Interval < 0 use once
 def get(db, not_local, interval=None):
     interval = interval or 66
-    print( __name__, 'not_local:',not_local, ' interval:', interval)
     not_local = not_local == 'True'
+
+    if interval > 0:
+        print( __name__, 'not_local:', not_local, ' interval:', interval)
 
     proc_buys_period = 550
     i_pb = proc_buys_period
@@ -365,12 +332,24 @@ def get(db, not_local, interval=None):
             pass
 
         db.commit()
-        print('\n', datetime.datetime.now())
+        print('\n rates updated - ', datetime.datetime.now())
 
         # make cross rates
         while make_cross(db) > 0:
-            print ('next cross')
+            print (('next cross'))
             pass
+
+        if True:
+            try:
+                # если есть невыплаченные покупки криптовалюты
+                clients_lib.notify(db)
+            except Exception as e:
+                db.rollback()
+                log_commit(db, 'clients_lib.notify ERROR: %s' % e)
+
+        if Test or interval < 0:
+            # run once
+            return
 
         if not_local:
             # если я запустил это локально - то нельзя проверять историю диллеров
@@ -385,42 +364,37 @@ def get(db, not_local, interval=None):
                         # запустим историю только 1 раз за запуск сервера!
                         # если вдруг что-то не так в момент работы сервера, то это саппорт решать должен
                         # в контроллере edealers есть list_incoms - которая проверяет историю
-                        # и ттам можно сделать лист входов или их в стек выплат записать
+                        # и там можно сделать лист входов или их в стек выплат записать
+                        print('try serv_to_buy.proc_history')
                         mess = serv_to_buy.proc_history(db)
-                        #PRINT_AS_FUNC and print(mess) or print mess
+                        ## PRINT_AS_FUNC and print(mess) or print (mess)
+                        print(mess)
                         serv_to_buy_proc_history_one = not serv_to_buy_proc_history_one
-                        print('\n', datetime.datetime.now())
                     elif True:
                         ## сейчас у нас ссылка неработает из-за pixle HTTPS
                         ## так что будем пробовать историю
+                        print('try serv_to_buy.proc_history')
                         mess = serv_to_buy.proc_history(db, only_list=None, ed_acc=None,
                                 from_dt_in='same')
-                        ##PRINT_AS_FUNC and print(mess) or print mess
+                        print(mess)
+                        ##PRINT_AS_FUNC and print(mess) or print (mess)
                     # внутри db.commit()
                 except Exception as e:
                 #else:
                     db.rollback()
                     log_commit(db, 'serv_to_buy.proc_history ERROR: %s' % e)
 
-            if True:
-                try:
-                    # если есть невыплаченные покупки криптовалюты
-                    clients_lib.notify(db)
-                except Exception as e:
-                    db.rollback()
-                    log_commit(db, 'clients_lib.notify ERROR: %s' % e)
-
         else:
-            print('local use - skeep serv_to_buy.proc_history and clients_lib.notify')
+            print('local use - skep serv_to_buy.proc_history and clients_lib.notify')
 
-        if Test: break
-        print( 'sleep',interval,'sec')
+        print('sleep', interval, 'sec')
         sleep(interval)
 
-if Test: get(db)
+if Test:
+    get(db)
 
 # если делать вызов как модуля то нужно убрать это иначе неизвестный db
 import sys
-#PRINT_AS_FUNC and print(sys.argv) or print sys.argv
+#PRINT_AS_FUNC and print(sys.argv) or print (sys.argv)
 if len(sys.argv)>1:
     get(db, sys.argv[1], float(sys.argv[2]))

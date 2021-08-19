@@ -10,7 +10,7 @@ from gluon.dal import DAL, Field, Table
 reserveds = ['MIN', 'MAX', 'ref', 'template', 'count', 'sum', 'counter', 'average', 'connect', 'desc', 'page', 'level']
 
 
-# print db.tables
+# print (db.tables)
 def to_mysql(db, db_old=None):
     return 'nne none'
     if not db_old:
@@ -29,15 +29,15 @@ def to_mysql(db, db_old=None):
         db[table].truncate()
         tn = table._tablename
         if tn in exept:
-            print 'EXEPTED:', table
+            print ('EXEPTED:', table)
             continue
-        print 'CONVERTing:', table
+        print ('CONVERTing:', table)
         for r in db_old(db_old[table]).select():
-            # if tn == 'deals': print r
+            # if tn == 'deals': print (r)
             # заменим зарезервированные слова
             r_ = dict()
             for f in r:
-                # print f
+                # print (f)
                 if f in reserveds:
                     r_[f] = r[f]
             for f in r_:
@@ -45,7 +45,7 @@ def to_mysql(db, db_old=None):
             try:
                 db[table][0] = r
             except Exception as e:
-                print e
+                print (e)
 
 
 # тут запуск из тулсов, поэтому коммит автоматом
@@ -61,14 +61,14 @@ def to7(db):
     '''
     db_old = db
     # import json
-    print '\nconvert 6 to 7'
+    print ('\nconvert 6 to 7')
 
     for r in db(db.deals).select():
         r.used = True
         r.update_record()
 
     dealer = db.dealers[1]
-    print dealer.name
+    print (dealer.name)
     for deal in db(db.deals).select():
         db.dealer_deals.insert(
             dealer_id=dealer.id,
@@ -82,7 +82,7 @@ def to7(db):
         )
 
     db.commit()
-    print 'end'
+    print ('end')
 
 
 def from5(db):
@@ -101,25 +101,25 @@ def from5(db):
                  auto_import=True,
                  folder="../../ipay6-a/databases")
     import json
-    print '\nimport 5 to 6'
+    print ('\nimport 5 to 6')
 
     for xcurr in db(db.xcurrs).select():
         pass
 
     deal = db(db.deals.name == 'to phone +7 RUBs').select().first()
     if not deal: return 'not deal "to phone +7 RUBs"'
-    print "for deal:", deal
+    print ("for deal:", deal)
     for rec in db_old(db_old.to_phone).select():
         # найдем неимпортированные записи
         #
         acc = db((db.deal_accs.deal_id == deal.id)
                  & (db.deal_accs.acc == rec.phone)).select().first()
-        # print acc
+        # print (acc)
         # continue
         if acc:
             acc_id = acc.id
         else:
-            print 'insert acc', rec.phone
+            print ('insert acc', rec.phone)
             acc_id = db.deal_accs.insert(deal_id=deal.id, acc=rec.phone)
 
         acc_addr = db((db.deal_acc_addrs.deal_acc_id == acc_id)
@@ -127,7 +127,7 @@ def from5(db):
                       & (db.deal_acc_addrs.xcurr_id == rec.xcurr_id)).select().first()
 
         if acc_addr:  continue
-        print 'insert acc_addr ', rec.xcurr_id, rec.wallet
+        print ('insert acc_addr ', rec.xcurr_id, rec.wallet)
         db.deal_acc_addrs.insert(deal_acc_id=acc_id,
                                  addr=rec.wallet, xcurr_id=rec.xcurr_id,
                                  incomed=rec.unspent, converted=rec.unspent)

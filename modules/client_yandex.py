@@ -32,7 +32,7 @@ def pay(edlr, edlr_acc, pattern_id, acc, amo, pay_pars=None, testMake=None, test
     api_pars, acc_pars, acc_name = get_pars(edlr, edlr_acc)
     #YmToPhone(api_pars, token, phone, amount, acc_name, test=None):
     res = YmToPhone(api_pars, edlr_acc.skey, acc, amo, acc_name, testMake)
-    print '  YmToPhone:', res
+    print ('  YmToPhone:', res)
     if res['status']!='success':
          res['method'] = 'request-payment'
          return res
@@ -41,7 +41,7 @@ def pay(edlr, edlr_acc, pattern_id, acc, amo, pay_pars=None, testMake=None, test
     res['pattern_id'] = pattern_id
     res = YmToPhoneConfirm(res, api_pars, edlr_acc.skey, testConfirm)
     res['method'] = 'process-payment'
-    print '  YmToConfirm:', res
+    print ('  YmToConfirm:', res)
     return res
 
 # Fill in this consts your values
@@ -96,7 +96,7 @@ def YmOauthRedirectHandler(api_pars, acc_pars, code):
         second step of Oauth.
         Requests access token in exchange for request token (code)
         provided be yandex.money as the redirect parameter. """
-    #print 'CODE', code
+    #print ('CODE', code)
     data = {'client_id' : acc_pars['CLIENT_ID'], 'grant_type' : 'authorization_code',
             'redirect_uri' : acc_pars['YM_REDIRECT_URI'], 'code' : code}
     f = urllib.urlopen(api_pars['URI_YM_TOKEN'], urllib.urlencode(data))
@@ -113,10 +113,10 @@ def YmGetBalanse(api_pars, token, acc_name):
     try:
         f = urllib2.urlopen(rq)
     except Exception as e:
-        print 'YmGetBalanse ', acc_name, e
+        print ('YmGetBalanse ', acc_name, e)
         return {'error': e, 'status':'unauthorized', 'balance': None}
     r = json.load(f)
-    #print r.get('balance')
+    #print (r.get('balance'))
     return r #.get('balance')
 
 def YmToPhone(api_pars, token, phone, amount, acc_name, test=None):
@@ -139,7 +139,7 @@ def YmToPhone(api_pars, token, phone, amount, acc_name, test=None):
     try:
         f = urllib2.urlopen(rq)
     except Exception as e:
-        print 'YmToPhone ', acc_name, e
+        print ('YmToPhone ', acc_name, e)
         return {'error': e, 'status':'unauthorized'}
     r = json.load(f)
     ''' данные ан выходе
@@ -202,7 +202,7 @@ def to_phone(edlr, edlr_acc, phone, amo):
              # платеж не а поцессе - выходим из проверки окончания платежа
              break
         # платеж в процессе - ожидаем и потом еще раз запросим
-        print 'sleep'
+        print ('sleep')
         time.sleep(10)
     # платеж совершен или откланен
     if res['status']!='success':

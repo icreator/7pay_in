@@ -7,7 +7,7 @@ def index():
     #    v[ r.head] = r.body
     #rec
     #response.vars = { 'r': v}
-    #print response._vars
+    #print (response._vars)
     rs=db(db.news).select(orderby=~db.news.on_create, limitby=(0, 100))
     
     stats = []

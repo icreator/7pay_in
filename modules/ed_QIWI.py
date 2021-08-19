@@ -34,7 +34,7 @@ ORL_FORM_TRANSF = 'ransfer/form.action'
 	
 
 def log(db, mess):
-    print 'ed_YD - ', mess
+    print ('ed_YD - ', mess)
     db.logs.insert(mess='YD: %s' % mess)
 def log_commit(db, mess):
     log(db,mess)
@@ -59,7 +59,7 @@ def login(edlr_acc):
         from gluon.contrib.webclient import WebClient
         client = WebClient(URL, postbacks=True)
         client.post(URL_LOG, data=data, headers = headers )
-        print client.status, client.text, '\n headers:', client.headers, '\n cookies: ', client.cookies, '\n sessions:', client.sessions
+        print (client.status, client.text, '\n headers:', client.headers, '\n cookies: ', client.cookies, '\n sessions:', client.sessions)
         r = json.loads(client.text)
 
     code = r.get('code')
@@ -79,7 +79,7 @@ def login(edlr_acc):
         r = json.load(r)
     elif TTT == 'wcl':
         client.post(URL_LOG, data=data, headers = headers )
-        print client.status, client.text, '\n headers:', client.headers, '\n cookies: ', client.cookies, '\n sessions:', client.sessions
+        print (client.status, client.text, '\n headers:', client.headers, '\n cookies: ', client.cookies, '\n sessions:', client.sessions)
         r = json.loads(client.text)
 
     code = r.get('code')
@@ -194,7 +194,7 @@ def get_history(edlr_acc, direction, from_dt, to_dt, TAG):
                     date = dd[0][0],
                     time = tt[0][0],
                   )])
-    #print r
+    #print (r)
     
     return None, trans
 
@@ -219,12 +219,12 @@ def get_history__(edlr, edlr_acc, from_dt):
 ####################################################
 # выдает одну страницу в 30 записей с заданной записи по времени первой транзакции
 def get_history_inputs_page(edlr, edlr_acc, pars, next_rec ):
-    print 'get_history_inputs_page next_rec:', next_rec
+    print ('get_history_inputs_page next_rec:', next_rec)
     if next_rec: pars['start_record'] = next_rec
     pars = urllib.urlencode(pars)
-    #print pars
+    #print (pars)
     res = get_history_pars(edlr, edlr_acc, pars)
-    #print res
+    #print (res)
     return res
 def get_history_inputs(edlr, edlr_acc, from_dt):
     tab = []
@@ -235,16 +235,16 @@ def get_history_inputs(edlr, edlr_acc, from_dt):
     if from_dt: pars['from'] = from_dt
     next_rec = 0
     while True:
-        #print 'next_rec:', next_rec
+        #print ('next_rec:', next_rec)
         res = get_history_inputs_page( edlr, edlr_acc, pars, next_rec )
-        #print 'get_history_inputs_page res:', res
+        #print ('get_history_inputs_page res:', res)
         if not res or 'operations' not in res:
-            #print dealer.name, dealer_acc.acc, '- empty get_history_inputs_page = RES'
+            #print (dealer.name, dealer_acc.acc, '- empty get_history_inputs_page = RES')
             break
         # сложим все записи с истории
         tab = tab + res['operations']
         next_rec  = 'next_record' in res and res['next_record']
-        print 'next_rec:', next_rec, 'LEN:', len(res['operations'])
+        print ('next_rec:', next_rec, 'LEN:', len(res['operations']))
         if not next_rec: break
 
     # тут в обратной последовательности - надо отсортировать по возрастанию времени
@@ -267,7 +267,7 @@ def get_payment_info(edlr, edlr_acc, pay_id):
 '''
 def make_pay_pars(deal, dlr_deal, api_pars, acc, amount, pars):
     # если тут счет как массив значит это счет и шаблон для сборки параметров
-    #print 'make_pay_pars pars:', pars
+    #print ('make_pay_pars pars:', pars)
     pay_pars = deal.template_
     if pay_pars and len(pay_pars)>0:
         pay_pars = json.loads(pay_pars)
@@ -280,7 +280,7 @@ def make_pay_pars(deal, dlr_deal, api_pars, acc, amount, pars):
         # если форму с сайта дилера взяли то и параметры там не надо распаковывать
         acc_pars = json.loads( acc )
         # просто их добавим в общий набор параметров
-        for k, v in acc_pars.iteritems():
+        for k, v in acc_pars.items():
             pars[k] = v
         '''
         # тут просто по порядку преобразуем из аккаунта нашего дела в их параметры
@@ -295,17 +295,17 @@ def make_pay_pars(deal, dlr_deal, api_pars, acc, amount, pars):
             dlr_template = PAY_PARS
 
         acc_str = acc
-        #print acc, pay_pars, pars
+        #print (acc, pay_pars, pars)
         not_mod = None
         sum_names = dlr_template.get('_sum_names')
-        #print 'dlr_template:', dlr_template
+        #print ('dlr_template:', dlr_template)
         calcs_ = dlr_deal.calcs_ or {}
         if len(calcs_)>0: pars['_calcs_'] = calcs_
         for p in pay_pars:
-            #print p
+            #print (p)
             p_name = p.get('n')
             if not p_name: continue
-            #print 'pay_pars p_name:',p_name
+            #print ('pay_pars p_name:',p_name)
             # ищем в вычисляемых полях
             calc = calcs_.get(p_name)
             # тут параметры для счета
@@ -319,31 +319,31 @@ def make_pay_pars(deal, dlr_deal, api_pars, acc, amount, pars):
                     # скопируем параметр уже созданный сюда
                     val = pars[ p[calc]]
                 else:
-                    #print p, type(p['calc'])
+                    #print (p, type(p['calc']))
                     val = calc
             else:
                 val, sep, acc_str = acc_str.partition(' ')
 
-                #print dlr_template[p['n']]
+                #print (dlr_template[p['n']])
 
             dlr_par = dlr_template.get(p_name)
-            #print dlr_par
+            #print (dlr_par)
             if dlr_par:
                 pars[ dlr_par['n']] = val
 
-    #print 'PARS in make:', pars
+    #print ('PARS in make:', pars)
     # преобразуем тут толпу разных парамеров у яндекса ко всем
     if sum_names:
         # если в шаблоне нужно только окнкретные имена сумм указывать
         # например за Билайн-интеренет - sum_names = ['sum', 'redsum']
         for sn in sum_names:
             calc = calcs_.get(sn)
-            #print "%s", calc
+            #print ("%s", calc)
             if calc != None:
                 pars[sn] = calc
             else:
                 pars[sn] = amount #int(amount)
-        #print '_sums_names:', pars
+        #print ('_sums_names:', pars)
     else:
         pars['sum'] = pars['netSum'] = pars['redsum'] = amount
 
@@ -353,21 +353,21 @@ def make_pay_pars(deal, dlr_deal, api_pars, acc, amount, pars):
     if True and not not_mod: # сейчас не добавлем все подряд
         id = None
         user_names = api_pars['acc_names']
-        #print pars
+        #print (pars)
         for key in user_names:
-            #print key
+            #print (key)
             if key in pars:
                 id = pars[key]
-                #print id, pars[key]
+                #print (id, pars[key])
                 break
         if not id:
-            print 'ERROR - make_pay_pars - user id = None \n pay_pars:', pay_pars
+            print ('ERROR - make_pay_pars - user id = None \n pay_pars:', pay_pars)
             return
         # теперь всем возможным параметрам присвоим этот ид
         for key in user_names:
             pars[key] = id
 
-    #print 'PARS after make:', pars
+    #print ('PARS after make:', pars)
 
 def calc_contract_amount(res, db, deal, edlr_deal, api_pars, edlr_acc, acc, amo, acc_name, testMake, log_on, pars_in):
     contract_amount = res.get('contract_amount')
@@ -382,7 +382,7 @@ def calc_contract_amount(res, db, deal, edlr_deal, api_pars, edlr_acc, acc, amo,
         # и поновой запрос на платеж сделать
         rate = float(contract_amount) / amo
         amo_exch = round(amo / rate, 2) - 0.05 # за конвертацию еще себе + положим
-        print 'RATE:', rate, amo_exch, amo, contract_amount
+        print ('RATE:', rate, amo_exch, amo, contract_amount)
         for k in SUM_NAMES:
             #pars_in.get
             pass
@@ -391,14 +391,14 @@ def calc_contract_amount(res, db, deal, edlr_deal, api_pars, edlr_acc, acc, amo,
             # это только работает для платежей без тестовых параметров
             return { 'status': 'error', 'error': 'contract_amount = %s and pars_in: %s --> RES: %s' % ( contract_amount, pars_in, res) }
         res = YmTo(db, deal, edlr_deal, api_pars, edlr_acc.skey, acc, amo_exch, acc_name, testMake, log_on, pars_in)
-        print 'calc_contract_amount RES:',res
+        print ('calc_contract_amount RES:',res)
         contract_amount = res.get('contract_amount')
         if not contract_amount: return res # тут какая-то ошибка вылезла
         contract_amount = float (contract_amount)
         if contract_amount > amo:
             return { 'status': 'error', 'error': 'contract_amount %s not equal input amo %s' % (contract_amount, amo)  }
         else:
-            print 'contract_amount:',contract_amount, 'amo:', amo
+            print ('contract_amount:',contract_amount, 'amo:', amo)
             pass
     return res
 
@@ -415,8 +415,8 @@ def pay_test(db, deal, edlr, edlr_acc, edlr_deal, acc, amo, log_on=None, pars_in
         ss = res['contract']
         ss = ss.encode('utf8')
         ss = str(ss).decode('utf8')
-        print 'TEST\n', ss
-    #print 'TEST  YmTo:', res
+        print ('TEST\n', ss)
+    #print ('TEST  YmTo:', res)
     ''' нетестовый запрос не работает с тестовым подтвердением (
     if res['status']!='success':
          res['method'] = 'request-payment'
@@ -439,7 +439,7 @@ def pay(db, deal, edlr, edlr_acc, edlr_deal, acc, amo, testMake=None, testConfir
         #ss = res['contract']
         #ss = ss.encode('utf8')
         #ss = str(ss).decode('utf8')
-        #print ss
+        #print (ss)
         pass
     if log_on: log(db, ' YmTo RES: %s' % res)
 
@@ -460,7 +460,7 @@ def pay(db, deal, edlr, edlr_acc, edlr_deal, acc, amo, testMake=None, testConfir
     res['_acc_name'] = acc_name
     res['_acc'] = acc
     res['contract_amount'] = amo1
-    #print "res.get('error'):", res.get('error')
+    #print ("res.get('error'):", res.get('error'))
 
     res['method'] = 'process-payment'
     if 'credit_amount' in res:
@@ -473,14 +473,14 @@ def pay(db, deal, edlr, edlr_acc, edlr_deal, acc, amo, testMake=None, testConfir
         bal2 = res['balance']
         sum1 = bal1 - bal2
         amo = int(amo*100)*0.01
-        #print sum1, amo, bal1, bal2
+        #print (sum1, amo, bal1, bal2)
         tax = round((sum1 - amo)/amo*100,1)
-        #print 'TAX:', tax
+        #print ('TAX:', tax)
         if tax < 0: tax=0 # это тестовый платеж где баланс не меняется
         elif tax > 9: tax = 1 # есл вдруг было какоето изменение на счету не от этого платежа
         res['tax'] = tax
         res['sum_taken'] = sum1 # списанные деньги
-    #print '  YmToConfirm:', res
+    #print ('  YmToConfirm:', res)
     if log_on: log(db, 'YmToConfirm: %s' % res)
     return res
 
@@ -521,7 +521,7 @@ title	:
         mess = 'income_YD: get_payment_info - NOT success'
     elif 'pattern_id' not in info:
         # платеж из АЛЬФА-БАНКА так приходит - без pattern
-        # print info
+        # print (info)
         mess = 'not "pattern_id" in info'
     elif info['pattern_id'] != 'p2p':
         mess = 'income_YD: get_payment_info - NOT p2p'
@@ -548,16 +548,16 @@ title	:
         return None, mess
 
     abbrev, addr_0, addr = info['message'].partition(' ')
-    print 'abbrev, addr_0, addr', abbrev, addr_0, addr
+    print ('abbrev, addr_0, addr', abbrev, addr_0, addr)
     if abbrev and not addr:
         addr = abbrev
         abbrev = db_common.get_currs_by_addr(db, addr, True)
         log(db, 'try use %s as ADDR' % addr)
-        print abbrev, addr
+        print (abbrev, addr)
     if not abbrev:
         mess = 'xcurr or wallet addr not in payments message [%s]' % info['message']
         log(db, mess)
-        print mess
+        print (mess)
         return None, mess
 
     curr = xcurr = partner = None
@@ -636,7 +636,7 @@ def YmOauthRedirectHandler(api_pars, acc_pars, code):
         second step of Oauth.
         Requests access token in exchange for request token (code)
         provided be yandex.money as the redirect parameter. """
-    #print 'CODE', code
+    #print ('CODE', code)
     data = {'client_id' : acc_pars['CLIENT_ID'], 'grant_type' : 'authorization_code',
             'redirect_uri' : acc_pars['YM_REDIRECT_URI'], 'code' : code}
     f = urllib.urlopen(api_pars['URI_YM_TOKEN'], urllib.urlencode(data))
@@ -653,10 +653,10 @@ def YmGetBalanse(api_pars, token, acc_name):
     try:
         f = urllib2.urlopen(rq)
     except Exception as e:
-        print 'YmGetBalanse ', acc_name, e
+        print ('YmGetBalanse ', acc_name, e)
         return {'error': e, 'status':'unauthorized', 'balance': None}
     r = json.load(f)
-    #print r.get('balance')
+    #print (r.get('balance'))
     return r #.get('balance')
 
 def get_history_pars(edlr, edlr_acc, pars):
@@ -668,10 +668,10 @@ def get_history_pars(edlr, edlr_acc, pars):
     try:
         f = urllib2.urlopen(rq)
     except Exception as e:
-        print 'get_incoms %s \n PARS: %s' % (e, pars)
+        print ('get_incoms %s \n PARS: %s' % (e, pars))
         return {'error': e, 'status':'unauthorized', 'get_incoms': None}
     r = json.load(f)
-    #print r.get('balance')
+    #print (r.get('balance'))
     return r #.get('balance')
 
 
@@ -682,10 +682,10 @@ def YmGetPayInfo(api_pars, token, pay_id):
     try:
         f = urllib2.urlopen(rq)
     except Exception as e:
-        print 'YmGetPayInfo ', pay_id, e
+        print ('YmGetPayInfo ', pay_id, e)
         return {'error': e, 'status':'unauthorized', 'balance': None}
     r = json.load(f)
-    #print r.get('balance')
+    #print (r.get('balance'))
     return r #.get('balance')
 #import logging
 
@@ -694,7 +694,7 @@ def YmTo(db, deal, edlr_deal, api_pars, token, acc, amount, acc_name, test=None,
     if edlr_deal.scid == 'phone-topup':
         if False and len (acc) == 11 and acc[0:1] == '7': ph = acc[1:]
         else: ph = acc
-        #print ph
+        #print (ph)
         pars = {'pattern_id': edlr_deal.scid,
             'phone-number': ph,
 #            'PROPERTY1': ph[0:3],
@@ -726,10 +726,10 @@ def YmTo(db, deal, edlr_deal, api_pars, token, acc, amount, acc_name, test=None,
             }
         #pars['label'] = pars['message']
     else: # это магазин и там иднтификатор
-        #print type(deal)
+        #print (type(deal))
         if type(deal) == type(''): name = deal
         else: name = deal.name #.decode('utf8') #'cp1251')
-        #print name
+        #print (name)
         pars = {'pattern_id': edlr_deal.scid,
             'comment': DOMEN + ' to %s for [%s]' % (name, acc),
             'message': u'from ' + DOMEN, #current.T('from '+DOMEN),
@@ -741,7 +741,7 @@ def YmTo(db, deal, edlr_deal, api_pars, token, acc, amount, acc_name, test=None,
             pars['label'] = pars['message']
             pars['title'] = pars['message']
 
-        #print pars
+        #print (pars)
         #if 'user' not in pars:
         #    return {'error': 'user=None', 'status':'user not setted'}
 
@@ -751,7 +751,7 @@ def YmTo(db, deal, edlr_deal, api_pars, token, acc, amount, acc_name, test=None,
 
     if 'test_result' in pars: pars['test_payment'] = True
 
-    #print pars_in
+    #print (pars_in)
     pars = pars_in or pars
 
     # если заданы комисии то сразу их введем
@@ -772,16 +772,16 @@ def YmTo(db, deal, edlr_deal, api_pars, token, acc, amount, acc_name, test=None,
     for k in ['comment', 'FormComment', 'message', 'title', 'label']:
         pars_uncomment.pop(k, None)
     pars = urllib.urlencode(pars)
-    #print 'PARS:',pars
+    #print ('PARS:',pars)
     #return pars
     rq = urllib2.Request(api_pars['URI_YM_API'] + '/request-payment', pars)
     rq.add_header('Authorization', 'Bearer ' + token)
-    #print rq
+    #print (rq)
     #logging.Logger.debug(rq)
     try:
         f = urllib2.urlopen(rq)
     except Exception as e:
-        print 'ERROR YmTo ', acc_name, e
+        print ('ERROR YmTo ', acc_name, e)
         return {'error': e, 'status':'Exception', '_acc_name':acc_name, '_acc':acc}
     r = json.load(f)
     ''' данные ан выходе
@@ -824,7 +824,7 @@ money_source	:	wallet	:	allowed	:	true
     # ошибки нет - то что надо выбрано для выплаты
     r['error'] = None
     r['status'] = 'success'
-    if log_on != False: print 'YmTo - success!', acc, amount, '\n'
+    if log_on != False: print ('YmTo - success!', acc, amount, '\n')
     return r
 
 def YmToConfirm(pars_in, api_pars, token, test=None):
@@ -840,7 +840,7 @@ def YmToConfirm(pars_in, api_pars, token, test=None):
         pars['test_result'] = test
 
     pars = urllib.urlencode(pars)
-    print 'YmToConfirm PARS:', pars
+    print ('YmToConfirm PARS:', pars)
     rq = urllib2.Request(api_pars['URI_YM_API'] + '/process-payment', pars)
     rq.add_header('Authorization', 'Bearer ' + token)
     #return rq
@@ -849,13 +849,13 @@ def YmToConfirm(pars_in, api_pars, token, test=None):
         try:
             f = urllib2.urlopen(rq)
             r = json.load(f)
-            print 'YmToConfirm while status not in_proggress - res:', r
+            print ('YmToConfirm while status not in_proggress - res:', r)
             if r['status']!='in_progress':
                  # платеж не а поцессе - выходим из проверки окончания платежа
                  break
         except Exception as e:
             # или любая ошибка - повтор запроса - там должно выдать ОК
-            #print 'YmToConfirm while EXEPTION:', e
+            #print ('YmToConfirm while EXEPTION:', e)
             log(db, 'YmToConfirm while EXEPTION: %s' % e)
 
         time.sleep(20)

@@ -43,7 +43,7 @@ def err_dict(m):
 def for_addr():
     session.forget(response)
     addr = request.vars and request.vars.get('addr')
-    # print address
+    # print (address)
     if not addr or len(addr) < 24: return dict(pays=T('ошибочный адрес [%s]') % addr)
 
     import where1
@@ -55,7 +55,7 @@ def for_addr():
     pays = []
     # все еще не подтвержденные
     curr, xcurr, _, = db_common.get_currs_by_addr(db, addr)
-    # print curr, '\n', xcurr
+    # print (curr, '\n', xcurr)
     if not curr or not curr.used: return dict(pays=T('ошибочный адрес по первой букве [%s]') % addr)
     where1.found_unconfirmed(db, curr, xcurr, addr, pays)
 
@@ -67,10 +67,10 @@ def for_addr():
 # @cache.action(time_expire=request.is_local and 5 or 30, cache_model=cache.disk,
 #              vars=True, public=True, lang=True)
 def list():
-    # print request.application
-    # print request.function
+    # print (request.application)
+    # print (request.function)
     # common.page_stats(db, response['view'])
-    # print request.vars
+    # print (request.vars)
     ed_op_res = None
     ed_acc = request.vars.get('acc')
     if ed_acc:
@@ -101,7 +101,7 @@ def list():
     try:
         session.seeAddr = addr
     except:
-        print 'list session error .seeAddr:', type(addr), addr
+        print ('list session error .seeAddr:', type(addr), addr)
 
     import where3
 
@@ -123,7 +123,7 @@ def list():
         curr_out = db.currs[deal_acc.curr_id]
         deal = db.deals[deal_acc.deal_id]
         payed_month = not deal.is_shop and deal_acc.payed_month or Decimal(0)
-        MAX = deal.MAX_pay
+        MAX = deal.max_pay
         payed = deal_acc.payed or Decimal(0)
         price = deal_acc.price
         order_id = deal_acc.acc
@@ -148,14 +148,14 @@ def list():
 
         pays_unconf = []
         where3.found_unconfirmed(db, curr_in, xcurr_in, addr, pays_unconf)
-        # print 'pays_unconf:', pays_unconf
+        # print ('pays_unconf:', pays_unconf)
 
         pays_process = []
         where3.found_pay_ins_process(db, addr, pays_process)
 
         pays = []
         where3.found_pay_ins(db, addr, pays)
-        # print 'pays:', pays
+        # print ('pays:', pays)
         return dict(pays_unconf=pays_unconf, pays_process=pays_process, pays=pays,
                     payed_month=payed_month, MAX=MAX, addr=addr,
                     payed=payed, price=price, order_id=order_id, amo_rest_url=amo_rest_url,

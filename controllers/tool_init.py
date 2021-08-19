@@ -20,47 +20,38 @@ session.forget(response)
 import common
 # запустим сразу защиту от внешних вызов
 # тут только то что на локалке TRUST_IP in private/appconfig.ini
-common.not_is_local(request)
-
-
-# запустим сразу защиту от внешних вызов
-if False:
-    not_is_local(True)
-
-
-# тут только то что на локалке
-
+if True:
+    common.not_is_local(request)
+############################
 
 # попробовать что-либо вида
 def index():
     # err(1)
-    return dict(message="inits")
-
+    return dict(message=current.T('init tools'))
 
 def init_db_records():
     #########################################
-    if db(db.exchgs).isempty():
-        db.exchgs.truncate('RESTART IDENTITY CASCADE')  # restart autoincrement ID
 
-    if db(db.exchg_taxs).isempty():
-        db.exchg_taxs.truncate('RESTART IDENTITY CASCADE')
+    if not db(db.currs).isempty():
+        return dict(message=current.T('db.currs is not EMPTY - clear it before!'))
+    if not db(db.exchgs).isempty():
+        return dict(message=current.T('db.exchgs is not EMPTY - clear it before!'))
 
-    if db(db.exchg_pair_bases).isempty():
-        db.exchg_pair_bases.truncate('RESTART IDENTITY CASCADE')
+    db.exchgs.truncate('RESTART IDENTITY CASCADE')  # restart autoincrement ID
 
-    if db(db.dealers).isempty():
-        db.dealers.truncate('RESTART IDENTITY CASCADE')
+    db.exchg_taxs.truncate('RESTART IDENTITY CASCADE')
 
-    if db(db.systems).isempty():
-        db.systems.truncate('RESTART IDENTITY CASCADE')
+    db.exchg_pair_bases.truncate('RESTART IDENTITY CASCADE')
 
-    if db(db.deals_cat).isempty():
-        db.deals_cat.truncate('RESTART IDENTITY CASCADE')
+    db.dealers.truncate('RESTART IDENTITY CASCADE')
 
-    if db(db.deals).isempty():
-        db.deals.truncate('RESTART IDENTITY CASCADE')
+    db.systems.truncate('RESTART IDENTITY CASCADE')
 
-    if db(db.currs).isempty():
+    db.deals_cat.truncate('RESTART IDENTITY CASCADE')
+
+    db.deals.truncate('RESTART IDENTITY CASCADE')
+
+    if True:
         db.currs.truncate('RESTART IDENTITY CASCADE')
         db.deals_cat.truncate('RESTART IDENTITY CASCADE')
         db.systems.truncate('RESTART IDENTITY CASCADE')
@@ -131,6 +122,7 @@ def init_db_records():
         # see http://erachain.org:9047/index/blockexplorer.html?assets=&lang=en&start=25
         name = 'erachain'
         system_id = db.systems.insert(name='Erachain', name2=name, first_char='7',
+                                      protocol='era',
                                       connect_url='http://127.0.0.1:9048',  # for Testnet use http://127.0.0.1:9068
                                       account='7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7',
                                       password='123456789',
@@ -227,22 +219,22 @@ def init_db_records():
         db.deals.insert(
             fee_curr_id=CURR_RUB_ID, name='BUY', name2='to BUY',
             used=False, not_gifted=True,
-            MIN_pay=10, MAX_pay=2777,
+            min_pay=10, max_pay=2777,
             fee=3, tax=0.2, fee_min=0, fee_max=0)
         db.deals.insert(
             fee_curr_id=CURR_RUB_ID, name='to COIN', name2='to COIN',
             used=False, not_gifted=True,
-            MIN_pay=10, MAX_pay=2777,
+            min_pay=10, max_pay=2777,
             fee=3, tax=0.2, fee_min=0, fee_max=0)
         db.deals.insert(
             fee_curr_id=CURR_RUB_ID, name='WALLET', name2='to WALLET',
             used=False, not_gifted=True,
-            MIN_pay=10, MAX_pay=2777,
+            min_pay=10, max_pay=2777,
             fee=3, tax=0.2, fee_min=0, fee_max=0)
         db.deals.insert(cat_id=2,
                         fee_curr_id=CURR_RUB_ID, name='phone +7', name2='to PHONE +7',
                         used=False, not_gifted=True,
-                        MIN_pay=10, MAX_pay=2777,
+                        min_pay=10, max_pay=2777,
                         fee=3, tax=0.2, fee_min=0, fee_max=0)
 
         ##
@@ -253,9 +245,9 @@ def init_db_records():
         dealer_id = db.dealers.insert(
             name='Yandex',
             used=True,
-            API='{ "URI_YM_API": "https://money.yandex.ru/api", "URI_YM_AUTH": "https://sp-money.yandex.ru/oauth/authorize", "URI_YM_TOKEN": "https://sp-money.yandex.ru/oauth/token", "acc_names": ["user", "PROPERTY1", "rapida_param1", "customerNumber", "CustomerNumber"] }',
+            api='{ "URI_YM_API": "https://money.yandex.ru/api", "URI_YM_AUTH": "https://sp-money.yandex.ru/oauth/authorize", "URI_YM_TOKEN": "https://sp-money.yandex.ru/oauth/token", "acc_names": ["user", "PROPERTY1", "rapida_param1", "customerNumber", "CustomerNumber"] }',
             info='{ "shops_url": "https://money.yandex.ru/shop.xml?scid=", "search_url": "https://money.yandex.ru/", "img_url": "https://money.yandex.ru" }',
-            pay_out_MIN=10)
+            pay_out_min=10)
         db.dealers_accs.insert(dealer_id=dealer_id, ecurr_id=2, acc='4100134701234567', balance=9999999,
                                pkey='{"YM_REDIRECT_URI": "https://7pay.in/ed_YD/yandex_response", "secret_response": "**secret response**", "CLIENT_ID": "**TOKEN**", "SCOPE": "account-info operation-history operation-details payment-shop.limit(1,37777) payment-p2p.limit(1,37777)"}',
                                used=True, expired='2216-02-10')
@@ -291,7 +283,7 @@ def init_db_records():
         ]:
 
             exchg_id = db.exchgs.insert(name=r[0], url=r[1],
-                                        API_type=r[2], API=r[3], used=r[4], tax=r[5],
+                                        api_type=r[2], api=r[3], used=r[4], tax=r[5],
                                         fee=r[6]
                                         )
             if len(r) > 7:
@@ -390,10 +382,9 @@ def inits_new_portal():
             resp += addr + '<br>'
 
         except Exception as e:
-            print e
+            print (e)
             msg = token_system.name + " - no made system account, error: %s" % e
             resp += msg + '<br>'
             continue
 
     return resp
-

@@ -15,7 +15,7 @@ db = DAL("sqlite://storage.sqlite",
 # this keyword buil model on fly on load
         auto_import=True,
         folder="../databases")
-#print db.tables
+#print (db.tables)
 '''
 
 
@@ -122,11 +122,11 @@ def get_exchg_pairs(db, id):
 
 def get_limits(db, exchg_id, curr_id):
     limits = db((db.exchg_limits.exchg_id == exchg_id) & (db.exchg_limits.curr_id == curr_id)).select().first()
-    # print limits
+    # print (limits)
     return limits
 
 def store_depts(db, pair, rec):
-    # print rec
+    # print (rec)
     pair.sp1 = rec[0][0][0]
     pair.sv1 = rec[0][0][1]
     pair.sp2 = rec[0][1][0]
@@ -153,7 +153,7 @@ def store_depts(db, pair, rec):
     pair.on_update = datetime.now()
     pair.update_record()
     db.commit()
-    # print pair.uniq, "updated..."
+    # print (pair.uniq, "updated...")
 
 def store_rates(db, pair, sell, buy):
     pair.update_record(sp1=sell, bp1=buy, on_update=datetime.now())
@@ -162,10 +162,10 @@ def store_cross_rates(db, exchg_id, curr1_id, curr2_id, sell, buy):
     price_pair = db((db.exchg_pairs.curr1_id == curr1_id) & (db.exchg_pairs.curr2_id == curr2_id)).select().first()
     if not price_pair:
         db.exchg_pairs.insert(exchg_id=exchg_id, used=True, curr1_id=curr1_id, curr2_id=curr2_id, sp1=sell, bp1=buy, on_update=datetime.now())
-        print 'insert:', curr1_id, curr2_id, sell, buy
+        print ('insert:', curr1_id, curr2_id, sell, buy)
     else:
         price_pair.update_record(exchg_id=exchg_id, used=True, sp1=sell, bp1=buy, on_update=datetime.now())
-        print 'update:', curr1_id, curr2_id, sell, buy
+        print ('update:', curr1_id, curr2_id, sell, buy)
 
 def pay_err_store(db, dealer, dealer_acc, deal, acc, err):
     # запомним что такой платеж нужен комуто
@@ -184,17 +184,17 @@ def pay_err_store(db, dealer, dealer_acc, deal, acc, err):
 
 def gMIN(deal, dealer, min0=10):
     # для платежей криптой - любые суммы
-    min1 = deal.MIN_pay or 0
+    min1 = deal.min_pay or 0
     if min1 < 0: return 0
     min1 = int(min1 or min0)
-    min2 = int(dealer and dealer.pay_out_MIN or min0)
+    min2 = int(dealer and dealer.pay_out_min or min0)
     min_ = min2 > min1 and min2 or min1
     return int(min_ * 1.2) + 1
 
 
 def gMAX(deal, dealer, max0=2777):
     # для платежей криптой - любые суммы
-    max1 = deal.MAX_pay or 0
+    max1 = deal.max_pay or 0
     if max1 < 0: return 0
     max1 = int(max1 or max0)
     ## нет у дилера макс пока max2 = int(dealer and dealer.pay_out_MAX or max0)

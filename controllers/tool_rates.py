@@ -23,7 +23,8 @@ common.not_is_local(request)
 # попробовать что-либо вида
 def index():
     #err(1)
-    return dict(message="hello from tools.py")
+    return dict(message="hello from tool_rates.py")
+
 
 def serv_rates():
     if not request.args(0): return 'serv_rates/exchgs.id'
@@ -36,10 +37,10 @@ def get_best_rates():
     if not request.args(0): return 'get_best_rates/RUB'
     curr_in = db(db.currs.abbrev==request.args(0)).select().first()
     rates = rates_lib.get_best_rates(db, curr_in, curr_out=None)
-    #print rates
+    #print (rates)
     h = CAT()
-    for i, r in rates.iteritems():
-        #print i,r
+    for i, r in rates.items():
+        #print (i,r)
         h += DIV(
             db.currs[i].abbrev,' base: ',r[0],' tax: ', r[1],' rate:', r[2], ' - 1/rate:', 1/r[2] if r[2] else 0
             )
@@ -50,7 +51,7 @@ def get_best_rates():
 def get_best_price_for_volume():
     if len(request.args) == 0:
         mess = 'len(request.args)==0'
-        print mess
+        print (mess)
         return mess
     import db_client
     import db_common
@@ -59,16 +60,16 @@ def get_best_price_for_volume():
     expired = datetime.datetime.now() - datetime.timedelta(5,600)
     s_b = len(request.args)<4 or request.args[3]=='sell'
     #s_b = not 3 in request.args or request.args[3]=='sell'
-    print s_b
-    print db_client.get_best_price_for_volume(db, a_in.id, a_out.id,
+    print (s_b)
+    print (db_client.get_best_price_for_volume(db, a_in.id, a_out.id,)
             float(request.args[2]), expired, s_b)
 
-# выдать лучшуу цену нв объем
+# выдать лучшую цену нв объем
 # best_price/sell/LTC/RUB/123
 def best_price():
     if len(request.args) == 0:
         mess = 'len(request.args)==0'
-        print mess
+        print (mess)
         return mess
     import db_client
     import db_common
@@ -86,15 +87,15 @@ def best_price():
     best_rate, pair = db_client.get_best_price_for_volume(
         db, acurr_in.id, acurr_out.id, float(volume_in), expired, s_b, dealer_id, d_e)
     res = best_rate and "%s, 1/X = %s" % (best_rate, 1/best_rate) or best_rate
-    print res, pair
+    print (res, pair)
     return res
 
 # выдает список для вычисления курса по степени объема
-# http://127.0.0.1:8000/ipay/tools/get_rate_powers/BTC
+# http://127.0.0.1:8000/ipay/tools_rates/get_rate_powers/BTC
 def get_rate_powers():
     if len(request.args) == 0:
         mess = 'len(request.args)==0'
-        print mess
+        print (mess)
         return mess
     import rates_lib
     curr_in = db(db.currs.abbrev==request.args[0]).select().first()
@@ -108,7 +109,7 @@ def get_rate_powers():
 def get_rate():
     if len(request.args) <2:
         mess = 'len(request.args)==0 - [pay_in]/[pay_out]/[amo]'
-        print mess
+        print (mess)
         return mess
     import rates_lib
     import db_common
@@ -126,7 +127,7 @@ def get_rate():
 def get_best_rate():
     if len(request.args) == 0:
         mess = 'len(request.args)==0 - [pay_in]/[amo]'
-        print mess
+        print (mess)
         return mess
     import rates_lib
     pay_in = db.pay_ins[request.args[0]]

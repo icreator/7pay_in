@@ -62,7 +62,7 @@ scid_ = re.compile("[?&](\w+)=(\w+)")
 
 def get_e_bal(deal, dealer, dealer_acc):
     e_balance = db_common.get_balance_dealer_acc( dealer_acc )
-    MAX = deal.MAX_pay or 2777
+    MAX = deal.max_pay or 2777
     if e_balance:
         #dealer_acc.balance = e_balance
         #dealer_acc.update_record()
@@ -111,7 +111,7 @@ def validate(v):
 def get():
 
     #common.page_stats(db, response['view'])
-    #print request.vars
+    #print (request.vars)
     args = request.args
     if len(args) < 2: return mess('args<2 err...')
     curr_id = args(0)
@@ -131,11 +131,11 @@ def get():
     xcurr_in = db(db.xcurrs.curr_id == curr_id).select().first()
     if not xcurr_in: return mess(T('xcurr...'))
 
-    #print request.vars
+    #print (request.vars)
     try:
         # если русский язык то выдаст ошибку в if v.find(c) >-1:
         for k, v in request.vars.items():
-            #print k, v
+            #print (k, v)
             for c in u'\\/<>\'"':
                 if v.find(c) >-1:
                     return mess('error in pars <script>')
@@ -150,7 +150,7 @@ def get():
     if not volume_out: return mess('volume_out error...')
 
     deal = db.deals[deal_id]
-    vol = (deal.MIN_pay or 100) * 2
+    vol = (deal.min_pay or 100) * 2
     dealer, dealer_acc, dealer_deal = ed_common.select_ed_acc(db, deal, ecurr_out, vol, True)
     if not dealer:
         return mess('ERROR: not found dealer for "%s"' % deal.name)
@@ -167,21 +167,21 @@ def get():
     ################################################
     if dealer_deal.grab_form:
         deal_pars = {}
-        #print request.post_vars
+        #print (request.post_vars)
         # удалим наши параметры
         for key in ['xcurr', 'volume', 'deal_id']:
             deal_pars[key] = request.post_vars.pop(key)
         # парамтеры что ввел пользователь обрежем чтобы скрипты не писали
-        for (k,v) in request.post_vars.iteritems():
+        for (k,v) in request.post_vars.items():
             if len(v) > 20:
                 request.post_vars[k] = v[:20]
         acc = request.post_vars #.list.sort()
         if len(acc)>10:
             m = 'ОШИБКА: параметров слишком много: %s, свяжитесь с администратором' % acc
-            print m
+            print (m)
             return mess(m)
         acc = json.dumps( acc )
-        #print 'ACC:', deal_acc
+        #print ('ACC:', deal_acc)
     else:
         # проверку параметров
         # и собрем из параметров счет клиента
@@ -197,7 +197,7 @@ def get():
         else:
             pay_pars_deal = deal.template_ and json.loads(deal.template_) or ed_common.PAY_PARS
             pay_pars_dealer = dealer_deal.template_ and json.loads(dealer_deal.template_) or ed_YD.PAY_PARS
-        #print request.vars
+        #print (request.vars)
         for par in pay_pars_deal:
             ## par - параметры от ДЕЛА
             if 'calc' in par:
@@ -207,7 +207,7 @@ def get():
 
             val = request.vars[p_n_name] or ''
             p = pay_pars_dealer[p_n_name]
-            #print p, val
+            #print (p, val)
 
             if 'f' in par:
                 # фильтр регулярный
@@ -228,13 +228,13 @@ def get():
 
         # теперь проверку на правильность лицевого счета и прочего для дилера электронных платежей
         #dealer_acc
-        #print pars
+        #print (pars)
         if len(acc_pars)>10:
             m = 'ОШИБКА: параметров слишком много: %s, свяжитесь с администратором' % acc_pars
-            print m
+            print (m)
             return mess(m)
         acc =' '.join(acc_pars).rstrip() # и удалим пробелы справа от калькуляторов
-        #print 'ACCOUNT:',deal_acc
+        #print ('ACCOUNT:',deal_acc)
 
     if not acc or len(acc)<3:
         return mess('ОШИБКА: Аккаунт слишком короткий: %s' % acc)
@@ -245,7 +245,7 @@ def get():
     pattern_id = dealer_deal.scid
     res = ed_common.pay_test(db, deal, dealer, dealer_acc,
          dealer_deal, acc,
-         #(deal.MIN_pay or dealer.pay_out_MIN or 10)*2,
+         #(deal.min_pay or dealer.pay_out_min or 10)*2,
          volume_out,
          False )
 
@@ -254,7 +254,7 @@ def get():
         ed_common.dealer_deal_errs_add(db, dealer_deal, acc, err_mess)
 
         response.title=T("ОШИБКА")
-        #print res
+        #print (res)
         mm = 'error_description' in res and res['error_description'] or res['error'] or 'dealer error'
         mm = T('Платежная система %s отвергла платеж, потому что: %s') % (dealer.name, mm)
         return mess(mm)
@@ -275,7 +275,7 @@ def get():
     try:
         session.vol = vol
     except:
-        print 'to_coin session error .vol:', type(vol), vol
+        print ('to_coin session error .vol:', type(vol), vol)
 
     curr_in_name = curr_in.name
 
@@ -288,14 +288,14 @@ def get():
     else:
         # get new or old adress for payment
         x_acc_label = db_client.make_x_acc(deal, acc, curr_out.abbrev)
-        #print x_acc_label
+        #print (x_acc_label)
         # найдем ранее созданный адресс для этого телефона, этой крипты и этого фиата
         # сначала найтем аккаунт у дела
         deal_acc_id = db_client.get_deal_acc_id(db, deal, acc, curr_out)
-        #print 'deal_acc_id',deal_acc_id
+        #print ('deal_acc_id',deal_acc_id)
         #return
         # теперь найдем кошелек для данной крипты
-        #print x_acc_label
+        #print (x_acc_label)
         deal_acc_addr = db_client.get_deal_acc_addr_for_xcurr(db, deal_acc_id, curr_in, xcurr_in, x_acc_label)
         if not deal_acc_addr:
             return mess( T(' связь с кошельком ') + curr_in.name + T(' прервана.'))
@@ -332,13 +332,13 @@ def get():
                                        best_rate, is_order, note=1)
     vol_out_new = common.rnd_8(vol_out_new)
     if volume_out != vol_out_new:
-        print 'to_phone error_in_fees: volume_out != vol_out_new', volume_out,  vol_out_new
+        print ('to_phone error_in_fees: volume_out != vol_out_new', volume_out,  vol_out_new)
 
     # теперь для заказ на курс уберем комиссию диллера - просто пересчитаем вход с наченкой диллера
     fee_curr = db.currs[ deal.fee_curr_id ]
     fee_rate = Decimal(rates_lib.get_avr_rate_or_null(db, fee_curr.id, curr_out.id))
     vol_out_dd_neg, _ = db_client.dealer_deal_tax_neg(db, T, fee_rate, dealer_deal, '', Decimal(volume_out), '')
-    #print vol_out_dd_neg
+    #print (vol_out_dd_neg)
 
     # причем тут учитываем уже накрутку диллера за дело - в заказе курс будет с учетом накрутки автоматом
     volume_in = common.rnd_8(volume_in)
@@ -436,16 +436,16 @@ def index():
         #redirect(URL('to_shop','index',args=[client.id], vars=request.vars))
         raise HTTP(200, T('ERROR: it is client "%s"') % client.email)
 
-    vol = (deal.MIN_pay or 100) * 2
+    vol = (deal.min_pay or 100) * 2
     dealer, dealer_acc, dealer_deal = ed_common.select_ed_acc(db, deal, ecurr_out, vol, True)
     if not dealer:
         raise HTTP(200, T('ERROR: not found dealer for "%s"') % deal.name)
     dealer_acc = ed_common.sel_acc_max_for_balance(db, dealer, ecurr_out, vol, unlim=True)
 
-    #print dealer.info
+    #print (dealer.info)
     dealer_info = dealer.info and json.loads(dealer.info)
     shops_url = dealer_info['shops_url']
-    #MAX = deal.MAX_pay or 777
+    #MAX = deal.max_pay or 777
     MIN = db_common.gMIN(deal, dealer)
 
     if not response.vars: response.vars = {}
@@ -470,7 +470,7 @@ def index():
         # тут тырим форму с сайта яндекса напрямую
         #scid, name, img, form = ed_form.load_YD(...)
         response.vars['grab_form'] = ed_form.load_YD(shops_url,  URL('more', 'pay'))
-        #print response.vars['grab_form']
+        #print (response.vars['grab_form'])
 
     else:
         acc_pars = []
@@ -485,23 +485,23 @@ def index():
         else:
             pay_pars_deal = deal.template_ and json.loads(deal.template_) or ed_common.PAY_PARS
             pay_pars_dealer = dealer_deal.template_ and json.loads(dealer_deal.template_) or ed_YD.PAY_PARS
-            #print dealer_deal.template_, json.loads(dealer_deal.template_)
-        #print dealer_deal
-        #print pay_pars_deal
-        #print pay_pars_dealer
+            #print (dealer_deal.template_, json.loads(dealer_deal.template_))
+        #print (dealer_deal)
+        #print (pay_pars_deal)
+        #print (pay_pars_dealer)
         calcs = dealer_deal.calcs_ or {}
         for p in pay_pars_deal:
             read_only = None
             if 'calc' in p: continue
             if type(p) == type([]): continue
 
-            #print p
+            #print (p)
             p_n_name = p.get('n')
             p_t = p_n_name and pay_pars_dealer.get(p_n_name)
             def_val = subsel_parent = None
             add_pars = {}
             calc2 = calcs.get(p_n_name)
-            #print 'calc2', calc2
+            #print ('calc2', calc2)
             if calc2 != None and type(calc2) not in [type(dict()), type([]), type({})]:
                 # тут простое вычисление - прпустим
                 continue
@@ -532,9 +532,9 @@ def index():
                 lab_ = LABEL(lab_ and T(lab_) or p_n_name)
                 opt=[]
                 for item in sel:
-                    #for (v, l) in item.iteritems():
+                    #for (v, l) in item.items():
                     opt.append(OPTION(item['label'], _value=item['value']))
-                #print opt
+                #print (opt)
                 inp = SELECT(opt, _name=p_n_name, _id=p_n_name, _type="text", _class='field blue-c', **add_pars)
             elif p_n_name:
                 lab_ = LABEL(lab_ and T(lab_) or p_n_name)
@@ -578,11 +578,11 @@ def index():
                 ## для полей АЯКСа
                 ## причем надо от УНИКОДЕ строки избавиться - поэтому %
                 _sss = p_n_name.encode('ascii')
-                ##print _sss, type(_sss)
+                ##print (_sss, type(_sss))
                 ajax_vars.append(_sss)
 
 
-        #print i_d, request.args
+        #print (i_d, request.args)
         #if False and len(request.args)>i_d+1:
         #    # цена тоже задана
         #    volume_out = float(request.args[i_d+1])
@@ -591,7 +591,7 @@ def index():
     response.vars['e_bal'], MAX = get_e_bal(deal, dealer, dealer_acc)
     volume_out = 377
     if request.vars:
-        #print request.vars
+        #print (request.vars)
         if 'mess' in request.vars: response.vars['shop_mess'] = request.vars['mess']
         if 'sum' in request.vars:
             volume_out = test_vol(request.vars['sum'], MIN, MAX)
@@ -614,7 +614,7 @@ def index():
     ajax_vars = '%s' % ajax_vars
     h = CAT()
     for rr in db_client.get_xcurrs_for_deal(db, 0, curr_out, deal, dealer):
-        #print row
+        #print (row)
         id = '%s' % rr['id']
         disabled = rr['expired']
         #bgc = 'gold'
@@ -633,7 +633,7 @@ def index():
                       $('#cvr%s').css('display','block'); // .css('z-index','10');
                       ajax('%s',%s,'tag%s');
                       ''' % (id, id, URL('get', args=[id, deal_id]), ajax_vars, id)
-        #print row
+        #print (row)
         h += DIV(
             DIV(
                 DIV(
