@@ -1,14 +1,14 @@
 {{
 # protection from .AJAX call to common controller without ajax -  for malicious attackers
 if request.ajax:
-    ## raise HTTP(200, 'be-be-be') - cicling ERROR ((
-    #print ('redirected to JAM')
-    redirect(URL('default','jam'))
+## raise HTTP(200, 'be-be-be') - cicling ERROR ((
+#print ('redirected to JAM')
+redirect(URL('default','jam'))
 pass
 }}
 <!DOCTYPE html>
 <!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js" lang="{{=T.accepted_language or 'en'}}"> <!--<![endif]-->
-  <head>
+<head>
     <meta charset="utf-8">
     <!-- www.phpied.com/conditional-comments-block-downloads/ -->
     <!-- Always force latest IE rendering engine
@@ -28,95 +28,95 @@ pass
          http://google.com/webmasters -->
     <meta name="google-site-verification" content="">
     <!-- include stylesheets -->
-      <link rel="stylesheet" href="{{=URL('static','css/bootstrap.min.css')}}"/>
-      <link rel="stylesheet" href="{{=URL('static','css/bootstrap-theme.min.css')}}"/>
-      <link rel="stylesheet" href="{{=URL('static','css/web2py-bootstrap3.css')}}"/>
-      <link rel="stylesheet" href="{{=URL('static','css/my_styles.css')}}"/>
-      <link rel="stylesheet" href="{{=URL('static','assets/font-awesome/css/font-awesome.min.css')}}"/>
+    <link rel="stylesheet" href="{{=URL('static','css/bootstrap.min.css')}}"/>
+    <link rel="stylesheet" href="{{=URL('static','css/bootstrap-theme.min.css')}}"/>
+    <link rel="stylesheet" href="{{=URL('static','css/web2py-bootstrap3.css')}}"/>
+    <link rel="stylesheet" href="{{=URL('static','css/my_styles.css')}}"/>
+    <link rel="stylesheet" href="{{=URL('static','assets/font-awesome/css/font-awesome.min.css')}}"/>
 
-  <link rel="shortcut icon" href="{{=URL('static','images/icon.ico')}}" type="image/x-icon">
-  <link rel="apple-touch-icon" href="{{=URL('static','images/icon.png')}}">
+    <link rel="shortcut icon" href="{{=URL('static','images/icon.ico')}}" type="image/x-icon">
+    <link rel="apple-touch-icon" href="{{=URL('static','images/icon.png')}}">
 
-      <!-- All JavaScript at the bottom, except for Modernizr which enables
+    <!-- All JavaScript at the bottom, except for Modernizr which enables
 HTML5 elements & feature detects -->
-      <script src="{{=URL('static','js/modernizr-2.8.3.min.js')}}"></script>
-      <!--[if lt IE 9]>
-<script src="{{=URL('static','js/respond-1.4.2.min.js')}}"></script>
-<![endif]-->
-      <!-- Favicons -->
+    <script src="{{=URL('static','js/modernizr-2.8.3.min.js')}}"></script>
+    <!--[if lt IE 9]>
+    <script src="{{=URL('static','js/respond-1.4.2.min.js')}}"></script>
+    <![endif]-->
+    <!-- Favicons -->
     {{include 'web2py_ajax.html'}} <!-- this includes jquery.js, calendar.js/.css and web2py.js -->
     {{block head}}{{end}}
-  </head>
+</head>
 
 <body>
-    <!--[if lt IE 8]><p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p><![endif]-->
-    {{top_line = not ADMIN and response.top_line}}
-    {{=top_line or ''}}
-    <div class="flash alert alert-dismissable" style="z-index:99999;">{{=response.flash or ''}}</div>
-    <!-- Navbar ======================================= -->
-    <nav class="navbar navbar-inverse" role="navigation" id="aside1{{=IS_MOBILE and 'not_' or ''}}"
-         style="border:none; background-color:none;">
-        <div class="" style="background-color:{{=SKIN['bg-clr-mnu']}};">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                {{#=response.logo or ''}}
-            </div>
-            <div class="collapse navbar-collapse navbar-ex1-collapse" style="padding:0">
-                <ul class="nav navbar-nav navbar-right">
-                    {{='auth' in globals() and auth.navbar('Welcome',mode='dropdown') or ''}}
-                    {{#=not ADMIN and LOAD('aj','rates', _class='nav- navbar-nav- navbar-right- col-sm-3-', _style='color:white;')}}
-                </ul>
-                {{=not ADMIN and MENU(MENU_RIGHT, _class='nav navbar-nav navbar-nav right',li_class='dropdown',ul_class='dropdown-menu',
-                active_url = request.env.path_info) or ''}}
-                {{if response.menu:}}
-                {{=MENU(response.menu, _class='nav navbar-nav',li_class='dropdown',ul_class='dropdown-menu')}}
-                {{pass}}
-                {{=not ADMIN and MENU(MENU_1, _class='nav navbar-nav navbar-nav1',li_class='dropdown',ul_class='dropdown-menu',
-                active_url = request.env.path_info) or ''}}
-            </div>
+<!--[if lt IE 8]><p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p><![endif]-->
+{{top_line = not ADMIN and response.top_line}}
+{{=top_line or ''}}
+<div class="flash alert alert-dismissable" style="z-index:99999;">{{=response.flash or ''}}</div>
+<!-- Navbar ======================================= -->
+<nav class="navbar navbar-inverse" role="navigation" id="aside1{{=IS_MOBILE and 'not_' or ''}}"
+     style="border:none; background-color:none;">
+    <div class="" style="background-color:{{=SKIN['bg-clr-mnu']}};">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            {{#=response.logo or ''}}
         </div>
-        {{if not ADMIN and MENU_2:}}
-        <div class="container-fluid" style="background-color:{{=SKIN['bg-clr-mnu2']}};">
-            <DIV class='container collapse navbar-collapse navbar-ex2-collapse'>
-                {{=not ADMIN and MENU(MENU_2, _class='nav navbar-nav navbar-nav2', li_class='dropdown',ul_class='dropdown-menu',
-                active_url = request.env.path_info) or ''}}
-            </DIV>
+        <div class="collapse navbar-collapse navbar-ex1-collapse" style="padding:0">
+            <ul class="nav navbar-nav navbar-right">
+                {{='auth' in globals() and auth.navbar('Welcome',mode='dropdown') or ''}}
+                {{#=not ADMIN and LOAD('aj','rates', _class='nav- navbar-nav- navbar-right- col-sm-3-', _style='color:white;')}}
+            </ul>
+            {{=not ADMIN and MENU(MENU_RIGHT, _class='nav navbar-nav navbar-nav right',li_class='dropdown',ul_class='dropdown-menu',
+            active_url = request.env.path_info) or ''}}
+            {{if response.menu:}}
+            {{=MENU(response.menu, _class='nav navbar-nav',li_class='dropdown',ul_class='dropdown-menu')}}
+            {{pass}}
+            {{=not ADMIN and MENU(MENU_1, _class='nav navbar-nav navbar-nav1',li_class='dropdown',ul_class='dropdown-menu',
+            active_url = request.env.path_info) or ''}}
         </div>
-        {{pass}}
-        {{#if not ADMIN and not IS_MOBILE or IS_TABLET:
-        if not ADMIN:
-        }}
-        <div class="container-fluid" style="background-color:#00188F;padding:0px;font-size:0.9em;">
-            {{#<div class="col-lg-2 col-md-1 sm-hidden pull-right"></div>}}
-            <div class="right- col-lg-12- col-md-12- col-sm-12- -pull-right">
-    {{#=DIV('Нравится проект? Поддержи нас на ', A('BOOMSTARTER.ru', _href='http://boomstarter.ru/projects/1116/14493', _target='_blank', _class='lite'), _class='row- left', _style='color:springgreen;')}}
-    {{#=DIV('Инвестируй в будущее',' - ', A('в блокчейн-стартап!', _href=URL('up','index'), _class='lite'), _class='row- left', _style='color:springgreen;')}}
-    {{=LOAD('aj','rates', ajax=True, timeout=300000, times="infinity", _class='center', _style='color:white;cursor:pointer',
-                _onclick='location.href=\'' + URL('currs','index') + '\';this.style.display=\'none\';')}}
-            </div>
+    </div>
+    {{if not ADMIN and MENU_2:}}
+    <div class="container-fluid" style="background-color:{{=SKIN['bg-clr-mnu2']}};">
+        <DIV class='container collapse navbar-collapse navbar-ex2-collapse'>
+            {{=not ADMIN and MENU(MENU_2, _class='nav navbar-nav navbar-nav2', li_class='dropdown',ul_class='dropdown-menu',
+            active_url = request.env.path_info) or ''}}
+        </DIV>
+    </div>
+    {{pass}}
+    {{#if not ADMIN and not IS_MOBILE or IS_TABLET:
+    if not ADMIN:
+    }}
+    <div class="container-fluid" style="background-color:#00188F;padding:0px;font-size:0.9em;">
+        {{#<div class="col-lg-2 col-md-1 sm-hidden pull-right"></div>}}
+        <div class="right- col-lg-12- col-md-12- col-sm-12- -pull-right">
+            {{#=DIV('Нравится проект? Поддержи нас на ', A('BOOMSTARTER.ru', _href='http://boomstarter.ru/projects/1116/14493', _target='_blank', _class='lite'), _class='row- left', _style='color:springgreen;')}}
+            {{#=DIV('Инвестируй в будущее',' - ', A('в блокчейн-стартап!', _href=URL('up','index'), _class='lite'), _class='row- left', _style='color:springgreen;')}}
+            {{=LOAD('aj','rates', ajax=True, timeout=300000, times="infinity", _class='center', _style='color:white;cursor:pointer',
+            _onclick='location.href=\'' + URL('currs','index') + '\';this.style.display=\'none\';')}}
         </div>
-        {{pass}}
-    </nav>
-    <!-- Masthead ===================================== -->
-    <!-- section for make marging-top -->
-    <section id="aside0"></section>
-    {{block header}}
+    </div>
+    {{pass}}
+</nav>
+<!-- Masthead ===================================== -->
+<!-- section for make marging-top -->
+<section id="aside0"></section>
+{{block header}}
+{{end}}
+<!-- Main ========================================= -->
+{{ # menu1 show bonus window}}
+<!-- Begin page content -->
+<section>
+    {{block center}}
+    {{include}}
     {{end}}
-    <!-- Main ========================================= -->
-      {{ # menu1 show bonus window}}
-    <!-- Begin page content -->
-    <section>
-        {{block center}}
-        {{include}}
-        {{end}}
-    </section>
+</section>
 
-    {{block footer}} <!-- this is default footer -->
+{{block footer}} <!-- this is default footer -->
 <footer class="footer3">
     <div class="container" style='margin:20px;'>
         <div class="row">
@@ -150,29 +150,29 @@ HTML5 elements & feature detects -->
         </div>
     </div>
 </footer>
-    {{end}}
-    <!-- The javascript =============================== -->
-    <script src="{{=URL('static','js/bootstrap.min.js')}}"></script>
-    <script src="{{=URL('static','js/web2py-bootstrap3.js')}}"></script>
-    {{block page_js}}{{end page_js}}
-    {{if response.google_analytics_id:}}
-    <!-- Analytics ==================================== -->
-    <script src="{{=URL('static','js/analytics.min.js')}}"></script>
-    <script type="text/javascript">
+{{end}}
+<!-- The javascript =============================== -->
+<script src="{{=URL('static','js/bootstrap.min.js')}}"></script>
+<script src="{{=URL('static','js/web2py-bootstrap3.js')}}"></script>
+{{block page_js}}{{end page_js}}
+{{if response.google_analytics_id:}}
+<!-- Analytics ==================================== -->
+<script src="{{=URL('static','js/analytics.min.js')}}"></script>
+<script type="text/javascript">
       analytics.initialize({
       'Google Analytics':{trackingId:'{{=response.google_analytics_id}}'}
       });
     </script>
-    {{pass}}
-    <!-- Share ============================y============ -->
-    <script src="{{=URL('static','js/share.js',vars=dict(static=URL('static','images')))}}"></script>
+{{pass}}
+<!-- Share ============================y============ -->
+<script src="{{=URL('static','js/share.js',vars=dict(static=URL('static','images')))}}"></script>
 
 <!-- Yandex.Metrika counter -->
 <!-- /Yandex.Metrika counter -->
 
-    <!-- My ============================y============ -->
+<!-- My ============================y============ -->
 
-    <script src="{{=URL('static','js/my_funcs.js')}}"></script>
+<script src="{{=URL('static','js/my_funcs.js')}}"></script>
 
-    </body>
+</body>
 </html>
