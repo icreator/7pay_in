@@ -122,6 +122,7 @@ def init_db_records():
         # see http://erachain.org:9047/index/blockexplorer.html?assets=&lang=en&start=25
         name = 'erachain'
         system_id = db.systems.insert(name='Erachain', name2=name, first_char='7',
+                                      protocol='era',
                                       connect_url='http://127.0.0.1:9048',  # for Testnet use http://127.0.0.1:9068
                                       account='7F9cZPE1hbzMT21g96U8E1EfMimovJyyJ7',
                                       password='123456789',
